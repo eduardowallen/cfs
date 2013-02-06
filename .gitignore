@@ -1,0 +1,7 @@
+# Ignore everything in fairs except empty placeholder.
+public/images/fairs/*
+!public/images/fairs/empty
+
+# Ignore everything in tmp except empty placeholder.
+public/images/tmp/*
+!public/images/tmp/empty
