@@ -1,0 +1,314 @@
+#content {
+	padding:0px;
+	width:100%;
+	border:0;
+	background:none;
+	margin:24px auto 0 auto;
+}
+#map_content {
+	background:none;
+	min-height:400px;
+	height:100%;
+	max-height:100%;
+	padding:0 253px 0 20px;
+	border:0;
+}
+#right_sidebar {
+	width:213px;
+	position:absolute;
+	right:20px;
+	top:68px;
+}
+#right_sidebar div {
+	margin-bottom:10px;
+	border:1px solid #868686;
+	border-radius:8px;
+	padding:10px;
+	background-image: linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
+	background-image: -o-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
+	background-image: -moz-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
+	background-image: -webkit-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
+	background-image: -ms-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
+	
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, #E2E3E3),
+		color-stop(0.50, #FFFFFF)
+	);
+}
+#right_sidebar div.pre_list {
+	margin-bottom:0px;
+	border:none;
+	padding:0px;
+	background-image: none;
+}
+#right_sidebar h2 {
+	color:#000000;
+}
+#exh2 {
+	border-bottom:1px solid #868686;
+}
+#exh2 img {
+	margin-right:4px;
+}
+#search_label {
+	display:inline;
+	margin-right:10px;
+}
+#right_sidebar #map_select, #right_sidebar #category_filter {
+	width:100%;
+}
+#search_filter {
+	width:150px;
+}
+#right_sidebar ul {
+	height:500px;
+	overflow:auto;
+	list-style-type:none;
+	margin:0;
+	padding:0;
+	border-top:1px solid #868686;
+}
+#right_sidebar ul li {
+	font-weight:bold;
+	margin:18px 0 0 0;
+	cursor:pointer;
+}
+#right_sidebar ul li.selected {
+	background:#cccccc;
+}
+#right_sidebar ul li p {
+	margin:0;
+	font-weight:normal;
+}
+#create_position {
+	display:block;
+	padding:10px 0 10px 10px;
+	text-align:center;
+	border:1px solid #9d9d9d;
+	border-radius:10px;
+	color:#000000;
+	cursor:pointer;
+	background:url("../images/icons/icon_skapa_plats.png") no-repeat 5px 5px;
+	text-decoration:none;
+	text-transform:uppercase;
+	font-size:1.1em;
+}
+#create_position:hover {
+	background:#cccccc url("../images/icons/icon_skapa_plats.png") no-repeat 5px 5px;
+}
+
+#fullscreen {
+	background:url('../images/overlay.png');
+	width:100%;
+	height:100%;
+	position:absolute;
+	top:0;
+	left:0;
+	z-index:9999;
+	display:none;
+}
+#fullscreen_controls {
+	/*position:absolute;*/
+	width:100%;
+	height:40px;
+	padding:10px 0 10px 0;
+	margin:0;
+	text-align:center;
+	background:#fff;
+	position:fixed;
+}
+#mapHolder {
+	width:100%;
+	height:100%;
+	overflow:hidden;
+	margin:0 auto;
+	border:1px solid #868686;
+}
+#map {
+	position:relative;
+	z-index:997;
+}
+#map_img {
+	display:none;
+}
+.marker {
+	position:absolute;
+	cursor:pointer;
+	z-index:998;
+}
+.marker_tooltip {
+	background:url('../images/box_med_pil_172pxl.png') no-repeat;
+	background-size:220px 135px;
+	width:210px;
+	height:125px;
+	padding:5px;
+	position:absolute;
+	z-index:1000;
+	z-index:999;
+	display:none;
+	margin:-136px 0 0 -104px;
+	font-family:Arial, Helvetica, Sans-serif;
+}
+.marker_tooltip .info {
+	height:30px;
+	overflow:hidden;
+}
+.marker_tooltip h3 {
+	color:#333333;
+}
+.marker_tooltip p {
+	margin:4px 0 4px 0;
+}
+.contextmenu {
+	padding:0;
+	margin:0;
+	list-style-type:none;
+	position:absolute;
+	z-index:999;
+	background:#efefef;
+	border:1px solid #b1b1b1;
+	display:none;
+	min-width:150px;
+}
+.contextmenu li {
+	border-top:1px solid #b1b1b1;
+	color:#333333;
+	padding:5px 10px 5px 10px;
+	cursor:pointer;
+}
+.contextmenu li:hover {
+	background:#bcbcbc;
+}
+.contextmenu li:first-child {
+	border-top:none;
+}
+#overlay {
+	display:none;
+	position:fixed;
+	z-index:9999;
+	top:0;
+	left:0;
+	width:100%;
+	height:100%;
+	background:#000000;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=50)";
+	filter: alpha(opacity=50);
+	-moz-opacity: 0.5;
+	-khtml-opacity: 0.5;
+	opacity: 0.5;
+}
+.ssinfo {
+	padding:8px 0 0 0;
+}
+#printLink {
+	position:absolute;
+	margin:75px 0 0 351px;
+}
+#more_info_dialogue {
+	height:auto;
+	max-height:420px;
+}
+#more_info_dialogue .presentation {
+	max-height:200px;
+	overflow:auto;
+}
+.dialogue {
+	display:none;
+	position:fixed;
+	z-index:10000;
+	width:400px;
+	/*height:420px;*/
+	top:50%;
+	left:50%;
+	margin-left:-222px;
+	margin-top:-200px;
+	padding:20px;
+	background:#ffffff;
+	border:4px solid #333333;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+	overflow:auto;
+}
+.closeDialogue {
+	position:absolute;
+	margin:-11px 0 0 368px;
+	cursor:pointer;
+}
+#reserve_position_dialogue {
+	/*height:420px;*/
+	margin-top:-192px;
+}
+
+
+h1.inline-block {
+	display:inline-block;
+	padding-left:2.5%;
+}
+#leftfloatingbar {
+	padding-left:2.5%;
+	height:40px;
+}
+#zoombar {
+	background:url("../images/zoom_bar_new.png") no-repeat;
+	width:27px;
+	height:221px;
+	position:absolute;
+	z-index:999;
+	margin:10px 0 0 10px;
+}
+#zoombar img {
+	position:absolute;
+	margin-left:3px;
+	margin-top:190px; /*72 px*/
+	cursor:move;
+}
+#zoombar a {
+	width:27px;
+	height:20px;
+	position:absolute;
+}
+#zoombar #in {
+	
+}
+#zoombar #out {
+	margin-top:201px;
+}
+#zoomcontrols {
+	text-align:right;
+	z-index:999;
+	position:absolute;
+	right:2.5%;
+	width:600px;
+}
+#zoomcontrols #in, #zoomcontrols #out {
+
+}
+#zoomcontrols #full {
+	color:#128913;
+	cursor:pointer;
+}
+
+#panup, #panleft, #pandown, #panright {
+	position:absolute;
+	cursor:pointer;
+	z-index:999;
+}
+/* 
+#panup {
+	left:50%;
+	margin:-12px 0 0 -6px;
+}
+#panleft {
+	left:2.5%;
+	margin:383px 0 0 -12px;
+}
+#pandown {
+	margin:1001px 0 0 50%;
+}
+#panright {
+	margin:383px 0 0 97.5%;
+}*/
