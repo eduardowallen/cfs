@@ -1379,8 +1379,6 @@ maptool.init = function(mapId) {
 				canvasOriginalOffset = $("#mapHolder").offset();
 			}
 
-			// Force reload of image so that the .load-method fires.
-			$("#map #map_img").attr("src", "");
 			$("#map #map_img").attr("src", maptool.map.image);
 			
 			var holderHeight = $(document).height() - $('#header').height() -48;
@@ -1408,6 +1406,11 @@ maptool.init = function(mapId) {
 				maptool.populateList();
 				
 			});
+
+			// Refresh the markers even if the image is already loaded.
+			maptool.placeMarkers();
+			maptool.populateList();
+			
 		}
 	});
 
