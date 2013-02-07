@@ -1326,6 +1326,7 @@ maptool.update = function(posId) {
 				updated = JSON.parse(result);
 				maptool.map.positions = updated.positions;
 				maptool.placeMarkers();
+				maptool.populateList();
 				updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 1000);
 				preHover(posId);
 			}
@@ -1410,7 +1411,7 @@ maptool.init = function(mapId) {
 			// Refresh the markers even if the image is already loaded.
 			maptool.placeMarkers();
 			maptool.populateList();
-			
+
 		}
 	});
 
@@ -1610,4 +1611,7 @@ $(document).ready(function() {
 	$('.marker').mouseleave(function(){
 		maptool.resumeUpdate()
 	});
+
+	// Start automatic updating
+	setTimeout('maptool.update()', config.markerUpdateTime * 1000);
 });
