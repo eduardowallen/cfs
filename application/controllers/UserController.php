@@ -211,11 +211,18 @@ class UserController extends Controller {
 
 	function logout() {
 
-		if (isset($_SESSION['outside_fair_url'])) {
-			$url = $_SESSION['outside_fair_url'];
+		if (isset($_SESSION['user_fair'])) {
+			$stmt = $this->db->prepare("SELECT url FROM fair WHERE `id` = ?");
+			$stmt->execute(array($_SESSION['user_fair']));
+			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			session_unset();
 			session_destroy();
-			header('location: '.BASE_URL.$url);
+			if ($result) {
+				header('Location: '.BASE_URL.$result['url']);
+				exit();
+			} else {
+				toLogin();
+			}
 		} else {
 			session_unset();
 			session_destroy();
