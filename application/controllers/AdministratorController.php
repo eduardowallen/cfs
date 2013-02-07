@@ -337,7 +337,12 @@ WHERE user.owner = ? AND user.level = ?");
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$as = array();
 		foreach ($result as $res) {
-			
+			// Temporary work around
+			// If there are no admins we will get a row of null values.
+			if (is_null($res['id'])) {
+				continue;
+			}
+
 			$stmt2 = $this->Administrator->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 			$stmt2->execute(array($res['id']));
 			$res2 = $stmt2->fetch(PDO::FETCH_ASSOC);
