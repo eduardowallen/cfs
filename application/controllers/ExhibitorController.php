@@ -352,13 +352,20 @@ class ExhibitorController extends Controller {
 				$hash = md5($this->User->get('email').BASE_URL.$userId);
 				$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
 
-				$str = 'Welcome to Chartbooker'."\r\n\r\n";
-				$str.= 'Username: '.$_POST['alias']."\r\n";
-				$str.= 'Password: '.$password."\r\n";
-				$str.= 'Access level: Participant';
-				sendMail($_POST['email'], 'Your user account', $str);
 
 				if ($fairUrl != '') {
+					$fair = new Fair($this->Exhibitor->db);
+					$fair->load($fairUrl, 'url');
+
+					$str = 'Welcome to Chartbooker'."\r\n\r\n";
+					$str.= 'Someone has registered this e-mail address for the fair '.$fair->get('name')."\r\n";
+					$str.= 'Username: '.$_POST['alias']."\r\n";
+					$str.= 'Password: '.$password."\r\n";
+					$str.= 'Access level: Participant'."\r\n";
+					$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
+
+					sendMail($_POST['email'], 'Your user account', $str);
+
 					require_once ROOT.'application/models/Exhibitor.php';
 					require_once ROOT.'application/models/ExhibitorCategory.php';
 					require_once ROOT.'application/models/Fair.php';
@@ -366,14 +373,19 @@ class ExhibitorController extends Controller {
 					require_once ROOT.'application/models/FairMapPosition.php';
 					require_once ROOT.'application/models/PreliminaryBooking.php';
 					require_once ROOT.'application/models/FairUserRelation.php';
-					$fair = new Fair;
-					$fair->load($fairUrl, 'url');
 					if ($fair->wasLoaded()) {
 						$ful = new FairUserRelation;
 						$ful->set('user', $userId);
 						$ful->set('fair', $fair->get('id'));
 						$ful->save();
 					}
+				} else {
+					$str = 'Welcome to Chartbooker'."\r\n\r\n";
+					$str.= 'Username: '.$_POST['alias']."\r\n";
+					$str.= 'Password: '.$password."\r\n";
+					$str.= 'Access level: Participant';
+
+					sendMail($_POST['email'], 'Your user account', $str);
 				}
 
 				header('Location: '.BASE_URL.'exhibitor/createFromMap/'.$fairUrl);
