@@ -70,6 +70,11 @@ maptool.closeDialogues = function() {
 
 //Populate list of exhibitors
 maptool.populateList = function() {
+
+	var prevSelectedId = -1;
+	if ($('#right_sidebar ul li.selected:first').length != 0) {
+		prevSelectedId = $('#right_sidebar ul li.selected:first').attr("id").replace("map-li-", "");
+	}
 	
 	$("#right_sidebar ul").html('');
 	
@@ -121,6 +126,9 @@ maptool.populateList = function() {
 					//maptool.positionInfo(maptool.map.positions[index]);
 					maptool.focusOn(index);
 				});
+				if (maptool.map.positions[i].id == prevSelectedId) {
+					item.addClass('selected');
+				}
 				$("#right_sidebar ul").append(item);
 			}
 		}
@@ -1230,8 +1238,9 @@ maptool.placeFocusArrow = function() {
 		var mt = parseInt(marker.css('top')) - 50;
 		
 		arrow.css({
-			left: mt,
-			top: ml
+			position: 'absolute',
+			left: ml,
+			top: mt
 		});
 		
 	}
@@ -1351,6 +1360,7 @@ maptool.update = function(posId) {
 				maptool.map.positions = updated.positions;
 				maptool.placeMarkers();
 				maptool.populateList();
+				maptool.placeFocusArrow();
 				updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 1000);
 				preHover(posId);
 			}
