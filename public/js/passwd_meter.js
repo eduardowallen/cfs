@@ -1,5 +1,8 @@
 $(document).ready(function() {
-	
+	hookUpPasswdMeter();	
+});
+
+function hookUpPasswdMeter() {
 	$('.hasIndicator').each(function() {
 		
 		var input = $(this);
@@ -53,5 +56,4 @@ $(document).ready(function() {
 		});
 		
 	});
-	
-});
+}

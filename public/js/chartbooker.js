@@ -63,7 +63,7 @@ $(document).ready(function() {
 		
 		var url = $(this).attr('href');
 		var html = '<form action="' + url + '" method="post" id="popupform_register">'
-				 + 		'<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:-17px 0 0 564px;"/>'
+				 + 		'<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:-17px 0 0 764px;"/>'
 				 + 		'<div class="form_column">'
 				 +				'<h3>' + lang.company_section + '</h3>'
 							
@@ -144,12 +144,15 @@ $(document).ready(function() {
 							
 				 +				'<label for="password_repeat">' + lang.password_repeat_label + ' *</label>'
 				 +				'<input type="password" name="password_repeat" id="password_repeat"/>'
-							
+		
 				 +				'<p><input type="submit" name="save" value="' + lang.save_label + '"/></p>'
 				 +			'</div>'
+				 +			'<p style="display:inline-block; width:160px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">' + lang.password_standard + '</p>'
 				 + 	'</form>';
 		
 		$('body').prepend(html);
+
+		hookUpPasswdMeter();
 		
 		$("#copy").change(function() {
 			if ($(this).is(":checked")) {
