@@ -78,7 +78,7 @@ class User extends Model {
 	}
 
 	public function emailExists() {
-		$stmt = $this->db->prepare("SELECT id FROM user WHERE email = ?");
+		$stmt = $this->db->prepare("SELECT id FROM user WHERE LOWER(`email`) = LOWER(?)");
 		$stmt->execute(array($this->email));
 		$res = $stmt->fetch();
 
@@ -89,7 +89,7 @@ class User extends Model {
 	}
 	
 	public function aliasExists() {
-		$stmt = $this->db->prepare("SELECT id FROM user WHERE `alias` = ?");
+		$stmt = $this->db->prepare("SELECT id FROM user WHERE LOWER(`alias`) = LOWER(?)");
 		$stmt->execute(array($this->get('alias')));
 		$res = $stmt->fetch();
 
