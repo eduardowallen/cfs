@@ -19,7 +19,7 @@
 		$('.std_table').tablesorter();
 	});
 	var lang = {};
-	lang.login_username = '<?php echo $translator->{"User name"} ?>';
+	lang.login_username = '<?php echo $translator->{"Username"} ?>';
 	lang.login_password = '<?php echo $translator->{"Password"} ?>';
 	lang.company_label = '<?php echo $translator->{"Company"} ?>';
 	lang.commodity_label = '<?php echo $translator->{"Commodity"} ?>';

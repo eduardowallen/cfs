@@ -308,7 +308,7 @@ class UserController extends Controller {
 
 
 		$this->set('headline', 'Log in');
-		$this->set('user_name', 'User name');
+		$this->set('user_name', 'Username');
 		$this->set('password', 'Password');
 		$this->set('button', 'Log in');
 		$this->set('forgotlink', 'Forgot your password?');
@@ -431,7 +431,7 @@ class UserController extends Controller {
 		}
 
 		$this->set('headline', 'Reset password');
-		$this->set('user_name', 'User name');
+		$this->set('user_name', 'Username');
 		$this->set('button', 'Reset');
 		$this->set('forgotlink', 'Forgot your password?');
 
