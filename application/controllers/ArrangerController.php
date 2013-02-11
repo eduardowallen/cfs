@@ -138,6 +138,11 @@ ORDER BY creation_time DESC";
 			$this->Arranger->set('website', $_POST['website']);
 			$this->Arranger->set('email', $_POST['email']);
 			$this->Arranger->set('level', 3);
+
+			if ($this->Arranger->emailExists()) {
+				$this->set('user_message')
+			}
+
 			$iid = $this->Arranger->save();
 		}
 
@@ -192,40 +197,6 @@ ORDER BY creation_time DESC";
 			} else {
 				$this->set('headline', 'Edit organizer');
 				$this->Arranger->load($id, 'id');
-			}
-
-			if (isset($_POST['save'])) {
-				
-				if ($id == 'new')
-					$this->Arranger->set('alias', $_POST['alias']);
-				
-				//if (!empty($_POST['password']) && $_POST['password'] == $_POST['password_repeat'])
-					//$this->Arranger->setPassword($_POST['password']);
-				
-				$this->Arranger->set('customer_nr', $_POST['customer_nr']);
-				$this->Arranger->set('company', $_POST['company']);
-				$this->Arranger->set('name', $_POST['name']);
-				$this->Arranger->set('orgnr', $_POST['orgnr']);
-				$this->Arranger->set('address', $_POST['address']);
-				$this->Arranger->set('zipcode', $_POST['zipcode']);
-				$this->Arranger->set('city', $_POST['city']);
-				$this->Arranger->set('country', $_POST['country']);
-				$this->Arranger->set('phone1', $_POST['phone1']);
-				$this->Arranger->set('phone2', $_POST['phone2']);
-				$this->Arranger->set('phone3', $_POST['phone3']);
-				$this->Arranger->set('fax', $_POST['fax']);
-				$this->Arranger->set('website', $_POST['website']);
-				$this->Arranger->set('email', $_POST['email']);
-				$this->Arranger->set('level', 3);
-				$this->Arranger->set('invoice_company', $_POST['invoice_company']);
-				$this->Arranger->set('invoice_address', $_POST['invoice_address']);
-				$this->Arranger->set('invoice_zipcode', $_POST['invoice_zipcode']);
-				$this->Arranger->set('invoice_city', $_POST['invoice_city']);
-				$this->Arranger->set('invoice_email', $_POST['invoice_email']);
-				$this->Arranger->set('locked', $_POST['locked']);
-				$iid = $this->Arranger->save();
-				//header('Location: '.BASE_URL.'arranger/overview');
-				//exit;
 			}
 
 			$this->setNoTranslate('locked0sel', '');
@@ -307,6 +278,57 @@ ORDER BY creation_time DESC";
 			$this->set('approved_locked', 'Locked');
 			$this->set('auto_publish', 'Opening time');
 			$this->set('auto_close', 'Closing time');
+
+			if (isset($_POST['save'])) {
+
+				
+				//if (!empty($_POST['password']) && $_POST['password'] == $_POST['password_repeat'])
+					//$this->Arranger->setPassword($_POST['password']);
+				
+				$this->Arranger->set('customer_nr', $_POST['customer_nr']);
+				$this->Arranger->set('company', $_POST['company']);
+				$this->Arranger->set('name', $_POST['name']);
+				$this->Arranger->set('orgnr', $_POST['orgnr']);
+				$this->Arranger->set('address', $_POST['address']);
+				$this->Arranger->set('zipcode', $_POST['zipcode']);
+				$this->Arranger->set('city', $_POST['city']);
+				$this->Arranger->set('country', $_POST['country']);
+				$this->Arranger->set('phone1', $_POST['phone1']);
+				$this->Arranger->set('phone2', $_POST['phone2']);
+				$this->Arranger->set('phone3', $_POST['phone3']);
+				$this->Arranger->set('fax', $_POST['fax']);
+				$this->Arranger->set('website', $_POST['website']);
+				$this->Arranger->set('email', $_POST['email']);
+				$this->Arranger->set('level', 3);
+				$this->Arranger->set('invoice_company', $_POST['invoice_company']);
+				$this->Arranger->set('invoice_address', $_POST['invoice_address']);
+				$this->Arranger->set('invoice_zipcode', $_POST['invoice_zipcode']);
+				$this->Arranger->set('invoice_city', $_POST['invoice_city']);
+				$this->Arranger->set('invoice_email', $_POST['invoice_email']);
+				$this->Arranger->set('locked', $_POST['locked']);
+
+
+				if ($id == 'new') {
+					$this->Arranger->set('alias', $_POST['alias']);
+					
+					if ($this->Arranger->aliasExists()) {
+						$this->set('user_message', 'The username already exists in our system.');
+						$this->set('error', true);
+						return;
+					}
+				} else if {
+
+					if ($this->Arranger->emailExists()) {
+						$this->set('user_message', 'The email address already exists in our system.');
+						$this->set('error', true);
+						return;
+					}
+				}
+				
+				$id = $this->Arranger->save();
+				//header('Location: '.BASE_URL.'arranger/overview');
+				//exit;
+			}
 
 		}
 	}

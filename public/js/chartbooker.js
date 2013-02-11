@@ -133,7 +133,7 @@ $(document).ready(function() {
 							
 				 +				'<h3 style="margin-top:20px">' + lang.contact_section + '</h3>'
 							
-				 +				'<label for="username">' + lang.alias_label + '</label>'
+				 +				'<label for="username">' + lang.alias_label + ' *</label>'
 				 +				'<input type="text" name="username" id="username"/>'
 							
 				 +				'<label for="name">' + lang.contact_label + ' *</label>'

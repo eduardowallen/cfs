@@ -136,7 +136,9 @@ class AdministratorController extends Controller {
 			$user->set('level', 1);
 			$user->set('locked', 0);
 
-			if ($user->emailExists()) {
+			if ($user->aliasExists()) {
+				$error.= 'The username already exists in our system.';
+			} else if ($user->emailExists()) {
 				$error.= 'The email address already exists in our system.';
 			} else {
 				$arr = array_merge(range(0, 9), range('a', 'z'));
@@ -503,6 +505,7 @@ WHERE user.owner = ? AND user.level = ?");
 						} else {
 							$this->set('user_message', 'The alias already exists in our system. Please choose another one.');
 						}
+						$this->set('error', true);
 					}
 					//if ($id == 'new') {
 						//header("Location: ".BASE_URL."administrator/mine");

@@ -338,7 +338,9 @@ class ExhibitorController extends Controller {
 			$this->User->set('locked', 0);
 			$this->User->set('alias', $_POST['alias']);
 
-			if ($this->User->emailExists()) {
+			if ($this->User->aliasExists()) {
+				$error.= 'The username already exists in our system.';
+			} else if ($this->User->emailExists()) {
 				$error.= 'The email address already exists in our system.';
 			} else {
 

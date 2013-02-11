@@ -467,6 +467,7 @@ class UserController extends Controller {
 			$this->User->set('commodity', $_POST['commodity']);
 			//$this->User->set('category', $_POST['category']);
 			$this->User->set('level', 1);
+
 			$iid = $this->User->save();
 		}
 
@@ -538,7 +539,9 @@ class UserController extends Controller {
 			$this->User->set('level', 1);
 			$this->User->set('locked', 1);
 
-			if ($this->User->emailExists()) {
+			if ($this->User->aliasExists()) {
+				$error.= 'The username already exists in our system.';
+			} else if ($this->User->emailExists()) {
 				$error.= 'The email address already exists in our system.';
 			} else {
 				
