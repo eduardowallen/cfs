@@ -1041,6 +1041,30 @@ maptool.zoomZero = function() {
 	}
 }
 
+//Zoom in on map to a certain level
+maptool.zoomToLevel = function(e, level) {
+	var currentWidth = $('#map #map_img').width();
+	var currentHeight = $('#map #map_img').height();
+
+	if (level > config.maxZoom) {
+		level = config.maxZoom;
+	}
+
+	maptool.map.zoomlevel = level;
+	newWidth = maptool.map.canvasWidth * maptool.map.zoomlevel;
+
+	$("#mapHolder #map #map_img").css("height", "auto");
+	$("#map #map_img").css({
+		maxWidth: 'none',
+		maxHeight: 'none',
+		width: newWidth +"px"
+	});
+	maptool.adjustZoomMarker();
+	maptool.reCalculatePositions();
+	//if (e !== null)
+	//	maptool.centerOn(e, currentWidth, currentHeight, 'in');
+}
+
 //Zoom in on map
 maptool.zoomIn = function(e) {
 	var currentWidth = $('#map #map_img').width();
@@ -1153,16 +1177,16 @@ maptool.focusOn = function(position) {
 	
 	$('#focus_arrow').remove();
 	
-	while (maptool.map.zoomlevel < 2) {
-		maptool.zoomIn(null);
-	}
-	
 	positionObject = null;
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		if (maptool.map.positions[i].id == position) {
 			positionObject = maptool.map.positions[i];
 			break;
 		}
+	}
+
+	if (maptool.map.zoomlevel < 2) {
+		maptool.zoomToLevel(positionObject, 2);
 	}
 	
 	var currentWidth = $('#map #map_img').width();
@@ -1177,7 +1201,7 @@ maptool.focusOn = function(position) {
 	$('#mapHolder').scrollLeft(scrollX);
 	$('#mapHolder').scrollTop(scrollY);
 	
-	maptool.placeMarkers();
+	//maptool.placeMarkers();
 	
 	var img = $('<img src="images/icons/arrow.png" id="focus_arrow"/>');
 	img.data('position', positionObject.id);
