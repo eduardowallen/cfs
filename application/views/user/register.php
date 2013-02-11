@@ -77,7 +77,7 @@
 
 	<!--<h3><?php echo $contact_section; ?></h3>-->
 
-	<label for="username"><?php echo $alias_label; ?></label>
+	<label for="username"><?php echo $alias_label; ?> *</label>
 	<input type="text" name="username" id="username" value="<?php echo $user->get('alias'); ?>"  />
 
 	<label for="name"><?php echo $contact_label; ?> *</label>
