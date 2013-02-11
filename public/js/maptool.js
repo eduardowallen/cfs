@@ -1185,8 +1185,8 @@ maptool.focusOn = function(position) {
 		}
 	}
 
-	if (maptool.map.zoomlevel < 2) {
-		maptool.zoomToLevel(positionObject, 2);
+	if (maptool.map.zoomlevel < 1+(config.maxZoom-1)/2) {
+		maptool.zoomToLevel(positionObject, 1+(config.maxZoom-1)/2);
 	}
 	
 	var currentWidth = $('#map #map_img').width();
