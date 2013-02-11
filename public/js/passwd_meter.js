@@ -5,6 +5,7 @@ $(document).ready(function() {
 function hookUpPasswdMeter() {
 	$('.hasIndicator').each(function() {
 		
+		$(this).removeClass('hasIndicator');
 		var input = $(this);
 		var meter = $('<span class="passwd_meter"/>');
 		
