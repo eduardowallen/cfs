@@ -10,7 +10,7 @@ var markedAsBooked = new Array;
 //Some settings
 var config = {
 	maxZoom: 2, //maximum size of map, X * original
-	zoomStep: 0.05, //how many times to increase/decrease map size on zoom
+	zoomStep: 0.1, //how many times to increase/decrease map size on zoom
 	panMovement: 200, //pixels, distance to pan
 	panSpeed: 500, //animation speed for panning map
 	iconOffset: 6, //pixels to adjust icon position (half the width/height of the icon)
