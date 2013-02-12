@@ -140,10 +140,11 @@ ORDER BY creation_time DESC";
 			$this->Arranger->set('level', 3);
 
 			if ($this->Arranger->emailExists()) {
-				$this->set('user_message')
+				$this->set('user_message', 'The email address already exists in our system.');
+				$this->set('error', true);
+			} else {
+				$iid = $this->Arranger->save();
 			}
-
-			$iid = $this->Arranger->save();
 		}
 
 		$this->setNoTranslate('locked0sel', '');
