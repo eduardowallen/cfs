@@ -153,6 +153,7 @@ $(document).ready(function() {
 		$('body').prepend(html);
 
 		hookUpPasswdMeter();
+		prepFormChecker();
 		
 		$("#copy").change(function() {
 			if ($(this).is(":checked")) {

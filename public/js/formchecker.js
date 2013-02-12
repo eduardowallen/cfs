@@ -3,6 +3,25 @@ function isValidEmailAddress(emailAddress) {
 	return pattern.test(emailAddress);
 };
 $(document).ready(function()  {
+	prepFormChecker();
+});
+
+function prepFormChecker() {
+	$("form div #email").keyup(function() {
+		if (isValidEmailAddress($(this).val())) {
+			$(this).css('border', '1px solid #00FF00');
+		} else {
+			$(this).css('border', '1px solid #FF0000');
+		}
+	});
+
+	$("form div #invoice_email").keyup(function() {
+		if (isValidEmailAddress($(this).val())) {
+			$(this).css('border', '1px solid #00FF00');
+		} else {
+			$(this).css('border', '1px solid #FF0000');
+		}
+	});
 	
 	$("form").submit(function() {
 		
@@ -37,7 +56,7 @@ $(document).ready(function()  {
 					}
 					
 					//Email addresses 2
-					if (input.attr("name") == "invoice_email" && !isValidEmailAddress(input.val())) {
+					if (input.attr("name") == "invoice_email") {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
@@ -83,4 +102,4 @@ $(document).ready(function()  {
 		}
 		
 	});
-});
+}
