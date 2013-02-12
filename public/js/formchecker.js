@@ -56,7 +56,7 @@ function prepFormChecker() {
 					}
 					
 					//Email addresses 2
-					if (input.attr("name") == "invoice_email") {
+					if (input.attr("name") == "invoice_email" && !isValidEmailAddress(input.val())) {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
