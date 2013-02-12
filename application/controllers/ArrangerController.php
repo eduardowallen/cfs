@@ -299,7 +299,6 @@ ORDER BY creation_time DESC";
 				$this->Arranger->set('phone3', $_POST['phone3']);
 				$this->Arranger->set('fax', $_POST['fax']);
 				$this->Arranger->set('website', $_POST['website']);
-				$this->Arranger->set('email', $_POST['email']);
 				$this->Arranger->set('level', 3);
 				$this->Arranger->set('invoice_company', $_POST['invoice_company']);
 				$this->Arranger->set('invoice_address', $_POST['invoice_address']);
@@ -317,15 +316,21 @@ ORDER BY creation_time DESC";
 						$this->set('error', true);
 						return;
 					}
-				} else if {
+
+					$this->Arranger->set('email', $_POST['email']);
 
 					if ($this->Arranger->emailExists()) {
 						$this->set('user_message', 'The email address already exists in our system.');
 						$this->set('error', true);
 						return;
 					}
+				} else {
+					if ($this->Arranger->get('email') != $_POST['email'] && $this->Arranger->emailExists($_POST['email'])) {
+						$this->set('user_message', 'The email address already exists in our system.');
+						$this->set('error', true);
+						return;
+					}
 				}
-				
 				$id = $this->Arranger->save();
 				//header('Location: '.BASE_URL.'arranger/overview');
 				//exit;

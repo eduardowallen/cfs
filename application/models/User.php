@@ -77,9 +77,13 @@ class User extends Model {
 		}
 	}
 
-	public function emailExists() {
+	public function emailExists($email = '') {
 		$stmt = $this->db->prepare("SELECT id FROM user WHERE LOWER(`email`) = LOWER(?)");
-		$stmt->execute(array($this->email));
+		if ($email == '') {
+			$stmt->execute(array($this->email));
+		} else {
+			$stmt->execute(array($email));
+		}
 		$res = $stmt->fetch();
 
 		if ($res > 0)
