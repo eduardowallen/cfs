@@ -2,20 +2,14 @@
 if ($notfound)
 	die('Fair not found');
 
-function makeUserOptions2($db, $table, $sel=0, $where='', $orderby='customer_nr') {
-	$sql = 'SELECT id, name, company, customer_nr FROM `'.$table.'`';
-	if ($where != '')
-		$sql.= ' WHERE '.$where;
-	$sql.= ' ORDER BY '.$orderby;
-	$stmt = $db->prepare($sql);
-	$stmt->execute(array());
-	$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+function makeUserOptions2($sel=0, $fair) {
+	require_once(ROOT.'application/models/User.php');
+	$users = (new User)->getExhibitorsForArranger($fair->get('created_by'));
 
 	$ret = '';
-	foreach ($result as $res) {
-		$chk = ($sel == $res['id']) ? ' selected="selected"' : '';
-		$hide = ($orderby == 'company') ? ' hidden' : '';
-		$ret.= '<option class="'.$orderby.$hide.'" value="'.$res['id'].'"'.$chk.'>'.$res['customer_nr'].' - '.$res['company'].'</option>';
+	foreach ($users as $user) {
+		$chk = ($sel == $user->get('id')) ? ' selected="selected"' : '';
+		$ret.= '<option value="'.$user->get('id').'"'.$chk.'>'.$user->get('customer_nr').' - '.$user->get('company').'</option>';
 	}
 	return $ret;
 }
@@ -160,8 +154,8 @@ function makeUserOptions2($db, $table, $sel=0, $where='', $orderby='customer_nr'
 
 	<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
 	<select name="book_user_input" id="book_user_input">
-		<?php echo makeUserOptions2($fair->db, 'user', 0, 'level=1'); ?>
-		<?php echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
+		<?php echo makeUserOptions2(0, $fair); ?>
+		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
 	</select>
 	<a href="exhibitor/createFromMap/<?php echo $fair->get('url'); ?>"><?php echo $translator->{'New exhibitor'}; ?></a>
 
@@ -201,8 +195,8 @@ function makeUserOptions2($db, $table, $sel=0, $where='', $orderby='customer_nr'
 
 	<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
 	<select name="reserve_user_input" id="reserve_user_input">
-		<?php echo makeUserOptions2($fair->db, 'user', 0, 'level=1'); ?>
-		<?php echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
+		<?php echo makeUserOptions2(0, $fair); ?>
+		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
 	</select>
 	<a href="exhibitor/createFromMap/<?php echo $fair->get('url'); ?>"><?php echo $translator->{'New exhibitor'}; ?></a>
 

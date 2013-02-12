@@ -131,4 +131,31 @@ class Model {
 		return $this->$property;
 
 	}
+
+	private function getFields() {
+		$fields = array();
+		if (isset($this->table_name)) {
+			$stmt = $this->db->prepare("SHOW COLUMNS FROM ". $this->table_name);
+			$stmt->execute();
+			$result = $stmt->fetchAll();
+			foreach ($result as $res) {
+				$fields[] = $res['Field'];
+			}
+		}
+		return $fields;
+	}
+
+	public function loadFromArray($data) {
+		$fields = $this->getFields();
+
+		if (!empty($fields)) {
+			foreach ($data as $key => $value) {
+				if (in_array($key, $fields)) {
+					$this->set($key, $value);
+				}
+			}
+		} else {
+			echo "No fields in table " + $this->table_name;
+		}
+	}
 }
