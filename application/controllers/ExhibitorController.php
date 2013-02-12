@@ -433,6 +433,7 @@ class ExhibitorController extends Controller {
 		$this->set('website_label', 'Website');
 		$this->set('email_label', 'E-mail');
 		$this->set('save_label', 'Save');
+		$this->set('copy_label', 'Copy from company details');
 
 	}
 

@@ -61,6 +61,8 @@
 	<div class="form_column">
 	
 	<h3><?php echo $invoice_section; ?></h3>
+
+	<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
 	
 	<label for="invoice_company"><?php echo $invoice_company_label; ?> *</label>
 	<input type="text" name="invoice_company" id="invoice_company" value="<?php echo $user->get('invoice_company'); ?>"/>
