@@ -37,14 +37,19 @@ function hookUpPasswdMeter() {
 				strength++;
 			}
 			
-			if (strength > 4)
+			if (strength > 4) {
 				meter.css('color', 'green').text('Super strong');
-			else if (strength > 3)
+				$(this).css('border', 'solid 1px #00FF00')
+			} else if (strength > 3) {
 				meter.css('color', 'green').text('Strong');
-			else if (strength > 2)
+				$(this).css('border', 'solid 1px #00FF00')
+			} else if (strength > 2) {
 				meter.css('color', 'orange').text('Medium');
-			else
+				$(this).css('border', 'solid 1px #FF0000')
+			} else {
 				meter.css('color', 'red').text('Weak');
+				$(this).css('border', 'solid 1px #FF0000')
+			}
 			
 			
 			if (strength > 3) {
