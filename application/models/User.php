@@ -136,7 +136,7 @@ class User extends Model {
 	public static function getExhibitorsForFair($fairId) {
 		global $globalDB;
 		$users = array();
-		$sql = "SELECT user.* FROM user, fair_user_relation WHERE user.level=1 AND user.id = fair_user_relation.user AND fair_user_relation.fair = ?";
+		$sql = "SELECT DISTINCT user.* FROM user, fair_user_relation WHERE user.level=1 AND user.id = fair_user_relation.user AND fair_user_relation.fair = ? ORDER BY customer_nr";
 		$stmt = $globalDB->prepare($sql);
 		$stmt->execute(array($fairId));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -151,7 +151,7 @@ class User extends Model {
 	public static function getExhibitorsForArranger($arrId) {
 		global $globalDB;
 		$users = array();
-		$sql = "SELECT user.* FROM user,fair_user_relation,fair WHERE fair.created_by=? AND fair_user_relation.fair = fair.id  AND user.id = fair_user_relation.user AND user.level=1";
+		$sql = "SELECT DISTINCT user.* FROM user,fair_user_relation,fair WHERE fair.created_by=? AND fair_user_relation.fair = fair.id  AND user.id = fair_user_relation.user AND user.level=1 ORDER BY customer_nr";
 		$stmt = $globalDB->prepare($sql);
 		$stmt->execute(array($arrId));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);

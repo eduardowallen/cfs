@@ -3,8 +3,7 @@ if ($notfound)
 	die('Fair not found');
 
 function makeUserOptions2($sel=0, $fair) {
-	require_once(ROOT.'application/models/User.php');
-	$users = (new User)->getExhibitorsForArranger($fair->get('created_by'));
+	$users = User::getExhibitorsForArranger($fair->get('created_by'));
 
 	$ret = '';
 	foreach ($users as $user) {
