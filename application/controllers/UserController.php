@@ -293,7 +293,11 @@ class UserController extends Controller {
 					$fair = new Fair;
 					$fair->load($_SESSION['user_fair'], 'id');
 					if ($fair->wasLoaded()) {
-						header("Location: ".BASE_URL.$fair->get('url'));
+						if (userLevel() > 1) {
+							header("Location: ".BASE_URL.'mapTool/map/'.$fair->get('id'));
+						} else {
+							header("Location: ".BASE_URL.$fair->get('url'));
+						}
 					} else {
 						header("Location: ".BASE_URL."page/loggedin");
 					}
