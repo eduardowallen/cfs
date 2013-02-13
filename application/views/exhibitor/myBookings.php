@@ -11,7 +11,6 @@
 		<th><?php echo $tr_time; ?></th>
 		<th><?php echo $tr_message; ?></th>
 		<th><?php echo $tr_view; ?></th>
-		<th><?php echo $tr_delete; ?></th>
 	</tr>
 </thead>
 <tbody>
@@ -36,11 +35,6 @@ $maps = $maps[0]->get('positions');
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
-		<td class="center">
-			<a href="<?php echo BASE_URL.'exhibitor/delete/'.$pos->get('exhibitor')->get('exhibitor_id').'/'.$_SESSION['user_id'].'/'.$pos->get('exhibitor')->get('position'); ?>" title="<?php echo $tr_delete; ?>" onclick="return confirm('<?php echo $confirm_delete; ?>');">
-				<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
-			</a>
-		</td>
 	</tr>
 <?php endforeach; ?>
 </tbody>
@@ -59,7 +53,6 @@ $maps = $maps[0]->get('positions');
 		<th><?php echo $tr_time; ?></th>
 		<th><?php echo $tr_message; ?></th>
 		<th><?php echo $tr_view; ?></th>
-		<th><?php echo $tr_delete; ?></th>
 	</tr>
 </thead>
 <tbody>
@@ -82,11 +75,6 @@ $maps = $maps[0]->get('positions');
 		<td class="center">
 			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('exhibitor')->get('position').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
-			</a>
-		</td>
-		<td class="center">
-			<a href="<?php echo BASE_URL.'exhibitor/delete/'.$pos->get('exhibitor')->get('exhibitor_id').'/'.$_SESSION['user_id'].'/'.$pos->get('exhibitor')->get('position'); ?>" title="<?php echo $tr_delete; ?>" onclick="return confirm('<?php echo $confirm_delete; ?>');">
-				<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 			</a>
 		</td>
 	</tr>

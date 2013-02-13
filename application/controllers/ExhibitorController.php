@@ -592,7 +592,7 @@ class ExhibitorController extends Controller {
 	}
 
 	function edit($fair, $id) {
-
+		setAuthLevel(1);
 		$this->set('headline', 'Edit exhibitor');
 		$this->set('cat_label', 'Category');
 		$this->set('save_label', 'Save');
@@ -635,11 +635,13 @@ class ExhibitorController extends Controller {
 	}
 
 	function pre_delete($id, $user_id, $position){
+		setAuthLevel(1);
 		$this->Exhibitor->del_pre_booking($id, $user_id, $position);
 		header('Location: '.BASE_URL.'exhibitor/myBookings');
 	}
 
 	function delete($id, $user_id, $position){
+		setAuthLevel(2);
 		$this->Exhibitor->del_booking($id, $user_id, $position);
 		header('Location: '.BASE_URL.'exhibitor/myBookings');
 	}
