@@ -152,6 +152,11 @@
 	margin:-136px 0 0 -104px;
 	font-family:Arial, Helvetica, Sans-serif;
 }
+.marker_tooltip_flipped {
+	background:url('../images/box_med_pil_172pxl_flip.png') no-repeat;
+	background-size:220px 135px;
+	padding-top:10px;
+}
 .marker_tooltip .info {
 	height:30px;
 	overflow:hidden;

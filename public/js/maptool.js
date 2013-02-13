@@ -217,10 +217,19 @@ maptool.placeMarkers = function() {
 	$(".marker").hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		if (!tooltip.is(":visible")) {
-			tooltip.css({
-				left: $(this).offset().left,
-				top: $(this).offset().top
-			});
+			if (tooltip.height() > $(this).offset().top) {
+				tooltip.addClass('marker_tooltip_flipped');
+				tooltip.css({
+					left: $(this).offset().left,
+					top: $(this).offset().top + $(this).height() + config.iconOffset + 10 + tooltip.height()
+				});
+			} else {
+				tooltip.removeClass('marker_tooltip_flipped');
+				tooltip.css({
+					left: $(this).offset().left,
+					top: $(this).offset().top
+				});
+			}
 			$(".marker_tooltip").hide();
 			tooltip.show();
 		}
