@@ -109,7 +109,7 @@ class ExhibitorController extends Controller {
 
 		}
 		
-		$stmt = $this->Exhibitor->db->prepare("SELECT user.id, exhibitor.fair, COUNT(exhibitor.id) AS ex_count FROM user LEFT JOIN exhibitor ON user.id = exhibitor.user WHERE user.level = ? AND exhibitor.fair = ? ORDER BY ?");
+		$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id, COUNT(user.id) AS ex_count FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
 		$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$exhibitors = array();
