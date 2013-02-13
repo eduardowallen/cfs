@@ -466,16 +466,18 @@ WHERE user.owner = ? AND user.level = ?");
 				$this->Administrator->set('email', $_POST['email']);
 				$this->Administrator->set('level', 2);
 				$this->Administrator->set('locked', $_POST['locked']);
-				if (userLevel() == 4) {
-					$adminFair = new Fair;
-					$adminFair->load($_SESSION['user_fair'], 'id');
-					$this->Administrator->set('owner', $adminFair->get('created_by'));
-				} else {
-					$this->Administrator->set('owner', $_SESSION['user_id']);
-				}
 				
-				if ($id == 'new')
+				
+				if ($id == 'new') {
 					$this->Administrator->set('alias', $_POST['alias']);
+					if (userLevel() == 4) {
+						$adminFair = new Fair;
+						$adminFair->load($_SESSION['user_fair'], 'id');
+						$this->Administrator->set('owner', $adminFair->get('created_by'));
+					} else {
+						$this->Administrator->set('owner', $_SESSION['user_id']);
+					}
+				}
 				
 				if (!$this->Administrator->emailExists() || $id != 'new') {
 					
