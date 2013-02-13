@@ -211,6 +211,8 @@ class AdministratorController extends Controller {
 
 	public function newReservations($action='', $param='') {
 
+		setAuthLevel(2);
+
 		if ($action == 'deny') {
 			$pb = new PreliminaryBooking;
 			$pb->load($param, 'id');
@@ -260,8 +262,6 @@ class AdministratorController extends Controller {
 			exit;
 			
 		}
-		
-		setAuthLevel(2);
 
 		$this->set('headline', 'New reservations');
 
