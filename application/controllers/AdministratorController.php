@@ -213,6 +213,28 @@ class AdministratorController extends Controller {
 
 		setAuthLevel(2);
 
+		$fair = new Fair;
+		$fair->load($_SESSION['user_fair'], 'id');
+
+		$this->set('fair', $fair);
+		
+		if( userLevel() == 2 ){
+			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
+			$prep = $this->db->prepare($sql);
+			$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
+			$result = $prep->fetch(PDO::FETCH_ASSOC);
+			$this->set('accessible_maps', explode('|', $result['map_access']));
+			if(!$result) {
+				$this->set('hasRights', false);
+				return;
+			} else {
+				$this->set('hasRights', true);
+			}
+		} else {
+			$this->set('hasRights', true);
+			$this->set('accessible_maps', array());
+		}
+
 		if ($action == 'deny') {
 			$pb = new PreliminaryBooking;
 			$pb->load($param, 'id');
@@ -263,41 +285,57 @@ class AdministratorController extends Controller {
 			
 		}
 
-		$this->set('headline', 'New reservations');
+		$this->set('headline', 'Booked stand spaces');
+		$this->set('rheadline', 'Reservations');
 
-		$this->set('th_status', 'Status');
-		$this->set('th_reserve', 'Reserve stand space');
-		$this->set('th_name', 'Stand space');
-		$this->set('th_area', 'Area');
-		$this->set('th_trade', 'Trade');
-		$this->set('th_time', 'Booking time');
-		$this->set('th_message', 'Message to organizer');
-		$this->set('th_company', 'Company');
-		$this->set('th_profile', 'Details');
-		$this->set('th_goto', 'View');
-		$this->set('th_approve', 'Approve');
-		$this->set('th_deny', 'Deny');
+		$u = new User;
+		$u->load($_SESSION['user_id'], 'id');
 
-		$fair = new Fair;
-		$fair->load($_SESSION['user_fair'], 'id');
+		$stmt = $u->db->prepare("SELECT ex.*, user.company, user.commodity, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+		$stmt->execute(array($_SESSION['user_fair'], 2));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$positions = $result;
 
-		$this->set('fair', $fair);
 		
-		if( userLevel() == 2 ){
-			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
-			$prep = $this->db->prepare($sql);
-			$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
-			$result = $prep->fetch(PDO::FETCH_ASSOC);
-			$this->set('accessible_maps', explode('|', $result['map_access']));
-			if(!$result)
-				$this->set('hasRights', false);
-			else
-				$this->set('hasRights', true);
-		} else {
-			$this->set('hasRights', true);
-			$this->set('accessible_maps', array());
+		$stmt = $u->db->prepare("SELECT ex.*, user.company, user.commodity, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+		$stmt->execute(array($_SESSION['user_fair'], 1));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$rpositions = $result;
+		
+		
+		$prelpos = array();
+/*
+		foreach($u->getPreliminaries() as $prel) {
+			$pos = new FairMapPosition;
+			$pos->load($prel['position'], 'id');
+			$ex = new Exhibitor;
+			$ex->set('commodity', $prel['commodity']);
+			$ex->set('arranger_message', $prel['arranger_message']);
+			$pos->set('exhibitor', $ex);
+			$pos->get('exhibitor')->set('company', 'Myself');
+			$prelpos[] = $pos;
 		}
+		*/
 
+		$this->set('positions', $positions);
+		$this->set('rpositions', $rpositions);
+		$this->set('prelpos', $prelpos);
+
+		$this->set('prel_table', 'Preliminary bookings');
+		$this->set('tr_fair', 'Fair');
+		$this->set('tr_pos', 'Stand space');
+		$this->set('tr_area', 'Area');
+		$this->set('tr_booker', 'Booked by');
+		$this->set('tr_field', 'Trade');
+		$this->set('tr_time', 'Time of booking');
+		$this->set('tr_message', 'Message to organizer');
+		$this->set('tr_view', 'View');
+		$this->set('tr_delete', 'Delete');
+		$this->set('tr_approve', 'Approve');
+		$this->set('tr_deny', 'Deny');
+		$this->set('tr_reserve', 'Reserve stand space');
+
+		$this->set('confirm_delete', 'Are you sure?');
 	}
 
 	public function delete($id, $confirmed='', $from='') {
@@ -549,6 +587,24 @@ WHERE user.owner = ? AND user.level = ?");
 			$this->set('save_label', 'Save');
 
 		}
+	}
+
+	public function deleteBooking($id = 0, $posId = 0) {
+		setAuthLevel(2);
+
+		/*
+		if ($id == 0 || $posId = 0) {
+			return;
+		}
+		*/
+
+		$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND position = ?");
+		$stmt->execute(array($id, $posId));
+
+		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
+		$stmt->execute(array($posId));
+
+		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
 
 }
