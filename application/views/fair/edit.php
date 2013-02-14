@@ -47,8 +47,10 @@
 	<label for="auto_close"><?php echo $auto_close_label; ?> (dd-mm-yyyy) *</label>
 	<input class="date" <?php echo $da; ?> type="text" name="auto_close" id="auto_close" value="<?php if ($edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_close')); } ?>"/>
 	
+	<!--
 	<label for="logo"><?php echo $logo_label; ?></label>
 	<input <?php echo $disable; ?> type="file" name="logo" id="logo"/>
+	-->
 
 	<?php (empty($disable)) ? tiny_mce() : ''; ?>
 	<label for="contact_info"><?php echo $contact_label; ?></label>

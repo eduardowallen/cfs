@@ -220,14 +220,14 @@ class FairController extends Controller {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
 				}
 				$fId = $this->Fair->save();
-				
+				/*
 				if (is_uploaded_file($_FILES['logo']['tmp_name'])) {
 					
 					$im = new ImageMagick;
 					$im->constrain($_FILES['logo']['tmp_name'], ROOT.'public/images/fairs/'.$fId.'/'.$fId.'.png', 350, 80);
 					chmod(ROOT.'public/images/fairs/'.$fId.'/'.$fId.'.png', 0775);
 				}
-				
+				*/				
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
 					header("Location: ".BASE_URL."fair/overview");
@@ -273,7 +273,7 @@ class FairController extends Controller {
 			$this->set('max_positions_label', 'Maximum stand spaces');
 			$this->set('window_title_label', 'Window title');
 			$this->set('email_label', 'E-mail address');
-			$this->set('logo_label', 'Logotype');
+			//$this->set('logo_label', 'Logotype');
 			$this->set('contact_label', 'Contact information');
 			$this->set('auto_publish_label', 'Publish date');
 			$this->set('auto_close_label', 'Closing date');
