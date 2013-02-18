@@ -1405,6 +1405,11 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
+	// Quick fix for map reloading without id sometimes.
+	if (typeof mapId == 'undefined') {
+		return;
+	}
+
 	$.ajax({
 		url: 'ajax/maptool.php',
 		type: 'POST',
