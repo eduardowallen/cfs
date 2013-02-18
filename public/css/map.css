@@ -147,7 +147,6 @@
 	padding:5px;
 	position:absolute;
 	z-index:1000;
-	z-index:999;
 	display:none;
 	margin:-136px 0 0 -104px;
 	font-family:Arial, Helvetica, Sans-serif;
@@ -172,7 +171,7 @@
 	margin:0;
 	list-style-type:none;
 	position:absolute;
-	z-index:999;
+	z-index:1001;
 	background:#efefef;
 	border:1px solid #b1b1b1;
 	display:none;
