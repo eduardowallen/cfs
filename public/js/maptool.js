@@ -604,6 +604,7 @@ maptool.markForApplication = function(positionObject) {
 	
 	maptool.openDialogue('apply_mark_dialogue');
 	
+	$("#apply_choose_more").unbind('click');
 	$('#apply_choose_more').click(function() {
 		
 		
@@ -633,6 +634,7 @@ maptool.markForApplication = function(positionObject) {
 		maptool.closeDialogues();
 	});
 	
+	$('#apply_confirm').unbind('click');
 	$('#apply_confirm').click(function() {
 		
 		if ($("#apply_commodity_input").val() == "") {
@@ -694,17 +696,20 @@ maptool.applyForPositions = function() {
 	
 	maptool.openDialogue('apply_position_dialogue');
 	
+	$('.ps_move').unbind('click');
 	$('.ps_move').click(function() {
 		maptool.focusOn($(this).attr("id").replace('ps_move-', ''));
 		maptool.closeDialogues();
 	});
-	 
+
+	$('.ps_edit').unbind('click');
 	$('.ps_edit').click(function() {
 		maptool.closeDialogues();
 		var id = $(this).attr("id").replace('ps_edit-', '');
 		maptool.editMarking(id);
 	});
-	
+
+	$('.ps_del').unbind('click');
 	$('.ps_del').click(function() {
 		var id = $(this).attr("id").replace('ps_del-', '');
 		var arr = new Array;
@@ -712,18 +717,12 @@ maptool.applyForPositions = function() {
 			if (markedAsBooked[i].id != id)
 				arr.push(markedAsBooked[i]);
 		}
+		markedAsBooked = arr;
 		$(this).parent().remove();
 	});
-	
+
+	$('#apply_post').unbind('click');
 	$("#apply_post").click(function() {
-		
-		/*var cats = $('#apply_category_input').val();
-		if (cats === null)
-			return;
-		var catStr = '';
-		for (var i=0; i<cats.length; i++) {
-			catStr += '&cat[]=' + cats[i];
-		}*/
 		
 		var posStr = '';
 		var msgStr = '';
