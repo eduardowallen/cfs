@@ -221,7 +221,7 @@
 }
 .dialogue {
 	display:none;
-	position:fixed;
+	position:absolute;
 	z-index:10000;
 	width:400px;
 	/*height:420px;*/
