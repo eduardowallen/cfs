@@ -98,13 +98,7 @@ class ExhibitorController extends Controller {
 		if ($param == 'copy') {
 
 			$_SESSION['copied_exhibitor'] = 'uid_'.$value;
-			$userFair = new Fair;
-			$userFair->load($_SESSION['user_fair'], 'id');
-			if ($userFair->wasLoaded()) {
-				header('Location: '.BASE_URL.$userFair->get('url'));
-			} else {
-				header('Location: '.BASE_URL.'exhibitor/forFair');
-			}
+			header('Location: '.BASE_URL.'mapTool/map/'.$_SESSION['user_fair']);
 			exit;
 
 		}
