@@ -829,8 +829,9 @@ maptool.editBooking = function(positionObject) {
 		$('#' + prefix + '_category_input option[value="' + positionObject.exhibitor.categories[i].category_id + '"]').attr("selected", "selected");
 	}
 	
-	$("#" + prefix + "_post").click(function() {
+	$("#" + prefix + "_post").off("click");
 
+	$("#" + prefix + "_post").click(function() {
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
 				   + '&message=' + $("#" + prefix + "_message_input").val()
