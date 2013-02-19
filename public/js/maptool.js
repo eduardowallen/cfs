@@ -1040,9 +1040,13 @@ maptool.positionInfo = function(positionObject) {
 		info.append('<p><strong>' + lang.commodity + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
 
 		$("#more_info_dialogue p.presentation").text(positionObject.exhibitor.presentation);
-		if (positionObject.exhibitor.website != '')
-			$("#more_info_dialogue p.website_link").html('<strong>' + lang.website + ':</strong> <a href="' + positionObject.exhibitor.website + '" target="_blank">' + positionObject.exhibitor.website + '</a>');
-		else
+		if (positionObject.exhibitor.website != '') {
+			var website = positionObject.exhibitor.website;
+			if (website.indexOf("http://") == -1) {
+				website = "http://" + website;
+			}
+			$("#more_info_dialogue p.website_link").html('<strong>' + lang.website + ':</strong> <a href="' + website + '" target="_blank">' + positionObject.exhibitor.website + '</a>');
+		} else
 			$("#more_info_dialogue p.website_link").html('');
 		
 	} else {
