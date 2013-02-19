@@ -25,6 +25,26 @@ class PreliminaryBooking extends Model {
 		}
 		
 	}
+
+	public static function getPreliminariesByFair($fairId) {
+		if (!$fairId) {
+			return;
+		}
+
+		global $globalDB;
+		$stmt = $globalDB->prepare("SELECT * FROM preliminary_booking WHERE `fair`=?");
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$preliminaries = array();
+
+		foreach ($result as $res) {
+			$prel = new PreliminaryBooking;
+			$prel->loadFromArray($res);
+			$preliminaries[] = $prel;
+		}
+
+		return $preliminaries;
+	}
 	
 }
 

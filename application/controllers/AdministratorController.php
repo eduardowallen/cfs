@@ -244,7 +244,7 @@ class AdministratorController extends Controller {
 			
 			$emstr = "Dear user,\r\n\r\nWe regret to inform you that your reservation has been cancelled by an administrator.";
 			$emstr.= "\r\n\r\nBest regards,\r\nChartbooker International";
-			sendMail($u->get('email'), 'Reservation cancelled', $emstr);;
+			sendMail($u->get('email'), 'Reservation cancelled', $emstr);
 			
 			$pb->delete();
 			header("Location: ".BASE_URL."administrator/newReservations");
@@ -302,20 +302,11 @@ class AdministratorController extends Controller {
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$rpositions = $result;
 		
-		
-		$prelpos = array();
-/*
-		foreach($u->getPreliminaries() as $prel) {
-			$pos = new FairMapPosition;
-			$pos->load($prel['position'], 'id');
-			$ex = new Exhibitor;
-			$ex->set('commodity', $prel['commodity']);
-			$ex->set('arranger_message', $prel['arranger_message']);
-			$pos->set('exhibitor', $ex);
-			$pos->get('exhibitor')->set('company', 'Myself');
-			$prelpos[] = $pos;
-		}
-		*/
+
+		$stmt = $u->db->prepare("SELECT prel.*, pos.area, pos.name, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
+		$stmt->execute(array($_SESSION['user_fair']));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$prelpos = $result;
 
 		$this->set('positions', $positions);
 		$this->set('rpositions', $rpositions);
@@ -592,11 +583,11 @@ WHERE user.owner = ? AND user.level = ?");
 	public function deleteBooking($id = 0, $posId = 0) {
 		setAuthLevel(2);
 
-		/*
-		if ($id == 0 || $posId = 0) {
-			return;
-		}
-		*/
+		$exhib = new Exhibitor;
+		$exhib->load($id, 'id');
+
+		$u = new User;
+		$u->load($exhib->get('user'), 'id');
 
 		$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND position = ?");
 		$stmt->execute(array($id, $posId));
@@ -604,7 +595,65 @@ WHERE user.owner = ? AND user.level = ?");
 		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
 		$stmt->execute(array($posId));
 
+		$emstr = "Dear user,\r\n\r\nWe regret to inform you that your booking has been cancelled by an administrator.";
+		$emstr.= "\r\n\r\nBest regards,\r\nChartbooker International";
+		sendMail($u->get('email'), 'Booking cancelled', $emstr);
+
 		header('Location: '.BASE_URL.'administrator/newReservations');
+	}
+
+	public function approveReservation($posId = 0) {
+		setAuthLevel(2);
+
+		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=2 WHERE `id`=?");
+		$stmt->execute(array($posId));
+
+		header('Location: '.BASE_URL.'administrator/newReservations');
+	}
+
+	public function reservePrelBooking($prelId) {
+		setAuthLevel(2);
+
+		$prel = new PreliminaryBooking;
+		$prel->load($prelId, 'id');
+
+		$pos = new FairMapPosition;
+		$pos->load($prel->get('position'), 'id');
+
+		// Delete existing exhibitor if position is booked
+		if ($pos->get('status') > 0) {
+			$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
+			$stmt->execute(array($pos->get('id')));
+		}
+
+		$pos->set('status', 1);
+		$pos->set('expires', date('Y-m-d', time() + 3600 * 24 * 14)); // Set expirytime to 14 days from now.
+
+		$exhib = new Exhibitor;
+		$exhib->set('user', $prel->get('user'));
+		$exhib->set('fair', $prel->get('fair'));
+		$exhib->set('position', $prel->get('position'));
+		$exhib->set('category', 0);
+		$exhib->set('presentation', '');
+		$exhib->set('commodity', $prel->get('commodity'));
+		$exhib->set('arranger_message', $prel->get('arranger_message'));
+		$exhib->set('booking_time', $prel->get('booking_time'));
+		$exhib->set('approved', 1);
+		$exId = $exhib->save();
+		$pos->save();
+
+		$stmt = $prel->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+		foreach (explode('|', $prel->get('categories')) as $cat) {
+			$stmt->execute(array($exId, $cat));
+		}
+
+		// Clean up preliminaries.
+		$prel->delete();
+		$stmt = $prel->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
+		$stmt->execute(array($pos->get('id')));
+
+		header('Location: '.BASE_URL.'administrator/newReservations');
+		exit;
 	}
 
 }
