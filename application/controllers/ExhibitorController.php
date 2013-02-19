@@ -333,7 +333,7 @@ class ExhibitorController extends Controller {
 			$this->User->set('presentation', $_POST['presentation']);
 			$this->User->set('invoice_email', $_POST['invoice_email']);
 			$this->User->set('commodity', $_POST['commodity']);
-			$this->User->set('category', $_POST['category']);
+			$this->User->set('category', 0);
 			$this->User->set('level', 1);
 			$this->User->set('locked', 0);
 			$this->User->set('alias', $_POST['alias']);
@@ -413,7 +413,6 @@ class ExhibitorController extends Controller {
 		$this->set('company_label', 'Company');
 		$this->set('commodity_label', 'Commodity');
 		$this->set('presentation_label', 'Presentation');
-		$this->set('category_label', 'Category');
 		$this->set('customer_nr_label', 'Customer number');
 		$this->set('contact_label', 'Contact person');
 		$this->set('orgnr_label', 'Organization number');

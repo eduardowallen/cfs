@@ -19,11 +19,6 @@
 	<label for="commodity"><?php echo $commodity_label; ?> *</label>
 	<input type="text" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"/>
 	
-	<label for="category"><?php echo $category_label; ?> *</label>
-	<select name="category" id="category">
-	<?php echo makeOptions($user->db, 'exhibitor_category', 0, 'fair='.$fair->get('id')); ?>
-	</select>
-	
 	<label for="address"><?php echo $address_label; ?> *</label>
 	<input type="text" name="address" id="address" value="<?php echo $user->get('address'); ?>"/>
 	
