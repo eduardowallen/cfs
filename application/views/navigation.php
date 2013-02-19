@@ -33,6 +33,7 @@
 				<li><a href="user/accountSettings"><img src="images/icons/icon_logga_in.png" alt=""/><?php echo $translator->{'My profile'} ?></a>
 					<ul>
 						<li><a href="fair/overview"><?php echo $translator->{'My events'} ?></a></li>
+						<li><a href="administrator/newReservations"><?php echo $translator->{'New reservations'} ?><?php echo $bookCount; ?></a></li>
 						<li><a href="user/changePassword"><?php echo $translator->{'Change password'} ?></a></li>
 						<li><a href="user/logout"><?php echo $translator->{'Log out'} ?></a></li>
 					</ul>
