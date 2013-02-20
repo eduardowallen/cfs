@@ -1069,6 +1069,8 @@ maptool.zoomZero = function() {
 
 //Zoom in on map to a certain level
 maptool.zoomToLevel = function(e, level) {
+	maptool.hideContextMenu();
+	$(".marker_tooltip").hide();
 	var currentWidth = $('#map #map_img').width();
 	var currentHeight = $('#map #map_img').height();
 
@@ -1093,6 +1095,8 @@ maptool.zoomToLevel = function(e, level) {
 
 //Zoom in on map
 maptool.zoomIn = function(e) {
+	maptool.hideContextMenu();
+	$(".marker_tooltip").hide();
 	var currentWidth = $('#map #map_img').width();
 	var currentHeight = $('#map #map_img').height();
 	
@@ -1116,6 +1120,8 @@ maptool.zoomIn = function(e) {
 
 //Zoom out
 maptool.zoomOut = function(e) {
+	maptool.hideContextMenu();
+	$(".marker_tooltip").hide();
 	var currentWidth = $('#map #map_img').width();
 	var currentHeight = $('#map #map_img').height();
 	if (maptool.map.zoomlevel > 1) {
