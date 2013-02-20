@@ -253,12 +253,12 @@ function makeUserOptions2($sel=0, $fair) {
 
 </div>
 
-<!--<p id="pancontrols">
+<p id="pancontrols">
 	<img src="images/icons/pan_left.png" id="panleft" alt=""/>
 	<img src="images/icons/pan_up.png" id="panup" alt=""/>
 	<img src="images/icons/pan_down.png" id="pandown" alt=""/>
 	<img src="images/icons/pan_right.png" id="panright" alt=""/>
-</p>-->
+</p>
 
 <p id="zoombar">
 	<img src="images/zoom_marker_new.png" alt=""/>
