@@ -1432,25 +1432,25 @@ maptool.init = function(mapId) {
 				canvasOriginalOffset = $("#mapHolder").offset();
 			}
 
-			$("#map #map_img").attr("src", maptool.map.image);
+			$("#map > #map_img").attr("src", maptool.map.image);
 			
 			var holderHeight = $(document).height() - $('#header').height() -48;
 			var listHeight = holderHeight - $('#right_sidebar div:first-child').height() - $('#right_sidebar .pre_list').height() - 84;
+
+			$('#mapHolder').css({
+				width: '100%',
+				height: holderHeight + 'px'
+			});
+			$('#right_sidebar ul').css({
+				height: listHeight + 'px'
+			});
+			$("#map #map_img").css({
+				width: '100%',
+				height: 'auto',
+				display: 'inline'
+			});
 			
 			$("#map #map_img").load(function() {
-				
-				$('#mapHolder').css({
-					width: '100%',
-					height: holderHeight + 'px'
-				});
-				$('#right_sidebar ul').css({
-					height: listHeight + 'px'
-				});
-				$("#map #map_img").css({
-					width: '100%',
-					height: 'auto',
-					display: 'inline'
-				});
 				
 				maptool.map.canvasWidth = $("#mapHolder").width();
 				maptool.map.canvasHeight = $("#mapHolder").height();
@@ -1459,7 +1459,6 @@ maptool.init = function(mapId) {
 				maptool.populateList();
 				
 			});
-
 			// Refresh the markers even if the image is already loaded.
 			maptool.placeMarkers();
 			maptool.populateList();
