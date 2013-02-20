@@ -1131,8 +1131,8 @@ maptool.zoomOut = function(e) {
 maptool.reCalculatePositions = function() {
 	
 	for (var i=0; i<maptool.map.positions.length; i++) {
-		var xMargin = (maptool.map.positions[i].x / 100) * $('#map_img').width();
-		var yMargin = (maptool.map.positions[i].y / 100) * $('#map_img').height();
+		var xMargin = (maptool.map.positions[i].x / 100) * $('#map_img').width() - config.iconOffset;
+		var yMargin = (maptool.map.positions[i].y / 100) * $('#map_img').height() - config.iconOffset;
 		//Reposition marker
 		$('#pos-' + maptool.map.positions[i].id).css({
 			left: xMargin + 'px',
