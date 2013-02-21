@@ -1,3 +1,6 @@
+ExpiresActive On
+ExpiresDefault modification
+
 RewriteEngine On
 
 RewriteRule ^$ public/ [L]
