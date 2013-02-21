@@ -1420,7 +1420,6 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
-	console.log("INIT");
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
 		return;
