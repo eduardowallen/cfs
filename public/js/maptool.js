@@ -833,7 +833,7 @@ maptool.editBooking = function(positionObject) {
 		$('#' + prefix + '_category_input option[value="' + positionObject.exhibitor.categories[i].category_id + '"]').attr("selected", "selected");
 	}
 	
-	$("#" + prefix + "_post").off("click");
+	$("#" + prefix + "_post").unbind("click");
 
 	$("#" + prefix + "_post").click(function() {
 		var dataString = 'editBooking=' + positionObject.id
@@ -842,9 +842,11 @@ maptool.editBooking = function(positionObject) {
 				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
 				   + '&map=' + maptool.map.id;
 		
-		var categories = $('#book_category_input').val();
-		for (var i=0; i<categories.length; i++) {
-			dataString += '&category[]=' + categories[i];
+		var categories = $('#' + prefix + '_category_input').val();
+		if (categories) {
+			for (var i=0; i<categories.length; i++) {
+				dataString += '&category[]=' + categories[i];
+			}
 		}
 		
 		if (maptool.map.userlevel > 1) {
