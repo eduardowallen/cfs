@@ -592,7 +592,7 @@ maptool.bookPosition = function(positionObject) {
 			data: dataString,
 			success: function(response) {
 				maptool.markPositionAsNotBeingEdited();
-				maptool.reload();
+				maptool.update();
 				maptool.closeDialogues();
 				$('#book_position_dialogue input[type="text"], #book_position_dialogue textarea').val("");
 				$('.ssinfo').html('');
@@ -756,7 +756,7 @@ maptool.applyForPositions = function() {
 			type: 'POST',
 			data: dataString,
 			success: function(response) {
-				maptool.reload();
+				maptool.update();
 				maptool.closeDialogues();
 				$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
 				markedAsBooked = new Array;
@@ -791,7 +791,7 @@ maptool.applyForPosition = function(positionObject) {
 			type: 'POST',
 			data: dataString,
 			success: function(response) {
-				maptool.reload();
+				maptool.update();
 				maptool.closeDialogues();
 				$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
 			}
@@ -805,7 +805,7 @@ maptool.cancelApplication = function(positionObject) {
 			type: 'POST',
 			data: 'cancelPreliminary=' + positionObject.id,
 			success: function(response) {
-				maptool.reload();
+				maptool.update();
 			}
 		});
 }
@@ -861,7 +861,7 @@ maptool.editBooking = function(positionObject) {
 			data: dataString,
 			success: function(response) {
 				maptool.markPositionAsNotBeingEdited();
-				maptool.reload();
+				maptool.update();
 				maptool.closeDialogues();
 				$('#' + prefix + 'book_position_dialogue input[type="text"], #' + prefix + '_position_dialogue textarea').val("");
 				$('.ssinfo').html('');
@@ -877,7 +877,7 @@ maptool.cancelBooking = function(positionObject) {
 			type: 'POST',
 			data: 'cancelBooking=' + positionObject.id,
 			success: function(response) {
-				maptool.reload();
+				maptool.update();
 			}
 		});
 }
@@ -936,7 +936,7 @@ maptool.reservePosition = function(positionObject) {
 				data: dataString,
 				success: function(response) {
 					maptool.markPositionAsNotBeingEdited();
-					maptool.reload();
+					maptool.update();
 					//document.location = document.location.replace('reserve', '');
 					reserveId = false;					
 					maptool.closeDialogues();
@@ -1420,6 +1420,7 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
+	console.log("INIT");
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
 		return;
