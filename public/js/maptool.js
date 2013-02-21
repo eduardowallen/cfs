@@ -522,6 +522,7 @@ maptool.editPosition = function(positionObject) {
 	$("#post_position").on("click", function() {
 		if ($("#position_name_input").val() != '') {
 			maptool.savePosition();
+			maptool.update();
 			$('label[for="position_name_input"]').css("color", "#000000");
 		} else {
 			$('label[for="position_name_input"]').css("color", "red");
