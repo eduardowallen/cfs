@@ -43,6 +43,7 @@ $(document).ready(function() {
 				 + 		'<input type="text" name="user" id="user"/></p>'
 				 + 		'<p><label for="pass">' + lang.login_password + '</label>'
 				 + 		'<input type="password" name="pass" id="pass"/></p>'
+				 +		'<p><a href="user/resetPassword">Forgot you password?</a></p>'
 				 + 		'<p><input type="submit" name="login" value="Sign in"/></p>'
 				 + 	'</form>';
 		
