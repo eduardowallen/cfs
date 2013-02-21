@@ -550,6 +550,8 @@ WHERE user.owner = ? AND user.level = ?");
 					$this->set('error', true);
 
 				}
+				// Load the user again so we get the new permissions.
+				$this->Administrator->load($this->Administrator->get('id'), 'id');
 
 			}
 
