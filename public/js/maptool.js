@@ -550,8 +550,6 @@ maptool.bookPosition = function(positionObject) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
 	
-	$("#book_post").off("click");
-	
 	if (positionObject.status == 1) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
@@ -564,6 +562,30 @@ maptool.bookPosition = function(positionObject) {
 	
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
+	$('#book_position_dialogue > #search_user_input').unbind('keyup');
+	$('#book_position_dialogue > #search_user_input').val('');
+	$('#book_position_dialogue > #search_user_input').keyup(function() {
+		var query = $(this).val().toLowerCase();
+		var selectedFirst = false;
+		if (query == "") {
+			$('#book_user_input > option').show();
+		} else {
+			$('#book_user_input > option').each(function() {
+				if ($(this).text().toLowerCase().indexOf(query) == -1) {
+					$(this).prop('selected', false);
+					$(this).hide();
+				} else {
+					if (!selectedFirst) {
+						$(this).attr('selected', 'selected');
+						selectedFirst = true;
+					}
+					$(this).show();
+				}
+			});
+		}
+	});
+
+	$('#book_post').unbind('click');
 	$("#book_post").click(function() {
 		
 		var cats = $('#book_category_input').val();
@@ -823,6 +845,30 @@ maptool.editBooking = function(positionObject) {
 		var prefix = 'reserve';
 		$('#' + prefix + '_expires_input').val(positionObject.expires);
 	}
+
+	$('#' + prefix + '_position_dialogue > #search_user_input').unbind('keyup');
+	$('#' + prefix + '_position_dialogue > #search_user_input').val('');
+	$('#' + prefix + '_position_dialogue > #search_user_input').keyup(function() {
+		var query = $(this).val().toLowerCase();
+		var selectedFirst = false;
+		if (query == "") {
+			$('#'+prefix+'_user_input > option').show();
+		} else {
+			$('#'+prefix+'_user_input > option').each(function() {
+				if ($(this).text().toLowerCase().indexOf(query) == -1) {
+					$(this).prop('selected', false);
+					$(this).hide();
+				} else {
+					if (!selectedFirst) {
+						$(this).attr('selected', 'selected');
+						selectedFirst = true;
+					}
+					$(this).show();
+				}
+			});
+		}
+	});
+
 	maptool.openDialogue(prefix + '_position_dialogue');
 	$('#' + prefix + '_commodity_input').val(positionObject.exhibitor.commodity);
 	$('#' + prefix + '_message_input').val(positionObject.exhibitor.arranger_message);
@@ -835,7 +881,6 @@ maptool.editBooking = function(positionObject) {
 	}
 	
 	$("#" + prefix + "_post").unbind("click");
-
 	$("#" + prefix + "_post").click(function() {
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
@@ -893,7 +938,6 @@ maptool.reservePosition = function(positionObject) {
 	if (maptool.map.userlevel < 2) {
 		$('#reserve_user_input, label[for="reserve_user_input"]').hide();
 	}
-	$("#reserve_post").off("click");
 	if (positionObject.status == 2) {
 		$("#reserve_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#reserve_message_input").val(positionObject.exhibitor.arranger_message);
@@ -905,6 +949,30 @@ maptool.reservePosition = function(positionObject) {
 	maptool.openDialogue('reserve_position_dialogue');
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 	
+	$('#reserve_position_dialogue > #search_user_input').unbind('keyup');
+	$('#reserve_position_dialogue > #search_user_input').val('');
+	$('#reserve_position_dialogue > #search_user_input').keyup(function() {
+		var query = $(this).val().toLowerCase();
+		var selectedFirst = false;
+		if (query == "") {
+			$('#reserve_user_input > option').show();
+		} else {
+			$('#reserve_user_input > option').each(function() {
+				if ($(this).text().toLowerCase().indexOf(query) == -1) {
+					$(this).prop('selected', false);
+					$(this).hide();
+				} else {
+					if (!selectedFirst) {
+						$(this).attr('selected', 'selected');
+						selectedFirst = true;
+					}
+					$(this).show();
+				}
+			});
+		}
+	});
+
+	$("#reserve_post").unbind("click");
 	$("#reserve_post").click(function() {
 		
 		var cats = $('#reserve_category_input').val();

@@ -147,9 +147,8 @@ function makeUserOptions2($sel=0, $fair) {
 	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="book_message_input" id="book_message_input"></textarea>
 
-	<label for=""><?php echo $translator->{'Sorting'} ?></label>
-	<?php echo $translator->{'Company'} ?>: <input type="radio" name="order" class="order" value="company" checked="checked"/>
-	<?php echo $translator->{'Customer number'} ?>:<input type="radio" name="order" class="order" value="customer_nr"/>
+	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
+	<input type="text" name="search_user_input" id="search_user_input" />
 
 	<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
 	<select name="book_user_input" id="book_user_input">
@@ -188,9 +187,8 @@ function makeUserOptions2($sel=0, $fair) {
 	<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="reserve_message_input" id="reserve_message_input"></textarea>
 
-	<label for=""><?php echo $translator->{'Sorting'} ?></label>
-	Company: <input type="radio" name="order" class="order" value="company" checked="checked"/>
-	Customer number:<input type="radio" name="order" class="order" value="customer_nr"/>
+	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
+	<input type="text" name="search_user_input" id="search_user_input" />
 
 	<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
 	<select name="reserve_user_input" id="reserve_user_input">
