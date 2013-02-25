@@ -25,45 +25,26 @@
 		</tr>
 	</thead>
 	<tbody>
-		<?php if( is_array($fair->get('maps')) ) : ?>
-		<?php foreach ($fair->get('maps') as $map): ?>
-		<?php foreach ($map->get('positions') as $pos): ?>
-
-		<?php
-
-		$fair = new Fair;
-		if ($pos->get('exhibitor')) {
-			$fair->load($pos->get('exhibitor')->get('fair'), 'id');
-			$maps = $fair->get('maps');
-			$maps = $maps[0]->get('positions');
-		}
-
-
-		?>
-		
-		<?php if ($pos->get('exhibitor')): ?>
+		<?php foreach ($exhibitors as $pos): ?>
 		<tr>
-			<td><?php echo $pos->get('statusText'); ?></td>
-			<td class="center"><?php echo @$pos->get('name'); ?></td>
-			<td class="center"><?php echo @$pos->get('exhibitor')->get('company'); ?></td>
+			<td><?php echo ($pos['posstatus'] == 2 ? 'booked' : ($pos['posstatus'] == 1 ? 'reserved' : '')); ?></td>
+			<td class="center"><?php echo $pos['posname']; ?></td>
+			<td class="center"><?php echo $pos['company']; ?></td>
 			<td class="center">
 				<?php
-				$commodity = $pos->get('exhibitor')->get('commodity');
-				echo ( empty( $commodity ) ) ? $pos->get('user')->get('commodity') : $pos->get('exhibitor')->get('commodity') ;
+				$commodity = $pos['commodity'];
+				echo ( empty( $commodity ) ) ? $pos['excommodity'] : $pos['commodity'] ;
 				?>
 			</td>
-			<td class="center"><?php echo @$pos->get('exhibitor')->get('phone1'); ?></td>
-			<td class="center"><?php echo @$pos->get('exhibitor')->get('name'); ?></td>
-			<td class="center"><?php echo @$pos->get('exhibitor')->get('email'); ?></td>
-			<td class="center"><a target="_blank" href="<?php echo $pos->get('exhibitor')->get('website'); ?>"><?php echo @$pos->get('exhibitor')->get('website'); ?></a></td>
-			<td class="center"><a href="mapTool/map/<?php echo $pos->get('exhibitor')->get('fair').'/'.$pos->get('exhibitor')->get('position').'/'.$maps[0]->map; ?>"><img src="images/icons/map_go.png" alt=""/></a></td>
+			<td class="center"><?php echo $pos['phone1']; ?></td>
+			<td class="center"><?php echo $pos['name']; ?></td>
+			<td class="center"><?php echo $pos['email']; ?></td>
+			<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>
+			<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt=""/></a></td>
 			<?php if (userLevel() > 0): ?>
-			<td class="center"><a href="exhibitor/profile/<?php echo $pos->get('exhibitor')->get('id'); ?>"><img src="images/icons/user.png" alt=""/></a></td>
+			<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt=""/></a></td>
 			<?php endif; ?>
 		</tr>
-		<?php endif; ?>
 		<?php endforeach; ?>
-		<?php endforeach; ?>
-		<?php endif; ?>
 	</tbody>
 </table>

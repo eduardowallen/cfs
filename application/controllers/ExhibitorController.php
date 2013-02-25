@@ -186,23 +186,11 @@ class ExhibitorController extends Controller {
 		$this->set('th_profile', 'Details');
 		$this->set('export_button', 'Export as excel');
 
-		//$this->Administrator->load($_SESSION['user_id'], 'id');
-
-		$fair = new Fair;
-		
-		if ($fairId > 0) {
-			$fair->load($fairId, 'id');
-		} else {
-
-
-			if (isset($_SESSION['user_fair']))
-				$fair->load($_SESSION['user_fair'], 'id');
-			else if (isset($_SESSION['outside_fair_url']))
-				$fair->load($_SESSION['outside_fair_url'], 'url');
-
-		}
-		
-		$this->set('fair', $fair);
+		$sql = 'SELECT user.*, exhibitor.position AS position, exhibitor.fair AS fair, exhibitor.commodity AS excommodity, pos.name AS posname, pos.status AS posstatus, pos.map AS posmap FROM exhibitor, user, fair_map_position AS pos WHERE exhibitor.fair = ? AND exhibitor.position = pos.id AND exhibitor.user = user.id';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$this->set('exhibitors', $result);
 
 	}
 	
