@@ -8,7 +8,7 @@ function makeUserOptions2($sel=0, $fair) {
 	$ret = '';
 	foreach ($users as $user) {
 		$chk = ($sel == $user->get('id')) ? ' selected="selected"' : '';
-		$ret.= '<option value="'.$user->get('id').'"'.$chk.'>'.$user->get('customer_nr').' - '.$user->get('company').'</option>';
+		$ret.= '<option value="'.$user->get('id').'"'.$chk.'>'.$user->get('company').'</option>';
 	}
 	return $ret;
 }
