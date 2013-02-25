@@ -290,8 +290,8 @@ h1.inline-block {
 	cursor:pointer;
 }
 #pancontrols {
-	margin-top:240px;
-	margin-left:10px;
+	margin-top:10px;
+	margin-left:40px;
 	position: absolute;
 	cursor:pointer;
 	z-index:999;
