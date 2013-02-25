@@ -452,6 +452,7 @@ class ExhibitorController extends Controller {
 			$positions[] = $pos;
 		}
 		
+		/*
 		if (isset($_POST['ban_save'])) {
 			
 			$stmt = $u->db->prepare("DELETE FROM user_ban WHERE user = ? AND organizer = ?");
@@ -464,6 +465,7 @@ class ExhibitorController extends Controller {
 			$ban->save();
 			
 		}
+		*/
 
 		$this->set('user', $u);
 		$this->set('positions', $positions);
@@ -503,9 +505,9 @@ class ExhibitorController extends Controller {
 		$this->set('presentation_label', 'Company presentation');
 		$this->set('save_label', 'Save');
 		
-		$this->set('ban_section_header', 'Ban user');
-		$this->set('ban_msg_label', 'Reason for ban');
-		$this->set('ban_save', 'Save');
+		//$this->set('ban_section_header', 'Ban user');
+		//$this->set('ban_msg_label', 'Reason for ban');
+		//$this->set('ban_save', 'Save');
 
 
 	}

@@ -65,8 +65,8 @@ class MapToolController extends Controller {
 				
 				($reserve === null || $reserve == 'none') ?  $this->set('reserve', '\'false\'') : $this->set('reserve', $position);
 				
-				
-				if (userLevel() == 1) {
+				/*
+				if (userLevel() == 1) {1
 					$stmt = $this->db->prepare("SELECT * FROM user_ban WHERE user = ? AND organizer = ?");
 					$stmt->execute(array($_SESSION['user_id'], $fair->get('created_by')));
 					$result = $stmt->fetch();
@@ -77,7 +77,7 @@ class MapToolController extends Controller {
 						$this->set('isBanned', false);
 					}
 						
-				}
+				}*/
 				
 			} else {
 				$this->set('notfound', true);
