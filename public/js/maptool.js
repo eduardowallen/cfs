@@ -550,6 +550,8 @@ maptool.bookPosition = function(positionObject) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
 	
+	$("#book_post").off("click");
+	
 	if (positionObject.status == 1) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
@@ -562,30 +564,6 @@ maptool.bookPosition = function(positionObject) {
 	
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
-	$('#book_position_dialogue > #search_user_input').unbind('keyup');
-	$('#book_position_dialogue > #search_user_input').val('');
-	$('#book_position_dialogue > #search_user_input').keyup(function() {
-		var query = $(this).val().toLowerCase();
-		var selectedFirst = false;
-		if (query == "") {
-			$('#book_user_input > option').show();
-		} else {
-			$('#book_user_input > option').each(function() {
-				if ($(this).text().toLowerCase().indexOf(query) == -1) {
-					$(this).prop('selected', false);
-					$(this).hide();
-				} else {
-					if (!selectedFirst) {
-						$(this).attr('selected', 'selected');
-						selectedFirst = true;
-					}
-					$(this).show();
-				}
-			});
-		}
-	});
-
-	$('#book_post').unbind('click');
 	$("#book_post").click(function() {
 		
 		var cats = $('#book_category_input').val();
@@ -845,30 +823,6 @@ maptool.editBooking = function(positionObject) {
 		var prefix = 'reserve';
 		$('#' + prefix + '_expires_input').val(positionObject.expires);
 	}
-
-	$('#' + prefix + '_position_dialogue > #search_user_input').unbind('keyup');
-	$('#' + prefix + '_position_dialogue > #search_user_input').val('');
-	$('#' + prefix + '_position_dialogue > #search_user_input').keyup(function() {
-		var query = $(this).val().toLowerCase();
-		var selectedFirst = false;
-		if (query == "") {
-			$('#'+prefix+'_user_input > option').show();
-		} else {
-			$('#'+prefix+'_user_input > option').each(function() {
-				if ($(this).text().toLowerCase().indexOf(query) == -1) {
-					$(this).prop('selected', false);
-					$(this).hide();
-				} else {
-					if (!selectedFirst) {
-						$(this).attr('selected', 'selected');
-						selectedFirst = true;
-					}
-					$(this).show();
-				}
-			});
-		}
-	});
-
 	maptool.openDialogue(prefix + '_position_dialogue');
 	$('#' + prefix + '_commodity_input').val(positionObject.exhibitor.commodity);
 	$('#' + prefix + '_message_input').val(positionObject.exhibitor.arranger_message);
@@ -881,6 +835,7 @@ maptool.editBooking = function(positionObject) {
 	}
 	
 	$("#" + prefix + "_post").unbind("click");
+
 	$("#" + prefix + "_post").click(function() {
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
@@ -938,6 +893,7 @@ maptool.reservePosition = function(positionObject) {
 	if (maptool.map.userlevel < 2) {
 		$('#reserve_user_input, label[for="reserve_user_input"]').hide();
 	}
+	$("#reserve_post").off("click");
 	if (positionObject.status == 2) {
 		$("#reserve_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#reserve_message_input").val(positionObject.exhibitor.arranger_message);
@@ -949,30 +905,6 @@ maptool.reservePosition = function(positionObject) {
 	maptool.openDialogue('reserve_position_dialogue');
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 	
-	$('#reserve_position_dialogue > #search_user_input').unbind('keyup');
-	$('#reserve_position_dialogue > #search_user_input').val('');
-	$('#reserve_position_dialogue > #search_user_input').keyup(function() {
-		var query = $(this).val().toLowerCase();
-		var selectedFirst = false;
-		if (query == "") {
-			$('#reserve_user_input > option').show();
-		} else {
-			$('#reserve_user_input > option').each(function() {
-				if ($(this).text().toLowerCase().indexOf(query) == -1) {
-					$(this).prop('selected', false);
-					$(this).hide();
-				} else {
-					if (!selectedFirst) {
-						$(this).attr('selected', 'selected');
-						selectedFirst = true;
-					}
-					$(this).show();
-				}
-			});
-		}
-	});
-
-	$("#reserve_post").unbind("click");
 	$("#reserve_post").click(function() {
 		
 		var cats = $('#reserve_category_input').val();
@@ -1164,6 +1096,43 @@ maptool.zoomToLevel = function(e, level) {
 	//	maptool.centerOn(e, currentWidth, currentHeight, 'in');
 }
 
+maptool.zoomAdjust = function(e, factor) {
+	var factorDiff = factor - maptool.map.zoomlevel
+
+	var offsetLeft = $("#mapHolder").offset().left;
+	var offsetTop = $("#mapHolder").offset().top;
+	var offsetX = e.originalEvent.pageX - offsetLeft;
+	var offsetY = e.originalEvent.pageY - offsetTop;
+	//var scrollX = $("#mapHolder").scrollLeft();
+	//var scrollY = $("#mapHolder").scrollTop();
+
+	oldWidth = $("#map #map_img").width();
+	oldHeight = $("#map #map_img").height();
+	//var newWidth = maptool.map.canvasWidth * factor;
+	$("#map #map_img").css({
+		maxWidth: 'none',
+		maxHeight: 'none',
+		width: (factor*100)+"%"
+	});
+	newWidth = $("#map #map_img").width();
+	newHeight = $("#map #map_img").height();
+
+	var scrollX = $("#mapHolder").scrollLeft();
+	var scrollY = $("#mapHolder").scrollTop();
+	console.log(scrollX + " " + scrollY);
+
+	var newScrollX = scrollX + (newWidth - oldWidth)/2 + (offsetX - $("#mapHolder").width()/2) * (factorDiff);
+	var newScrollY = scrollY + (newHeight - oldHeight)/newHeight*(scrollY+offsetY) - ($("#mapHolder").height()/2 - offsetY) * (factorDiff)/newHeight*(scrollY+offsetY);
+
+	//newScrollX += (offsetX - $("#mapHolder").width()/2) * (factorDiff);
+	//newScrollY -= ($("#mapHolder").height()/2 - offsetY) * (factorDiff);
+
+	$("#mapHolder").scrollLeft(newScrollX);
+	$("#mapHolder").scrollTop(newScrollY);
+
+	maptool.map.zoomlevel = factor;
+}
+
 //Zoom in on map
 maptool.zoomIn = function(e) {
 	maptool.hideContextMenu();
@@ -1172,18 +1141,8 @@ maptool.zoomIn = function(e) {
 	var currentHeight = $('#map #map_img').height();
 	
 	if (maptool.map.zoomlevel < config.maxZoom) {
-		maptool.map.zoomlevel += config.zoomStep;
-		newWidth = maptool.map.canvasWidth * maptool.map.zoomlevel;
-		
-		$("#mapHolder #map #map_img").css("height", "auto");
-		$("#map #map_img").css({
-			maxWidth: 'none',
-			maxHeight: 'none',
-			width: newWidth +"px"
-		});
+		maptool.zoomAdjust(e, maptool.map.zoomlevel + config.zoomStep);
 		maptool.adjustZoomMarker();
-		if (e !== null)
-			maptool.centerOn(e, currentWidth, currentHeight, 'in');
 		maptool.reCalculatePositions();
 	}
 	
@@ -1196,16 +1155,8 @@ maptool.zoomOut = function(e) {
 	var currentWidth = $('#map #map_img').width();
 	var currentHeight = $('#map #map_img').height();
 	if (maptool.map.zoomlevel > 1) {
-		maptool.map.zoomlevel -= config.zoomStep;
-		newWidth = maptool.map.canvasWidth * maptool.map.zoomlevel;
-		$("#map #map_img").css({
-			maxWidth: 'none',
-			maxHeight: 'none',
-			width: newWidth+"px"
-		});
+		maptool.zoomAdjust(e, maptool.map.zoomlevel - config.zoomStep);
 		maptool.adjustZoomMarker();
-		if (e !== null)
-			maptool.centerOn(e, currentWidth, currentHeight, 'out');
 		maptool.reCalculatePositions();
 	}
 }
