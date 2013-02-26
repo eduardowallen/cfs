@@ -291,13 +291,13 @@ class AdministratorController extends Controller {
 		$u = new User;
 		$u->load($_SESSION['user_id'], 'id');
 
-		$stmt = $u->db->prepare("SELECT ex.*, user.company, user.commodity, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+		$stmt = $u->db->prepare("SELECT ex.*, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 2));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$positions = $result;
 
 		
-		$stmt = $u->db->prepare("SELECT ex.*, user.company, user.commodity, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+		$stmt = $u->db->prepare("SELECT ex.*, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 1));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$rpositions = $result;
