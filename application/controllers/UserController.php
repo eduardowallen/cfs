@@ -442,7 +442,7 @@ class UserController extends Controller {
 	}
 
 	function forgotUsername() {
-		setAuthLevel(1);
+		setAuthLevel(0);
 
 		if (isset($_POST['remindme'])) {
 			$this->User->load($_POST['email'], 'email');
