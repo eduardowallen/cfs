@@ -405,6 +405,21 @@ if (isset($_POST['movePosition'])) {
 
 }
 
+if (isset($_POST['getUserCommodity'])) {
+	if (userLevel() < 1) {
+		exit;
+	}
+
+	$user = new User;
+	$user->load((int)$_POST['userId'], 'id');
+	$answer = array('commodity' => '');
+	if ($user->wasLoaded()) {
+		$answer['commodity'] = $user->get('commodity');
+	}
+	echo json_encode($answer);
+	exit;
+}
+
 
 
 ?>

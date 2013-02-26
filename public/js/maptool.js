@@ -562,26 +562,45 @@ maptool.bookPosition = function(positionObject) {
 	
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
+	$('#book_user_input').unbind('change');
+	$('#book_user_input').change(function() {
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: 'getUserCommodity=1&userId=' + $('#book_user_input').val(),
+			success: function(response) {
+				if (response) {
+					r = JSON.parse(response);
+					$('#book_commodity_input').val(r.commodity);
+				}
+			}
+		});
+	});
+
 	$('#book_position_dialogue > #search_user_input').unbind('keyup');
 	$('#book_position_dialogue > #search_user_input').val('');
-	$('#book_position_dialogue > #search_user_input').keyup(function() {
-		var query = $(this).val().toLowerCase();
-		var selectedFirst = false;
-		if (query == "") {
-			$('#book_user_input > option').show();
+	$('#book_position_dialogue > #search_user_input').keyup(function(e) {
+		if (e.keyCode == 13) {
+			$('#book_user_input').change();
 		} else {
-			$('#book_user_input > option').each(function() {
-				if ($(this).text().toLowerCase().indexOf(query) == -1) {
-					$(this).prop('selected', false);
-					$(this).hide();
-				} else {
-					if (!selectedFirst) {
-						$(this).attr('selected', 'selected');
-						selectedFirst = true;
+			var query = $(this).val().toLowerCase();
+			var selectedFirst = false;
+			if (query == "") {
+				$('#book_user_input > option').show();
+			} else {
+				$('#book_user_input > option').each(function() {
+					if ($(this).text().toLowerCase().indexOf(query) == -1) {
+						$(this).prop('selected', false);
+						$(this).hide();
+					} else {
+						if (!selectedFirst) {
+							$(this).attr('selected', 'selected');
+							selectedFirst = true;
+						}
+						$(this).show();
 					}
-					$(this).show();
-				}
-			});
+				});
+			}
 		}
 	});
 
@@ -846,26 +865,45 @@ maptool.editBooking = function(positionObject) {
 		$('#' + prefix + '_expires_input').val(positionObject.expires);
 	}
 
+	$('#'+prefix+'_user_input').unbind('change');
+	$('#'+prefix+'_user_input').change(function() {
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: 'getUserCommodity=1&userId=' + $('#'+prefix+'_user_input').val(),
+			success: function(response) {
+				if (response) {
+					r = JSON.parse(response);
+					$('#'+prefix+'_commodity_input').val(r.commodity);
+				}
+			}
+		});
+	});
+
 	$('#' + prefix + '_position_dialogue > #search_user_input').unbind('keyup');
 	$('#' + prefix + '_position_dialogue > #search_user_input').val('');
-	$('#' + prefix + '_position_dialogue > #search_user_input').keyup(function() {
-		var query = $(this).val().toLowerCase();
-		var selectedFirst = false;
-		if (query == "") {
-			$('#'+prefix+'_user_input > option').show();
+	$('#' + prefix + '_position_dialogue > #search_user_input').keyup(function(e) {
+		if (e.keyCode == 13) {
+			$('#'+prefix+'_user_input').change();
 		} else {
-			$('#'+prefix+'_user_input > option').each(function() {
-				if ($(this).text().toLowerCase().indexOf(query) == -1) {
-					$(this).prop('selected', false);
-					$(this).hide();
-				} else {
-					if (!selectedFirst) {
-						$(this).attr('selected', 'selected');
-						selectedFirst = true;
+			var query = $(this).val().toLowerCase();
+			var selectedFirst = false;
+			if (query == "") {
+				$('#'+prefix+'_user_input > option').show();
+			} else {
+				$('#'+prefix+'_user_input > option').each(function() {
+					if ($(this).text().toLowerCase().indexOf(query) == -1) {
+						$(this).prop('selected', false);
+						$(this).hide();
+					} else {
+						if (!selectedFirst) {
+							$(this).attr('selected', 'selected');
+							selectedFirst = true;
+						}
+						$(this).show();
 					}
-					$(this).show();
-				}
-			});
+				});
+			}
 		}
 	});
 
@@ -949,26 +987,45 @@ maptool.reservePosition = function(positionObject) {
 	maptool.openDialogue('reserve_position_dialogue');
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 	
+	$('#reserve_user_input').unbind('change');
+	$('#reserve_user_input').change(function() {
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: 'getUserCommodity=1&userId=' + $('#reserve_user_input').val(),
+			success: function(response) {
+				if (response) {
+					r = JSON.parse(response);
+					$('#reserve_commodity_input').val(r.commodity);
+				}
+			}
+		});
+	});
+
 	$('#reserve_position_dialogue > #search_user_input').unbind('keyup');
 	$('#reserve_position_dialogue > #search_user_input').val('');
-	$('#reserve_position_dialogue > #search_user_input').keyup(function() {
-		var query = $(this).val().toLowerCase();
-		var selectedFirst = false;
-		if (query == "") {
-			$('#reserve_user_input > option').show();
+	$('#reserve_position_dialogue > #search_user_input').keyup(function(e) {
+		if (e.keyCode == 13) {
+			$('#reserve_user_input').change();
 		} else {
-			$('#reserve_user_input > option').each(function() {
-				if ($(this).text().toLowerCase().indexOf(query) == -1) {
-					$(this).prop('selected', false);
-					$(this).hide();
-				} else {
-					if (!selectedFirst) {
-						$(this).attr('selected', 'selected');
-						selectedFirst = true;
+			var query = $(this).val().toLowerCase();
+			var selectedFirst = false;
+			if (query == "") {
+				$('#reserve_user_input > option').show();
+			} else {
+				$('#reserve_user_input > option').each(function() {
+					if ($(this).text().toLowerCase().indexOf(query) == -1) {
+						$(this).prop('selected', false);
+						$(this).hide();
+					} else {
+						if (!selectedFirst) {
+							$(this).attr('selected', 'selected');
+							selectedFirst = true;
+						}
+						$(this).show();
 					}
-					$(this).show();
-				}
-			});
+				});
+			}
 		}
 	});
 
