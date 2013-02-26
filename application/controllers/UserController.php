@@ -441,6 +441,25 @@ class UserController extends Controller {
 
 	}
 
+	function forgotUsername() {
+		setAuthLevel(1);
+
+		if (isset($_POST['remindme'])) {
+			$this->User->load($_POST['email'], 'email');
+			if ($this->User->wasLoaded()) {
+				sendMail($this->User->email, 'Chartbooker International', "Someone requested a username reminder for this account, if it was not you you can ignore this message.\r\n\r\nYour username is: " + $this->User->get('alias'));
+				$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
+			} else {
+				$this->set('error', true);
+				$this->set('usermessage', 'Sorry, we do not recognize that e-mail address.');
+			}
+		}
+
+		$this->set('email', 'E-mail');
+		$this->set('remindme', 'Remind me');
+		$this->set('headline', 'Request username reminder');
+	}
+
 	function accountSettings() {
 		setAuthLevel(1);
 
