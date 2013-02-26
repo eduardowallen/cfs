@@ -316,6 +316,7 @@ class UserController extends Controller {
 		$this->set('password', 'Password');
 		$this->set('button', 'Log in');
 		$this->set('forgotlink', 'Forgot your password?');
+		$this->set('usernamelink', 'Forgot your username?');
 
 	}
 
