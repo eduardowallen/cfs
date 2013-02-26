@@ -1,3 +1,4 @@
+<script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $headline; ?></h1>
 
 <p><a class="button add" href="user/edit/new/1"><?php echo $create_link; ?></a></p>
