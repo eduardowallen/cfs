@@ -78,7 +78,6 @@ $(document).ready(function() {
 		searchfield = searchfield.prepend(html);
 		$(this).before(searchfield);
 		searchfield.find("#search_button").click(function() {
-			//$(this).parent().find("#search_input").val("herp");
 			filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
 		});
 		searchfield.find("#search_input").keyup(function(e) {
