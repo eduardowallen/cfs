@@ -185,6 +185,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_view', 'View');
 		$this->set('th_profile', 'Details');
 		$this->set('export_button', 'Export as excel');
+		$this->set('fairId', $fairId);
 
 		$sql = 'SELECT user.*, exhibitor.position AS position, exhibitor.fair AS fair, exhibitor.commodity AS excommodity, pos.name AS posname, pos.status AS posstatus, pos.map AS posmap FROM exhibitor, user, fair_map_position AS pos WHERE exhibitor.fair = ? AND exhibitor.position = pos.id AND exhibitor.user = user.id';
 		$stmt = $this->db->prepare($sql);

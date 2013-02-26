@@ -3,7 +3,7 @@
 
 <?php if (userLevel() > 2): ?>
 
-<input type="button" value="<?php echo $export_button ?>" class="floatright" onclick="document.location.href='exhibitor/export/<?php echo $fair->get('id') ?>'"/>
+<input type="button" value="<?php echo $export_button ?>" class="floatright" onclick="document.location.href='exhibitor/export/<?php echo $fairId; ?>'"/>
 
 <?php endif; ?>
 
