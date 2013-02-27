@@ -1162,9 +1162,7 @@ maptool.positionInfo = function(positionObject) {
 	var info = $("#more_info_dialogue .info");
 
 	info.html(tt);
-	if (positionObject.exhibitor)
-		info.prepend('<p id="printLink"><a href="printerFriendly/exhibitor/' + positionObject.exhibitor.exhibitor_id + '" target="_blank">' + lang.print + '</a></p>');
-	
+
 	if (positionObject.exhibitor)
 		info.append('<p><strong>' + lang.StatusText(positionObject.statusText).charAt(0).toUpperCase() + lang.StatusText(positionObject.statusText).substr(1) + ' ' + lang.by + ':</strong> ' + positionObject.exhibitor.company + '</p>');
 
@@ -1195,6 +1193,19 @@ maptool.positionInfo = function(positionObject) {
 	} else {
 		$("#more_info_dialogue p.presentation").html(positionObject.information.replace(/\n/g, '<br/>')); //replace(/ /g, '&nbsp;')
 	}
+
+	if (positionObject.exhibitor)
+		info.append('<a id="printLink" style="cursor: pointer;">' + lang.print + '</a>');
+
+	$('#printLink').click(function() {
+		w = window.open();
+		w.document.write($('#more_info_dialogue').html());
+		$('#printLink', w.parent.document).hide();
+		$('img', w.parent.document).hide();
+		w.print();
+		w.close();
+	});
+
 	maptool.openDialogue('more_info_dialogue');
 
 }
