@@ -26,7 +26,7 @@ class TranslateController extends Controller {
 				foreach ($lang as $langId=>$str) {
 					if ($str != '') {
 						$json[$langId][$_POST['string'][$group]['en']] = $str;
-						$stmt = $this->db->prepare("INSERT INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
+						$stmt = $this->db->prepare("INSERT IGNORE INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
 						$stmt->execute(array($str, $langId, $group));
 					}
 				}
