@@ -8,8 +8,6 @@ class AdministratorController extends Controller {
 
 		$thisFair = new Fair($this->Administrator->db);
 		$thisFair->load($fair, 'id');
-		if ($thisFair->get('approved') != 1 && userLevel() < 4)
-			header('Location: '.BASE_URL.'locked');
 
 		$this->setNoTranslate('thisFair', $fair);
 
