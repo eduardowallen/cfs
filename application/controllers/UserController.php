@@ -94,6 +94,12 @@ class UserController extends Controller {
 					}
 				
 				}
+
+				if (!preg_match('/\d+/', $_POST['zipcode'])) {
+					$this->set('user_message', 'The ZIP code should only contain digits.');
+					$halt = true;
+					$this->set('error', true);
+				}
 				
 				if (!isset($halt)) { 
 					$this->User->set('customer_nr', $_POST['customer_nr']);
@@ -563,7 +569,11 @@ class UserController extends Controller {
 			$this->User->set('level', 1);
 			$this->User->set('locked', 1);
 
-			if ($this->User->aliasExists()) {
+
+
+			if (!preg_match('/\d{3}(\s|\-)?\d+/', $_POST['zipcode'])) {
+				$error.= 'The ZIP code should be in the format xxx-xx';
+			} else if ($this->User->aliasExists()) {
 				$error.= 'The username already exists in our system.';
 			} else if ($this->User->emailExists()) {
 				$error.= 'The email address already exists in our system.';

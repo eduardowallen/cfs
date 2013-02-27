@@ -48,6 +48,12 @@ function prepFormChecker() {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
+
+					//ZIP input
+					if (input.attr("name") == "zipcode" && !input.val().match(/^\d{3}(\s|-)\d+$/)) {
+						$(this).css("color", "red");
+						errors.push($(this).attr("for"));
+					}
 					
 					//Email addresses
 					if (input.attr("name") == "email" && !isValidEmailAddress(input.val())) {

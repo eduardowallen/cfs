@@ -320,8 +320,10 @@ class ExhibitorController extends Controller {
 			$this->User->set('level', 1);
 			$this->User->set('locked', 0);
 			$this->User->set('alias', $_POST['alias']);
-
-			if ($this->User->aliasExists()) {
+			
+			if (!preg_match('/\d{3}(\s|\-)?\d+/', $_POST['zipcode'])) {
+				$error.= 'The ZIP code should be in the format xxx-xx';
+			} else if ($this->User->aliasExists()) {
 				$error.= 'The username already exists in our system.';
 			} else if ($this->User->emailExists()) {
 				$error.= 'The email address already exists in our system.';
