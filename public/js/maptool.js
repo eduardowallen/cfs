@@ -1244,7 +1244,6 @@ maptool.zoomAdjust = function(e, factor) {
 
 	var scrollX = $("#mapHolder").scrollLeft();
 	var scrollY = $("#mapHolder").scrollTop();
-	console.log(scrollX + " " + scrollY);
 
 	var newScrollX = scrollX + (newWidth - oldWidth)/2 + (offsetX - $("#mapHolder").width()/2) * (factorDiff);
 	var newScrollY = scrollY + (newHeight - oldHeight)/newHeight*(scrollY+offsetY) - ($("#mapHolder").height()/2 - offsetY) * (factorDiff)/newHeight*(scrollY+offsetY);
