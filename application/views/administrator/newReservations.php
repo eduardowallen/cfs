@@ -4,7 +4,7 @@
 
 <?php if ($hasRights): ?>
 
-<table class="std_table" style="width: 100%;">
+<table class="std_table" style="width: 100%; padding-right: 16px; width: 100%;display: inline-block; max-height: 500px; overflow: auto;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -43,7 +43,7 @@
 
 <h2 style="margin-top:20px"><?php echo $rheadline; ?></h2>
 
-<table class="std_table" style="width: 100%;">
+<table class="std_table" style="width: 100%;padding-right: 16px; width: 100%;display: inline-block; max-height: 500px; overflow: auto;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -87,7 +87,7 @@
 </table>
 
 <h2 style="margin-top:20px"><?php echo $prel_table; ?></h2>
-<table class="std_table" style="width: 100%;">
+<table class="std_table" style="padding-right: 16px; width: 100%;display: inline-block; max-height: 500px; overflow: auto;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
