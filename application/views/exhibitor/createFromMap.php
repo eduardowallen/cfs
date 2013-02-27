@@ -83,3 +83,11 @@
 	</div>
 	
 </form>
+
+<script type="text/javascript">
+	<?php if( isset($js_confirm_text) ) : ?>
+		$(document).ready(function(){
+			alert('<?php echo $js_confirm_text; ?>');
+		});
+	<?php endif; ?>
+</script>

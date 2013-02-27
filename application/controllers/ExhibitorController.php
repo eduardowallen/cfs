@@ -374,8 +374,7 @@ class ExhibitorController extends Controller {
 
 					sendMail($_POST['email'], 'Your user account', $str);
 				}
-
-				header('Location: '.BASE_URL.'exhibitor/createFromMap/'.$fairUrl);
+				$this->set('js_confirm_text', 'The user was created successfully.');
 
 			}
 
