@@ -180,7 +180,7 @@ class AdministratorController extends Controller {
 		
 		$this->set('alias_label', 'Username');
 		$this->set('copy_label', 'Copy from company details');
-		$this->set('headline', 'New Exhibitor');
+		$this->set('headline', 'New exhibitor');
 		$this->set('invoice_section', 'Billing address');
 		$this->set('fair_label', 'Fair');
 		$this->set('company_label', 'Company');
