@@ -25,7 +25,7 @@
 		<td class="center"><?php echo $pos['company']; ?></td>
 		<td class="center"><?php echo $pos['commodity']; ?></td>
 		<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
-		<td><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
 		<td class="center">
 			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -65,7 +65,7 @@
 		<td class="center"><?php echo $pos['company']; ?></td>
 		<td class="center"><?php echo $pos['commodity']; ?></td>
 		<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
-		<td><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
 		<td class="center">
 			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -110,7 +110,7 @@
 		<td class="center"><?php echo $pos['company']; ?></td>
 		<td class="center"><?php echo $pos['commodity']; ?></td>
 		<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
-		<td><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
 		<td class="center">
 			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'] ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
