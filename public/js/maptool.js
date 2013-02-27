@@ -987,6 +987,9 @@ maptool.reservePosition = function(positionObject) {
 	maptool.openDialogue('reserve_position_dialogue');
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 	
+	$('#reserve_expires_input').datepicker();
+	$('#reserve_expires_input').datepicker('option', 'dateFormat', 'dd-mm-yy');
+
 	$('#reserve_user_input').unbind('change');
 	$('#reserve_user_input').change(function() {
 		$.ajax({
@@ -1039,43 +1042,51 @@ maptool.reservePosition = function(positionObject) {
 		} else {
 			$('#reserve_category_input').css('border-color', '#000000');
 		}
-		
+
 		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d$/)) {
-			
-			var catStr = '';
-			for (var j=0; j<cats.length; j++) {
-				catStr += '&categories[]=' + cats[j];
+			var dateParts = $("#reserve_expires_input").val().split('-');
+			dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
+			// Add one day, since it should be up to and including.
+			dt.setDate(dt.getDate()+1);
+			if (dt < new Date()) {
+				$("#reserve_expires_input").css('border-color', 'red');
+				return;
 			}
-			
-			var dataString = 'reservePosition=' + positionObject.id
-					   + '&commodity=' + $("#reserve_commodity_input").val()
-					   + '&message=' + $("#reserve_message_input").val()
-					   + '&expires=' + $("#reserve_expires_input").val()
-					   + '&map=' + maptool.map.id
-					   + catStr;
-			
-			if (maptool.map.userlevel > 1) {
-				dataString += '&user=' + $("#reserve_user_input").val();
-			}
-
-			$.ajax({
-				url: 'ajax/maptool.php',
-				type: 'POST',
-				data: dataString,
-				success: function(response) {
-					maptool.markPositionAsNotBeingEdited();
-					maptool.update();
-					//document.location = document.location.replace('reserve', '');
-					reserveId = false;					
-					maptool.closeDialogues();
-					$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
-					$('.ssinfo').html('');
-				}
-			});
-
 		} else {
 			$("#reserve_expires_input").css('border-color', 'red');
+			return;
+		}	
+
+		var catStr = '';
+		for (var j=0; j<cats.length; j++) {
+			catStr += '&categories[]=' + cats[j];
 		}
+		
+		var dataString = 'reservePosition=' + positionObject.id
+				   + '&commodity=' + $("#reserve_commodity_input").val()
+				   + '&message=' + $("#reserve_message_input").val()
+				   + '&expires=' + $("#reserve_expires_input").val()
+				   + '&map=' + maptool.map.id
+				   + catStr;
+		
+		if (maptool.map.userlevel > 1) {
+			dataString += '&user=' + $("#reserve_user_input").val();
+		}
+
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: dataString,
+			success: function(response) {
+				maptool.markPositionAsNotBeingEdited();
+				maptool.update();
+				//document.location = document.location.replace('reserve', '');
+				reserveId = false;					
+				maptool.closeDialogues();
+				$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
+				$('.ssinfo').html('');
+			}
+		});
 
 	});
 }
