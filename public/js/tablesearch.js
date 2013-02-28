@@ -61,7 +61,7 @@ function filterTableTable(table, str, results) {
 $(document).ready(function() {
 
 	var html = '<input type="text" id="search_input"/>'
-			 + '<input type="button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';
+			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';
 
 	$('.std_table').each(function() {
 		var std_table = $(this);
@@ -84,7 +84,7 @@ $(document).ready(function() {
 		dataType : 'html',
 		data: {'query':'Search'},
 		success: function(result){
-			$('#search_button').attr('value', result);
+			$('.search_button').attr('value', result);
 		}
 	});
 
