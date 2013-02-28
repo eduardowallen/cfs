@@ -230,6 +230,11 @@ class FairController extends Controller {
 				*/				
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
+					if (userLevel() == 3) {
+						$user = new User;
+						$user->load($_SESSION['user_id'], 'id');
+						sendMail('info@chartbooker.com', 'Chartbooker International', 'A new fair '.BASE_URL.$this->Fair->get('url').' has been created by '.$user->get('company'));
+					}
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
 				} else {
