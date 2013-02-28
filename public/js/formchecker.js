@@ -10,16 +10,56 @@ function prepFormChecker() {
 	$("form div #email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
+			var input = $(this);
+			input.data('valid', true);
+			if (input.val() != input.attr('value')) {
+				$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: 'emailExists=1&email=' + input.val(),
+					success: function(response) {
+						var ans = JSON.parse(response);
+						if (ans.emailExists) {
+							input.css('border', '1px solid #FF0000');
+							input.data('valid', false);
+						} else {
+							input.css('border', '1px solid #00FF00');
+							input.data('valid', true);
+						}
+					}
+				});
+			}
 		} else {
 			$(this).css('border', '1px solid #FF0000');
+			$(this).data('valid', false);
 		}
 	});
 
 	$("form div #invoice_email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
+			var input = $(this);
+			input.data('valid', true);
+			if (input.val() != input.attr('value')) {
+				$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: 'emailExists=1&email=' + input.val(),
+					success: function(response) {
+						var ans = JSON.parse(response);
+						if (ans.emailExists) {
+							input.css('border', '1px solid #FF0000');
+							input.data('valid', false);
+						} else {
+							input.css('border', '1px solid #00FF00');
+							input.data('valid', true);
+						}
+					}
+				});
+			}
 		} else {
 			$(this).css('border', '1px solid #FF0000');
+			$(this).data('valid', false);
 		}
 	});
 	
@@ -55,14 +95,14 @@ function prepFormChecker() {
 						errors.push($(this).attr("for"));
 					}
 					
-					//Email addresses
-					if (input.attr("name") == "email" && !isValidEmailAddress(input.val())) {
+					//Email addresses)
+					if (input.attr("name") == "email" && (!isValidEmailAddress(input.val()) || !input.data('valid'))) {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
 					
 					//Email addresses 2
-					if (input.attr("name") == "invoice_email" && !isValidEmailAddress(input.val())) {
+					if (input.attr("name") == "invoice_email" && (!isValidEmailAddress(input.val()) || !input.data('valid'))) {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}

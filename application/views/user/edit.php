@@ -1,8 +1,12 @@
 <h1><?php echo $edit_headline; ?></h1>
 
-<?php if (isset($user_message)): ?>
-<p><?php echo $user_message ?></p>
-<?php endif; ?>
+<?php if (isset($user_message)) {
+	if (isset($error) && $error) {
+		echo '<p class="error">'.$user_message.'</p>';
+	} else {
+		echo '<p>'.$user_message.'</p>';
+	}
+} ?>
 
 <form action="user/edit/<?php echo $edit_id; ?>/<?php echo $edit_lvl; ?>" method="post" id="edit_user_form">
 
