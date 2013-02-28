@@ -7,6 +7,7 @@ $(document).ready(function()  {
 });
 
 function prepFormChecker() {
+	$("form div #email").data('valid', true);
 	$("form div #email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
@@ -35,6 +36,7 @@ function prepFormChecker() {
 		}
 	});
 
+	$("form div #invoice_email").data('valid', true);
 	$("form div #invoice_email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
@@ -90,7 +92,7 @@ function prepFormChecker() {
 					}
 
 					//ZIP input
-					if (input.attr("name") == "zipcode" && !input.val().match(/^\d{3}(\s|-)\d+$/)) {
+					if (input.attr("name") == "zipcode" && !input.val().match(/^\d{3}(\s|-)?\d+$/)) {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
