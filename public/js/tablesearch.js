@@ -59,15 +59,6 @@ function filterTableTable(table, str, results) {
 }
 
 $(document).ready(function() {
-	$.ajax({
-		url: 'ajax/translate.php',
-		type: 'POST',
-		dataType : 'html',
-		data: {'query':'Search'},
-		success: function(result){
-			$('#search_button').attr('value', result);
-		}
-	});
 
 	var html = '<input type="text" id="search_input"/>'
 			 + '<input type="button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';
@@ -85,6 +76,16 @@ $(document).ready(function() {
 				filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
 			}
 		});
+	});
+
+	$.ajax({
+		url: 'ajax/translate.php',
+		type: 'POST',
+		dataType : 'html',
+		data: {'query':'Search'},
+		success: function(result){
+			$('#search_button').attr('value', result);
+		}
 	});
 
 });
