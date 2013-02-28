@@ -79,10 +79,15 @@ class ExhibitorController extends Controller {
 		
 		$this->set('headline', 'Exhibitors');
 		$this->set('create_link', 'New exhibitor');
+		$this->set('th_company', 'Company');
+		$this->set('th_orgnr', 'Organization number');
 		$this->set('th_name', 'Name');
+		$this->set('th_email', 'E-mail');
+		$this->set('th_phone', 'Phone 1');
 		$this->set('th_fairs', 'Fairs');
 		$this->set('th_bookings', 'Bookings');
 		$this->set('th_last_login', 'Last login');
+		$this->set('th_created', 'Created');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
 		$this->set('fairs', $fairs);
