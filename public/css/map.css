@@ -140,8 +140,10 @@
 	z-index:998;
 }
 .marker_tooltip {
+	background-color: #EAEAEA;
+	opacity: 0.95;
+	padding: 5px;
 	width:210px;
-	padding:5px;
 	position:absolute;
 	z-index:1000;
 	display:none;
@@ -149,13 +151,18 @@
 	font-family:Arial, Helvetica, Sans-serif;
 }
 .marker_tooltip_flipped {
-	padding-top:20px;
 }
 .marker_tooltip .info {
 	overflow:hidden;
 }
 .marker_tooltip h3 {
-	color:#333333;
+	color:#FFFFFF;
+	opacity: 0.95;
+	width: 100%;
+	background-color: #47832F;
+	padding: 5px;
+	margin-left: -5px;
+	margin-top: -5px;
 }
 .marker_tooltip p {
 	margin:4px 0 4px 0;

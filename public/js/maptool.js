@@ -176,8 +176,6 @@ maptool.placeMarkers = function() {
 			freeSpots++;
 		}
 
-		tooltip.append('<img src="images/box_med_pil_172pxl.png" style="position: absolute; left: 0px; top: 0px; width: 100%; height: 100%; z-index: -1;" />');
-		
 		//Calculate position on map
 		var xMargin = ((maptool.map.positions[i].x / 100) * $("#map #map_img").width()) - config.iconOffset;
 		var yMargin = ((maptool.map.positions[i].y / 100) * $("#map #map_img").height())  - config.iconOffset;
@@ -187,11 +185,6 @@ maptool.placeMarkers = function() {
 			left: xMargin + 'px',
 			top: yMargin + 'px'
 		});
-		
-		/*marker.css({
-			left: maptool.map.positions[i].x + '%',
-			top: maptool.map.positions[i].y + '%'
-		});*/
 		
 		var d = new Date();
 		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id && ((Math.round(d.getTime() / 1000) - maptool.map.positions[i].edit_started) < 60*20)) {
@@ -226,14 +219,12 @@ maptool.placeMarkers = function() {
 		var tooltipimg = $("#info-" + $(this).attr("id").replace("pos-", "") + " > img");
 		if (!tooltip.is(":visible")) {
 			if (tooltip.height() > $(this).offset().top) {
-				tooltipimg.attr('src', 'images/box_med_pil_172pxl_flip.png');
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: $(this).offset().left,
 					top: $(this).offset().top + 20
 				});
 			} else {
-				tooltipimg.attr('src', 'images/box_med_pil_172pxl.png');
 				tooltip.removeClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: $(this).offset().left,
