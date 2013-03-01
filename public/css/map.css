@@ -290,9 +290,12 @@ h1.inline-block {
 	cursor:pointer;
 }
 #pancontrols {
+	background:url("../images/icons/pan_bg.png") no-repeat;
 	margin-top:10px;
 	margin-left:40px;
-	position: absolute;
+	width: 100px;
+	height: 100px;
+	position:absolute;
 	cursor:pointer;
 	z-index:999;
 }
@@ -303,17 +306,17 @@ h1.inline-block {
 }
 #panup {
 	left:40px;
-	top:0px;
+	top:10px;
 }
 #panleft {
-	left:0px;
+	left:10px;
 	top:40px;
 }
 #pandown {
 	left:40px;
-	top:80px;
+	top:70px;
 }
 #panright {
-	left:80px;
+	left:70px;
 	top:40px;
 }
