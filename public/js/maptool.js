@@ -74,6 +74,7 @@ maptool.populateList = function() {
 	var prevSelectedId = -1;
 	if ($('#right_sidebar ul li.selected:first').length != 0) {
 		prevSelectedId = $('#right_sidebar ul li.selected:first').attr("id").replace("map-li-", "");
+		$('#right_sidebar ul li.selected:first #list_commodity').show();
 	}
 	
 	$("#right_sidebar ul").html('');
@@ -118,10 +119,13 @@ maptool.populateList = function() {
 			}
 			
 			if (!hide) {
-				var item = $('<li id="map-li-' + maptool.map.positions[i].id + '">' + maptool.map.positions[i].exhibitor.company + '<p>' + maptool.map.positions[i].exhibitor.spot_commodity + '</p></li>');
+				var item = $('<li id="map-li-' + maptool.map.positions[i].id + '">' + maptool.map.positions[i].exhibitor.company + '<p id="list_commodity">' + maptool.map.positions[i].exhibitor.spot_commodity + '</p></li>');
+				item.children('#list_commodity').hide();
 				item.click(function() {
 					$('#right_sidebar ul li').removeClass('selected');
+					$('#right_sidebar ul li #list_commodity').hide();
 					$(this).addClass('selected');
+					$(this).children('#list_commodity').show();
 					var index = $(this).attr("id").replace("map-li-", "");
 					//maptool.positionInfo(maptool.map.positions[index]);
 					maptool.focusOn(index);
@@ -130,6 +134,7 @@ maptool.populateList = function() {
 					item.addClass('selected');
 				}
 				$("#right_sidebar ul").append(item);
+				$('#list_commodity').hide();
 			}
 		}
 	}
