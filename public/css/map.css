@@ -141,6 +141,8 @@
 }
 .marker_tooltip {
 	background-color: #EAEAEA;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=95)";
+	filter: alpha(opacity=95);
 	opacity: 0.95;
 	padding: 5px;
 	width:210px;
@@ -157,6 +159,8 @@
 }
 .marker_tooltip h3 {
 	color:#FFFFFF;
+	-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=95)";
+	filter: alpha(opacity=95);
 	opacity: 0.95;
 	width: 100%;
 	background-color: #47832F;
