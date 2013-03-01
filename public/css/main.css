@@ -225,7 +225,8 @@ img#logo {
 	background:#ffffff;
 	min-height:400px;
 	padding:20px;
-	width:984px;
+	min-width: 984px;
+	display: table;
 	margin:24px auto;
 }
 
