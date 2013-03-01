@@ -13,7 +13,7 @@ var config = {
 	zoomStep: 0.1, //how many times to increase/decrease map size on zoom
 	panMovement: 200, //pixels, distance to pan
 	panSpeed: 500, //animation speed for panning map
-	iconOffset: 6, //pixels to adjust icon position (half the width/height of the icon)
+	iconOffset: 8, //pixels to adjust icon position (half the width/height of the icon)
 	markerUpdateTime: 30 //marker update interval in seconds
 };
 
