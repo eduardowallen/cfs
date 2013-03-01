@@ -1415,6 +1415,7 @@ maptool.focusOn = function(position) {
 	var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 50;
 	
 	img.css({
+		"z-index": 999,
 		position: 'absolute',
 		left: ml + 'px',
 		top: mt + 'px'
