@@ -167,7 +167,7 @@ maptool.placeMarkers = function() {
 			if (maptool.map.positions[i].status == 1) {
 				tooltip.append('<p><strong>' + lang.reservedUntil + ':</strong> ' + maptool.map.positions[i].expires + '</p>');
 			}
-			tooltip.append('<p class="info"><strong>' + lang.commodity + ':</strong> ' + maptool.map.positions[i].exhibitor.commodity + '</p>');
+			tooltip.append('<p class="info"><strong>' + lang.commodity_label + ':</strong> ' + maptool.map.positions[i].exhibitor.commodity + '</p>');
 		} else {
 			tooltip.append('<p class="info">' + maptool.map.positions[i].information.replace(/ /g, '&nbsp;').replace(/\n/g, '<br/>') + '</p>');
 			if (maptool.map.userlevel > 0) {
