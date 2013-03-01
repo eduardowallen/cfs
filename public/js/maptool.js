@@ -1180,7 +1180,7 @@ maptool.positionInfo = function(positionObject) {
 		$('#more_info_dialogue h4').text(lang.presentation);
 		info.append('<p><strong>' + lang.commodity + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
 
-		$("#more_info_dialogue p.presentation").text(positionObject.exhibitor.presentation);
+		$("#more_info_dialogue p.presentation").append(positionObject.exhibitor.presentation);
 		if (positionObject.exhibitor.website != '') {
 			var website = positionObject.exhibitor.website;
 			if (website.indexOf("http://") == -1) {
