@@ -96,11 +96,14 @@ class UserController extends Controller {
 				} else if ($this->User->wasLoaded()) {
 
 					if ($this->User->get('email') != $_POST['email']) {
+						$this->User->set('email', $_POST['email']);
 						if ($this->User->emailExists()) {
 							$this->set('user_message', 'The email address already exists in our system. Please choose another one.');
 							$halt = true;
 							$this->set('error', true);
 						}
+					} else {
+						$this->User->set('email', $_POST['email']);
 					}
 				}
 
