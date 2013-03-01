@@ -434,10 +434,10 @@ class ExhibitorController extends Controller {
 		
 		//Masters get the full list of positions, lower levels get the ones for their fair
 		if (userLevel() == 4) {
-			$stmt = $u->db->prepare("SELECT position FROM exhibitor WHERE user = ?");
+			$stmt = $u->db->prepare("SELECT * FROM exhibitor WHERE user = ?");
 			$stmt->execute(array($u->get('id')));
 		} else {
-			$stmt = $u->db->prepare("SELECT position FROM exhibitor WHERE user = ? AND fair = ?");
+			$stmt = $u->db->prepare("SELECT * FROM exhibitor WHERE user = ? AND fair = ?");
 			$stmt->execute(array($u->get('id'), $_SESSION['user_fair']));
 		}
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -446,16 +446,18 @@ class ExhibitorController extends Controller {
 		foreach($u->getPreliminaries() as $prel) {
 			$pos = new FairMapPosition;
 			$pos->load($prel['position'], 'id');
-			$ex = new Exhibitor;
-			$ex->set('commodity', $prel['commodity']);
-			$ex->set('arranger_message', $prel['arranger_message']);
-			$pos->set('exhibitor', $ex);
+			$pos->set('commodity', $prel['commodity']);
+			$pos->set('arranger_message', $prel['arranger_message']);
 			$positions[] = $pos;
 		}
 
 		foreach ($result as $res) {
 			$pos = new FairMapPosition;
 			$pos->load($res['position'], 'id');
+			$pos->set('commodity', $res['commodity']);
+			$pos->set('arranger_message', $res['arranger_message']);
+			$pos->set('company', $u->get('company'));
+			$pos->set('booking_time', $res['booking_time']);
 			$positions[] = $pos;
 		}
 		

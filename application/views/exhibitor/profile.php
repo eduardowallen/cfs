@@ -67,7 +67,7 @@
 	<label for="presentation"><?php echo $presentation_label; ?></label>
 	<textarea name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
 	
-	<!--<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>-->
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 	</div>
 
 </form>
@@ -88,10 +88,10 @@
 	<tr>
 		<td><?php echo $pos->get('name'); ?></td>
 		<td class="center"><?php echo $pos->get('area'); ?></td>
-		<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
-		<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
-		<td><?php echo ($pos->get('exhibitor')->get('booking_time') != '') ? date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')) : ''; ?></td>
-		<td><?php echo $pos->get('exhibitor')->get('arranger_message'); ?></td>
+		<td class="center"><?php echo $pos->get('company'); ?></td>
+		<td class="center"><?php echo $pos->get('commodity'); ?></td>
+		<td><?php echo ($pos->get('booking_time') != '') ? date('d-m-Y H:i:s', $pos->get('booking_time')) : ''; ?></td>
+		<td><?php echo $pos->get('arranger_message'); ?></td>
 	</tr>
 <?php endforeach; ?>
 </tbody>
