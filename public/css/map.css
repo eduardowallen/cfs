@@ -262,9 +262,9 @@ h1.inline-block {
 	height:40px;
 }
 #zoombar {
-	background:url("../images/zoom_bar_new.png") no-repeat;
+	background:url("../images/zoom_bar_new_short.png") no-repeat;
 	width:27px;
-	height:221px;
+	height:155px;
 	position:absolute;
 	z-index:999;
 	margin:10px 0 0 10px;
@@ -272,7 +272,7 @@ h1.inline-block {
 #zoombar img {
 	position:absolute;
 	margin-left:3px;
-	margin-top:190px; /*72 px*/
+	margin-top:124px; /*72 px*/
 	cursor:move;
 }
 #zoombar a {
@@ -284,7 +284,7 @@ h1.inline-block {
 	
 }
 #zoombar #out {
-	margin-top:201px;
+	margin-top:135px;
 }
 #zoomcontrols {
 	text-align:right;

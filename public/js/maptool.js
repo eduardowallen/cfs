@@ -1438,14 +1438,14 @@ maptool.placeFocusArrow = function() {
 maptool.adjustZoomMarker = function() {
 	
 	if (maptool.map.zoomlevel == 1) {
-		tm = 190;
+		tm = 124;
 	} else {
 		var steps = (config.maxZoom - 1) / config.zoomStep;
 		var currentStep = (maptool.map.zoomlevel-1) / config.zoomStep;
 		
-		var slideHeight = $('#zoombar').height() - $('#zoombar #in').height() - $('#zoombar #out').height();
+		var slideHeight = $('#zoombar').height() - $('#zoombar #in').height() - $('#zoombar #out').height() - $('#zoombar img').height();
 		var tm = (slideHeight / steps) * currentStep;
-		tm = $('#zoombar').height() - $('#zoombar #in').height() - tm;
+		tm = $('#zoombar #in').height() + slideHeight - tm;
 	}
 	$('#zoombar img').css({
 		marginTop: tm + 'px'
