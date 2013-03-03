@@ -549,7 +549,7 @@ maptool.bookPosition = function(positionObject) {
 	if (positionObject.status == 1) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
-		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').attr("selected", "selected");
+		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
 	} else {
 		$("#book_commodity_input, #book_message_input").val("");
 	}
@@ -590,7 +590,7 @@ maptool.bookPosition = function(positionObject) {
 						$(this).hide();
 					} else {
 						if (!selectedFirst) {
-							$(this).attr('selected', 'selected');
+							$(this).prop("selected", true);
 							selectedFirst = true;
 						}
 						$(this).show();
@@ -849,7 +849,7 @@ maptool.cancelApplication = function(positionObject) {
 }
 
 maptool.editBooking = function(positionObject) {
-	
+
 	if (positionObject.status == 2) {
 		//booked
 		//maptool.openDialogue('book_position_dialogue');
@@ -893,7 +893,7 @@ maptool.editBooking = function(positionObject) {
 						$(this).hide();
 					} else {
 						if (!selectedFirst) {
-							$(this).attr('selected', 'selected');
+							$(this).prop("selected", true);
 							selectedFirst = true;
 						}
 						$(this).show();
@@ -906,12 +906,12 @@ maptool.editBooking = function(positionObject) {
 	maptool.openDialogue(prefix + '_position_dialogue');
 	$('#' + prefix + '_commodity_input').val(positionObject.exhibitor.commodity);
 	$('#' + prefix + '_message_input').val(positionObject.exhibitor.arranger_message);
-	$('#' + prefix + '_user_input option[value="' + positionObject.exhibitor.user + '"]').attr('selected', 'selected');
+	$('#' + prefix + '_user_input option[value="' + positionObject.exhibitor.user + '"]').prop('selected', true);
 	
-	$('#' + prefix + '_category_input option').removeAttr("selected");
+	$('#' + prefix + '_category_input option').prop("selected", false);
 	
 	for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
-		$('#' + prefix + '_category_input option[value="' + positionObject.exhibitor.categories[i].category_id + '"]').attr("selected", "selected");
+		$('#' + prefix + '_category_input option[value="' + positionObject.exhibitor.categories[i].category_id + '"]').prop("selected", true);
 	}
 	
 	$("#" + prefix + "_post").unbind("click");
@@ -975,7 +975,7 @@ maptool.reservePosition = function(positionObject) {
 	if (positionObject.status == 2) {
 		$("#reserve_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#reserve_message_input").val(positionObject.exhibitor.arranger_message);
-		$('#reserve_user_input option[value="' + positionObject.exhibitor.user + '"]').attr("selected", "selected");
+		$('#reserve_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
 	} else {
 		$("#reserve_commodity_input, #reserve_message_input, #reserve_expires_input").val("");
 	}
@@ -1018,7 +1018,7 @@ maptool.reservePosition = function(positionObject) {
 						$(this).hide();
 					} else {
 						if (!selectedFirst) {
-							$(this).attr('selected', 'selected');
+							$(this).prop("selected", true);
 							selectedFirst = true;
 						}
 						$(this).show();
@@ -1669,9 +1669,9 @@ maptool.init = function(mapId) {
 						result = JSON.parse(res);
 						$('#reserve_commodity_input').val(result.commodity);
 						$('#reserve_message_input').val(result.arranger_message);
-						$('#reserve_user_input option[value="' + result.id + '"]').attr("selected", "selected");
+						$('#reserve_user_input option[value="' + result.id + '"]').prop("selected", true);
 						for (var i=0; i<result.categories.length; i++) {
-							$('#reserve_category_input option[value="' + result.categories[i] + '"]').attr("selected", "selected");
+							$('#reserve_category_input option[value="' + result.categories[i] + '"]').prop("selected", true);
 						}
 					}
 				});
