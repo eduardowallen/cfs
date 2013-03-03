@@ -1,5 +1,4 @@
 function filterTable(table, str, results) {
-	console.log("Going to filter table with " + str);
 
 	if (table.hasClass("of-tables")) {
 		filterTableTable(table, str, results);
@@ -12,9 +11,7 @@ function filterTable(table, str, results) {
 	table.find("tbody td").each(function() {
 
 		if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) >= 0) {
-			//console.log($(this).parent());
 			hits.push($(this).parent());
-			//$(this).parent().hide();
 		}
 	});
 	table.find("tbody tr").hide();
@@ -33,7 +30,6 @@ function filterTable(table, str, results) {
 }
 
 function filterTableTable(table, str, results) {
-	console.log("Going to filter table table with " + str);
 	var hits = new Array;
 	var hit_count = 0;
 
