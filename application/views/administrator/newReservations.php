@@ -4,7 +4,8 @@
 
 <?php if ($hasRights): ?>
 
-<table class="std_table" style="width: 100%; padding-right: 16px; width: 100%;display: inline-block; max-height: 500px; overflow: auto;">
+<div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
+<table class="std_table" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -40,10 +41,12 @@
 <?php endforeach; ?>
 </tbody>
 </table>
+</div>
 
 <h2 style="margin-top:20px"><?php echo $rheadline; ?></h2>
 
-<table class="std_table" style="width: 100%;padding-right: 16px; width: 100%;display: inline-block; max-height: 500px; overflow: auto;">
+<div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
+<table class="std_table" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -85,9 +88,12 @@
 <?php endforeach; ?>
 </tbody>
 </table>
+</div>
 
 <h2 style="margin-top:20px"><?php echo $prel_table; ?></h2>
-<table class="std_table" style="padding-right: 16px; width: 100%;display: inline-block; max-height: 500px; overflow: auto;">
+
+<div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
+<table class="std_table" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -136,6 +142,7 @@
 <?php endforeach; ?>
 </tbody>
 </table>
+</div>
 
 
 <?php else: ?>

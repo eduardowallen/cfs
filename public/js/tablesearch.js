@@ -63,7 +63,11 @@ $(document).ready(function() {
 		var std_table = $(this);
 		searchfield = $('<p></p>');
 		searchfield = searchfield.prepend(html);
-		$(this).before(searchfield);
+		if ($(this).parent().hasClass('scrolltable')) {
+			$(this).parent().before(searchfield);
+		} else {
+			$(this).before(searchfield);
+		}
 		searchfield.find("#search_button").click(function() {
 			filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
 		});
