@@ -99,6 +99,23 @@ class ExhibitorController extends Controller {
 	public function forFair($param='', $value='') {
 		
 		setAuthLevel(2);
+
+		if (userLevel() == 3) {
+			$fair = new Fair;
+			$fair->load($_SESSION['user_fair'], 'id');
+			if ($fair->wasLoaded() && $fair->get('created_by') != $_SESSION['user_id']) {
+				toLogin();
+			}
+		}
+
+		if (userLevel() == 2) {
+			$stmt = $this->db->prepare('SELECT * FROM fair_user_relation WHERE user=? AND fair=?');
+			$stmt->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (!$result) {
+				toLogin();
+			}
+		}
 		
 		if ($param == 'copy') {
 
