@@ -1199,6 +1199,8 @@ maptool.positionInfo = function(positionObject) {
 		w = window.open();
 		w.document.write('<link rel="stylesheet" type="text/css" href="css/generic.css" /><link rel="stylesheet" type="text/css" href="css/main.css" /><link rel="stylesheet" type="text/css" href="css/map.css" />');
 		w.document.write($('#more_info_dialogue')[0].outerHTML);
+		w.document.close();
+		w.focus();
 		w.print();
 		w.close();
 	});
