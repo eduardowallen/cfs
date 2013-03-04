@@ -59,8 +59,31 @@ class UserController extends Controller {
 
 	}
 
-	public function edit($id, $type=0) {
-		setAuthLevel(4);
+	public function edit($id='', $type=0) {
+		setAuthLevel(2);
+
+		if ($id == '') {
+			$id = $_SESSION['user_id'];
+		}
+
+		if ($id != $_SESSION['user_id'] && userLevel() != 4) {
+			$user = new User;
+			$user->load($id, 'id');
+
+			if ($user->wasLoaded()) {
+				if (userLevel() == 3) {
+					if ($user->get('owner') != $_SESSION['user_id']) {
+						toLogin();
+					}
+				} else {
+					toLogin();
+				}
+			} else {
+				$this->set('user_message', 'The user does not exist.');
+				$halt = true;
+				$this->set('error', true);
+			}
+		}
 
 		if (!empty($id)) {
 

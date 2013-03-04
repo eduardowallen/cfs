@@ -444,9 +444,6 @@ class ExhibitorController extends Controller {
 
 	function profile($id) {
 
-		header('Location: '.BASE_URL.'user/edit/'.$id);
-		exit;
-
 		setAuthLevel(1);
 
 		$u = new User;

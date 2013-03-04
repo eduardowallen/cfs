@@ -97,12 +97,3 @@
 	
 
 </form>
-
-<script type="text/javascript">
-	<?php if( isset($js_confirm) ) : ?>
-		$(document).ready(function(){
-			alert('<?php echo $js_confirm_text; ?>');
-			window.location.href = '<?php echo BASE_URL;?>user/overview/4';
-		});
-	<?php endif; ?>
-</script>
