@@ -1191,7 +1191,7 @@ maptool.positionInfo = function(positionObject) {
 	}
 
 	if (positionObject.exhibitor)
-		info.append('<a id="printLink" style="cursor: pointer;">' + lang.print + '</a>');
+		info.parent().append('<span class="td_button"><a id="printLink" style="cursor: pointer;">' + lang.print + '</a></span>');
 
 	$('#printLink').click(function() {
 		w = window.open();
