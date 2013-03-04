@@ -133,6 +133,7 @@ class UserController extends Controller {
 					$this->User->set('invoice_city', $_POST['invoice_city']);
 					$this->User->set('invoice_email', $_POST['invoice_email']);
 					$this->User->set('locked', $_POST['locked']);
+					$this->User->set('presentation', $_POST['presentation']);
 	
 					if (isset($_POST['level']))
 						$this->User->set('level', $_POST['level']);
@@ -213,6 +214,7 @@ class UserController extends Controller {
 			$this->set('email_label', 'E-mail');
 			$this->set('password_label', 'Password');
 			$this->set('password_repeat_label', 'Password again (repeat to confirm)');
+			$this->set('presentation_label', 'Presentation');
 			$this->set('save_label', 'Save');
 			$this->set('invoice_company_label', 'Company');
 			$this->set('invoice_address_label', 'Address');

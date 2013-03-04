@@ -83,6 +83,9 @@
 
 	<label for="invoice_email"><?php echo $invoice_email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
+
+	<label for="presentation"><?php echo $presentation_label; ?></label>
+	<textarea name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
 	
 		<label for="#"><?php echo $locked_label; ?></label>
 	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo $locked_label0; ?></label>
