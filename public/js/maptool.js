@@ -1190,8 +1190,10 @@ maptool.positionInfo = function(positionObject) {
 		$("#more_info_dialogue p.presentation").html(positionObject.information.replace(/\n/g, '<br/>')); //replace(/ /g, '&nbsp;')
 	}
 
-	if (positionObject.exhibitor)
+	if (positionObject.exhibitor) {
+		$('#printLink').parent().remove();
 		info.parent().append('<span class="td_button"><a id="printLink" style="cursor: pointer;">' + lang.print + '</a></span>');
+	}
 
 	$('#printLink').click(function() {
 		w = window.open();
