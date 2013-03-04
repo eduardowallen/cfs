@@ -17,6 +17,7 @@
 			<th><?php echo $th_created ?></th>
 			<th><?php echo $th_edit ?></th>
 			<th><?php echo $th_delete ?></th>
+			<th><?php echo $th_resend ?></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -33,6 +34,7 @@
 			<td><?php echo date('d/m/y', $user->get('created')); ?></td>
 			<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $translator->{'Edit'} ?>"/></a></td>
 			<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really delete?'} ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
+			<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really reset user password?'} ?>');" href="user/resendDetails/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
 		</tr>
 		<?php endforeach; ?>
 	</tbody>

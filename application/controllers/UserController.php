@@ -726,6 +726,32 @@ class UserController extends Controller {
 
 	}
 
+	public function resendDetails($id) {
+
+		setAuthLevel(4);
+
+		$this->User->load($id, 'id');
+
+		if ($this->User->wasLoaded()) {
+			$arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
+			shuffle($arr);
+			$str = substr(implode('', $arr), 0, 13);
+			
+			$this->User->setPassword($str);
+			$this->User->save();
+
+			$str = 'Welcome to Chartbooker'."\r\n\r\n";
+			$str.= 'Username: '.$this->User->get('alias')."\r\n";
+			$str.= 'Password: '.$str."\r\n";
+
+			sendMail($this->User->get('email'), 'Your user account', $str);
+
+			$this->set('user_message', 'The user\'s password was reset and a mail was sent.');
+		} else {
+			$this->set('error_message', 'That user does not exist.');
+		}
+	}
+
 }
 
 ?>

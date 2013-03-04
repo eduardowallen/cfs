@@ -90,6 +90,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_created', 'Created');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
+		$this->set('th_resend', 'Reset');
 		$this->set('fairs', $fairs);
 		$this->set('', $fairs);
 		$this->set('users', $unique);
