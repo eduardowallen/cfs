@@ -59,7 +59,7 @@ class UserController extends Controller {
 
 	}
 
-	public function edit($id='', $type=0) {
+	public function edit($id='') {
 		setAuthLevel(2);
 
 		if ($id == '') {
@@ -89,8 +89,6 @@ class UserController extends Controller {
 
 			if ($id == 'new') {
 				$this->set('edit_headline', 'New user');
-				if (isset($type) && $type > 0)
-					$id = 'new/'.$type;
 
 			} else {
 				$this->set('edit_headline', 'Edit user');
@@ -157,42 +155,37 @@ class UserController extends Controller {
 					$this->User->set('invoice_email', $_POST['invoice_email']);
 					$this->User->set('locked', $_POST['locked']);
 					$this->User->set('presentation', $_POST['presentation']);
-	
-					if (isset($_POST['level']))
-						$this->User->set('level', $_POST['level']);
-					else if ($type)
-						$this->User->set('level', $type);
 						
-						if (preg_match('/^new/', $id)) {
-							
-							// Generate a pw
-							$pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
-							shuffle($pw_arr);
-							$password = substr(implode('', $pw_arr), 0, 13);
-							// End of gen
-		
-							$this->User->setPassword($password);
-							
-							switch($this->User->get('level')) {
-								case 4:
-									$lvl = 'Master';
-									break;
-								case 3:
-									$lvl = 'Organizer';
-									break;
-								case 2:
-									$lvl = 'Administrator';
-									break;
-								default:
-									$lvl = 'Exhibitor';
-									break;
-							}
-							$str = 'Welcome to Chartbooker'."\r\n\r\n";
-							$str.= 'Username: '.$_POST['alias']."\r\n";
-							$str.= 'Password: '.$password."\r\n";
-							$str.= 'Access level: '.$lvl;
-							sendMail($_POST['email'], 'Your user account', $str);
+					if (preg_match('/^new/', $id)) {
+						
+						// Generate a pw
+						$pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
+						shuffle($pw_arr);
+						$password = substr(implode('', $pw_arr), 0, 13);
+						// End of gen
+	
+						$this->User->setPassword($password);
+						
+						switch($this->User->get('level')) {
+							case 4:
+								$lvl = 'Master';
+								break;
+							case 3:
+								$lvl = 'Organizer';
+								break;
+							case 2:
+								$lvl = 'Administrator';
+								break;
+							default:
+								$lvl = 'Exhibitor';
+								break;
 						}
+						$str = 'Welcome to Chartbooker'."\r\n\r\n";
+						$str.= 'Username: '.$_POST['alias']."\r\n";
+						$str.= 'Password: '.$password."\r\n";
+						$str.= 'Access level: '.$lvl;
+						sendMail($_POST['email'], 'Your user account', $str);
+					}
 	
 					$iid = $this->User->save();
 					if($iid > 0){
@@ -216,7 +209,6 @@ class UserController extends Controller {
  			}
  			
 			$this->setNoTranslate('edit_id', $id);
-			$this->setNoTranslate('edit_lvl', $type);
 			$this->set('user', $this->User);
 			
 			$this->set('copy_label', 'Copy from company details');

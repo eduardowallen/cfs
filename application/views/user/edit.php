@@ -8,16 +8,7 @@
 	}
 } ?>
 
-<form action="user/edit/<?php echo $edit_id; ?>/<?php echo $edit_lvl; ?>" method="post" id="edit_user_form">
-
-	<?php if (userLevel() == 100): ?>
-	<select name="level">
-		<option value="4">System administrator</option>
-		<option value="3">Arranger</option>
-		<option value="2">Booker</option>
-		<option value="1">Exhibitor</option>
-	</select>
-	<?php endif; ?>
+<form action="user/edit/<?php echo $edit_id; ?>" method="post" id="edit_user_form">
 	
 	<div class="form_column">
 	
