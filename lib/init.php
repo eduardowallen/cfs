@@ -39,6 +39,8 @@ function callHook() {
 
 	//Special case
 	if (!file_exists(ROOT.'application/controllers/'.$controller.'.php') && $controller != 'StartController') {
+
+		$_SESSION['visitor'] = (isset($urlArray[1]) && $urlArray[1] == 'visitor');
 		
 		$countView = true;
 		$controller = 'MapToolController';

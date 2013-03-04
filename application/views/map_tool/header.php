@@ -176,7 +176,7 @@
 			?>
 			
 			
-			<?php include_once ROOT.'application/views/navigation.php'; ?>
+			<?php if (!isset($_SESSION['visitor']) || !$_SESSION['visitor']) { include_once ROOT.'application/views/navigation.php'; } ?>
 			
 		</div>
 		<div id="content">
