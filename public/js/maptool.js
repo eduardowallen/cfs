@@ -1196,13 +1196,14 @@ maptool.positionInfo = function(positionObject) {
 	}
 
 	$('#printLink').click(function() {
-		w = window.open();
+		w = window.open('', positionObject.name);
 		w.document.write('<link rel="stylesheet" type="text/css" href="css/generic.css" /><link rel="stylesheet" type="text/css" href="css/main.css" /><link rel="stylesheet" type="text/css" href="css/map.css" />');
 		w.document.write($('#more_info_dialogue')[0].outerHTML);
+		$('#more_info_dialogue', w.parent.document).css({overflow: "visible"});
+		$('img', w.parent.document).hide();
 		w.document.close();
 		w.focus();
 		w.print();
-		w.close();
 	});
 
 	maptool.openDialogue('more_info_dialogue');
