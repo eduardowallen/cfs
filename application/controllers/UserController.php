@@ -525,7 +525,7 @@ class UserController extends Controller {
 			$this->User->set('email', $_POST['email']);
 			$this->User->set('commodity', $_POST['commodity']);
 			//$this->User->set('category', $_POST['category']);
-			$this->User->set('level', 1);
+			//$this->User->set('level', 1);
 
 			$iid = $this->User->save();
 		}
