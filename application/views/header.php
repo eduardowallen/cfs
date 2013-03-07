@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="css/main.css" />
 <link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
-<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="js/formchecker.js"></script>
 <script type="text/javascript" src="js/passwd_meter.js"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
