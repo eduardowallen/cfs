@@ -46,6 +46,8 @@
 	lang.password_label = '<?php echo $translator->{"Password"} ?>';
 	lang.password_repeat_label = '<?php echo $translator->{"Password again (repeat to confirm)"} ?>';
 	lang.password_standard = '<?php echo $translator->{"Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter."} ?>';
+	lang.forgot_pass = '<?php echo $translator->{"Forgot your password?"} ?>';
+	lang.forgot_user = '<?php echo $translator->{"Forgot your username?"} ?>';
 	lang.save_label = '<?php echo $translator->{"Save"} ?>';
 	lang.alias_label = '<?php echo $translator->{"Username"} ?>';
 	lang.company_section = '<?php echo $translator->{"Company"} ?>';
