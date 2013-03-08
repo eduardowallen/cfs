@@ -1322,8 +1322,8 @@ maptool.reCalculatePositions = function() {
 	var arrow = $('#focus_arrow');
 	if (arrow.length > 0 && arrow.is(':visible')) {
 		
-		var ml = parseInt($('#pos-' + arrow.data('position')).css('left')) - 4;
-		var mt = parseInt($('#pos-' + arrow.data('position')).css('top')) - 50;
+		var ml = parseInt($('#pos-' + arrow.data('position')).css('left')) - 9;
+		var mt = parseInt($('#pos-' + arrow.data('position')).css('top')) - 9;
 		//Reposition arrow
 		arrow.css({
 			left: ml + 'px',
@@ -1403,14 +1403,14 @@ maptool.focusOn = function(position) {
 	
 	//maptool.placeMarkers();
 	
-	var img = $('<img src="images/icons/arrow.png" id="focus_arrow"/>');
+	var img = $('<img src="images/icons/crosshair.png" id="focus_arrow"/>');
 	img.data('position', positionObject.id);
 	
-	var ml = parseInt($('#pos-' + positionObject.id).css('left')) - 4;
-	var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 50;
+	var ml = parseInt($('#pos-' + positionObject.id).css('left')) - 9;
+	var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 9;
 	
 	img.css({
-		"z-index": 999,
+		"z-index": 997,
 		position: 'absolute',
 		left: ml + 'px',
 		top: mt + 'px'
@@ -1427,8 +1427,8 @@ maptool.placeFocusArrow = function() {
 		
 		var marker = $("#pos-" + arrow.data("position"));
 		
-		var ml = parseInt(marker.css('left')) - 4;
-		var mt = parseInt(marker.css('top')) - 50;
+		var ml = parseInt(marker.css('left')) - 9;
+		var mt = parseInt(marker.css('top')) - 9;
 		
 		arrow.css({
 			position: 'absolute',
