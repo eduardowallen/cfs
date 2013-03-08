@@ -39,7 +39,7 @@
 	</div><!-- end wrapper-->
 	<div id="footer">
 		<?php if (DEV): ?>
-		<p style="color: #AAAAAA;"><?php echo REVISION; ?></p>
+		<p style="color: #AAAAAA; position: absolute;"><?php echo REVISION; ?></p>
 		<?php endif; ?>
 	</div>
 	
