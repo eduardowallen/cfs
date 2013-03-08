@@ -6,6 +6,7 @@ putenv('PATH=/bin:/usr/bin:/usr/local/bin');
 
 //Dev mode
 define('DEV', 'true');
+define('REVISION', 'XXXX');
 
 //path settings
 define('BASE_URL', 'http://www.chartbooking.com/');
