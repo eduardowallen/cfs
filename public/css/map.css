@@ -124,7 +124,7 @@
 #mapHolder {
 	width:100%;
 	height:100%;
-	overflow:hidden;
+	overflow:auto;
 	margin:0 auto;
 	border:1px solid #868686;
 }
@@ -305,6 +305,7 @@ h1.inline-block {
 	height: 100px;
 	position:absolute;
 	cursor:pointer;
+	visibility: hidden;
 	z-index:999;
 }
 #pancontrols img {
