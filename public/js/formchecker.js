@@ -13,22 +13,25 @@ function prepFormChecker() {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
 			input.data('valid', true);
-			if (input.val() != input.attr('value')) {
-				$.ajax({
-					url: 'ajax/maptool.php',
-					type: 'POST',
-					data: 'emailExists=1&email=' + input.val(),
-					success: function(response) {
-						var ans = JSON.parse(response);
-						if (ans.emailExists) {
-							input.css('border', '1px solid #FF0000');
-							input.data('valid', false);
-						} else {
-							input.css('border', '1px solid #00FF00');
-							input.data('valid', true);
+
+			if (!$(this).hasClass('nocheckdb')) {
+				if (input.val() != input.attr('value')) {
+					$.ajax({
+						url: 'ajax/maptool.php',
+						type: 'POST',
+						data: 'emailExists=1&email=' + input.val(),
+						success: function(response) {
+							var ans = JSON.parse(response);
+							if (ans.emailExists) {
+								input.css('border', '1px solid #FF0000');
+								input.data('valid', false);
+							} else {
+								input.css('border', '1px solid #00FF00');
+								input.data('valid', true);
+							}
 						}
-					}
-				});
+					});
+				}
 			}
 		} else {
 			$(this).css('border', '1px solid #FF0000');
@@ -42,22 +45,25 @@ function prepFormChecker() {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
 			input.data('valid', true);
-			if (input.val() != input.attr('value')) {
-				$.ajax({
-					url: 'ajax/maptool.php',
-					type: 'POST',
-					data: 'emailExists=1&email=' + input.val(),
-					success: function(response) {
-						var ans = JSON.parse(response);
-						if (ans.emailExists) {
-							input.css('border', '1px solid #FF0000');
-							input.data('valid', false);
-						} else {
-							input.css('border', '1px solid #00FF00');
-							input.data('valid', true);
+
+			if (!$(this).hasClass('nocheckdb')) {
+				if (input.val() != input.attr('value')) {
+					$.ajax({
+						url: 'ajax/maptool.php',
+						type: 'POST',
+						data: 'emailExists=1&email=' + input.val(),
+						success: function(response) {
+							var ans = JSON.parse(response);
+							if (ans.emailExists) {
+								input.css('border', '1px solid #FF0000');
+								input.data('valid', false);
+							} else {
+								input.css('border', '1px solid #00FF00');
+								input.data('valid', true);
+							}
 						}
-					}
-				});
+					});
+				}
 			}
 		} else {
 			$(this).css('border', '1px solid #FF0000');
