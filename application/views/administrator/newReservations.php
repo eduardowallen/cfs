@@ -23,7 +23,7 @@
 	<tr>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
-		<td class="center"><?php echo $pos['company']; ?></td>
+		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 		<td class="center"><?php echo $pos['commodity']; ?></td>
 		<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
@@ -65,7 +65,7 @@
 	<tr>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
-		<td class="center"><?php echo $pos['company']; ?></td>
+		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 		<td class="center"><?php echo $pos['commodity']; ?></td>
 		<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
@@ -113,7 +113,7 @@
 	<tr>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
-		<td class="center"><?php echo $pos['company']; ?></td>
+		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 		<td class="center"><?php echo $pos['commodity']; ?></td>
 		<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
