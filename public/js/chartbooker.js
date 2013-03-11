@@ -28,6 +28,12 @@ function ajaxContent(e, handle) {
 }
 
 $(document).ready(function() {
+
+	$('.datepicker').datepicker();
+	$('.datepicker').datepicker('option', 'dateFormat', 'dd-mm-yy');
+	$('.datepicker').each(function() {
+		$(this).datepicker('setDate', $(this).attr('value'));
+	});
 	
 	$('#languages a.selected').attr('href', 'javascript:void(0)').append('&nbsp;&nbsp;<img src="images/arrow_down.png" alt=""/>').prependTo('#languages');
 	

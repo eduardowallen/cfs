@@ -982,9 +982,6 @@ maptool.reservePosition = function(positionObject) {
 	
 	maptool.openDialogue('reserve_position_dialogue');
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
-	
-	$('#reserve_expires_input').datepicker();
-	$('#reserve_expires_input').datepicker('option', 'dateFormat', 'dd-mm-yy');
 
 	$('#reserve_user_input').unbind('change');
 	$('#reserve_user_input').change(function() {
@@ -1700,6 +1697,7 @@ $(document).ready(function() {
 		});
 
 	});
+
 	$('#category_filter').change(function() {
 		categoryFilter = $(this).val();
 		maptool.placeMarkers();

@@ -198,7 +198,7 @@ function makeUserOptions2($sel=0, $fair) {
 	<a href="exhibitor/createFromMap/<?php echo $fair->get('url'); ?>"><?php echo $translator->{'New exhibitor'}; ?></a>
 
 	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
-	<input type="text" name="reserve_expires_input" id="reserve_expires_input"/>
+	<input type="text" class="datepicker" name="reserve_expires_input" id="reserve_expires_input"/>
 	
 	<p><input type="button" id="reserve_post" value="<?php echo $translator->{'Confirm reservation'} ?>"/></p>
 
