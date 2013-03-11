@@ -301,6 +301,13 @@ img#logo {
 	-webkit-border-radius:8px;
 	border-radius:8px;
 }
+#popupform div {
+	width: 200px;
+	position: absolute;
+	left: 50%;
+	margin-left: -100px;
+	margin-top: 20px;
+}
 #popupform p {
 	text-align:center;
 }
