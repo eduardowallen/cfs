@@ -532,8 +532,8 @@ maptool.traceMouse = function(e) {
 	var scrollOffset = $('html').offset().top;
 	var scrollOffsetLeft = $('html').offset().left;
 	$("#newMarkerIcon").css({
-		top: e.clientY - config.iconOffset - scrollOffset,
-		left: e.clientX - config.iconOffset + scrollOffsetLeft
+		top: e.originalEvent.pageY - config.iconOffset - scrollOffset,
+		left: e.originalEvent.pageX - config.iconOffset + scrollOffsetLeft
 	});
 }
 
