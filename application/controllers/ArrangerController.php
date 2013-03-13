@@ -324,6 +324,21 @@ ORDER BY creation_time DESC";
 						$this->set('error', true);
 						return;
 					}
+
+					$pw_arr = array_merge(range(0, 9), range('a', 'z'));
+					shuffle($pw_arr);
+					$password = substr(implode('', $pw_arr), 0, 10);
+
+					$this->Arranger->set('password', $password);
+
+					$str = 'Welcome to Chartbooker'."\r\n\r\n";
+					$str.= "Someone has registered this e-mail address for the Chartbooker fair system\r\n";
+					$str.= 'Username: '.$_POST['alias']."\r\n";
+					$str.= 'Password: '.$password."\r\n";
+					$str.= 'Access level: Organizer'."\r\n";
+					$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
+
+					sendMail($_POST['email'], 'Your user account', $str);
 				} else {
 					if ($this->Arranger->get('email') != $_POST['email'] && $this->Arranger->emailExists($_POST['email'])) {
 						$this->set('user_message', 'The email address already exists in our system.');
