@@ -23,6 +23,10 @@ define('SMTP_PORT', 25);
 define('SMTP_USER', '');
 define('SMTP_PASS', '');
 define('EMAIL_FROM_NAME', 'Chartbooker');
-define('EMAIL_FROM_ADDRESS', 'info@chartbooker.com');
+if (DEV) {
+	define('EMAIL_FROM_ADDRESS', 'test.server@chartbooker.com');
+} else {
+	define('EMAIL_FROM_ADDRESS', 'info@chartbooker.com');
+}
 
 ?>
