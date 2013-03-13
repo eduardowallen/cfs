@@ -18,7 +18,7 @@
 	width:213px;
 	position:absolute;
 	right:20px;
-	top:100px;
+	top:68px;
 }
 #right_sidebar div {
 	margin-bottom:10px;
@@ -257,6 +257,45 @@ h1.inline-block {
 #leftfloatingbar {
 	padding-left:2.5%;
 	height:40px;
+}
+#zoombar {
+	background:url("../images/zoom_bar_new_short.png") no-repeat;
+	width:27px;
+	height:155px;
+	position:absolute;
+	z-index:999;
+	margin:10px 0 0 10px;
+}
+#zoombar img {
+	position:absolute;
+	margin-left:3px;
+	margin-top:124px; /*72 px*/
+	cursor:move;
+}
+#zoombar a {
+	width:27px;
+	height:20px;
+	position:absolute;
+}
+#zoombar #in {
+	
+}
+#zoombar #out {
+	margin-top:135px;
+}
+#zoomcontrols {
+	text-align:right;
+	z-index:999;
+	position:absolute;
+	right:2.5%;
+	width:600px;
+}
+#zoomcontrols #in, #zoomcontrols #out {
+
+}
+#zoomcontrols #full {
+	color:#128913;
+	cursor:pointer;
 }
 #pancontrols {
 	background:url("../images/icons/pan_bg.png") no-repeat;

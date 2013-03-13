@@ -22,6 +22,15 @@ function makeUserOptions2($sel=0, $fair) {
 	</p>
 </div>
 
+<!--<h1 class="inline-block"><?php echo $fair->get('name'); ?>
+	<span style="color:#000"> &ndash; <?php echo $translator->{'Available maps'} ?>: </span>
+	<ul id="map_nav">
+		<?php foreach ($fair->get('maps') as $map): ?>
+			<li id="map_link_<?php echo $map->get('id'); ?>"><a href="javascript:void(0);" class="button map"><?php echo $map->get('name'); ?></a></li>
+		<?php endforeach; ?>
+	</ul>
+</h1>-->
+
 <script type="text/javascript">
 
 	lang.bookStandSpace = '<?php echo $translator->{"Book stand space"} ?>';
@@ -91,6 +100,16 @@ function makeUserOptions2($sel=0, $fair) {
 		<?php endif; ?>
 	});
 </script>
+
+<!--<p id="zoomcontrols">
+	<a href="javascript:void(0)" class="button fullscreen" id="full"><?php echo $translator->{'View full screen'} ?></a>
+	<a href="javascript:void(0)" class="button zoomin" id="in"><?php echo $translator->{'Zoom in'} ?></a>
+	<a href="javascript:void(0)" class="button zoomneutral" id="neutral"><?php echo $translator->{'Normal view'} ?></a>
+	<a href="javascript:void(0)" class="button zoomout" id="out"><?php echo $translator->{'Zoom out'} ?></a>
+</p>-->
+
+<!--<p id="leftfloatingbar"><span style="font-size:1.2em; font-weight:bold; margin-left:20px" class="button"><span style="color:green"><?php echo $opening_time.'</span>: '.date('d.m.Y', $fair->get('auto_publish')) ?> <span style="margin-left:30px; color:red"><?php echo $closing_time.'</span>: '.date('d.m.Y', $fair->get('auto_close')) ?></span></p>-->
+
 
 <div id="edit_position_dialogue" class="dialogue">
 	<h3><?php echo $translator->{'New/Edit stand space'} ?></h3>
@@ -214,6 +233,19 @@ function makeUserOptions2($sel=0, $fair) {
 	<h3><?php echo $translator->{'Apply for stand space'} ?></h3>
 	
 	<div class="pssinfo"></div>
+	
+	<!--<label for="apply_category_input"><?php echo $translator->{'Category'} ?></label>
+	<select name="apply_category_input[]" id="apply_category_input" multiple="multiple">
+		<?php foreach($fair->get('categories') as $cat): ?>
+		<option value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></option>
+		<?php endforeach; ?>
+	</select>
+	
+	<label for="apply_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+	<input type="text" name="apply_commodity_input" id="apply_commodity_input"/>
+
+	<label for="apply_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+	<textarea name="apply_message_input" id="apply_message_input"></textarea>-->
 
 	<p><input type="button" id="apply_post" value="<?php echo $translator->{'Confirm'} ?>"/></p>
 
@@ -225,9 +257,12 @@ function makeUserOptions2($sel=0, $fair) {
 	<img src="images/icons/pan_down.png" id="pandown" alt=""/>
 	<img src="images/icons/pan_right.png" id="panright" alt=""/>
 </div>
-<div data-role="fieldcontain">
- 	<input type="range" name="zoombar" id="zoombar" value="0" min="0" max="100"  />
-</div>
+
+<p id="zoombar">
+	<img src="images/zoom_marker_new.png" alt=""/>
+	<a href="javascript:void(0)" id="in"></a>
+	<a href="javascript:void(0)" id="out"></a>
+</p>
 
 <div id="mapHolder">
 	<div id="map">

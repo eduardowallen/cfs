@@ -11,7 +11,7 @@
 				<div>
 					<h2><?php echo $translator->{'Maps'} ?></h2>
 					<?php if (userLevel() > 1 && $hasRights): ?><p><a href="javascript:void(0);" class="" id="create_position"><?php echo $create_position; ?></a></p><?php endif; ?>
-					<select name="maps" id="map_select" data-role="none">
+					<select name="maps" id="map_select">
 						<?php foreach ($f->get('maps') as $map): ?>
 						<option value="<?php echo $map->get('id'); ?>"><?php echo $map->get('name'); ?></option>
 					<?php endforeach; ?>
@@ -23,13 +23,13 @@
 					
 					<p><?php echo $translator->{'Spots'} ?>: <span id="spots_total"></span> <?php echo $translator->{'Available spots'} ?>: <span id="spots_free"></span></p>
 					
-					<select id="category_filter" data-role="none">
+					<select id="category_filter">
 						<option value="0"><?php echo $translator->{'Filter by category'} ?></option>
 						<?php echo makeOptions($f->db, 'exhibitor_category', 0, 'fair='.$f->get('id')); ?>
 					</select>
 					
 					<p><label id="search_label" for="search_filter"><?php echo $translator->{'Search'} ?></label>
-					<input type="text" name="search_filter" id="search_filter" data-role="none"/></p>
+					<input type="text" name="search_filter" id="search_filter"/></p>
 					
 					</div>
 					<ul></ul>

@@ -5,16 +5,14 @@
 <meta name="viewport" content="width=1300, initial-scale=0.7, maximum-scale=1.2">
 <title><?php echo (isset($_SESSION['fair_windowtitle'])) ? $_SESSION['fair_windowtitle'].' - ' : ''; ?>ChartBooker</title>
 <base href="<?php echo BASE_URL; ?>" />
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
-<link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.3.0.min.css" />
 <link rel="stylesheet" type="text/css" href="css/generic.css" />
 <link rel="stylesheet" type="text/css" href="css/main.css" />
 <link rel="stylesheet" type="text/css" href="css/map.css" />
 <link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
 <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.10.1.min.js"></script>
-<script type="text/javascript" src="js/jquery.mobile-1.3.0.min.js"></script>
 <script type="text/javascript" src="js/formchecker.js"></script>
 <script type="text/javascript" src="js/passwd_meter.js"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
