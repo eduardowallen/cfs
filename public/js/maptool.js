@@ -493,7 +493,7 @@ maptool.movePosition = function(clickEvent, positionObject) {
 						success: function(res) {
 							maptool.markPositionAsNotBeingEdited();
 							maptool.resumeUpdate();
-							maptool.reload();
+							maptool.update();
 						}
 					});
 				}
