@@ -1122,8 +1122,7 @@ maptool.savePosition = function() {
 			maptool.markPositionAsNotBeingEdited();
 			//maptool.reload();
 			maptool.closeDialogues();
-			maptool.placeMarkers();
-			maptool.populateList();
+			maptool.update();
 		}
 	});
 
