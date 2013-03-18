@@ -8,7 +8,7 @@
 <link rel="stylesheet" type="text/css" href="css/generic.css" />
 <link rel="stylesheet" type="text/css" href="css/main.css" />
 <link rel="stylesheet" type="text/css" media="print" href="css/print.css" />
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
 <script type="text/javascript" src="js/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.10.1.min.js"></script>
