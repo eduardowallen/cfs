@@ -1,5 +1,5 @@
 ExpiresActive On
-ExpiresDefault modification
+ExpiresDefault "access plus 24 hours"
 
 RewriteEngine On
 
