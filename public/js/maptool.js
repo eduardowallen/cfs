@@ -148,6 +148,7 @@ maptool.placeMarkers = function() {
 	var freeSpots = 0;
 	var markerHTML = "";
 	var tooltipHTML = "";
+	var map_img = $("#map #map_img");
 
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		
@@ -179,8 +180,8 @@ maptool.placeMarkers = function() {
 		}
 
 		//Calculate position on map
-		var xMargin = ((maptool.map.positions[i].x / 100) * $("#map #map_img").width()) - config.iconOffset;
-		var yMargin = ((maptool.map.positions[i].y / 100) * $("#map #map_img").height())  - config.iconOffset;
+		var xMargin = ((maptool.map.positions[i].x / 100) * map_img.width()) - config.iconOffset;
+		var yMargin = ((maptool.map.positions[i].y / 100) * map_img.height())  - config.iconOffset;
 		
 		//Set marker and tooltip margin
 		marker.css({
@@ -192,11 +193,9 @@ maptool.placeMarkers = function() {
 		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id && ((Math.round(d.getTime() / 1000) - maptool.map.positions[i].edit_started) < 60*20)) {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
-		//Inject into DOM
+		// Add HTML to blob.
 		markerHTML += marker[0].outerHTML;
 		tooltipHTML += tooltip[0].outerHTML;
-		//$("#mapHolder #map").prepend(marker);
-		//$("#mapHolder").prepend(tooltip);
 		
 		//Hide markers that are filtered out
 		if (categoryFilter > 0) {
