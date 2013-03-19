@@ -190,13 +190,6 @@ maptool.placeMarkers = function() {
 		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id && ((Math.round(d.getTime() / 1000) - maptool.map.positions[i].edit_started) < 60*20)) {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
-
-		marker.hover(function() {
-			maptool.pauseUpdate();
-		}, function() {
-			maptool.resumeUpdate();
-		});
-
 		//Inject into DOM
 		//markerHTML += marker.outerHTML;
 		//tooltipHTML += tooltip.outerHTML;
@@ -219,6 +212,13 @@ maptool.placeMarkers = function() {
 		
 	}
 	
+	// Pause update
+	$(".marker").hover(function() {
+		maptool.pauseUpdate();
+	}, function() {
+		maptool.resumeUpdate();
+	});
+
 	//Display tooltip on hover
 	$(".marker").hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
