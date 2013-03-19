@@ -191,6 +191,12 @@ maptool.placeMarkers = function() {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
 
+		marker.hover(function() {
+			maptool.pauseUpdate();
+		}, function() {
+			maptool.resumeUpdate();
+		});
+
 		//Inject into DOM
 		//markerHTML += marker.outerHTML;
 		//tooltipHTML += tooltip.outerHTML;
@@ -1545,17 +1551,19 @@ maptool.update = function(posId) {
 			type: 'POST',
 			data: 'init=' + maptool.map.id,
 			success: function(result) {
-				updated = JSON.parse(result);
-				maptool.map.positions = updated.positions;
-				maptool.placeMarkers();
-				maptool.populateList();
-				maptool.placeFocusArrow();
-				updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 1000);
-				preHover(posId);
+				if (update === true) {
+					updated = JSON.parse(result);
+					maptool.map.positions = updated.positions;
+					maptool.placeMarkers();
+
+					maptool.populateList();
+					maptool.placeFocusArrow();
+					updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 1000);
+					preHover(posId);
+				}
 			}
 		});
 	}
-
 }
 
 maptool.pauseUpdate = function() {
@@ -1763,7 +1771,7 @@ $(document).ready(function() {
 		maptool.populateList();
 	});
 	$(window).resize(function() {
-		maptool.reload();
+		maptool.update();
 	});
 	
 	//Scroll map by dragging
@@ -1829,15 +1837,6 @@ $(document).ready(function() {
 			}
 			curr = e.pageY;
 		});
-	});
-
-	// Pause update
-	$('.marker').mouseenter(function(){
-		maptool.pauseUpdate();
-	});
-	// Resume update
-	$('.marker').mouseleave(function(){
-		maptool.resumeUpdate()
 	});
 
 	// Start automatic updating
