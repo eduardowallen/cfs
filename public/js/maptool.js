@@ -146,6 +146,8 @@ maptool.placeMarkers = function() {
 	//Remove all markers before placing new ones
 	maptool.clearMarkers();
 	var freeSpots = 0;
+	var markerHTML = "";
+	var tooltipHTML = "";
 
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		
@@ -191,10 +193,10 @@ maptool.placeMarkers = function() {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
 		//Inject into DOM
-		//markerHTML += marker.outerHTML;
-		//tooltipHTML += tooltip.outerHTML;
-		$("#mapHolder #map").prepend(marker);
-		$("#mapHolder").prepend(tooltip);
+		markerHTML += marker[0].outerHTML;
+		tooltipHTML += tooltip[0].outerHTML;
+		//$("#mapHolder #map").prepend(marker);
+		//$("#mapHolder").prepend(tooltip);
 		
 		//Hide markers that are filtered out
 		if (categoryFilter > 0) {
@@ -211,6 +213,9 @@ maptool.placeMarkers = function() {
 		}
 		
 	}
+
+	$("#mapHolder #map").prepend(markerHTML);
+	$("#mapHolder").prepend(tooltipHTML);
 	
 	// Pause update
 	$(".marker").hover(function() {
