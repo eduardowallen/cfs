@@ -71,6 +71,8 @@ maptool.closeDialogues = function() {
 //Populate list of exhibitors
 maptool.populateList = function() {
 
+	var searchString = $('#search_filter').val();
+
 	var prevSelectedId = -1;
 	if ($('#right_sidebar ul li.selected:first').length != 0) {
 		prevSelectedId = $('#right_sidebar ul li.selected:first').attr("id").replace("map-li-", "");
@@ -99,9 +101,9 @@ maptool.populateList = function() {
 				}
 			}
 			
-			if ($('#search_filter').val() != '') {
+			if (searchString != '') {
 				
-				var str = $('#search_filter').val().toLowerCase();
+				var str = searchString.toLowerCase();
 				var matched = false;
 				
 				if (maptool.map.positions[i].exhibitor.company && maptool.map.positions[i].exhibitor.company.toLowerCase().indexOf(str) > -1) {
