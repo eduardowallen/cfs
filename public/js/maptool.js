@@ -248,8 +248,8 @@ maptool.placeMarkers = function() {
 		}
 	});
 	
-	//display dialogue on marker click
-	$(".marker").click(function() {
+	//display dialogue on marker click (or touch, for iDevices)
+	$(".marker").bind("click touch", function() {
 		maptool.showContextMenu($(this).attr("id").replace('pos-', ''));
 	});
 	
