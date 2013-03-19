@@ -159,25 +159,25 @@ maptool.placeMarkers = function() {
 		//Prepare HTML
 		var markerId = 'pos-' + maptool.map.positions[i].id;
 		var marker = $('<img src="images/icons/marker_' + maptool.map.positions[i].statusText + '.png" alt="" class="marker" id="' + markerId + '"/>');
-		var tooltip = $('<div class="marker_tooltip" id="info-' + maptool.map.positions[i].id + '"/>');
+		var tooltip = '<div class="marker_tooltip" id="info-' + maptool.map.positions[i].id + '">';
 
 		//Tooltip content
-		var tt = '<h3>' + lang.space + ' ' + maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ' (m<sup>2</sup>):</strong> ' + maptool.map.positions[i].area + '</p>';
-		tooltip.html(tt);
+		tooltip += '<h3>' + lang.space + ' ' + maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ' (m<sup>2</sup>):</strong> ' + maptool.map.positions[i].area + '</p>';
 		
 		if (maptool.map.positions[i].status > 0 && maptool.map.positions[i].exhibitor) { 
-			tooltip.append('<p><strong>' + lang.StatusText(maptool.map.positions[i].statusText).charAt(0).toUpperCase() + lang.StatusText(maptool.map.positions[i].statusText).substr(1) + ' ' + lang.by + ':</strong> ' + maptool.map.positions[i].exhibitor.company + '</p>');
+			tooltip += '<p><strong>' + lang.StatusText(maptool.map.positions[i].statusText).charAt(0).toUpperCase() + lang.StatusText(maptool.map.positions[i].statusText).substr(1) + ' ' + lang.by + ':</strong> ' + maptool.map.positions[i].exhibitor.company + '</p>';
 			if (maptool.map.positions[i].status == 1) {
-				tooltip.append('<p><strong>' + lang.reservedUntil + ':</strong> ' + maptool.map.positions[i].expires + '</p>');
+				tooltip += '<p><strong>' + lang.reservedUntil + ':</strong> ' + maptool.map.positions[i].expires + '</p>';
 			}
-			tooltip.append('<p class="info"><strong>' + lang.commodity_label + ':</strong> ' + maptool.map.positions[i].exhibitor.commodity + '</p>');
+			tooltip += '<p class="info"><strong>' + lang.commodity_label + ':</strong> ' + maptool.map.positions[i].exhibitor.commodity + '</p>';
 		} else {
-			tooltip.append('<p class="info">' + maptool.map.positions[i].information.replace(/ /g, '&nbsp;').replace(/\n/g, '<br/>') + '</p>');
+			tooltip += '<p class="info">' + maptool.map.positions[i].information.replace(/ /g, '&nbsp;').replace(/\n/g, '<br/>') + '</p>';
 			if (maptool.map.userlevel > 0) {
-				tooltip.append('<p><strong>' + lang.clickToReserveStandSpace + '</strong></p>');
+				tooltip += '<p><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
 			}
 			freeSpots++;
 		}
+		tooltip += '</div>';
 
 		//Calculate position on map
 		var xMargin = ((maptool.map.positions[i].x / 100) * map_img.width()) - config.iconOffset;
@@ -195,7 +195,7 @@ maptool.placeMarkers = function() {
 		}
 		// Add HTML to blob.
 		markerHTML += marker[0].outerHTML;
-		tooltipHTML += tooltip[0].outerHTML;
+		tooltipHTML += tooltip;
 		
 		//Hide markers that are filtered out
 		if (categoryFilter > 0) {
