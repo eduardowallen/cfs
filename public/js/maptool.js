@@ -228,7 +228,6 @@ maptool.placeMarkers = function() {
 	//Display tooltip on hover
 	$("#mapHolder #map > .marker").hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
-		var tooltipimg = $("#info-" + $(this).attr("id").replace("pos-", "") + " > img");
 		if (!tooltip.is(":visible")) {
 			if (tooltip.height() > $(this).offset().top) {
 				tooltip.addClass('marker_tooltip_flipped');
@@ -243,7 +242,7 @@ maptool.placeMarkers = function() {
 					top: $(this).offset().top - tooltip.height() - 20
 				});
 			}
-			$(".marker_tooltip").hide();
+			$("#mapHolder > .marker_tooltip").hide();
 			tooltip.show();
 		}
 	}, function() {
@@ -255,7 +254,7 @@ maptool.placeMarkers = function() {
 	});
 	
 	//display dialogue on marker click (or touch, for iDevices)
-	$(".marker").bind("click touch", function() {
+	$("#mapHolder #map > .marker").bind("click touch", function() {
 		maptool.showContextMenu($(this).attr("id").replace('pos-', ''));
 	});
 	
