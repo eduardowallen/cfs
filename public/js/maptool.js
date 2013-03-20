@@ -1777,7 +1777,7 @@ $(document).ready(function() {
 		maptool.populateList();
 	});
 	$(window).resize(function() {
-		maptool.update();
+		maptool.reload();
 	});
 	
 	//Scroll map by dragging
