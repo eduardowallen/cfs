@@ -232,7 +232,7 @@ maptool.placeMarkers = function() {
 
 	//Display tooltip on hover
 	$(".marker", mapContext).hover(function(e) {
-		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
+		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""), mapHolderContext);
 		var marker = $(this);
 		markerHoverTimeout = setTimeout(function() {
 			if (!tooltip.is(":visible")) {
@@ -252,10 +252,10 @@ maptool.placeMarkers = function() {
 				$(".marker_tooltip", mapHolderContext).hide();
 				tooltip.show();
 			}
-		}, 500);
+		}, 200);
 	}, function() {
 		clearTimeout(markerHoverTimeout);
-		if ($('.contextmenu').length == 0) {
+		if ($('.contextmenu', mapHolderContext).length == 0) {
 			$(".marker_tooltip", mapHolderContext).hide();
 		} else {
 			//maptool.pauseUpdate();
