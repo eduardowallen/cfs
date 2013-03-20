@@ -219,14 +219,14 @@ maptool.placeMarkers = function() {
 	$("#mapHolder").prepend(tooltipHTML);
 	
 	// Pause update
-	$(".marker").hover(function() {
+	$("#mapHolder #map > .marker").hover(function() {
 		maptool.pauseUpdate();
 	}, function() {
 		maptool.resumeUpdate();
 	});
 
 	//Display tooltip on hover
-	$(".marker").hover(function(e) {
+	$("#mapHolder #map > .marker").hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		var tooltipimg = $("#info-" + $(this).attr("id").replace("pos-", "") + " > img");
 		if (!tooltip.is(":visible")) {
@@ -248,7 +248,7 @@ maptool.placeMarkers = function() {
 		}
 	}, function() {
 		if ($('.contextmenu').length == 0) {
-			$(".marker_tooltip").hide();
+			$("#mapHolder > .marker_tooltip").hide();
 		} else {
 			//maptool.pauseUpdate();
 		}
