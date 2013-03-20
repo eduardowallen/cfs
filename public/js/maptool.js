@@ -6,6 +6,9 @@ var fullscreen = false;
 var userIsEditing = 0;
 var categoryFilter = 0;
 var markedAsBooked = new Array;
+var markerHoverTimeout = null;
+var scrollTimeout = null;
+var deltaSteps = 0;
 
 //Some settings
 var config = {
@@ -230,24 +233,28 @@ maptool.placeMarkers = function() {
 	//Display tooltip on hover
 	$(".marker", mapContext).hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
-		if (!tooltip.is(":visible")) {
-			if (tooltip.height() > $(this).offset().top) {
-				tooltip.addClass('marker_tooltip_flipped');
-				tooltip.css({
-					left: $(this).offset().left,
-					top: $(this).offset().top + 20
-				});
-			} else {
-				tooltip.removeClass('marker_tooltip_flipped');
-				tooltip.css({
-					left: $(this).offset().left,
-					top: $(this).offset().top - tooltip.height() - 20
-				});
+		var marker = $(this);
+		markerHoverTimeout = setTimeout(function() {
+			if (!tooltip.is(":visible")) {
+				if (tooltip.height() > marker.offset().top) {
+					tooltip.addClass('marker_tooltip_flipped');
+					tooltip.css({
+						left: marker.offset().left,
+						top: marker.offset().top + 20
+					});
+				} else {
+					tooltip.removeClass('marker_tooltip_flipped');
+					tooltip.css({
+						left: marker.offset().left,
+						top: marker.offset().top - tooltip.height() - 20
+					});
+				}
+				$(".marker_tooltip", mapHolderContext).hide();
+				tooltip.show();
 			}
-			$(".marker_tooltip", mapHolderContext).hide();
-			tooltip.show();
-		}
+		}, 500);
 	}, function() {
+		clearTimeout(markerHoverTimeout);
 		if ($('.contextmenu').length == 0) {
 			$(".marker_tooltip", mapHolderContext).hide();
 		} else {
@@ -1235,6 +1242,8 @@ maptool.zoomToLevel = function(e, level) {
 
 	if (level > config.maxZoom) {
 		level = config.maxZoom;
+	} else if (level < 1) {
+		level = 1;
 	}
 
 	maptool.map.zoomlevel = level;
@@ -1253,6 +1262,13 @@ maptool.zoomToLevel = function(e, level) {
 }
 
 maptool.zoomAdjust = function(e, factor) {
+
+	if (factor > config.maxZoom) {
+		factor = config.maxZoom;
+	} else if (factor < 1) {
+		factor = 1;
+	}
+
 	var factorDiff = factor - maptool.map.zoomlevel
 
 	var offsetLeft = $("#mapHolder").offset().left;
@@ -1448,13 +1464,22 @@ maptool.placeFocusArrow = function() {
 	}
 }
 
-maptool.adjustZoomMarker = function() {
+maptool.adjustZoomMarker = function(zoomLevel) {
+	if (typeof zoomLevel == 'undefined') {
+		zoomLevel = maptool.map.zoomlevel;
+	}
+
+	if (zoomLevel > config.maxZoom) {
+		zoomLevel = config.maxZoom;
+	} else if (zoomLevel < 1) {
+		zoomLevel = 1;
+	}
 	
-	if (maptool.map.zoomlevel == 1) {
+	if (zoomLevel == 1) {
 		tm = 124;
 	} else {
 		var steps = (config.maxZoom - 1) / config.zoomStep;
-		var currentStep = (maptool.map.zoomlevel-1) / config.zoomStep;
+		var currentStep = (zoomLevel-1) / config.zoomStep;
 		
 		var slideHeight = $('#zoombar').height() - $('#zoombar #in').height() - $('#zoombar #out').height() - $('#zoombar img').height();
 		var tm = (slideHeight / steps) * currentStep;
@@ -1731,17 +1756,25 @@ $(document).ready(function() {
 	});
 	$("#mapHolder").bind('DOMMouseScroll mousewheel', function(e, delta) {
 		e.preventDefault();
+
+		if (scrollTimeout != null) {
+			clearTimeout(scrollTimeout);
+		}
 		if ('wheelDelta' in e.originalEvent) {
-			var delta = e.originalEvent.wheelDelta;
+			deltaSteps += e.originalEvent.wheelDelta/Math.abs(e.originalEvent.wheelDelta);
 		} else {
-			var delta = -40 * e.originalEvent.detail;
+			deltaSteps += -40 * e.originalEvent.detail/Math.abs(-40 * e.originalEvent.detail);
 		}
-		
-		if (delta > 0) {
-			maptool.zoomIn(e);
-		} else {
-			maptool.zoomOut(e);
-		}
+		maptool.adjustZoomMarker(maptool.map.zoomlevel + config.zoomStep*deltaSteps);
+		scrollTimeout = setTimeout(function() {
+			if (deltaSteps != 0) {
+				maptool.zoomAdjust(e, maptool.map.zoomlevel + config.zoomStep*deltaSteps);
+				maptool.adjustZoomMarker();
+				maptool.reCalculatePositions();
+			}
+			clearTimeout(scrollTimeout);
+			deltaSteps = 0;
+		}, 200);
 	});
 	$("#map_nav li").click(function() {
 		$("#map_nav li").removeClass("current");
