@@ -151,6 +151,8 @@ maptool.placeMarkers = function() {
 	var markerHTML = "";
 	var tooltipHTML = "";
 	var map_img = $("#map #map_img");
+	var mapHolderContext = $("#mapHolder");
+	var mapContext = $('#map', mapHolderContext);
 
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		
@@ -219,14 +221,14 @@ maptool.placeMarkers = function() {
 	$("#mapHolder").prepend(tooltipHTML);
 	
 	// Pause update
-	$("#mapHolder #map > .marker").hover(function() {
+	$(".marker", mapContext).hover(function() {
 		maptool.pauseUpdate();
 	}, function() {
 		maptool.resumeUpdate();
 	});
 
 	//Display tooltip on hover
-	$("#mapHolder #map > .marker").hover(function(e) {
+	$(".marker", mapContext).hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		if (!tooltip.is(":visible")) {
 			if (tooltip.height() > $(this).offset().top) {
@@ -242,19 +244,19 @@ maptool.placeMarkers = function() {
 					top: $(this).offset().top - tooltip.height() - 20
 				});
 			}
-			$("#mapHolder > .marker_tooltip").hide();
+			$(".marker_tooltip", mapHolderContext).hide();
 			tooltip.show();
 		}
 	}, function() {
 		if ($('.contextmenu').length == 0) {
-			$("#mapHolder > .marker_tooltip").hide();
+			$(".marker_tooltip", mapHolderContext).hide();
 		} else {
 			//maptool.pauseUpdate();
 		}
 	});
 	
 	//display dialogue on marker click (or touch, for iDevices)
-	$("#mapHolder #map > .marker").bind("click touch", function() {
+	$(".marker", mapContext).bind("click touch", function() {
 		maptool.showContextMenu($(this).attr("id").replace('pos-', ''));
 	});
 	
@@ -268,8 +270,8 @@ maptool.placeMarkers = function() {
 
 //Remove all markers
 maptool.clearMarkers = function() {
-	$(".marker").remove();
-	$(".marker_tooltip").remove();
+	$(".marker", "#mapHolder > #map").remove();
+	$(".marker_tooltip", "#mapHolder").remove();
 }
 
 //Display tooltip for marker
