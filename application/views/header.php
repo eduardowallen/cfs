@@ -97,7 +97,7 @@
 <?php endif; ?>
 </head>
 <body>
-	<img src="images/logo_chartbooker.png" alt="Chartbooker International" id="logo"/>
+	<a href="http://www.chartbooker.com/"><img src="images/logo_chartbooker.png" alt="Chartbooker International" id="logo"/></a>
 	<?php
 	if (userLevel() > 0) {
 		$me = new User;
