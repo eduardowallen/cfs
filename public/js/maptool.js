@@ -6,7 +6,6 @@ var fullscreen = false;
 var userIsEditing = 0;
 var categoryFilter = 0;
 var markedAsBooked = new Array;
-var markerHoverTimeout = null;
 var scrollTimeout = null;
 var deltaSteps = 0;
 
@@ -234,27 +233,24 @@ maptool.placeMarkers = function() {
 	$(".marker", mapContext).hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""), mapHolderContext);
 		var marker = $(this);
-		markerHoverTimeout = setTimeout(function() {
-			if (!tooltip.is(":visible")) {
-				if (tooltip.height() > marker.offset().top) {
-					tooltip.addClass('marker_tooltip_flipped');
-					tooltip.css({
-						left: marker.offset().left,
-						top: marker.offset().top + 20
-					});
-				} else {
-					tooltip.removeClass('marker_tooltip_flipped');
-					tooltip.css({
-						left: marker.offset().left,
-						top: marker.offset().top - tooltip.height() - 20
-					});
-				}
-				$(".marker_tooltip", mapHolderContext).hide();
-				tooltip.show();
+		if (!tooltip.is(":visible")) {
+			if (tooltip.height() > marker.offset().top) {
+				tooltip.addClass('marker_tooltip_flipped');
+				tooltip.css({
+					left: marker.offset().left,
+					top: marker.offset().top + 20
+				});
+			} else {
+				tooltip.removeClass('marker_tooltip_flipped');
+				tooltip.css({
+					left: marker.offset().left,
+					top: marker.offset().top - tooltip.height() - 20
+				});
 			}
-		}, 200);
+			$(".marker_tooltip", mapHolderContext).hide();
+			tooltip.show();
+		}
 	}, function() {
-		clearTimeout(markerHoverTimeout);
 		if ($('.contextmenu', mapHolderContext).length == 0) {
 			$(".marker_tooltip", mapHolderContext).hide();
 		} else {
