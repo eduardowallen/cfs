@@ -37,7 +37,7 @@
 				?>
 			</td>
 			<td class="center"><?php echo $pos['phone1']; ?></td>
-			<td class="center"><?php echo $pos['name']; ?></td>
+			<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><?php echo $pos['name']; ?></a></td>
 			<td class="center"><?php echo $pos['email']; ?></td>
 			<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>
 			<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt=""/></a></td>
