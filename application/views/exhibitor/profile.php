@@ -64,6 +64,9 @@
 
 	<h3><?php echo $presentation_section; ?></h3>
 
+	<label for="commodity"><?php echo $commodity_label; ?></label>
+	<input type="text" disabled="disabled" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"/>
+
 	<label for="presentation"><?php echo $presentation_label; ?></label>
 	<textarea disabled="disabled" name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
 	</div>

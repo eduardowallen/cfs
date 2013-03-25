@@ -516,6 +516,7 @@ class ExhibitorController extends Controller {
 		$this->set('invoice_city_label', 'City');
 		$this->set('invoice_email_label', 'E-mail');
 
+		$this->set('commodity_label', 'Commodity');
 		$this->set('company_label', 'Company');
 		$this->set('contact_label', 'Contact person');
 		$this->set('orgnr_label', 'Organization number');
