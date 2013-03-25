@@ -35,18 +35,18 @@ class FairMapController extends Controller {
 					$now = time();
 					move_uploaded_file($_FILES['image']['tmp_name'], ROOT.'public/images/tmp/'.$now.'.pdf');
 					chmod(ROOT.'public/images/tmp/'.$now.'.pdf', 0775);
-					$im->pdf2png(ROOT.'public/images/tmp/'.$now.'.pdf', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.png');
+					$im->pdf2img(ROOT.'public/images/tmp/'.$now.'.pdf', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg');
 					
-					$im->constrain(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.png', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.png', 100000, 100000);
+					$im->constrain(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 					unlink(ROOT.'public/images/tmp/'.$now.'.pdf');
 					
 				} else {
-					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.png', 100000, 100000);
+					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 				}
 				
-				$im->constrain(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.png', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'.png', 920, 1500);
-				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.png', 0775);
-				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'.png', 0775);
+				$im->constrain(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'.jpg', 920, 1500);
+				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 0775);
+				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'.jpg', 0775);
 			}
 
 			header("Location: ".BASE_URL."fair/maps/".$fair);
@@ -83,11 +83,6 @@ class FairMapController extends Controller {
 			$mId = $map_id;
 			
 			if (is_uploaded_file($_FILES['image']['tmp_name'])) {
-				//$im = new ImageMagick;
-				//$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', 4000, 4000);
-				//$im->constrain(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.png', 920, 1500);
-				//chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', 0775);
-				//chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.png', 0775);
 				
 				$im = new ImageMagick;
 				
@@ -96,18 +91,18 @@ class FairMapController extends Controller {
 					$now = time();
 					move_uploaded_file($_FILES['image']['tmp_name'], ROOT.'public/images/tmp/'.$now.'.pdf');
 					chmod(ROOT.'public/images/tmp/'.$now.'.pdf', 0775);
-					$im->pdf2png(ROOT.'public/images/tmp/'.$now.'.pdf', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png');
+					$im->pdf2img(ROOT.'public/images/tmp/'.$now.'.pdf', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg');
 					
-					$im->constrain(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', 100000, 100000);
+					$im->constrain(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 					unlink(ROOT.'public/images/tmp/'.$now.'.pdf');
 					
 				} else {
-					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', 100000, 100000);
+					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 				}
 				
-				$im->constrain(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.png', 920, 1500);
-				chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.png', 0775);
-				chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.png', 0775);
+				$im->constrain(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.jpg', 920, 1500);
+				chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', 0775);
+				chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.jpg', 0775);
 				
 			}
 

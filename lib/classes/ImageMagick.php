@@ -14,7 +14,7 @@ class ImageMagick {
         }
     }
     
-    public function pdf2png($origPath, $thumbPath) {
+    public function pdf2img($origPath, $thumbPath) {
     	exec($this->convert." -density 96 -quality 96 ".$origPath." ".$thumbPath);
     }
     

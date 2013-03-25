@@ -220,14 +220,6 @@ class FairController extends Controller {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
 				}
 				$fId = $this->Fair->save();
-				/*
-				if (is_uploaded_file($_FILES['logo']['tmp_name'])) {
-					
-					$im = new ImageMagick;
-					$im->constrain($_FILES['logo']['tmp_name'], ROOT.'public/images/fairs/'.$fId.'/'.$fId.'.png', 350, 80);
-					chmod(ROOT.'public/images/fairs/'.$fId.'/'.$fId.'.png', 0775);
-				}
-				*/				
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
 					if (userLevel() == 3) {

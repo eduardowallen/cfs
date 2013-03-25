@@ -11,7 +11,10 @@ class FairMap extends Model {
 		parent::load($key, $by);
 		if ($this->wasLoaded()) {
 			$this->fetchExternal('FairMapPosition', 'positions', 'map', $this->id);
-			if (file_exists(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'.png')) {
+			if (file_exists(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'.jpg')) {
+				$this->image = 'images/fairs/'.$this->fair.'/maps/'.$this->id.'.jpg';
+				$this->large_image = 'images/fairs/'.$this->fair.'/maps/'.$this->id.'_large.jpg';
+			} else if (file_exists(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'.png')) {
 				$this->image = 'images/fairs/'.$this->fair.'/maps/'.$this->id.'.png';
 				$this->large_image = 'images/fairs/'.$this->fair.'/maps/'.$this->id.'_large.png';
 			}
@@ -25,6 +28,11 @@ class FairMap extends Model {
 			$pos->delete();
 		}
 		
+		if (file_exists(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'.jpg')) {
+			unlink(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'.jpg');
+			unlink(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'_large.jpg');
+		}
+
 		if (file_exists(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'.png')) {
 			unlink(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'.png');
 			unlink(ROOT.'public/images/fairs/'.$this->fair.'/maps/'.$this->id.'_large.png');

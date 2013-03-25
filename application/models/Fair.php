@@ -13,7 +13,9 @@ class Fair extends Model {
 		parent::load($key, $by);
 		if ($this->wasLoaded()) {
 			$this->fetchExternal('FairMap', 'maps', 'fair', $this->id);
-			if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
+			if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg')) {
+				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.jpg';
+			} else if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
 				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.png';
 			}
 			//if (!$disregardLocked)
@@ -106,6 +108,10 @@ class Fair extends Model {
 		$stmt = $this->db->prepare("DELETE FROM fair_user_relation WHERE fair = ?");
 		$stmt->execute(array($this->id));
 		
+		if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg')) {
+			unlink(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg');
+		}
+
 		if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
 			unlink(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png');
 		}
