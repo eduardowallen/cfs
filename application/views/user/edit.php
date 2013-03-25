@@ -8,7 +8,7 @@
 	}
 } ?>
 
-<form action="user/edit/<?php echo $edit_id; ?>" method="post" id="edit_user_form">
+<form action="user/edit/<?php echo $edit_id; ?><?php if (isset($edit_level)) { echo '/'.$edit_level; } ?>" method="post" id="edit_user_form">
 	
 	<div class="form_column">
 	

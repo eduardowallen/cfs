@@ -59,7 +59,7 @@ class UserController extends Controller {
 
 	}
 
-	public function edit($id='') {
+	public function edit($id='', $level=0) {
 		setAuthLevel(2);
 
 		if ($id == '') {
@@ -155,9 +155,11 @@ class UserController extends Controller {
 					$this->User->set('invoice_email', $_POST['invoice_email']);
 					$this->User->set('locked', $_POST['locked']);
 					$this->User->set('presentation', $_POST['presentation']);
-						
+
 					if (preg_match('/^new/', $id)) {
-						
+						if (userLevel() == 4 && $level != 0) {
+							$this->User->set('level', $level);
+						}
 						// Generate a pw
 						$pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
 						shuffle($pw_arr);
@@ -209,6 +211,7 @@ class UserController extends Controller {
  			}
  			
 			$this->setNoTranslate('edit_id', $id);
+			$this->setNoTranslate('edit_level', $level);
 			$this->set('user', $this->User);
 			
 			$this->set('copy_label', 'Copy from company details');
