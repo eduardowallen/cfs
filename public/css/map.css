@@ -100,6 +100,22 @@
 #create_position:hover {
 	background:#cccccc url("../images/icons/icon_skapa_plats.png") no-repeat 5px 5px;
 }
+#connect {
+	display:block;
+	padding:10px 0 10px 10px;
+	text-align:center;
+	border:1px solid #9d9d9d;
+	border-radius:10px;
+	color:#000000;
+	cursor:pointer;
+	background:url("../images/icons/icon_skapa_plats.png") no-repeat 5px 5px;
+	text-decoration:none;
+	text-transform:uppercase;
+	font-size:1.1em;
+}
+#connect:hover {
+	background:#cccccc url("../images/icons/icon_skapa_plats.png") no-repeat 5px 5px;
+}
 
 #fullscreen {
 	background:url('../images/overlay.png');

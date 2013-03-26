@@ -431,6 +431,14 @@ if (isset($_POST['emailExists'])) {
 	exit;
 }
 
+if (isset($_POST['connectToFair'])) {
+	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
+		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`) VALUES (?,?)";
+		$stmt = $globalDB->prepare($sql);
+		$stmt->execute(array($_POST['fairId'], $_SESSION['user_id']));
+	}
+}
+
 
 
 ?>

@@ -55,6 +55,7 @@ class MapToolController extends Controller {
 				$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
 				
 				$this->set('fair', $fair);
+				$this->set('connect', 'Connect to fair');
 				$this->set('create_position', 'New stand space');
 				$this->set('opening_time', 'Opening time');
 				$this->set('closing_time', 'Closing time');

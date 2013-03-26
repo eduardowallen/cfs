@@ -294,6 +294,7 @@ class UserController extends Controller {
 					$_SESSION['user_fair'] = $fair->get('id');
 					$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
 
+					/*
 					if (userLevel() == 1) {
 						
 						$stmt = $this->db->prepare("SELECT fair FROM fair_user_relation WHERE user = ? AND fair = ?");
@@ -304,6 +305,7 @@ class UserController extends Controller {
 							$stmt->execute(array($this->User->get('id'), $fair->get('id')));
 						}
 					}
+					*/
 
 				} else {
 					if ($this->User->get('level') == 3) {

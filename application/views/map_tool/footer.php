@@ -10,6 +10,7 @@
 				?>
 				<div>
 					<h2><?php echo $translator->{'Maps'} ?></h2>
+					<?php if (userLevel() < 2 && !userIsConnectedTo($f->get('id'))): ?><p><a href="<?php if (userLevel() == 0) echo 'user/login/'.$_SESSION['outside_fair_url']; else echo 'javascript:void(0)'; ?>" class="<?php if (userLevel() == 0) echo 'loginlink'; ?>" id="connect"><?php echo $connect; ?></a></p><?php endif; ?>
 					<?php if (userLevel() > 1 && $hasRights): ?><p><a href="javascript:void(0);" class="" id="create_position"><?php echo $create_position; ?></a></p><?php endif; ?>
 					<select name="maps" id="map_select">
 						<?php foreach ($f->get('maps') as $map): ?>

@@ -1791,6 +1791,18 @@ $(document).ready(function() {
 			$('.marker_tooltip').hide();
 		}
 	});
+	$("#connect").click(function(e) {
+		if (!$(this).hasClass("loginlink")) {
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: 'connectToFair=1&fairId=' + maptool.map.fair,
+				success: function(response) {
+					$("#connect")[0].remove();
+				}
+			});
+		}
+	});
 	$("#create_position").click(function(e) {
 		if (hasRights && maptool.ownsMap()) {
 			maptool.addPosition(e);
