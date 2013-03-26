@@ -7,6 +7,7 @@ define('ROOT', implode('/', $parts).'/');
 session_start();
 require_once ROOT.'config/config.php';
 require_once ROOT.'lib/functions.php';
+require_once ROOT.'lib/classes/Translator.php';
 
 $globalDB = new Database;
 global $globalDB;
@@ -432,11 +433,19 @@ if (isset($_POST['emailExists'])) {
 }
 
 if (isset($_POST['connectToFair'])) {
+	$trans = new Translator;
+	$response = array();
 	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
 		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`) VALUES (?,?)";
 		$stmt = $globalDB->prepare($sql);
 		$stmt->execute(array($_POST['fairId'], $_SESSION['user_id']));
+		$response['message'] = $trans->{'Connected to fair.'};
+		$response['success'] = true;
+	} else {
+		$response['message'] = $trans->{'Unable to connect to fair.'};
+		$response['success'] = false;
 	}
+	echo json_encode($response);
 }
 
 

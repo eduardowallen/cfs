@@ -1798,7 +1798,11 @@ $(document).ready(function() {
 				type: 'POST',
 				data: 'connectToFair=1&fairId=' + maptool.map.fair,
 				success: function(response) {
-					$("#connect")[0].remove();
+					res = JSON.parse(response);
+					alert(res.message);
+					if (res.success) {
+						$("#connect")[0].remove();
+					}
 				}
 			});
 		}
