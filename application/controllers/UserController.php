@@ -271,6 +271,7 @@ class UserController extends Controller {
 	}
 
 	function login($fUrl='', $status = null) {
+		unset($_SESSION['visitor']);
 		$this->set('error', '');
 		$this->setNoTranslate('fair_url', $fUrl);
 		if( $status !== null){
