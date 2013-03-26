@@ -1,5 +1,24 @@
 <?php
 
+function userIsConnectedTo($fairId) {
+
+	if (!isset($_SESSION['user_id'])) {
+		return false;
+	}
+
+	global $globalDB;
+
+	$stmt = $globalDB->prepare("SELECT * FROM fair_user_relation WHERE fair_user_relation.user=? AND fair_user_relation.fair=$fairId");
+	$stmt->execute(array($_SESSION['user_id']));
+	$result = $stmt->fetch();
+
+	if ($result) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
 function getTableName($classname) {
 	$tbl = '';
 	foreach(str_split($classname) as $char) {
