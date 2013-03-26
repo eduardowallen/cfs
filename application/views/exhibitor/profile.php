@@ -10,6 +10,9 @@
 	<label for="company"><?php echo $company_label; ?> *</label>
 	<input type="text" disabled="disabled" name="company" id="company" value="<?php echo $user->get('company'); ?>"/>
 
+	<label for="commodity"><?php echo $commodity_label; ?></label>
+	<input type="text" disabled="disabled" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"/>
+
 	<label for="address"><?php echo $address_label; ?> *</label>
 	<input type="text" disabled="disabled" name="address" id="address" value="<?php echo $user->get('address'); ?>"/>
 
@@ -63,9 +66,6 @@
 	<input type="text" disabled="disabled" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
 	<h3><?php echo $presentation_section; ?></h3>
-
-	<label for="commodity"><?php echo $commodity_label; ?></label>
-	<input type="text" disabled="disabled" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"/>
 
 	<label for="presentation"><?php echo $presentation_label; ?></label>
 	<textarea disabled="disabled" name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
