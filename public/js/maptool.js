@@ -1185,7 +1185,7 @@ maptool.positionInfo = function(positionObject) {
 		}
 		categoryString = categoryString.substring(2);
 		
-		$('#more_info_dialogue h4').text(lang.presentation);
+		$('#more_info_dialogue h4').text(lang.presentation + ":");
 		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
 		$("#more_info_dialogue p.presentation").empty();
 		$("#more_info_dialogue p.presentation").append(positionObject.exhibitor.presentation);

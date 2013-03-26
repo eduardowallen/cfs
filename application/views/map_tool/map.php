@@ -164,8 +164,8 @@ function makeUserOptions2($sel=0, $fair) {
 <div id="more_info_dialogue" class="dialogue">
 	<h3></h3>
 	<p class="info"></p>
-	<h4></h4>
-	<p class="presentation"></p>
+	<h4 style="margin-bottom: 0px;"></h4>
+	<p class="presentation" style="margin-top: 0px;"></p>
 	<p class="website_link"></p>
 </div>
 
