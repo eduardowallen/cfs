@@ -464,6 +464,8 @@ class ExhibitorController extends Controller {
 		foreach($u->getPreliminaries() as $prel) {
 			$pos = new FairMapPosition;
 			$pos->load($prel['position'], 'id');
+			$pos->set('company', $u->get('company'));
+			$pos->set('booking_time', $prel['booking_time']);
 			$pos->set('commodity', $prel['commodity']);
 			$pos->set('arranger_message', $prel['arranger_message']);
 			$positions[] = $pos;
