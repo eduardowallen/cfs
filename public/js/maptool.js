@@ -8,6 +8,7 @@ var categoryFilter = 0;
 var markedAsBooked = new Array;
 var scrollTimeout = null;
 var deltaSteps = 0;
+var movingMarker = null;
 
 //Some settings
 var config = {
@@ -164,6 +165,11 @@ maptool.placeMarkers = function() {
 		
 		//Prepare HTML
 		var markerId = 'pos-' + maptool.map.positions[i].id;
+
+		if (movingMarker.attr('id') == markerId) {
+			continue;
+		}
+
 		var marker = $('<img src="images/icons/marker_' + maptool.map.positions[i].statusText + '.png" alt="" class="marker" id="' + markerId + '"/>');
 		var tooltip = '<div class="marker_tooltip" id="info-' + maptool.map.positions[i].id + '">';
 
@@ -467,6 +473,7 @@ maptool.movePosition = function(clickEvent, positionObject) {
 	$(".marker_tooltip").hide();
 
 	var marker = $("#pos-" + positionObject.id);
+	movingMarker = marker;
 	var canAjax = true;
 	marker.off("click");
 	$(".marker").off("hover");
@@ -513,6 +520,7 @@ maptool.movePosition = function(clickEvent, positionObject) {
 						}
 					});
 				}
+				movingMarker = null;
 			}
 		});
 	});
