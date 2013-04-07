@@ -96,8 +96,8 @@
 					
 					<li><a class="loginlink" href="user/login/<?php echo $_SESSION['outside_fair_url'] ?>"><img src="images/icons/icon_logga_in.png" alt=""/><?php echo $translator->{'Sign in'} ?></a></li>
 					<li><a class="registerlink" href="user/register/<?php echo $_SESSION['outside_fair_url'] ?>"><img src="images/icons/icon_registrera.png" alt=""/><?php echo $translator->{'Register'} ?></a></li>					
-					<li><a onclick="ajaxContent(event, 'help-0');" href="page/help"><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{"Here's how"} ?></a></li>
-					<li><a onclick="ajaxContent(event, 'contact-0');" href="page/contact/<?php echo $_SESSION['outside_fair_url'] ?>"><img src="images/icons/icon_contact.png" alt=""/><?php echo $translator->{'Contact us'} ?></a></li>
+					<li><a href="page/help"><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{"Here's how"} ?></a></li>
+					<li><a href="page/contact/<?php echo $_SESSION['outside_fair_url'] ?>"><img src="images/icons/icon_contact.png" alt=""/><?php echo $translator->{'Contact us'} ?></a></li>
 					<!--<li><a href="exhibitor/exhibitors"><?php echo $translator->{'Exhibitors'} ?></a></li>-->
 					
 					<?php endif; ?>
