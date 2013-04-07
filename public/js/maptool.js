@@ -166,7 +166,7 @@ maptool.placeMarkers = function() {
 		//Prepare HTML
 		var markerId = 'pos-' + maptool.map.positions[i].id;
 
-		if (movingMarker.attr('id') == markerId) {
+		if (movingMarker != null && movingMarker.attr('id') == markerId) {
 			continue;
 		}
 
