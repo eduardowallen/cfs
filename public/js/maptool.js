@@ -266,15 +266,19 @@ maptool.placeMarkers = function() {
 		var markerImg = document.getElementById(markerId);
 		if (categoryFilter > 0) {
 			if(maptool.map.positions[i].exhibitor != null){
+				if(maptool.map.positions[i].exhibitor.categories.length > 0){
 				var markerCatId = maptool.map.positions[i].exhibitor.categories[0].category_id;
-				if (markerCatId == categoryFilter) {
-					markerImg.style.display = "inline";
+					if (markerCatId == categoryFilter) {
+						markerImg.style.display = "inline";
+					} else {
+						markerImg.style.display = "none";
+					}
 				} else {
 					markerImg.style.display = "none";
 				}
 			} else {
 				markerImg.style.display = "none";
-			}
+			} 
 		} else {
 			markerImg.style.display = "inline";
 		}
