@@ -156,7 +156,7 @@ maptool.placeMarkers = function() {
 	var map_img = $("#map #map_img");
 	var mapHolderContext = $("#mapHolder");
 	var mapContext = $('#map', mapHolderContext);
-
+	
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		
 		if (maptool.map.positions[i].applied) {
@@ -205,26 +205,12 @@ maptool.placeMarkers = function() {
 		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id && ((Math.round(d.getTime() / 1000) - maptool.map.positions[i].edit_started) < 60*20)) {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
+
+	
 		// Add HTML to blob.
 		markerHTML += marker[0].outerHTML;
 		tooltipHTML += tooltip;
-		
-		//Hide markers that are filtered out
-		if (categoryFilter > 0) {
-			if (!maptool.map.positions[i].exhibitor/* || maptool.map.positions[i].exhibitor.category != categoryFilter*/) {
-				marker.css('display', 'none');
-			} else {
-				var cats = maptool.map.positions[i].exhibitor.categories
-				marker.css('display', 'none');
-				for (var j=0; j<cats.length; j++) {
-					if (cats[j].category_id == categoryFilter)
-						marker.css('display', 'inline');
-				}
-			}
-		}
-		
-	}
-
+	}	
 	$("#mapHolder #map").prepend(markerHTML);
 	$("#mapHolder").prepend(tooltipHTML);
 	
@@ -274,7 +260,25 @@ maptool.placeMarkers = function() {
 	if ($('#spots_free').text() == "") {
 		$('#spots_free').text(freeSpots);
 	}
-	
+	for (var i=0; i<maptool.map.positions.length; i++) {
+		
+		var markerId = "pos-"+maptool.map.positions[i].id;
+		var markerImg = document.getElementById(markerId);
+		if (categoryFilter > 0) {
+			if(maptool.map.positions[i].exhibitor != null){
+				var markerCatId = maptool.map.positions[i].exhibitor.categories[0].category_id;
+				if (markerCatId == categoryFilter) {
+					markerImg.style.display = "inline";
+				} else {
+					markerImg.style.display = "none";
+				}
+			} else {
+				markerImg.style.display = "none";
+			}
+		} else {
+			markerImg.style.display = "inline";
+		}
+	}
 }
 
 //Remove all markers
@@ -426,7 +430,6 @@ maptool.pasteExhibitor = function(positionObject) {
 
 //Create new position
 maptool.addPosition = function(clickEvent) {
-	
 	$("#position_name_input, #position_area_input, #position_info_input").val("");
 
 	if (maptool.map.userlevel < 2)
@@ -468,10 +471,8 @@ maptool.addPosition = function(clickEvent) {
 
 //Move position
 maptool.movePosition = function(clickEvent, positionObject) {
-	
 	maptool.pauseUpdate();
 	$(".marker_tooltip").hide();
-
 	var marker = $("#pos-" + positionObject.id);
 	movingMarker = marker;
 	var canAjax = true;
@@ -492,7 +493,6 @@ maptool.movePosition = function(clickEvent, positionObject) {
 		});
 		marker.click(function(e) {
 			marker.off("click");
-
 			if (maptool.isOnMap(e.clientX, e.clientY)) {
 				$(document).off('mousemove', 'body');
 
@@ -519,17 +519,18 @@ maptool.movePosition = function(clickEvent, positionObject) {
 							maptool.update();
 						}
 					});
+					movingMarker.remove();			
 				}
-				movingMarker = null;
+				movingMarker = null;	
 			}
 		});
+		
 	});
 
 }
 
 //Edit position
 maptool.editPosition = function(positionObject) {
-
 	//$("#edit_position_dialogue .closeDialogue").show();
 	$("#post_position").off("click");
 
