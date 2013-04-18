@@ -472,7 +472,7 @@ maptool.addPosition = function(clickEvent) {
 //Move position
 maptool.movePosition = function(clickEvent, positionObject) {
 	maptool.pauseUpdate();
-	$(".marker_tooltip").hide();
+	$(".marker_tooltip").remove();
 	var marker = $("#pos-" + positionObject.id);
 	movingMarker = marker;
 	var canAjax = true;
