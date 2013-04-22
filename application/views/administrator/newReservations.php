@@ -5,7 +5,7 @@
 <?php if ($hasRights): ?>
 
 <div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
-<table class="std_table" style="width: 100%; padding-right: 16px;">
+<table class="std_table" id="booked" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -19,8 +19,9 @@
 	</tr>
 </thead>
 <tbody>
-<?php foreach($positions as $pos): ?>
-	<tr>
+<?php $page = 1; $count = 0;?>
+<?php foreach($positions as $pos):?>
+	<tr id="booked-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
 		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
@@ -38,15 +39,33 @@
 			</a>
 		</td>
 	</tr>
+<?php $count +=1; ?>
+<?php if($count == 5):
+	$page +=1; $count = 0;
+endif; ?>
 <?php endforeach; ?>
 </tbody>
 </table>
+<?php $d = 1; ?>
+<p class="pagercomment"> Sida : </p>
+<div id="pager1" class="pager">
+<?php if(count($positions) > 5){ ?>
+<?php for($i=0; $i<count($positions); $i=$i+5): ?>
+	<?php 
+	
+	if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'booked\', \'pager1\')">['.$d.']</p>'; }
+	else {echo '<p class="'.$d.'"onclick="showPage('.$d.', \'booked\', \'pager1\')">'.$d.'</p>';}
+	$d +=1;
+	?>
+<?php endfor; ?>
+<?php } ?>
+</div>
 </div>
 
 <h2 style="margin-top:20px"><?php echo $rheadline; ?></h2>
 
 <div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
-<table class="std_table" style="width: 100%; padding-right: 16px;">
+<table class="std_table" id="reserved" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -61,8 +80,9 @@
 	</tr>
 </thead>
 <tbody>
+<?php $page = 1; $count = 0;?>
 <?php foreach($rpositions as $pos): ?>
-	<tr>
+	<tr id="reserved-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
 		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
@@ -85,15 +105,34 @@
 			</a>
 		</td>
 	</tr>
+<?php $count +=1; ?>
+<?php if(count($rpositions) > 5){ ?>
+	<?php if($count == 5):
+		$page +=1; $count = 0;
+	endif; 
+}	?>
 <?php endforeach; ?>
 </tbody>
 </table>
+<?php $d = 1; ?>
+<p class="pagercomment"> Sida : </p>
+<div id="pager2" class="pager">
+<?php if(count($rpositions) > 5){ ?>
+	<?php for($i=0; $i<count($rpositions); $i=$i+5): ?>
+		<?php 
+		if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'reserved\', \'pager2\')">['.$d.']</p>'; }
+		else {echo '<p class="'.$d.'"onclick="showPage('.$d.', \'reserved\', \'pager2\')">'.$d.'</p>';}
+		$d +=1;
+		?>
+	<?php endfor; ?>
+<?php } ?>
+</div>
 </div>
 
 <h2 style="margin-top:20px"><?php echo $prel_table; ?></h2>
 
 <div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
-<table class="std_table" style="width: 100%; padding-right: 16px;">
+<table class="std_table" id="prem" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
@@ -109,8 +148,9 @@
 	</tr>
 </thead>
 <tbody>
+<?php $page = 1; $count = 0;?>
 <?php foreach($prelpos as $pos): ?>
-	<tr>
+	<tr id="prem-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
 		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
@@ -139,9 +179,29 @@
 		</td>
 
 	</tr>
-<?php endforeach; ?>
+<?php $count +=1; ?>
+	<?php if($count == 5):
+		$page +=1; $count = 0;
+	endif; 
+?>
+<?php endforeach;?>
 </tbody>
 </table>
+</tbody>
+</table>
+<?php $d = 1; ?>
+<p class="pagercomment"> Sida : </p>
+<div id="pager3" class="pager">
+<?php if(count($prelpos) > 5){ ?>
+	<?php for($i=0; $i<count($prelpos); $i=$i+5): ?>
+		<?php 
+		if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'prem\', \'pager3\')">['.$d.']</p>'; }
+		else {echo '<p class="'.$d.'"onclick="showPage('.$d.', \'prem\', \'pager3\')">'.$d.'</p>';}
+		$d +=1;
+		?>
+	<?php endfor; ?>
+<?php } ?>
+</div>
 </div>
 
 

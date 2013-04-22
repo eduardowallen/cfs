@@ -50,8 +50,38 @@ function filterTableTable(table, str, results) {
 			hit_count++;
 		}
 	});
-
 	results.text(hit_count + ' matching rows.');
+}
+
+
+function showPage(page, tbl, pgr){
+	var menuLength = $('#'+tbl+' tbody').children().length;
+	var p = 1; var m = 0;
+	for(var i=0; i<menuLength; i++){
+		var tr = $('#'+tbl+'-'+p+'-'+m);
+		if(tr !== null){
+			if(p == page){
+				tr[0].style.display = "table-row";
+			} else {
+				tr[0].style.display = "none";
+			}
+		}
+		m = m + 1;
+		if(m==5){m=0; p+=1;}
+	}
+
+	var pagerLength = $('#'+pgr).children().length;
+	for(var i = 1; i<pagerLength+1; i++){
+		if(page == i){
+			$('#'+pgr+' .'+i).css("font-weight", "bold");
+			$('#'+pgr+' .'+i).css("color", "#128913");
+			$('#'+pgr+' .'+i).text("["+i+"]");
+		} else if(page != i){
+			$('#'+pgr+' .'+i).css("font-weight", "normal");
+			$('#'+pgr+' .'+i).css("color", "#000000");
+			$('#'+pgr+' .'+i).text(i);
+		}
+	}
 }
 
 $(document).ready(function() {

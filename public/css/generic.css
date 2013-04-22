@@ -163,6 +163,27 @@ textarea {
 .std_table tbody tr:hover {
 	background:#b1b1b1;
 }
+
+.std_table tr th.header{border-top:1px solid #000; border-left:1px solid #000;}
+.std_table tr {border-right:1px solid #000; border-left:1px solid #000;}
+
+.pager p{
+	display:inline;
+	padding:0px 5px 0px 0px; float:left;
+	cursor:pointer;
+	margin:0px 5px 0px 0px;
+}
+
+.pager p:hover{
+	color:#128913;
+}
+.pagercomment{
+	margin:5px 0 0 0;
+	padding:0;
+}
+
+
+
 .form_column {
 	display:inline-block;
 	width:280px;
