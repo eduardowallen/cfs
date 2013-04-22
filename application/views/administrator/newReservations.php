@@ -3,7 +3,7 @@
 <h2 style="margin-top:20px"><?php echo $headline; ?></h2>
 
 <?php if ($hasRights): ?>
-
+<?php if(count($positions) > 0) : ?>
 <div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
 <table class="std_table" id="booked" style="width: 100%; padding-right: 16px;">
 <thead>
@@ -19,6 +19,7 @@
 	</tr>
 </thead>
 <tbody>
+
 <?php $page = 1; $count = 0;?>
 <?php foreach($positions as $pos):?>
 	<tr id="booked-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
@@ -47,9 +48,9 @@ endif; ?>
 </tbody>
 </table>
 <?php $d = 1; ?>
+<?php if(count($positions) > 5){ ?>
 <p class="pagercomment"> Sida : </p>
 <div id="pager1" class="pager">
-<?php if(count($positions) > 5){ ?>
 <?php for($i=0; $i<count($positions); $i=$i+5): ?>
 	<?php 
 	
@@ -61,9 +62,10 @@ endif; ?>
 <?php } ?>
 </div>
 </div>
-
+<?php endif; ?>
 <h2 style="margin-top:20px"><?php echo $rheadline; ?></h2>
 
+<?php if(count($rpositions) > 0) : ?>
 <div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
 <table class="std_table" id="reserved" style="width: 100%; padding-right: 16px;">
 <thead>
@@ -115,9 +117,10 @@ endif; ?>
 </tbody>
 </table>
 <?php $d = 1; ?>
-<p class="pagercomment"> Sida : </p>
-<div id="pager2" class="pager">
+
 <?php if(count($rpositions) > 5){ ?>
+	<p class="pagercomment"> Sida : </p>
+	<div id="pager2" class="pager">
 	<?php for($i=0; $i<count($rpositions); $i=$i+5): ?>
 		<?php 
 		if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'reserved\', \'pager2\')">['.$d.']</p>'; }
@@ -128,9 +131,11 @@ endif; ?>
 <?php } ?>
 </div>
 </div>
+<?php endif; ?>
 
 <h2 style="margin-top:20px"><?php echo $prel_table; ?></h2>
 
+<?php if(count($prelpos) > 0) : ?>
 <div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
 <table class="std_table" id="prem" style="width: 100%; padding-right: 16px;">
 <thead>
@@ -148,6 +153,7 @@ endif; ?>
 	</tr>
 </thead>
 <tbody>
+
 <?php $page = 1; $count = 0;?>
 <?php foreach($prelpos as $pos): ?>
 	<tr id="prem-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
@@ -189,10 +195,11 @@ endif; ?>
 </table>
 </tbody>
 </table>
+
 <?php $d = 1; ?>
-<p class="pagercomment"> Sida : </p>
-<div id="pager3" class="pager">
 <?php if(count($prelpos) > 5){ ?>
+	<p class="pagercomment"> Sida : </p>
+	<div id="pager3" class="pager">
 	<?php for($i=0; $i<count($prelpos); $i=$i+5): ?>
 		<?php 
 		if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'prem\', \'pager3\')">['.$d.']</p>'; }
@@ -201,10 +208,10 @@ endif; ?>
 		?>
 	<?php endfor; ?>
 <?php } ?>
+
 </div>
 </div>
-
-
+<?php endif; ?>
 <?php else: ?>
 
 <p>Du är inte behörig att administrera den här mässan.</p>
