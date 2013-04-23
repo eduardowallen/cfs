@@ -1,7 +1,34 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $fair->get('name'); ?></h1>
 <h2 style="margin-top:20px"><?php echo $headline; ?></h2>
-
+<script>
+	$(document).ready(function() {
+		setTimeout(function(){
+		for(var i = 0; i < 3; i++){
+			var tblWidthArray = new Array();;			
+			if(i==0){
+				var id="booked";
+			} else if(i == 1) {
+				var id="reserved";
+			} else if(i == 2) {
+				var id="prem";
+			}
+			if($('#'+id)[0] != null){
+				var offset = $('#'+id+' thead tr:first-child > th').offset();
+				$('#'+id+' thead').offset({top : offset.top - 31, left:offset.left - 1});
+				
+					$('#'+id+' tbody tr:first-child > td').each(function(i){
+						tblWidthArray[i] = $(this).outerWidth(false) - 10;
+					});
+					$('#'+id+' thead tr:first-child > th').each(function(i){
+						if(i == 0){tblWidthArray[i] -= 1;}
+						$(this).width(tblWidthArray[i]);
+					});
+				
+			}
+		}},200);
+	});
+</script>
 <?php if ($hasRights): ?>
 <?php if(count($positions) > 0) : ?>
 <div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
@@ -19,10 +46,9 @@
 	</tr>
 </thead>
 <tbody>
-
-<?php $page = 1; $count = 0;?>
+<?php //$page = 1; $count = 0;?>
 <?php foreach($positions as $pos):?>
-	<tr id="booked-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
+	<tr <?php //if($page>1){echo 'style="display:none;"';}?>>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
 		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
@@ -40,27 +66,27 @@
 			</a>
 		</td>
 	</tr>
-<?php $count +=1; ?>
-<?php if($count == 5):
-	$page +=1; $count = 0;
-endif; ?>
+<?php //$count +=1; ?>
+<?php //if($count == 5):
+	//$page +=1; $count = 0;
+//endif; ?>
 <?php endforeach; ?>
 </tbody>
 </table>
-<?php $d = 1; ?>
-<?php if(count($positions) > 5){ ?>
-<p class="pagercomment"> Sida : </p>
-<div id="pager1" class="pager">
-<?php for($i=0; $i<count($positions); $i=$i+5): ?>
+<?php //$d = 1; ?>
+<?php //if(count($positions) > 5){ ?>
+<!--<p class="pagercomment"> Sida : </p>
+<div id="pager1" class="pager">-->
+<?php /*for($i=0; $i<count($positions); $i=$i+5): ?>
 	<?php 
 	
 	if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'booked\', \'pager1\')">['.$d.']</p>'; }
 	else {echo '<p class="'.$d.'"onclick="showPage('.$d.', \'booked\', \'pager1\')">'.$d.'</p>';}
 	$d +=1;
-	?>
-<?php endfor; ?>
-<?php } ?>
-</div>
+	*/?>
+<?php// endfor; ?>
+<?php// } ?>
+<!--</div>-->
 </div>
 <?php endif; ?>
 <h2 style="margin-top:20px"><?php echo $rheadline; ?></h2>
@@ -82,9 +108,9 @@ endif; ?>
 	</tr>
 </thead>
 <tbody>
-<?php $page = 1; $count = 0;?>
+<?php //$page = 1; $count = 0;?>
 <?php foreach($rpositions as $pos): ?>
-	<tr id="reserved-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
+	<tr>
 		<td><?php echo $pos['name']; ?></td>
 		<td class="center"><?php echo $pos['area']; ?></td>
 		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
@@ -107,29 +133,9 @@ endif; ?>
 			</a>
 		</td>
 	</tr>
-<?php $count +=1; ?>
-<?php if(count($rpositions) > 5){ ?>
-	<?php if($count == 5):
-		$page +=1; $count = 0;
-	endif; 
-}	?>
 <?php endforeach; ?>
 </tbody>
 </table>
-<?php $d = 1; ?>
-
-<?php if(count($rpositions) > 5){ ?>
-	<p class="pagercomment"> Sida : </p>
-	<div id="pager2" class="pager">
-	<?php for($i=0; $i<count($rpositions); $i=$i+5): ?>
-		<?php 
-		if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'reserved\', \'pager2\')">['.$d.']</p>'; }
-		else {echo '<p class="'.$d.'"onclick="showPage('.$d.', \'reserved\', \'pager2\')">'.$d.'</p>';}
-		$d +=1;
-		?>
-	<?php endfor; ?>
-<?php } ?>
-</div>
 </div>
 <?php endif; ?>
 
@@ -153,8 +159,6 @@ endif; ?>
 	</tr>
 </thead>
 <tbody>
-
-<?php $page = 1; $count = 0;?>
 <?php foreach($prelpos as $pos): ?>
 	<tr id="prem-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
 		<td><?php echo $pos['name']; ?></td>
@@ -185,31 +189,11 @@ endif; ?>
 		</td>
 
 	</tr>
-<?php $count +=1; ?>
-	<?php if($count == 5):
-		$page +=1; $count = 0;
-	endif; 
-?>
 <?php endforeach;?>
 </tbody>
 </table>
 </tbody>
 </table>
-
-<?php $d = 1; ?>
-<?php if(count($prelpos) > 5){ ?>
-	<p class="pagercomment"> Sida : </p>
-	<div id="pager3" class="pager">
-	<?php for($i=0; $i<count($prelpos); $i=$i+5): ?>
-		<?php 
-		if($d == 1){echo '<p style="font-weight:bold; color:#128913;" class="'.$d.'"onclick="showPage('.$d.', \'prem\', \'pager3\')">['.$d.']</p>'; }
-		else {echo '<p class="'.$d.'"onclick="showPage('.$d.', \'prem\', \'pager3\')">'.$d.'</p>';}
-		$d +=1;
-		?>
-	<?php endfor; ?>
-<?php } ?>
-
-</div>
 </div>
 <?php endif; ?>
 <?php else: ?>
