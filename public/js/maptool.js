@@ -272,7 +272,7 @@ maptool.placeMarkers = function() {
 	
 	//display dialogue on marker click (or touch, for iDevices)
 	$(".marker", mapContext).bind("click touch", function() {
-		maptool.showContextMenu($(this).attr("id").replace('pos-', ''));
+		maptool.showContextMenu($(this).attr("id").replace('pos-', ''), $(this));
 	});
 	
 	maptool.placeFocusArrow();
@@ -317,7 +317,7 @@ maptool.tooltip = function(index) {
 }
 
 //Create context menu for markers
-maptool.showContextMenu = function(position) {
+maptool.showContextMenu = function(position, marker) {
 	
 	if ($('#pos-' + position).hasClass('busy'))
 		return;
@@ -408,6 +408,12 @@ maptool.showContextMenu = function(position) {
 		});
 	}
 
+	var map = $('#mapHolder');
+	if(map.height()-contextMenu.height() < marker.offset().top){
+		contextMenu.css({
+			top : marker.offset().top - (contextMenu.height() - 5),
+		});
+	}
 }
 
 maptool.markPositionAsBeingEdited = function(obj) {
