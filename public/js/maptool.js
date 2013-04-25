@@ -516,11 +516,14 @@ maptool.movePosition = function(clickEvent, positionObject) {
 	});
 
 	$(document).on('mousemove', 'body', function(e) {
-		
+		var movePosX = e.clientX + $('body').scrollLeft();
+		var movePosY = e.clientY + $('body').scrollTop();
+
 		marker.css({
-			top: e.clientY,
-			left: e.clientX
+			top: movePosY,
+			left: movePosX
 		});
+
 		marker.click(function(e) {
 			marker.off("click");
 			if (maptool.isOnMap(e.clientX, e.clientY)) {
@@ -537,6 +540,7 @@ maptool.movePosition = function(clickEvent, positionObject) {
 
 				yOffset = yOffset - maptool.map.canvasOffset.top + $("#mapHolder").scrollTop();
 				var yPercent = (yOffset / mapHeight) * 100;
+
 				if (canAjax) {
 					canAjax = false;
 					$.ajax({
