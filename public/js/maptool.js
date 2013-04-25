@@ -226,13 +226,33 @@ maptool.placeMarkers = function() {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""), mapHolderContext);
 		var marker = $(this);
 		if (!tooltip.is(":visible")) {
-			if (tooltip.height() > marker.offset().top) {
-				tooltip.addClass('marker_tooltip_flipped');
+
+			// Övre kant
+			if ((tooltip.height() > marker.offset().top) && (tooltip.width() < marker.offset().left*2)) {
+				tooltip.addClass('marker_tooltip_flipped'); 
 				tooltip.css({
 					left: marker.offset().left,
 					top: marker.offset().top + 20
 				});
-			} else {
+			}
+			// Vänster övre kant
+			else if ((tooltip.width() > marker.offset().left*2) && (tooltip.height() > marker.offset().top)){
+				tooltip.addClass('marker_tooltip_flipped');
+				tooltip.css({
+					left: marker.offset().left + tooltip.width()/2,
+					top: marker.offset().top + 15
+				});
+			}
+			// Vänster undre kant && Vänster kant
+			else if ((tooltip.width() > marker.offset().left*2) && (tooltip.height() < marker.offset().top)){
+				tooltip.addClass('marker_tooltip_flipped');
+				tooltip.css({
+					left: marker.offset().left + tooltip.width()/2,
+					top: marker.offset().top - tooltip.height() - 15
+				});
+			}
+			// Under kant
+			else if ((tooltip.height() < marker.offset().top) ) {
 				tooltip.removeClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left,
