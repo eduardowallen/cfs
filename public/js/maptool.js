@@ -35,19 +35,48 @@ function preHover(id){
 	//}
 }
 
+function scrollbarWidth() { 
+	var scrollDiv = document.createElement("div");
+	document.body.appendChild(scrollDiv);
+	scrollDiv.style.position = "absolute";
+	scrollDiv.style.top = "50px";
+	scrollDiv.style.overflow = "scroll";
+	var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+
+	return scrollbarWidth; 
+	document.body.removeChild(scrollDiv);
+}
+
+(function($) {
+    $.fn.hasScrollBar = function() {
+        return this.get(0).scrollHeight > this.height();
+    }
+})(jQuery);
+
 //Check if a set of coordinates (from a click for example) is on the map or not
 maptool.isOnMap = function(x, y) {
-	if (x < maptool.map.canvasOffset.left ||
-		x > maptool.map.canvasOffset.left + maptool.map.canvasWidth) {
-		return false;
+	var mapHolder = $('#mapHolder');
+	var scrollSize = scrollbarWidth();
+	if($('#mapHolder').hasScrollBar()){
+		if (x < maptool.map.canvasOffset.left ||
+			x > maptool.map.canvasOffset.left + maptool.map.canvasWidth - scrollSize) {
+			return false;
+		}
+		if (y < maptool.map.canvasOffset.top ||
+			y > maptool.map.canvasOffset.top + maptool.map.canvasHeight - scrollSize) {
+			return false;
+		}
+	} else {
+		if (x < maptool.map.canvasOffset.left ||
+			x > maptool.map.canvasOffset.left + maptool.map.canvasWidth) {
+			return false;
+		}
+		if (y < maptool.map.canvasOffset.top ||
+			y > maptool.map.canvasOffset.top + maptool.map.canvasHeight) {
+			return false;
+		}
 	}
-	if (y < maptool.map.canvasOffset.top ||
-		y > maptool.map.canvasOffset.top + maptool.map.canvasHeight) {
-		return false;
-	}
-
 	return true;
-
 }
 
 //Open dialogue
@@ -248,7 +277,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
-					top: marker.offset().top - tooltip.height() - 15
+					top: marker.offset().top - tooltip.height()-15
 				});
 			}
 			// Under kant
@@ -496,20 +525,20 @@ maptool.addPosition = function(clickEvent) {
 			});
 		}
 	});
-
 }
 
 //Move position
 maptool.movePosition = function(clickEvent, positionObject) {
-	maptool.pauseUpdate();
 	$(".marker_tooltip").remove();
 	var marker = $("#pos-" + positionObject.id);
 	movingMarker = marker;
-	var canAjax = true;
 	marker.off("click");
-	$(".marker").off("hover");
+	var mapHolderContext = $("#mapHolder");
+	var mapContext = $('#map', mapHolderContext);
+	$('.marker').off("mouseenter mouseleave");
 	marker.prependTo('body');
-	
+	var canAjax = true;
+
 	marker.css({
 		marginTop: '-' + config.iconOffset + 'px',
 		marginLeft: '-' + config.iconOffset + 'px'
@@ -523,42 +552,39 @@ maptool.movePosition = function(clickEvent, positionObject) {
 			top: movePosY,
 			left: movePosX
 		});
-
-		marker.click(function(e) {
+	});
+	
+	marker.click(function(e) {
+		if (maptool.isOnMap(e.clientX, e.clientY)) {
 			marker.off("click");
-			if (maptool.isOnMap(e.clientX, e.clientY)) {
-				$(document).off('mousemove', 'body');
+			var xOffset = parseFloat(marker.offset().left + config.iconOffset);
+			var yOffset = parseFloat(marker.offset().top + config.iconOffset);
+			var mapWidth = $("#map #map_img").width();
+			var mapHeight = $("#map #map_img").height();
+			
+			xOffset = xOffset - maptool.map.canvasOffset.left + $("#mapHolder").scrollLeft();
+			var xPercent = (xOffset / mapWidth) * 100;
 
-				var xOffset = parseFloat(marker.offset().left + config.iconOffset);
-				var yOffset = parseFloat(marker.offset().top + config.iconOffset);
+			yOffset = yOffset - maptool.map.canvasOffset.top + $("#mapHolder").scrollTop();
+			var yPercent = (yOffset / mapHeight) * 100;
 
-				var mapWidth = $("#map #map_img").width();
-				var mapHeight = $("#map #map_img").height();
-
-				xOffset = xOffset - maptool.map.canvasOffset.left + $("#mapHolder").scrollLeft();
-				var xPercent = (xOffset / mapWidth) * 100;
-
-				yOffset = yOffset - maptool.map.canvasOffset.top + $("#mapHolder").scrollTop();
-				var yPercent = (yOffset / mapHeight) * 100;
-
-				if (canAjax) {
-					canAjax = false;
-					$.ajax({
-						url: 'ajax/maptool.php',
-						type: 'POST',
-						data: 'movePosition=' + positionObject.id + '&x=' + xPercent + '&y=' + yPercent,
-						success: function(res) {
-							maptool.markPositionAsNotBeingEdited();
-							maptool.resumeUpdate();
-							maptool.update();
-						}
-					});
-					movingMarker.remove();			
-				}
-				movingMarker = null;	
+			if (canAjax) {
+				canAjax = false;
+				$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: 'movePosition=' + positionObject.id + '&x=' + xPercent + '&y=' + yPercent,
+					success: function(res) {
+						
+						maptool.markPositionAsNotBeingEdited();
+						maptool.resumeUpdate();
+						maptool.update();
+					}
+				});
+				movingMarker.remove();	
 			}
-		});
-		
+			movingMarker = null;	
+		}
 	});
 
 }
@@ -1629,7 +1655,7 @@ maptool.update = function(posId) {
 
 					maptool.populateList();
 					maptool.placeFocusArrow();
-					updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 1000);
+					updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 30000);
 					preHover(posId);
 				}
 			}
