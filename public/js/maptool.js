@@ -102,17 +102,13 @@ maptool.closeDialogues = function() {
 
 //Populate list of exhibitors
 maptool.populateList = function() {
-
 	var searchString = $('#search_filter').val();
-
 	var prevSelectedId = -1;
 	if ($('#right_sidebar ul li.selected:first').length != 0) {
 		prevSelectedId = $('#right_sidebar ul li.selected:first').attr("id").replace("map-li-", "");
 		$('#right_sidebar ul li.selected:first #list_commodity').show();
 	}
-	
 	$("#right_sidebar ul").html('');
-	
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		if (maptool.map.positions[i].exhibitor !== null) {
 			
@@ -132,9 +128,7 @@ maptool.populateList = function() {
 						hide = true;
 				}
 			}
-			
 			if (searchString != '') {
-				
 				var str = searchString.toLowerCase();
 				var matched = false;
 				
@@ -151,7 +145,6 @@ maptool.populateList = function() {
 					hide = true;
 				}
 			}
-			
 			if (!hide) {
 				var item = $('<li id="map-li-' + maptool.map.positions[i].id + '">' + maptool.map.positions[i].exhibitor.company + '<p id="list_commodity">' + maptool.map.positions[i].exhibitor.spot_commodity + '</p></li>');
 				item.children('#list_commodity').hide();
@@ -187,18 +180,14 @@ maptool.placeMarkers = function() {
 	var mapContext = $('#map', mapHolderContext);
 	
 	for (var i=0; i<maptool.map.positions.length; i++) {
-		
 		if (maptool.map.positions[i].applied) {
 			maptool.map.positions[i].statusText = 'applied';
 		}
-		
 		//Prepare HTML
 		var markerId = 'pos-' + maptool.map.positions[i].id;
-
 		if (movingMarker != null && movingMarker.attr('id') == markerId) {
 			continue;
 		}
-
 		var marker = $('<img src="images/icons/marker_' + maptool.map.positions[i].statusText + '.png" alt="" class="marker" id="' + markerId + '"/>');
 		var tooltip = '<div class="marker_tooltip" id="info-' + maptool.map.positions[i].id + '">';
 
@@ -235,14 +224,12 @@ maptool.placeMarkers = function() {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
 
-	
 		// Add HTML to blob.
 		markerHTML += marker[0].outerHTML;
 		tooltipHTML += tooltip;
 	}	
 	$("#mapHolder #map").prepend(markerHTML);
 	$("#mapHolder").prepend(tooltipHTML);
-	
 	// Pause update
 	/*
 	$(".marker", mapContext).hover(function() {
@@ -253,7 +240,7 @@ maptool.placeMarkers = function() {
 	*/
 	//Display tooltip on hover
 	$(".marker", mapContext).hover(function(e) {
-		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""), mapHolderContext);
+		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		var marker = $(this);
 		if (!tooltip.is(":visible")) {
 			// Övre kant
@@ -289,12 +276,11 @@ maptool.placeMarkers = function() {
 				});
 			}
 			//$(".marker_tooltip", mapHolderContext).hide();
-			tooltip.show();
+			tooltip.css('display', 'inline');
 		}
 	}, function() {
-	
-		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""), mapHolderContext);
-		tooltip.hide();
+		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
+		tooltip.css('display', 'none');
 	});
 	
 	//display dialogue on marker click (or touch, for iDevices)
