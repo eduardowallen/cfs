@@ -244,18 +244,18 @@ maptool.placeMarkers = function() {
 	$("#mapHolder").prepend(tooltipHTML);
 	
 	// Pause update
+	/*
 	$(".marker", mapContext).hover(function() {
 		maptool.pauseUpdate();
 	}, function() {
 		maptool.resumeUpdate();
 	});
-
+	*/
 	//Display tooltip on hover
 	$(".marker", mapContext).hover(function(e) {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""), mapHolderContext);
 		var marker = $(this);
 		if (!tooltip.is(":visible")) {
-
 			// Övre kant
 			if ((tooltip.height() > marker.offset().top) && (tooltip.width() < marker.offset().left*2)) {
 				tooltip.addClass('marker_tooltip_flipped'); 
@@ -292,11 +292,9 @@ maptool.placeMarkers = function() {
 			tooltip.show();
 		}
 	}, function() {
-		if ($('.contextmenu', mapHolderContext).length == 0) {
-			//$(".marker_tooltip", mapHolderContext).hide();
-		} else {
-			//maptool.pauseUpdate();
-		}
+	
+		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""), mapHolderContext);
+		tooltip.hide();
 	});
 	
 	//display dialogue on marker click (or touch, for iDevices)
@@ -309,8 +307,8 @@ maptool.placeMarkers = function() {
 	if ($('#spots_free').text() == "") {
 		$('#spots_free').text(freeSpots);
 	}
+
 	for (var i=0; i<maptool.map.positions.length; i++) {
-		
 		var markerId = "pos-"+maptool.map.positions[i].id;
 		var markerImg = document.getElementById(markerId);
 		if (categoryFilter > 0) {
