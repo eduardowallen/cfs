@@ -288,12 +288,12 @@ maptool.placeMarkers = function() {
 					top: marker.offset().top - tooltip.height() - 20
 				});
 			}
-			$(".marker_tooltip", mapHolderContext).hide();
+			//$(".marker_tooltip", mapHolderContext).hide();
 			tooltip.show();
 		}
 	}, function() {
 		if ($('.contextmenu', mapHolderContext).length == 0) {
-			$(".marker_tooltip", mapHolderContext).hide();
+			//$(".marker_tooltip", mapHolderContext).hide();
 		} else {
 			//maptool.pauseUpdate();
 		}
@@ -1412,13 +1412,26 @@ maptool.reCalculatePositions = function() {
 	var arrow = $('#focus_arrow');
 	if (arrow.length > 0 && arrow.is(':visible')) {
 		
-		var ml = parseInt($('#pos-' + arrow.data('position')).css('left')) - 9;
-		var mt = parseInt($('#pos-' + arrow.data('position')).css('top')) - 9;
+		var ml = parseInt($('#pos-' + positionObject.id).css('left')) + 8;
+		var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 32;
 		//Reposition arrow
 		arrow.css({
 			left: ml + 'px',
 			top: mt + 'px'
 		});
+		var mapHolder = $('#mapHolder');
+		//alert(mapHolder.offset().left);
+		var maxX = mapHolder.width() + mapHolder.offset().left;
+		var minX = mapHolder.offset().left;
+		var maxY = mapHolder.height() + mapHolder.offset().top;
+		var minY = mapHolder.offset().top;	
+		if(maxX < (ml + arrow.width())){
+			arrow.attr('src','images/icons/crosshair3.png');
+			var posLeft = ml-42;
+			var posTop = mt;
+			arrow.css('left', posLeft);
+			arrow.css('top', posTop);
+		}
 	}
 }
 
@@ -1496,8 +1509,8 @@ maptool.focusOn = function(position) {
 	var img = $('<img src="images/icons/crosshair.png" id="focus_arrow"/>');
 	img.data('position', positionObject.id);
 	
-	var ml = parseInt($('#pos-' + positionObject.id).css('left')) - 9;
-	var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 9;
+	var ml = parseInt($('#pos-' + positionObject.id).css('left')) + 8;
+	var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 32;
 	
 	img.css({
 		"z-index": 997,
@@ -1505,9 +1518,36 @@ maptool.focusOn = function(position) {
 		left: ml + 'px',
 		top: mt + 'px'
 	});
+
 	$('#mapHolder #map').prepend(img);
-	
-	
+
+	var mapHolder = $('#mapHolder');
+	//alert(mapHolder.offset().left);
+
+	var maxX = mapHolder.width() + mapHolder.offset().left - 15;
+	var minX = mapHolder.offset().left;
+	var maxY = mapHolder.height() + mapHolder.offset().top - 15;
+	var minY = mapHolder.offset().top;	
+		
+	var imgPosOnSite = img.offset();
+
+	var il = imgPosOnSite.left;
+	var it = imgPosOnSite.top;
+
+
+	if((maxX < (il + img.width())) && (minY > il)){
+		img.attr('src','images/icons/crosshair4.png');
+		var posLeft = ml-42;
+		var posTop = mt+42;
+		img.css('left', posLeft);
+		img.css('top', posTop);
+	} else if(maxX < (il + img.width())){
+		img.attr('src','images/icons/crosshair3.png');
+		var posLeft = ml-42;
+		var posTop = mt;
+		img.css('left', posLeft);
+		img.css('top', posTop);
+	} 
 }
 
 //Adjust position of focus arrow
@@ -1515,17 +1555,30 @@ maptool.placeFocusArrow = function() {
 	var arrow = $('#focus_arrow');
 	if (arrow.is(":visible")) {
 		
+		var mapHolder = $('#mapHolder');
 		var marker = $("#pos-" + arrow.data("position"));
 		
-		var ml = parseInt(marker.css('left')) - 9;
-		var mt = parseInt(marker.css('top')) - 9;
+		var ml = parseInt($('#pos-' + positionObject.id).css('left')) + 8;
+		var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 32;
 		
 		arrow.css({
 			position: 'absolute',
 			left: ml,
 			top: mt
 		});
-		
+
+		//alert(mapHolder.offset().left);
+		var maxX = mapHolder.width() + mapHolder.offset().left;
+		var minX = mapHolder.offset().left;
+		var maxY = mapHolder.height() + mapHolder.offset().top;
+		var minY = mapHolder.offset().top;	
+		if(maxX < (ml + arrow.width())){
+			arrow.attr('src','images/icons/crosshair3.png');
+			var posLeft = ml-42;
+			var posTop = mt;
+			arrow.css('left', posLeft);
+			arrow.css('top', posTop);
+		}
 	}
 }
 
