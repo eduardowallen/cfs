@@ -17,6 +17,7 @@
 <script type="text/javascript" src="js/passwd_meter.js"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="js/chartbooker.js"></script>
+<script type="text/javascript" src="js/mobilecheck.js"></script>
 <script type="text/javascript" src="js/maptool.js"></script>
 <script type="text/javascript">
 	$(document).ready(function() {

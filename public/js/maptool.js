@@ -492,12 +492,14 @@ maptool.addPosition = function(clickEvent) {
 	}
 	$(document).on('mousemove', 'body', maptool.traceMouse);
 	$("#newMarkerIcon").click(function(e) {
+		
 		var x = e.clientX - maptool.map.canvasOffset.left;
 		var y = e.clientY - maptool.map.canvasOffset.top;
 		if (maptool.isOnMap(e.clientX, e.clientY)) {
 			$(document).off('mousemove', 'body', maptool.traceMouse);
 			$("#position_id_input").val("new");
 			maptool.openDialogue("edit_position_dialogue");
+			$('#position_name_input').focus();
 			$("#post_position").click(function() {
 				if ($("#position_name_input").val() != '') {
 					maptool.savePosition();
@@ -583,6 +585,7 @@ maptool.editPosition = function(positionObject) {
 	$("#position_area_input").val(positionObject.area);
 	$("#position_info_input").val(positionObject.information);
 	maptool.openDialogue("edit_position_dialogue");
+	$('#position_name_input').focus();
 	//$("#post_position").click(function() {
 	$("#post_position").on("click", function() {
 		if ($("#position_name_input").val() != '') {
@@ -718,8 +721,6 @@ maptool.markForApplication = function(positionObject) {
 	
 	$("#apply_choose_more").unbind('click');
 	$('#apply_choose_more').click(function() {
-		
-		
 		if ($("#apply_commodity_input").val() == "") {
 			$('#apply_commodity_input').css('border-color', 'red');
 			return;
@@ -759,7 +760,6 @@ maptool.markForApplication = function(positionObject) {
 			$('#apply_category_input').css('border-color', 'red');
 			return;
 		}
-		
 		var exists = false;
 		for (var i=0; i<markedAsBooked.length; i++) {
 			if (markedAsBooked[i].id == positionObject.id)
@@ -1395,7 +1395,6 @@ maptool.reCalculatePositions = function() {
 	
 	var arrow = $('#focus_arrow');
 	if (arrow.length > 0 && arrow.is(':visible')) {
-		
 		var ml = parseInt($('#pos-' + positionObject.id).css('left')) + 8;
 		var mt = parseInt($('#pos-' + positionObject.id).css('top')) - 32;
 		//Reposition arrow
@@ -1403,19 +1402,6 @@ maptool.reCalculatePositions = function() {
 			left: ml + 'px',
 			top: mt + 'px'
 		});
-		var mapHolder = $('#mapHolder');
-		//alert(mapHolder.offset().left);
-		var maxX = mapHolder.width() + mapHolder.offset().left;
-		var minX = mapHolder.offset().left;
-		var maxY = mapHolder.height() + mapHolder.offset().top;
-		var minY = mapHolder.offset().top;	
-		if(maxX < (ml + arrow.width())){
-			arrow.attr('src','images/icons/crosshair3.png');
-			var posLeft = ml-42;
-			var posTop = mt;
-			arrow.css('left', posLeft);
-			arrow.css('top', posTop);
-		}
 	}
 }
 
@@ -1461,7 +1447,6 @@ maptool.centerOn = function(e, previousWidth, previousHeight, dir) {
 
 //Focus map on given marker
 maptool.focusOn = function(position) {
-	
 	$('#focus_arrow').remove();
 	
 	positionObject = null;
@@ -1502,44 +1487,13 @@ maptool.focusOn = function(position) {
 		left: ml + 'px',
 		top: mt + 'px'
 	});
-
 	$('#mapHolder #map').prepend(img);
-
-	var mapHolder = $('#mapHolder');
-	//alert(mapHolder.offset().left);
-
-	var maxX = mapHolder.width() + mapHolder.offset().left - 15;
-	var minX = mapHolder.offset().left;
-	var maxY = mapHolder.height() + mapHolder.offset().top - 15;
-	var minY = mapHolder.offset().top;	
-		
-	var imgPosOnSite = img.offset();
-
-	var il = imgPosOnSite.left;
-	var it = imgPosOnSite.top;
-
-
-	if((maxX < (il + img.width())) && (minY > il)){
-		img.attr('src','images/icons/crosshair4.png');
-		var posLeft = ml-42;
-		var posTop = mt+42;
-		img.css('left', posLeft);
-		img.css('top', posTop);
-	} else if(maxX < (il + img.width())){
-		img.attr('src','images/icons/crosshair3.png');
-		var posLeft = ml-42;
-		var posTop = mt;
-		img.css('left', posLeft);
-		img.css('top', posTop);
-	} 
 }
 
 //Adjust position of focus arrow
 maptool.placeFocusArrow = function() {
 	var arrow = $('#focus_arrow');
 	if (arrow.is(":visible")) {
-		
-		var mapHolder = $('#mapHolder');
 		var marker = $("#pos-" + arrow.data("position"));
 		
 		var ml = parseInt($('#pos-' + positionObject.id).css('left')) + 8;
@@ -1550,19 +1504,6 @@ maptool.placeFocusArrow = function() {
 			left: ml,
 			top: mt
 		});
-
-		//alert(mapHolder.offset().left);
-		var maxX = mapHolder.width() + mapHolder.offset().left;
-		var minX = mapHolder.offset().left;
-		var maxY = mapHolder.height() + mapHolder.offset().top;
-		var minY = mapHolder.offset().top;	
-		if(maxX < (ml + arrow.width())){
-			arrow.attr('src','images/icons/crosshair3.png');
-			var posLeft = ml-42;
-			var posTop = mt;
-			arrow.css('left', posLeft);
-			arrow.css('top', posTop);
-		}
 	}
 }
 
@@ -1928,8 +1869,17 @@ $(document).ready(function() {
 	$('#search_filter').keyup(function() {
 		maptool.populateList();
 	});
+
 	$(window).resize(function() {
-		maptool.reload();
+		var isiPad = /ipad/i.test(navigator.userAgent.toLowerCase());
+		if(jQuery.browser.mobile){
+			console.log("Du är inne via mobilen!");
+		} else if (isiPad) {
+			console.log("Du är inne via surfplatta!");
+		} else {
+			console.log("Du är inne via datorn!");
+			maptool.reload();
+		}
 	});
 	
 	//Scroll map by dragging
