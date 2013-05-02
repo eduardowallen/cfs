@@ -65,9 +65,16 @@ $(document).ready(function() {
 	});
 	
 	$('.contactLink').click(function() {
+		
+		var splitted = $(this).attr('class').split(" ");
 		$('#overlay').show();
+		if($(splitted[1]).text() == "undefined"){
+			var link = '/page/contact';
+		} else {
+			var link = '/page/contact/'+splitted[1];
+		}
 		var ajxReq = $.ajax({
-			url : '/cfs/page/contact',
+			url : link,
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
@@ -87,7 +94,7 @@ $(document).ready(function() {
 	$('.helpLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : '/cfs/page/help',
+			url : '/page/help',
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
@@ -106,7 +113,7 @@ $(document).ready(function() {
 	$('.helpOrgLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : '/cfs/page/help_organizer',
+			url : '/page/help_organizer',
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
