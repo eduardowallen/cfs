@@ -64,6 +64,65 @@ $(document).ready(function() {
 		
 	});
 	
+	$('.contactLink').click(function() {
+		$('#overlay').show();
+		var ajxReq = $.ajax({
+			url : '/cfs/page/contact',
+			method : 'GET',
+		}).done(function(reqResp){
+			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
+			var filteredResponse = $(reqResp).find('#content').html();
+			$('body').append(html);
+			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 470px;"/>' + filteredResponse);
+			$('#popupform > p').css('text-align', 'left');
+			$('#popupform > table > tbody > tr > td > p').css('text-align', 'left');
+			$('.closeDialogue').click(function(){
+				$(this).off('click');
+				$('#popupform').remove();
+				$('#overlay').hide();
+			});
+		});	
+	});
+
+	$('.helpLink').click(function(){
+		$('#overlay').show();
+		var ajxReq = $.ajax({
+			url : '/cfs/page/help',
+			method : 'GET',
+		}).done(function(reqResp){
+			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
+			var filteredResponse = $(reqResp).find('#content').html();
+			$('body').append(html);
+			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 470px;"/>' + filteredResponse);
+			$('#popupform > p').css('text-align', 'left');
+			$('.closeDialogue').click(function(){
+				$(this).off('click');
+				$('#popupform').remove();
+				$('#overlay').hide();
+			});
+		});	
+	});
+
+	$('.helpOrgLink').click(function(){
+		$('#overlay').show();
+		var ajxReq = $.ajax({
+			url : '/cfs/page/help_organizer',
+			method : 'GET',
+		}).done(function(reqResp){
+			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
+			var filteredResponse = $(reqResp).find('#content').html();
+			$('body').append(html);
+			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 470px;"/>' + filteredResponse);
+			$('#popupform > p').css('text-align', 'left');
+			$('.closeDialogue').click(function(){
+				$(this).off('click');
+				$('#popupform').remove();
+				$('#overlay').hide();
+			});
+		});	
+	});
+
+
 	$('.registerlink').click(function(e) {
 		e.preventDefault();
 		e.stopPropagation();
