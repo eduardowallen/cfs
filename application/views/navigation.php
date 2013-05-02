@@ -39,8 +39,8 @@
 					</ul>
 				</li>
 				<li><a href="administrator/mine"><img src="images/icons/icon_registrera.png" alt=""/><?php echo $translator->{'Administrators'} ?></a></li>
-				<li><a href="page/help_organizer"><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{'Help'} ?></a></li>
-				<li><a href="page/contact"><img src="images/icons/icon_contact.png" alt=""/><?php echo $translator->{'Contact us'} ?></a></li>
+				<li><a class="helpOrgLink"><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{'Help'} ?></a></li>
+				<li><a class="contactLink"><img src="images/icons/icon_contact.png" alt=""/><?php echo $translator->{'Contact us'} ?></a></li>
 	
 				<?php elseif (userLevel() == 2): ?>
 				
@@ -77,7 +77,7 @@
 					</ul>
 				</li>
 				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><img src="images/icons/icon_globe.png" alt=""/><?php echo $translator->{'View map'} ?></a></li>
-				<li><a href="page/help"><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{"Here's how"} ?></a></li>
+				<li><a class="helpLink"> <img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{"Here's how"} ?></a></li>
 				<li><span><img src="images/icons/icon_events.png" alt=""/><?php echo $translator->{'Fairs'} ?></span>
 					<ul>
 						<?php echo $opts ?>
@@ -96,8 +96,8 @@
 					
 					<li><a class="loginlink" href="user/login/<?php echo $_SESSION['outside_fair_url'] ?>"><img src="images/icons/icon_logga_in.png" alt=""/><?php echo $translator->{'Sign in'} ?></a></li>
 					<li><a class="registerlink" href="user/register/<?php echo $_SESSION['outside_fair_url'] ?>"><img src="images/icons/icon_registrera.png" alt=""/><?php echo $translator->{'Register'} ?></a></li>					
-					<li><a href="page/help"><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{"Here's how"} ?></a></li>
-					<li><a href="page/contact/<?php echo $_SESSION['outside_fair_url'] ?>"><img src="images/icons/icon_contact.png" alt=""/><?php echo $translator->{'Contact us'} ?></a></li>
+					<li><a class="helpLink"><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{"Here's how"} ?></a></li>
+					<li><a class="contactLink <?php echo $_SESSION['outside_fair_url']?>"><img src="images/icons/icon_contact.png" alt=""/><?php echo $translator->{'Contact us'} ?></a></li>
 					<!--<li><a href="exhibitor/exhibitors"><?php echo $translator->{'Exhibitors'} ?></a></li>-->
 					
 					<?php endif; ?>
