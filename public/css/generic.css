@@ -141,6 +141,7 @@ textarea {
 .std_table, .std_table table {
 	border-collapse:collapse;
 	font-size:12px;
+	overflow-x:hidden;
 }
 .std_table th {
 	padding:0 5px 0 5px;
@@ -167,6 +168,15 @@ textarea {
 .std_table tr th.header{border-top:1px solid #000; border-left:1px solid #000;}
 .std_table tr {border-right:1px solid #000; border-left:1px solid #000;}
 
+ ul.tablehead{
+	display:inline;
+	padding:0;
+}
+
+ ul.tablehead li{
+	display:inline;
+	padding:0;
+}
 .pager p{
 	display:inline;
 	padding:0px 5px 0px 0px; float:left;

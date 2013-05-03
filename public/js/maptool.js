@@ -293,19 +293,27 @@ maptool.placeMarkers = function() {
 	if ($('#spots_free').text() == "") {
 		$('#spots_free').text(freeSpots);
 	}
-
+	
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		var markerId = "pos-"+maptool.map.positions[i].id;
 		var markerImg = document.getElementById(markerId);
 		if (categoryFilter > 0) {
 			if(maptool.map.positions[i].exhibitor != null){
 				if(maptool.map.positions[i].exhibitor.categories.length > 0){
-				var markerCatId = maptool.map.positions[i].exhibitor.categories[0].category_id;
+				//console.log(maptool.map.positions[i].exhibitor.categories);
+				var ct = 0;
+				$(maptool.map.positions[i].exhibitor.categories).each(function(){
+					var markerCatId = this.category_id;					
 					if (markerCatId == categoryFilter) {
+						ct +=1;
+					}
+					if(ct > 0){
 						markerImg.style.display = "inline";
 					} else {
 						markerImg.style.display = "none";
 					}
+					
+				});
 				} else {
 					markerImg.style.display = "none";
 				}
@@ -645,47 +653,62 @@ maptool.bookPosition = function(positionObject) {
 		});
 	});
 
+	var sBoxTop = $('#book_position_dialogue > #search_user_input').offset().top;
+	var sBoxLeft = $('#book_position_dialogue > #search_user_input').offset().left;
+	var sRes = $('#hiddenExhibitorList_d');
+
+	sRes.css('position', 'absolute');
+	sRes.css('top', '269px');
+	sRes.css('left', '25px');
+
 	$('#book_position_dialogue > #search_user_input').unbind('keyup');
-	$('#book_position_dialogue > #search_user_input').val('');
 	$('#book_position_dialogue > #search_user_input').keyup(function(e) {
 		if (e.keyCode == 13) {
-			$('#book_user_input').change();
+			sRes.css('display', 'none');
 		} else {
-			var query = $(this).val().toLowerCase();
-			var selectedFirst = false;
-			if (query == "") {
-				$('#book_user_input > option').show();
-			} else {
-				$('#book_user_input > option').each(function() {
-					if ($(this).text().toLowerCase().indexOf(query) == -1) {
-						$(this).prop('selected', false);
-						$(this).hide();
-					} else {
-						if (!selectedFirst) {
-							$(this).prop("selected", true);
-							selectedFirst = true;
-						}
-						$(this).show();
-					}
-				});
-			}
+			var term = $('#book_position_dialogue > #search_user_input').val();
+			maptool.searchForExhibitor(term, 'book');
+			sRes.css('display', 'block');
+		
+			$('#overlay').mouseover(function(){
+				$('#book_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList_d').css('display', 'none');	
+			});
+			
+			$('#hiddenExhibitorList').mouseleave(function(){
+				$('#book_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList_d').css('display', 'none');	
+			});
+
+			$('#book_position_dialogue').click(function(){
+				$('#book_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList_d').css('display', 'none');	
+			});
 		}
 	});
+
 
 	$('#book_post').unbind('click');
 	$("#book_post").click(function() {
 		
-		var cats = $('#book_category_input').val();
-		if (cats === null) {
-			$('#book_category_input').css('border-color', 'red');
-			return;
-		}
+		var cats = new Array();
+		var count = 0;
+		$('#book_category_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
 		
 		var catStr = '';
 		for (var j=0; j<cats.length; j++) {
 			catStr += '&categories[]=' + cats[j];
 		}
-		
+
 		var dataString = 'bookPosition=' + positionObject.id
 				   + '&commodity=' + $("#book_commodity_input").val()
 				   + '&message=' + $("#book_message_input").val()
@@ -879,7 +902,6 @@ maptool.applyForPosition = function(positionObject) {
 	
 	maptool.openDialogue('apply_position_dialogue');
 	$("#apply_post").click(function() {
-		
 		var cats = $('#apply_category_input').val();
 		if (cats === null)
 			return;
@@ -887,7 +909,6 @@ maptool.applyForPosition = function(positionObject) {
 		for (var i=0; i<cats.length; i++) {
 			catStr += '&cat[]=' + cats[i];
 		}
-		
 		var dataString = 'preliminary=' + positionObject.id
 				   + '&commodity=' + $("#apply_commodity_input").val()
 				   + '&message=' + $("#apply_message_input").val()
@@ -918,7 +939,6 @@ maptool.cancelApplication = function(positionObject) {
 }
 
 maptool.editBooking = function(positionObject) {
-
 	if (positionObject.status == 2) {
 		//booked
 		//maptool.openDialogue('book_position_dialogue');
@@ -945,30 +965,47 @@ maptool.editBooking = function(positionObject) {
 		});
 	});
 
+	var sBoxTop = $('#' + prefix + '_position_dialogue > #search_user_input').offset().top;
+	var sBoxLeft = $('#' + prefix + '_position_dialogue > #search_user_input').offset().left;
+	if(prefix == "book"){
+		var sRes = $('#hiddenExhibitorList_d');
+		sRes.css('position', 'absolute');
+		sRes.css('top', '221px');
+		sRes.css('left', '25px');
+	} else {
+		var sRes = $('#hiddenExhibitorList');
+		sRes.css('position', 'absolute');
+		sRes.css('top', '269px');
+		sRes.css('left', '25px');
+	}	
+
+	
 	$('#' + prefix + '_position_dialogue > #search_user_input').unbind('keyup');
-	$('#' + prefix + '_position_dialogue > #search_user_input').val('');
 	$('#' + prefix + '_position_dialogue > #search_user_input').keyup(function(e) {
 		if (e.keyCode == 13) {
-			$('#'+prefix+'_user_input').change();
+			sRes.css('display', 'none');
 		} else {
-			var query = $(this).val().toLowerCase();
-			var selectedFirst = false;
-			if (query == "") {
-				$('#'+prefix+'_user_input > option').show();
-			} else {
-				$('#'+prefix+'_user_input > option').each(function() {
-					if ($(this).text().toLowerCase().indexOf(query) == -1) {
-						$(this).prop('selected', false);
-						$(this).hide();
-					} else {
-						if (!selectedFirst) {
-							$(this).prop("selected", true);
-							selectedFirst = true;
-						}
-						$(this).show();
-					}
-				});
-			}
+			var term = $('#' + prefix + '_position_dialogue > #search_user_input').val();
+			maptool.searchForExhibitor(term, prefix);
+			sRes.css('display', 'block');
+		
+			$('#overlay').mouseover(function(){
+				$('#' + prefix + '_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList_d').css('display', 'none');	
+			});
+			
+			$('#hiddenExhibitorList').mouseleave(function(){
+				$('#' + prefix + '_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList_d').css('display', 'none');	
+			});
+
+			$('#' + prefix + '_position_dialogue').click(function(){
+				$('#' + prefix + '_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList_d').css('display', 'none');	
+			});
 		}
 	});
 
@@ -991,13 +1028,23 @@ maptool.editBooking = function(positionObject) {
 				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
 				   + '&map=' + maptool.map.id;
 		
-		var categories = $('#' + prefix + '_category_input').val();
-		if (categories) {
-			for (var i=0; i<categories.length; i++) {
-				dataString += '&category[]=' + categories[i];
+		var cats = new Array();
+		var count = 0;
+
+		$('#'+prefix+'_category_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		if (cats) {
+			for (var i=0; i<cats.length; i++) {
+				dataString += '&category[]=' + cats[i];
 			}
 		}
-		
+
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + $("#" + prefix + "_user_input").val();
 		}
@@ -1032,6 +1079,41 @@ maptool.cancelBooking = function(positionObject) {
 			}
 		});
 }
+var count;
+maptool.searchForExhibitor = function(searchTerm, box){
+	var box;
+	var exhbList;
+	if(box == "reserve"){
+		prefix = '#reserve';
+		exhbList = 'hiddenExhibitorList';
+	} else if(box == "book"){
+		prefix = '#book';
+		exhbList = 'hiddenExhibitorList_d';
+	}
+	var list = $('#'+exhbList+' > ul');
+	$(list).children().css('display', 'none');
+	count = 1;
+	$(list).children().each(function(){
+		var listItem = $(this).text();
+		$(this).click(function(){
+			$(this).off('click');
+			$(prefix + ' > #search_user_input').text = $(this).text();
+		});
+		if(listItem.indexOf(searchTerm) !== -1){
+			$(this).css('display', 'block');
+
+			if(count > 6){
+				$('#'+exhbList).css('max-height', '100px');
+				$('#'+exhbList).css('overflow-y', 'scroll');
+			} 
+			count +=1;
+		} else {
+
+			$(this).css('display', 'none');
+		}
+		
+	});
+}
 
 //Reserve open position
 maptool.reservePosition = function(positionObject) {
@@ -1048,7 +1130,7 @@ maptool.reservePosition = function(positionObject) {
 	} else {
 		$("#reserve_commodity_input, #reserve_message_input, #reserve_expires_input").val("");
 	}
-	
+
 	maptool.openDialogue('reserve_position_dialogue');
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
@@ -1067,43 +1149,65 @@ maptool.reservePosition = function(positionObject) {
 		});
 	});
 
+	var sBoxTop = $('#reserve_position_dialogue > #search_user_input').offset().top;
+	var sBoxLeft = $('#reserve_position_dialogue > #search_user_input').offset().left;
+	var sRes = $('#hiddenExhibitorList');
+
+	sRes.css('position', 'absolute');
+	sRes.css('top', '269px');
+	sRes.css('left', '25px');
+
 	$('#reserve_position_dialogue > #search_user_input').unbind('keyup');
-	$('#reserve_position_dialogue > #search_user_input').val('');
 	$('#reserve_position_dialogue > #search_user_input').keyup(function(e) {
 		if (e.keyCode == 13) {
-			$('#reserve_user_input').change();
+			sRes.css('display', 'none');
 		} else {
-			var query = $(this).val().toLowerCase();
-			var selectedFirst = false;
-			if (query == "") {
-				$('#reserve_user_input > option').show();
-			} else {
-				$('#reserve_user_input > option').each(function() {
-					if ($(this).text().toLowerCase().indexOf(query) == -1) {
-						$(this).prop('selected', false);
-						$(this).hide();
-					} else {
-						if (!selectedFirst) {
-							$(this).prop("selected", true);
-							selectedFirst = true;
-						}
-						$(this).show();
-					}
-				});
-			}
+			var term = $('#reserve_position_dialogue > #search_user_input').val();
+			maptool.searchForExhibitor(term, 'reserve');
+			sRes.css('display', 'block');
+		
+			$('#overlay').mouseover(function(){
+				$('#reserve_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList').css('display', 'none');	
+			});
+			
+			$('#hiddenExhibitorList').mouseleave(function(){
+				$('#reserve_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList').css('display', 'none');	
+			});
+
+			$('#reserve_position_dialogue').click(function(){
+				$('#reserve_position_dialogue').off('click');
+				$('#overlay').off('click');
+				$('#hiddenExhibitorList').css('display', 'none');	
+			});
 		}
+		
 	});
 
 	$("#reserve_post").unbind("click");
 	$("#reserve_post").click(function() {
-		
-		var cats = $('#reserve_category_input').val();
+		var cats = new Array();
+
+
+		var count = 0;
+		$('#reserve_category_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		/*
 		if (cats === null) {
-			$('#reserve_category_input').css('border-color', 'red');
+			$('#reserve_category_scrollbox').css('border-color', 'red');
 			return;
 		} else {
-			$('#reserve_category_input').css('border-color', '#000000');
-		}
+			$('#reserve_category_scrollbox').css('border-color', '#000000');
+		}*/
 
 		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d$/)) {
 			var dateParts = $("#reserve_expires_input").val().split('-');
@@ -1123,7 +1227,6 @@ maptool.reservePosition = function(positionObject) {
 		for (var j=0; j<cats.length; j++) {
 			catStr += '&categories[]=' + cats[j];
 		}
-		
 		var dataString = 'reservePosition=' + positionObject.id
 				   + '&commodity=' + $("#reserve_commodity_input").val()
 				   + '&message=' + $("#reserve_message_input").val()
@@ -1132,7 +1235,8 @@ maptool.reservePosition = function(positionObject) {
 				   + catStr;
 		
 		if (maptool.map.userlevel > 1) {
-			dataString += '&user=' + $("#reserve_user_input").val();
+			
+			dataString += '&user=' + $("input#reserve_user_input").val();
 		}
 
 		$.ajax({
@@ -1864,8 +1968,8 @@ $(document).ready(function() {
 	$(document).keydown(function(e) {
 		if (e.keyCode == 27)
 			maptool.closeDialogues();
-
 	});
+
 	$('#search_filter').keyup(function() {
 		maptool.populateList();
 	});
@@ -1946,7 +2050,24 @@ $(document).ready(function() {
 			curr = e.pageY;
 		});
 	});
-
 	// Start automatic updating
 	setTimeout('maptool.update()', config.markerUpdateTime * 1000);
 });
+
+
+function chooseThis(thisd){
+	var text = $(thisd).text();
+	var id = $(thisd).val();
+	$('input#search_user_input').val(text);
+	$('input#reserve_user_input').val(id);
+	$('#hiddenExhibitorList').hide();
+}
+
+function chooseThisBook(thisd){
+	var text = $(thisd).text();
+	var id = $(thisd).val();
+	$('input#search_user_input').val(text);
+	$('input#book_user_input').val(id);
+	$('#hiddenExhibitorList').hide();
+}
+

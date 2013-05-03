@@ -8,7 +8,18 @@ function makeUserOptions2($sel=0, $fair) {
 	$ret = '';
 	foreach ($users as $user) {
 		$chk = ($sel == $user->get('id')) ? ' selected="selected"' : '';
-		$ret.= '<option value="'.$user->get('id').'"'.$chk.'>'.$user->get('company').'</option>';
+		$ret.= '<li onclick="chooseThis(this)" value="'.$user->get('id').'"'.$chk.'>'.$user->get('company').'</li>';
+	}
+	return $ret;
+}
+
+function makeUserOptions3($sel=0, $fair) {
+	$users = User::getExhibitorsForArranger($fair->get('created_by'));
+
+	$ret = '';
+	foreach ($users as $user) {
+		$chk = ($sel == $user->get('id')) ? ' selected="selected"' : '';
+		$ret.= '<li onclick="chooseThisBook(this)" value="'.$user->get('id').'"'.$chk.'>'.$user->get('company').'</li>';
 	}
 	return $ret;
 }
@@ -117,7 +128,7 @@ function makeUserOptions2($sel=0, $fair) {
 	<label for="position_name_input"><?php echo $translator->{'Name'} ?> *</label>
 	<input type="text" name="position_name_input" id="position_name_input"/>
 
-	<label for="position_area_input"><?php echo $translator->{'Area'} ?> (m<sup>2</sup>)</label>
+	<label for="position_area_input"><?php echo $translator->{'Area'} ?> </label>
 	<input type="text" name="position_area_input" id="position_area_input"/>
 
 	<label for="position_info_input"><?php echo $translator->{'Information'} ?></label>
@@ -135,27 +146,28 @@ function makeUserOptions2($sel=0, $fair) {
 	<div class="ssinfo"></div>
 	
 	<label for="book_category_input"><?php echo $translator->{'Category'} ?></label>
-	<select name="book_category_input[]" id="book_category_input" multiple="multiple">
+	<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
-		<option value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></option>
+		<p>
+			<input type="checkbox" value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></input>
+		</p>
 		<?php endforeach; ?>
-	</select>
+	</div>
 	
+	<div id="hiddenExhibitorList_d">
+		<ul>
+			<?php echo makeUserOptions3(0, $fair)?>
+		</ul>
+	</div>
+
+	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
+	<input type="text" name="search_user_input" id="search_user_input" />
+	<input type="hidden" id="book_user_input" />
 	<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
 	<input type="text" name="book_commodity_input" id="book_commodity_input"/>
 
 	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="book_message_input" id="book_message_input"></textarea>
-
-	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
-	<input type="text" name="search_user_input" id="search_user_input" />
-
-	<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
-	<select name="book_user_input" id="book_user_input">
-		<?php echo makeUserOptions2(0, $fair); ?>
-		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
-	</select>
-	<a href="exhibitor/createFromMap/<?php echo $fair->get('url'); ?>"><?php echo $translator->{'New exhibitor'}; ?></a>
 
 	<p><input type="button" id="book_post" value="<?php echo $translator->{'Confirm booking'} ?>"/></p>
 
@@ -175,31 +187,33 @@ function makeUserOptions2($sel=0, $fair) {
 	<div class="ssinfo"></div>
 	
 	<label for="reserve_category_input"><?php echo $translator->{'Category'} ?></label>
-	<select name="reserve_category_input[]" id="reserve_category_input" multiple="multiple">
+	<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
-		<option value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></option>
+			<p>
+				<input type="checkbox" value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></input>
+			</p>
 		<?php endforeach; ?>
-	</select>
-	
+	</div>
+
+	<div id="hiddenExhibitorList">
+		<ul>
+			<?php echo makeUserOptions2(0, $fair)?>
+		</ul>
+	</div>
+
+	<?php //print_r(makeUserOptions2(0, $fair)); ?>
+	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
+	<input type="text" name="search_user_input" id="search_user_input" />
+	<input type="hidden" id="reserve_user_input" name="reserve_user_input" /> 
 	<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
 	<input type="text" name="reserve_commodity_input" id="reserve_commodity_input"/>
+
+	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
+	<input type="text" class="datepicker" name="reserve_expires_input" id="reserve_expires_input"/>
 
 	<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="reserve_message_input" id="reserve_message_input"></textarea>
 
-	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
-	<input type="text" name="search_user_input" id="search_user_input" />
-
-	<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
-	<select name="reserve_user_input" id="reserve_user_input">
-		<?php echo makeUserOptions2(0, $fair); ?>
-		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
-	</select>
-	<a href="exhibitor/createFromMap/<?php echo $fair->get('url'); ?>"><?php echo $translator->{'New exhibitor'}; ?></a>
-
-	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
-	<input type="text" class="datepicker" name="reserve_expires_input" id="reserve_expires_input"/>
-	
 	<p><input type="button" id="reserve_post" value="<?php echo $translator->{'Confirm reservation'} ?>"/></p>
 
 </div>
