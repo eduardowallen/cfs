@@ -3,17 +3,9 @@
 class StartController extends Controller {
 	
 	public function index() {
-		
 		unset($_SESSION['visitor']);
 		$this->set('error', '');
 		$this->setNoTranslate('fair_url', $fUrl);
-		if( $status !== null){
-			$this->set('first_time_msg', 'An email has been sent to the specified email addresses that were entered into during the registration prossesen');
-		}
-		
-		if( $fUrl == 'confirmed'){
-			$this->set('confirmed_msg', 'Your account has been activated. Please log in to proceed.');
-		}
 		
 		if (isset($_POST['login'])) {
 
