@@ -5,7 +5,7 @@ class StartController extends Controller {
 	public function index() {
 		unset($_SESSION['visitor']);
 		$this->set('error', '');
-		$this->setNoTranslate('fair_url', $fUrl);
+
 		
 		if (isset($_POST['login'])) {
 
