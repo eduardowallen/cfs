@@ -290,11 +290,11 @@
 }
 #more_info_dialogue {
 	height:auto;
-	max-height:420px;
 }
 #more_info_dialogue .presentation {
 	max-height:200px;
-	overflow:auto;
+	border:1px solid #000;
+	overflow-y:scroll;
 }
 .dialogue {
 	display:none;
