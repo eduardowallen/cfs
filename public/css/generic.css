@@ -137,16 +137,57 @@ textarea {
 	padding-left:40px;
 	background-image:url("../images/icons/zoom_neutral.png");
 }
+.tblHeader{
+	width:100%;
+	float:left;
+}
+.tblHeader ul{
+	border-collapse:collapse;
+	font-size:11px;
+	border-right:1px solid #000;
+	float:left;
+	margin:0;
+	padding:0;
+	max-height:19px;
+	border-top:1px solid #000;
+	text-align:center;
+	font-weight:bold;
+	overflow:hidden;
+}
+.tblHeader ul li{
+	display:inline;
+	float:left;
+	height:22px;
+	border-left:1px solid #000;
+	padding:0px 5px 0px 5px;
+}
+
+.scrolltbl{
+	max-height:245px;
+	overflow-y: scroll;
+	float:left;
+
+}
+
+h2.tblsite{
+	float:left; width:100%;
+	margin-top:20px;
+}
 
 .std_table, .std_table table {
 	border-collapse:collapse;
 	font-size:12px;
-	overflow-x:hidden;
+}
+
+
+.scrolltbl .std_table, .scrolltbl .std_table table{
+	margin-top:-22px;
 }
 .std_table th {
 	padding:0 5px 0 5px;
 	cursor:pointer;
 	font-size:11px;
+
 }
 .std_table td {
 	border:1px solid #666666;
@@ -155,6 +196,7 @@ textarea {
 .std_table td a {
 	text-decoration:none;
 }
+
 .std_table tbody tr:nth-child(odd) {
 	background-color:#d4d4d4;
 }
@@ -165,8 +207,10 @@ textarea {
 	background:#b1b1b1;
 }
 
+.std_table tbody{border-top:1px solid #000;}
+
 .std_table tr th.header{border-top:1px solid #000; border-left:1px solid #000;}
-.std_table tr {border-right:1px solid #000; border-left:1px solid #000;}
+.std_table tr{border-right:1px solid #000; border-left:1px solid #000;}
 
  ul.tablehead{
 	display:inline;

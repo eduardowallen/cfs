@@ -1,37 +1,49 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $fair->get('name'); ?></h1>
-<h2 style="margin-top:20px"><?php echo $headline; ?></h2>
-<script>
-	$(document).ready(function() {
+<script type="text/javascript">
+	$(document).ready(function(){
+		var headerd = $('.tblHeader');
+		headerd.css('display', 'none');
 		setTimeout(function(){
-		for(var i = 0; i < 3; i++){
-			var tblWidthArray = new Array();;			
-			if(i==0){
-				var id="booked";
-			} else if(i == 1) {
-				var id="reserved";
-			} else if(i == 2) {
-				var id="prem";
-			}
-			if($('#'+id)[0] != null){
-				var offset = $('#'+id+' thead tr:first-child > th').offset();
-				$('#'+id+' thead').offset({top : offset.top - 31, left:offset.left - 1});
+			
+			for(var i = 0; i<3; i++){
 				
-					$('#'+id+' tbody tr:first-child > td').each(function(i){
-						tblWidthArray[i] = $(this).outerWidth(false) - 10;
-					});
-					$('#'+id+' thead tr:first-child > th').each(function(i){
-						if(i == 0){tblWidthArray[i] -= 1;}
-						$(this).width(tblWidthArray[i]);
-					});
-				
+				var tblarr = new Array('booked', 'reserved', 'prem');
+				var header = $('#h'+tblarr[i]+' > ul');
+				var headertmp = $('#'+tblarr[i]+' > thead > tr');
+			
+				var headerarr = new Array();
+				headertmp.children().each(function(i){
+					headerarr[i] = $(this).width();
+				});
+			
+				header.children().each(function(i){
+					$(this).css('width', headerarr[i]);
+				});
+				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
+				if(i == 2){headerd.css('display', 'block');}
 			}
-		}},200);
+		}, 500);
 	});
 </script>
+
 <?php if ($hasRights): ?>
 <?php if(count($positions) > 0) : ?>
-<div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
+<div class="tbld">
+<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?></h2>
+<div class="tblHeader" id="hbooked">
+	<ul>
+		<li><?php echo $tr_pos; ?></li>
+		<li><?php echo $tr_area; ?> (m<sup>2</sup>)</li>
+		<li><?php echo $tr_booker; ?></li>
+		<li><?php echo $tr_field; ?></li>
+		<li><?php echo $tr_time; ?></li>
+		<li><?php echo $tr_message; ?></li>
+		<li><?php echo $tr_view; ?></li>
+		<li><?php echo $tr_delete; ?></li>
+	</ul>
+</div>
+<div class="scrolltbl">
 <table class="std_table" id="booked" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
@@ -53,10 +65,10 @@
 		<td class="center"><?php echo $pos['area']; ?></td>
 		<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 		<td class="center"><?php echo $pos['commodity']; ?></td>
-		<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
+		<td ><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
+		<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
@@ -84,15 +96,30 @@
 	else {echo '<p class="'.$d.'"onclick="showPage('.$d.', \'booked\', \'pager1\')">'.$d.'</p>';}
 	$d +=1;
 	*/?>
-<?php// endfor; ?>
-<?php// } ?>
+
 <!--</div>-->
+	</div>
 </div>
 <?php endif; ?>
-<h2 style="margin-top:20px"><?php echo $rheadline; ?></h2>
-
+<div class="tbld">
 <?php if(count($rpositions) > 0) : ?>
-<div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
+
+<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?></h2>
+
+<div class="tblHeader" id="hreserved">
+	<ul>
+		<li><?php echo $tr_pos; ?></li>
+		<li><?php echo $tr_area; ?> (m<sup>2</sup>)</li>
+		<li><?php echo $tr_booker; ?></li>
+		<li><?php echo $tr_field; ?></li>
+		<li><?php echo $tr_time; ?></li>
+		<li><?php echo $tr_message; ?></li>
+		<li><?php echo $tr_view; ?></li>
+		<li><?php echo $tr_deny; ?></li>
+		<li><?php echo $tr_approve; ?></li>
+	</ul>
+</div>
+<div class="scrolltbl">
 <table class="std_table" id="reserved" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
@@ -137,14 +164,31 @@
 </tbody>
 </table>
 </div>
+</div>
 <?php endif; ?>
 
-<h2 style="margin-top:20px"><?php echo $prel_table; ?></h2>
+
 
 <?php if(count($prelpos) > 0) : ?>
-<div class="scrolltable" style="max-height: 500px; overflow: auto; width: 100%; margin: 0px; padding: 0px 5px;">
+<div class="tbld">
+<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?></h2>
+<div class="tblHeader"  id="hprem">
+	<ul>
+		<li><?php echo $tr_pos; ?></li>
+		<li><?php echo $tr_area; ?> (m<sup>2</sup>)</li>
+		<li><?php echo $tr_booker; ?></li>
+		<li><?php echo $tr_field; ?></li>
+		<li><?php echo $tr_time; ?></li>
+		<li><?php echo $tr_message; ?></li>
+		<li><?php echo $tr_view; ?></li>
+		<li><?php echo $tr_deny; ?></li>
+		<li><?php echo $tr_approve; ?></li>
+		<li><?php echo $tr_reserve; ?></li>
+	</ul>
+</div>
+<div class="scrolltbl" style="width:100%;">
 <table class="std_table" id="prem" style="width: 100%; padding-right: 16px;">
-<thead>
+<thead">
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
 		<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
@@ -195,7 +239,9 @@
 </tbody>
 </table>
 </div>
+</div>
 <?php endif; ?>
+
 <?php else: ?>
 
 <p>Du är inte behörig att administrera den här mässan.</p>

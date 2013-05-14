@@ -85,12 +85,12 @@ function showPage(page, tbl, pgr){
 }
 
 $(document).ready(function() {
-
-	var html = '<input type="text" id="search_input"/>'
+	var html = '<div style="width:100%; float:left;"><input type="text" id="search_input"/>'
 			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';
 
-	$('.std_table').each(function() {
-		var std_table = $(this);
+	$('.tblHeader').each(function() {
+		var parstd_table = $(this).parent();
+		var std_table = parstd_table;
 		searchfield = $('<p></p>');
 		searchfield = searchfield.prepend(html);
 		if ($(this).parent().hasClass('scrolltable')) {

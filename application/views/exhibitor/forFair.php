@@ -1,10 +1,44 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		var headerd = $('.tblHeader');
+		headerd.css('display', 'none');
+		setTimeout(function(){
+			
+			for(var i = 0; i<3; i++){
+				
+				var tblarr = new Array('booked', 'connected');
+				var header = $('#h'+tblarr[i]+' > ul');
+				var headertmp = $('#'+tblarr[i]+' > thead > tr');
+			
+				var headerarr = new Array();
+				headertmp.children().each(function(i){
+					headerarr[i] = $(this).width();
+				});
+			
+				header.children().each(function(i){
+					$(this).css('width', headerarr[i]);
+				});
+				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
+				if(i == 2){headerd.css('display', 'block');}
+			}
+		}, 500);
+	});
+</script>
 <h1><?php echo $headline; ?></h1>
-
 <p><a class="button add" href="administrator/newExhibitor"><?php echo $create_link; ?></a></p>
-
-<h2><?php echo $table_exhibitors ?></h2>
-<table class="std_table">
+<h2 class="tblsite"><?php echo $table_exhibitors ?></h2>
+<div class="tblHeader" id="hbooked">
+	<ul>
+		<li><?php echo $th_company; ?></li>
+		<li><?php echo $th_name; ?></li>
+		<li><?php echo $th_fairs; ?></li>
+		<li><?php echo $th_bookings; ?></li>
+		<li><?php echo $th_last_login; ?></li>
+	</ul>
+</div>
+<div class="scrolltbl">
+<table class="std_table" id="booked">
 	<thead>
 		<tr>
 			<th><?php echo $th_company ?></th>
@@ -30,9 +64,19 @@
 		<?php endforeach; ?>
 	</tbody>
 </table>
-
-<h2><?php echo $table_connected ?></h2>
-<table class="std_table">
+</div>
+<h2 class="tblsite"><?php echo $table_connected ?></h2>
+<div class="tblHeader" id="hconnected">
+	<ul>
+		<li><?php echo $th_company; ?></li>
+		<li><?php echo $th_name; ?></li>
+		<li><?php echo $th_fairs; ?></li>
+		<li><?php echo $th_bookings; ?></li>
+		<li><?php echo $th_last_login; ?></li>
+	</ul>
+</div>
+<div class="scrolltbl">
+<table class="std_table" id="connected">
 	<thead>
 		<tr>
 			<th><?php echo $th_company ?></th>
