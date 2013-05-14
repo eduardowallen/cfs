@@ -231,7 +231,8 @@
 .marker_tooltip_flipped {
 }
 .marker_tooltip .info {
-	overflow:hidden;
+	width:210px;
+	word-wrap:break-word;
 }
 .marker_tooltip h3 {
 	color:#FFFFFF;
@@ -246,6 +247,7 @@
 }
 .marker_tooltip p {
 	margin:4px 0 4px 0;
+	max-width:200px;
 }
 .contextmenu {
 	padding:0;
