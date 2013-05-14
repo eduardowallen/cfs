@@ -354,10 +354,10 @@ class UserController extends Controller {
 
 		$this->set('headline', 'Log in');
 		$this->set('user_name', 'Username');
+		
 		$this->set('password', 'Password');
 		$this->set('button', 'Log in');
-		$this->set('forgotlink', 'Forgot your password?');
-		$this->set('usernamelink', 'Forgot your username?');
+		$this->set('forgotlink', 'Forgot your password or Username?');
 
 	}
 
@@ -417,18 +417,12 @@ class UserController extends Controller {
 
 		$this->set('error', '');
 		$this->set('ok', '');
-
 		if ($action == 'confirm') {
-
 			$this->User->load($param1, 'id');
-
 			if ($this->User->wasLoaded()) {
-
 				//confirm hash is correct
 				if (md5($this->User->get('email').BASE_URL.$this->User->get('id')) == $param2) {
-					
 					if (time() - $param3 < 60*60) {
-
 						$arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
 						shuffle($arr);
 						$str = substr(implode('', $arr), 0, 13);
@@ -443,43 +437,56 @@ class UserController extends Controller {
 					} else {
 						die('timeout');
 					}
-
 				} else {
 					die('hash mismatch');
 				}
-
 			} else {
 				die('user not found');
 			}
 			//$2a$12$aXQFm.9gR/JCe.HQe2285uSSep4cd0Gufg12tcEQcbs1Xwxn273tS
 			//$2a$12$aXQFm.9gR/JCe.HQe2285uc/jnlCu9Lw.hRK8dbkgtgo6Azi1TAIe
 		}
-
 		if (isset($_POST['send'])) {
-
 			$this->User->load($_POST['user'], 'alias');
-
 			if ($this->User->wasLoaded()) {
-
-				$hash = md5($this->User->get('email').BASE_URL.$this->User->get('id'));
-				$str = "Dear user\r\n\r\nWe recieved a request to change your password. Click on the link below to set a new password:\r\n";
-				$str.= BASE_URL.'user/resetPassword/confirm/'.$this->User->get('id').'/'.$hash.'/'.time()."\r\n\r\n";
-				$str.= 'The link expires in 60 minutes.';
+				$pass = md5('YmdHis');
+				$pass = substr($pass, -30, 6);
+				$this->User->setPassword($pass);
+				$this->User->save();
+				$str = "Dear user\r\n\r\nWe recieved a request to change your password.";
+				$str.= "\r\n\r\n";
+				$str.= "Your Username is : ".$this->User->get('alias');
+				$str.= "\r\n\r\n";
+				$str.= "Your Password is : ".$pass;
 				$str.= "\r\n\r\nThanks,\r\nChartbooker International";
-
-				sendMail($this->User->email, 'Reset password', $str);
+				sendMail($this->User->email, 'Username & Password', $str);
 				$this->set('ok', 'A new password has been sent to '.$this->User->email);
-
 			} else {
-				$this->set('error', 'E-mail address not found.');
+				$this->User->load($_POST['user'], 'email');
+				if ($this->User->wasLoaded()) {
+					$pass = md5(date('YmdHis'));
+					$pass = substr($pass, -30, 6);
+					$this->User->setPassword($pass);
+					$this->User->save();
+					$str = "Dear user\r\n\r\nWe recieved a request to change your password.";
+					$str.= "\r\n\r\n";
+					$str.= "Your Username is : ".$this->User->alias;
+					$str.= "\r\n\r\n";
+					$str.= "Your Password is : ".$pass;
+					$str.= "\r\n\r\nThanks,\r\nChartbooker International";
+					sendMail($this->User->email, 'Username & Password', $str);
+					$this->set('ok', 'A new password has been sent to '.$this->User->email);
+				} else {
+					$this->set('error', 'E-mail address or Username not found.');
+				}
 			}
-
 		}
 
-		$this->set('headline', 'Reset password');
+		$this->set('headline', 'Request Username and Password');
 		$this->set('user_name', 'Username');
+		$this->set('email', 'E-Mail');
 		$this->set('button', 'Reset');
-		$this->set('forgotlink', 'Forgot your password?');
+		$this->set('forgotlink', 'Forgot your password or Username?');
 
 	}
 

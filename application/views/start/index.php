@@ -22,5 +22,4 @@ echo "<h1>Welcome to ChartBooker</h1>";
 	<input type="password" name="pass" id="pass"/></p>
 	<p><input type="submit" name="login" value="<?php echo $button; ?>"/></p>
 	<p><a href="user/resetPassword"><?php echo $forgotlink; ?></a></p>
-	<p><a href="user/forgotUsername"><?php echo $usernamelink; ?></a></p>
 </form>

@@ -81,8 +81,7 @@ class StartController extends Controller {
 		$this->set('user_name', 'Username');
 		$this->set('password', 'Password');
 		$this->set('button', 'Log in');
-		$this->set('forgotlink', 'Forgot your password?');
-		$this->set('usernamelink', 'Forgot your username?');		
+		$this->set('forgotlink', 'Forgot your password or username?');		
 	}
 	
 }
