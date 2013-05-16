@@ -23,6 +23,16 @@ a {
 a:hover {
 	color:#333333;
 }
+
+.ui-icon-circle-triangle-e{
+	background-image:url('../images/icons/pan_right.png') !important;
+	background-position:0 !important;
+}
+
+.ui-icon-circle-triangle-w{
+	background-image:url('../images/icons/pan_left.png') !important;
+	background-position:0 !important;
+}
 h1 {
 	margin:0;
 	color:#000000;

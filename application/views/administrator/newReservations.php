@@ -1,5 +1,5 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
-<h1><?php echo $fair->get('name'); ?></h1>
+<h1><?php echo $fair->get('name'); ?></h1> 
 <script type="text/javascript">
 	$(document).ready(function(){
 		var headerd = $('.tblHeader');
@@ -22,15 +22,32 @@
 				});
 				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
 				if(i == 2){headerd.css('display', 'block');}
-			}
+			} 
 		}, 500);
 	});
+
+	function hider(btn,elem){
+		var element = $('#'+elem);
+		var helement = $('#h'+elem);
+	
+		if($(btn).attr('hid') == "0"){
+			element.css('display','none');
+			helement.css('display','none');
+			$(btn).attr('hid', '1');
+			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/utv.png";?>');
+		} else{
+			element.css('display','table');
+			helement.css('display','block');
+			$(btn).attr('hid', '0');
+			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/min.png";?>');
+		}	
+	}
 </script>
 
 <?php if ($hasRights): ?>
 <?php if(count($positions) > 0) : ?>
 <div class="tbld">
-<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?></h2>
+<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
 <div class="tblHeader" id="hbooked">
 	<ul>
 		<li><?php echo $tr_pos; ?></li>
@@ -104,7 +121,7 @@
 <div class="tbld">
 <?php if(count($rpositions) > 0) : ?>
 
-<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?></h2>
+<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
 
 <div class="tblHeader" id="hreserved">
 	<ul>
@@ -171,7 +188,7 @@
 
 <?php if(count($prelpos) > 0) : ?>
 <div class="tbld">
-<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?></h2>
+<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
 <div class="tblHeader"  id="hprem">
 	<ul>
 		<li><?php echo $tr_pos; ?></li>
