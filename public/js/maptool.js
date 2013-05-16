@@ -356,15 +356,17 @@ maptool.showContextMenu = function(position, marker) {
 	}
 
 	var contextMenu = $('<ul id="cm-' + position + '" class="contextmenu"></ul>');
-
+	var todayDt = $('#todayDt').attr('td');
+	var closeDt = $('#closeDt').attr('td');
+	var publishDt = $('#publishDt').attr('td');
 	if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
 		contextMenu.append('<li id="cm_book">' + lang.bookStandSpace + '</li><li id="cm_reserve">' + lang.reserveStandSpace + '</li>');
 		if (copiedExhibitor) {
 			contextMenu.append('<li id="cm_paste">' + lang.pasteExhibitor + '</li>');
 		}
-	} else if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && hasRights && maptool.ownsMap()) {
+	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && hasRights && maptool.ownsMap()) {
 		contextMenu.append('<li id="cm_apply">' + lang.preliminaryBookStandSpace + '</li>');
-	} else if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && hasRights && maptool.ownsMap()) {
+	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && hasRights && maptool.ownsMap()) {
 		contextMenu.append('<li id="cm_cancel">' + lang.cancelPreliminaryBooking + '</li>');
 	}
 	

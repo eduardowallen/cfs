@@ -181,6 +181,10 @@ function makeUserOptions3($sel=0, $fair) {
 	<p class="website_link"></p>
 </div>
 
+<div id="todayDt" td="<?php echo strtotime(date('d-m-Y'))?>"> </div>
+<div id="closeDt" td="<?php echo $fair->get('auto_close')?>"> </div>
+<div id="publishDt" td="<?php echo $fair->get('auto_publish')?>"> </div>
+
 <div id="reserve_position_dialogue" class="dialogue">
 	<h3><?php echo $translator->{'Reserve stand space'} ?></h3>
 
