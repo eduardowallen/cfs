@@ -253,13 +253,13 @@ class FairController extends Controller {
 				$this->setNoTranslate('app_sel0', '');
 				$this->setNoTranslate('app_sel1', '');
 				$this->setNoTranslate('app_sel2', 'selected="selected"');
-				if(userLevel() != 4){
-					$this->setNoTranslate('disable', ' disabled="disabled"');
-				}else{
-					$this->setNoTranslate('disable', '');
-				}
 			}
 
+			if(userLevel() != 4){
+					$this->setNoTranslate('disable', 'disabled="disabled"');
+				}else{
+					$this->setNoTranslate('disable', '');
+			}
 			$this->set('map_button_label', 'Handle maps');
 			$this->set('approved_label', 'Status');
 			$this->set('arranger_label', 'Organizer');
