@@ -136,6 +136,7 @@ class UserController extends Controller {
 				
 				if (!isset($halt)) { 
 					$this->User->set('customer_nr', $_POST['customer_nr']);
+					$this->User->set('commodity', $_POST['commodity']);
 					$this->User->set('company', $_POST['company']);
 					$this->User->set('name', $_POST['name']);
 					$this->User->set('orgnr', $_POST['orgnr']);
@@ -213,7 +214,7 @@ class UserController extends Controller {
 			$this->setNoTranslate('edit_id', $id);
 			$this->setNoTranslate('edit_level', $level);
 			$this->set('user', $this->User);
-			
+			$this->set('commodity_label', 'Commodity');
 			$this->set('copy_label', 'Copy from company details');
 			$this->set('alias_label', 'Alias');
 			$this->set('company_label', 'Company');

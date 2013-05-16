@@ -54,6 +54,9 @@
 	<label for="website"><?php echo $website_label; ?></label>
 	<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
 
+	<label for="commodity"><?php echo $commodity_label; ?> *</label>
+	<input type="text" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"/>
+
 	<label for="email"><?php echo $email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
 	
