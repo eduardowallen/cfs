@@ -317,7 +317,7 @@
 	overflow:auto;
 }
 
-.dialogue {
+.dialogue h1{
 	width:90%;
 	word-wrap:break-word;
 	float:left;
