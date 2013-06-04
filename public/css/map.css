@@ -316,6 +316,14 @@
 	border-radius:8px;
 	overflow:auto;
 }
+
+.dialogue {
+	width:90%;
+	word-wrap:break-word;
+	float:left;
+	overflow:hidden;
+}
+
 .closeDialogue {
 	position:absolute;
 	margin:-11px 0 0 368px;
