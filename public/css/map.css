@@ -317,10 +317,10 @@
 	overflow:auto;
 }
 
-.dialogue h1{
+.dialogue h3{
 	width:90%;
-	word-wrap:break-word;
 	float:left;
+	word-wrap:break-word;
 	overflow:hidden;
 }
 
