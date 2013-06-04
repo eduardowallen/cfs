@@ -184,6 +184,28 @@ h2.tblsite{
 	margin-top:20px;
 }
 
+.article_row{
+	float:left;
+	width:100%;
+}
+
+.article_row{
+	float:left;
+	width:100%;
+}
+
+.article_row p {
+	width:20%;
+	float:left;
+	display:inline;
+	margin:0;
+	padding:0;
+}
+
+p.pricetag{width:150px;}
+p.pricetag{margin:0; padding:0;}
+p.pricetag input{margin:0; padding:0; margin-top:2px; height:23px; width:120px;}
+
 .std_table, .std_table table {
 	border-collapse:collapse;
 	font-size:12px;
