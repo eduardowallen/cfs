@@ -36,6 +36,9 @@
 	<label for="windowtitle"><?php echo $window_title_label; ?> *</label>
 	<input <?php echo $disable; ?> type="text" name="windowtitle" id="windowtitle" value="<?php echo $fair->get('windowtitle'); ?>"/>
 	
+	<label for="email"><?php echo $email_label; ?> *</label>
+	<input <?php echo $disable; ?> class="nocheckdb" type="text" name="email" id="email" value="<?php echo $fair->get('email'); ?>"/>
+	
 	<?php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disabled="true"'; } ?>
 	<label for="auto_publish"><?php echo $auto_publish_label; ?> (dd-mm-yyyy) *</label>
 	<input class="date datepicker" <?php echo $da; ?> type="text" name="auto_publish" id="auto_publish" value="<?php if ($edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_publish')); } ?>"/>
