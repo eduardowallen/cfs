@@ -60,7 +60,7 @@
 		<li><?php echo $tr_delete; ?></li>
 	</ul>
 </div>
-<div class="scrolltbl">
+<div class="scrolltbl onlyfive">
 <table class="std_table" id="booked" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
@@ -121,7 +121,7 @@
 <div class="tbld">
 <?php if(count($rpositions) > 0) : ?>
 
-<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>
 
 <div class="tblHeader" id="hreserved">
 	<ul>
@@ -136,7 +136,7 @@
 		<li><?php echo $tr_approve; ?></li>
 	</ul>
 </div>
-<div class="scrolltbl">
+<div class="scrolltbl onlyfive">
 <table class="std_table" id="reserved" style="width: 100%; padding-right: 16px;">
 <thead>
 	<tr>
@@ -203,7 +203,7 @@
 		<li><?php echo $tr_reserve; ?></li>
 	</ul>
 </div>
-<div class="scrolltbl" style="width:100%;">
+<div class="scrolltbl onlyfive" style="width:100%;">
 <table class="std_table" id="prem" style="width: 100%; padding-right: 16px;">
 <thead">
 	<tr>
