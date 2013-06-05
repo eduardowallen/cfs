@@ -206,7 +206,6 @@ class FairController extends Controller {
 						$this->Fair->set('max_positions', (int)$_POST['max_positions']);
 				}
 				$this->Fair->set('windowtitle', $_POST['windowtitle']);
-				$this->Fair->set('email', $_POST['email']);
 				if (isset($_POST['auto_publish'])) {
 					$this->Fair->set('auto_publish', strtotime($_POST['auto_publish']));
 					$this->Fair->set('auto_close', strtotime($_POST['auto_close']));
