@@ -201,7 +201,15 @@ maptool.placeMarkers = function() {
 			}
 			tooltip += '<p class="info"><strong>' + lang.commodity_label + ':</strong> ' + maptool.map.positions[i].exhibitor.commodity + '</p>';
 		} else {
-			tooltip += '<p class="info">' + maptool.map.positions[i].information.replace(/ /g, '&nbsp;').replace(/\n/g, '<br/>') + '</p>';
+			var info =  maptool.map.positions[i].information;
+			info = info.substring(0, 80);
+			var row1 = info.substring(0,26);
+			var row2 = info.substring(26,53);
+			var row3 = info.substring(53,79);
+			if(row3.length == 26){
+				row3 = row3.substring(0, 23) + '...';
+			}
+			tooltip += '<p class="info">' + row1 +'<br />'+ row2 +'<br />'+ row3 + '</p>';
 			if (maptool.map.userlevel > 0) {
 				tooltip += '<p><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
 			}
@@ -1830,8 +1838,6 @@ maptool.init = function(mapId) {
 
 		}
 	});
-
-	$(".dialogue").prepend('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>');
 	$(".closeDialogue").click(function() {
 		maptool.closeDialogues();
 	});
@@ -2072,4 +2078,3 @@ function chooseThisBook(thisd){
 	$('input#book_user_input').val(id);
 	$('#hiddenExhibitorList').hide();
 }
-

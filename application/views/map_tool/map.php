@@ -123,6 +123,7 @@ function makeUserOptions3($sel=0, $fair) {
 
 
 <div id="edit_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'New/Edit stand space'} ?></h3>
 
 	<label for="position_name_input"><?php echo $translator->{'Name'} ?> *</label>
@@ -141,6 +142,7 @@ function makeUserOptions3($sel=0, $fair) {
 </div>
 
 <div id="book_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'Book stand space'} ?></h3>
 
 	<div class="ssinfo"></div>
@@ -174,6 +176,7 @@ function makeUserOptions3($sel=0, $fair) {
 </div>
 
 <div id="more_info_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3></h3>
 	<p class="info"></p>
 	<h4 style="margin-bottom: 0px;"></h4>
@@ -186,6 +189,7 @@ function makeUserOptions3($sel=0, $fair) {
 <div id="publishDt" td="<?php echo $fair->get('auto_publish')?>"> </div>
 
 <div id="reserve_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'Reserve stand space'} ?></h3>
 
 	<div class="ssinfo"></div>
@@ -223,6 +227,7 @@ function makeUserOptions3($sel=0, $fair) {
 </div>
 
 <div id="apply_mark_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'Apply for stand space'} ?></h3>
 	
 	<div class="mssinfo"></div>
@@ -248,6 +253,7 @@ function makeUserOptions3($sel=0, $fair) {
 </div>
 
 <div id="apply_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'Apply for stand space'} ?></h3>
 	
 	<div class="pssinfo"></div>

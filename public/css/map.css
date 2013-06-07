@@ -289,6 +289,8 @@
 }
 .ssinfo {
 	padding:8px 0 0 0;
+	width:100%;
+	text-align:left;
 }
 #more_info_dialogue {
 	height:auto;
@@ -323,10 +325,8 @@
 	word-wrap:break-word;
 	overflow:hidden;
 }
-
 .closeDialogue {
-	position:absolute;
-	margin:-11px 0 0 368px;
+	float:right;
 	cursor:pointer;
 }
 #reserve_position_dialogue {

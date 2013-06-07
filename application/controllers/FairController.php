@@ -7,11 +7,8 @@ class FairController extends Controller {
 	}
 
 	function overview($param='') {
-		
 		setAuthLevel(3);
-		
 		$this->setNoTranslate('param', $param);
-		
 		$this->set('headline', 'Fair overview');
 		$this->set('create_link', 'Create new fair');
 		$this->set('th_max_positions', 'Maximum stand spaces');
@@ -39,7 +36,6 @@ class FairController extends Controller {
 		$this->set('app_yes', 'Yes');
 		$this->set('app_no', 'No');
 		$this->set('app_locked', 'Locked');
-
 		switch(userLevel()) {
 
 			case 4:

@@ -301,6 +301,18 @@ img#logo {
 	-webkit-border-radius:8px;
 	border-radius:8px;
 }
+
+#popupformTwo {
+	position:absolute;
+	z-index:99999;
+	background:#ffffff;
+	text-align:left;
+	border:4px solid #333333;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+}
+
 #popupform div {
 	width: 200px;
 	position: absolute;

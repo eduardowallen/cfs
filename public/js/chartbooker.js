@@ -2,7 +2,7 @@ function ajaxContent(e, handle) {
 	e.preventDefault();
 	e.stopPropagation();
 	$.ajax({
-		url: 'ajax/page.php',
+		url: 'ajax/cfs/page.php',
 		type: 'POST',
 		data: 'ajaxContent=' + handle,
 		success: function(response) {
@@ -49,8 +49,7 @@ $(document).ready(function() {
 				 + 		'<input type="text" name="user" id="user"/>'
 				 + 		'<label for="pass">' + lang.login_password + '</label>'
 				 + 		'<input type="password" name="pass" id="pass"/>'
-				 +		'<p><a href="user/resetPassword">' + lang.forgot_pass + '</a></p>'
-				 +		'<p><a href="user/forgotUsername">' + lang.forgot_user + '</a></p>'
+				 +		'<p style="width:101% !important;"><a href="user/resetPassword">' + lang.forgot_pass + '</a></p>'
 				 + 		'<p><input type="submit" name="login" value="Sign in"/></p></div>'
 				 + 	'</form>';
 		
@@ -65,56 +64,78 @@ $(document).ready(function() {
 	});
 	
 	$('.contactLink').click(function() {
-		
 		var splitted = $(this).attr('class').split(" ");
 		$('#overlay').show();
 		if($(splitted[1]).text() == "undefined"){
-			var link = '/page/contact';
+			var link = '/cfs/page/contact';
 		} else {
-			var link = '/page/contact/'+splitted[1];
+			var link = '/cfs/page/contact/'+splitted[1];
 		}
 		var ajxReq = $.ajax({
 			url : link,
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
+			var html = '<div id="popupformTwo" style="height:auto; min-width:400px; width:auto; padding:20px; top:50px;"></div>';
 			var filteredResponse = $(reqResp).find('#content').html();
 
 			$('body').append(html);
-			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 470px;"/>' + filteredResponse);
-			$('#popupform > p').css('text-align', 'left');
-			$('#popupform > table > tbody > tr > td > p').css('text-align', 'left');
+			var popupform = $('#popupformTwo');
+			 popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
+var closeButton = $('.closeDialogue');
+			 popupform.css('text-align', 'left');
+			$('#popupformTwo > table > tbody > tr > td > p').css('text-align', 'left');
+			
 			$('.closeDialogue').click(function(){
 				$(this).off('click');
-				$('#popupform').remove();
+				$(this).remove();
+				$('#popupformTwo').remove();
 				$('#overlay').hide();
 			});
+			if(popupform.width() > 760){
+				popupform.css('width', 760);		
+			}
+			popupform.css('left', '50%');
+			popupform.css('margin-left', (popupform.width() + 48)/-2);
+			var d = popupform.width() - 15;
+			closeButton.css('left', d);
 		});	
 	});
 
 	$('.helpLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : '/page/help',
+			url : '/cfs/page/help',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
+			var html = '<div id="popupformTwo" style="padding:20px; margin:0 auto; top:30px;"></div>';
 			var filteredResponse = $(reqResp).find('#content').html();
 			$('body').append(html);
-			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 470px;"/>' + filteredResponse);
+			var popupform = $('#popupformTwo');	
+			
+			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
+			var closeButton = $('.closeDialogue');
 			$('#popupform > p').css('text-align', 'left');
 			$('.closeDialogue').click(function(){
 				$(this).off('click');
-				$('#popupform').remove();
+				$(this).remove();
+				$('#popupformTwo').remove();
 				$('#overlay').hide();
 			});
+			if(popupform.width() > 760){
+				popupform.css('width', 760);		
+			}
+			popupform.css('left', '50%');
+			popupform.css('margin-left', (popupform.width() + 48)/-2);
+			var d = popupform.width() - 15;
+			closeButton.css('left', d);
+
 		});	
 	});
 
 	$('.helpOrgLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : '/page/help_organizer',
+			url : '/cfs/page/help_organizer',
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
