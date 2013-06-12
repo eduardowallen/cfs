@@ -1,31 +1,6 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $fair->get('name'); ?></h1> 
 <script type="text/javascript">
-	$(document).ready(function(){
-		var headerd = $('.tblHeader');
-		headerd.css('display', 'none');
-		setTimeout(function(){
-			
-			for(var i = 0; i<3; i++){
-				
-				var tblarr = new Array('booked', 'reserved', 'prem');
-				var header = $('#h'+tblarr[i]+' > ul');
-				var headertmp = $('#'+tblarr[i]+' > thead > tr');
-			
-				var headerarr = new Array();
-				headertmp.children().each(function(i){
-					headerarr[i] = $(this).width();
-				});
-			
-				header.children().each(function(i){
-					$(this).css('width', headerarr[i]);
-				});
-				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
-				if(i == 2){headerd.css('display', 'block');}
-			} 
-		}, 500);
-	});
-
 	function hider(btn,elem){
 		var element = $('#'+elem);
 		var helement = $('#h'+elem);
@@ -42,12 +17,19 @@
 			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/min.png";?>');
 		}	
 	}
+
+	$(document).ready(function(){
+		setTimeout(function(){
+			resizeNewRes();
+		}, 500);
+	});
 </script>
 
 <?php if ($hasRights): ?>
-<?php if(count($positions) > 0) : ?>
+
 <div class="tbld">
 <h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+<?php if(count($positions) > 0){ ?>
 <div class="tblHeader" id="hbooked">
 	<ul>
 		<li><?php echo $tr_pos; ?></li>
@@ -117,12 +99,14 @@
 <!--</div>-->
 	</div>
 </div>
-<?php endif; ?>
+<?php } else { ?>
+<p style="width:100%; float:left;"> <?php echo $booked_notfound?> </p>
+<?php }?>
 <div class="tbld">
-<?php if(count($rpositions) > 0) : ?>
+
 
 <h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>
-
+<?php if(count($rpositions) > 0){?>
 <div class="tblHeader" id="hreserved">
 	<ul>
 		<li><?php echo $tr_pos; ?></li>
@@ -182,13 +166,12 @@
 </table>
 </div>
 </div>
-<?php endif; ?>
-
-
-
-<?php if(count($prelpos) > 0) : ?>
+<?php } else { ?>
+<p style="width:100%; float:left;"> <?php echo $reserv_notfound?> </p>
+<?php }?>
 <div class="tbld">
 <h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+<?php if(count($prelpos) > 0){ ?>
 <div class="tblHeader"  id="hprem">
 	<ul>
 		<li><?php echo $tr_pos; ?></li>
@@ -203,9 +186,9 @@
 		<li><?php echo $tr_reserve; ?></li>
 	</ul>
 </div>
-<div class="scrolltbl onlyfive" style="width:100%;">
+<div class="scrolltbl onlyfive">
 <table class="std_table" id="prem" style="width: 100%; padding-right: 16px;">
-<thead">
+<thead>
 	<tr>
 		<th><?php echo $tr_pos; ?></th>
 		<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
@@ -253,12 +236,11 @@
 <?php endforeach;?>
 </tbody>
 </table>
-</tbody>
-</table>
 </div>
 </div>
-<?php endif; ?>
-
+<?php } else { ?>
+<p style="width:100%; float:left;"> <?php echo $prel_notfound?> </p>
+<?php }?>
 <?php else: ?>
 
 <p>Du är inte behörig att administrera den här mässan.</p>
