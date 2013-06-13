@@ -82,7 +82,7 @@ function prepFormChecker() {
 			$(this).css("color", "#000000");
 			
 			//Exclude hidden fields
-			
+			if ($(this).parent().parent().is(":visible")) {
 				
 				var label = $(this).text();
 				
@@ -141,8 +141,8 @@ function prepFormChecker() {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
-
-				
+					
+				}
 				
 			}
 			
