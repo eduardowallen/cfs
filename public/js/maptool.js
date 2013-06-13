@@ -57,6 +57,7 @@ function scrollbarWidth() {
 maptool.isOnMap = function(x, y) {
 	var mapHolder = $('#mapHolder');
 	var scrollSize = scrollbarWidth();
+
 	if($('#mapHolder').hasScrollBar()){
 		if (x < maptool.map.canvasOffset.left ||
 			x > maptool.map.canvasOffset.left + maptool.map.canvasWidth - scrollSize) {
@@ -76,6 +77,7 @@ maptool.isOnMap = function(x, y) {
 			return false;
 		}
 	}
+
 	return true;
 }
 
@@ -206,10 +208,26 @@ maptool.placeMarkers = function() {
 			var row1 = info.substring(0,26);
 			var row2 = info.substring(26,53);
 			var row3 = info.substring(53,79);
-			if(row3.length == 26){
-				row3 = row3.substring(0, 23) + '...';
+			if(row1.length > 0 || row2.length > 0 || row3.length > 0){
+				tooltip+= '<p class="info">';
+
+				if(row1.length > 0){
+					tooltip += row1;
+				} 
+
+				if(row2.length > 0) {
+					tooltip += '<br />' + row2;
+				} 
+
+				if(row3.length > 0 && row3.length < 26) {
+					tooltip += '<br />' + row3;
+				} else if (row3.length == 26) {
+					row3 = row3.substring(0, 23) + '...';
+					tooltip += '<br />' + row3;
+				}
+
+				tooltip+= '</p>';
 			}
-			tooltip += '<p class="info">' + row1 +'<br />'+ row2 +'<br />'+ row3 + '</p>';
 			if (maptool.map.userlevel > 0) {
 				tooltip += '<p><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
 			}
@@ -501,10 +519,12 @@ maptool.addPosition = function(clickEvent) {
 	$("#post_position").off("click");
 
 	$("body").prepend('<img src="images/icons/marker_open.png" alt="" id="newMarkerIcon" class="marker"/>');
+
 	$("#newMarkerIcon").css({
 		top: clickEvent.clientY - config.iconOffset,
 		left: clickEvent.clientX - config.iconOffset
 	});
+
 	if (fullscreen) {
 		$("#newMarkerIcon").css('z-index', '10000');
 	}
@@ -645,8 +665,10 @@ maptool.bookPosition = function(positionObject) {
 	}
 	
 	maptool.openDialogue('book_position_dialogue');
-	
-	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+
+	$('#book_position_dialogue h3 .standSpaceName').text(positionObject.name);
+
+	$('.ssinfo').html('<strong>'+lang.area + ': ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
 	$('#book_user_input').unbind('change');
 	$('#book_user_input').change(function() {
@@ -1140,9 +1162,12 @@ maptool.reservePosition = function(positionObject) {
 	} else {
 		$("#reserve_commodity_input, #reserve_message_input, #reserve_expires_input").val("");
 	}
-
+	
 	maptool.openDialogue('reserve_position_dialogue');
-	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+
+	$('#reserve_position_dialogue h3 .standSpaceName').text(positionObject.name);
+
+	$('.ssinfo').html('<strong>'+lang.area + ': ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
 	$('#reserve_user_input').unbind('change');
 	$('#reserve_user_input').change(function() {
