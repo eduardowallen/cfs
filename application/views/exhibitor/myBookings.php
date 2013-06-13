@@ -31,7 +31,7 @@ $maps = $maps[0]->get('positions');
 		<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
 		<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('exhibitor')->get('position').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
+			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
@@ -73,7 +73,7 @@ $maps = $maps[0]->get('positions');
 		<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
 		<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('exhibitor')->get('position').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
+			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
@@ -120,7 +120,7 @@ $maps = $maps[0]->get('positions');
 		<td class="center"><?php echo date('d-m-Y H:i:s', $booking_time[0]['booking_time']); ?></td>
 		<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'mapTool/map/'.$booking_time[0]['fair'].'/'.$booking_time[0]['position'].'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
+			<a href="<?php echo BASE_URL.'mapTool/map/'.$booking_time[0]['fair'].'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
