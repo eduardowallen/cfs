@@ -142,9 +142,10 @@ class AdministratorController extends Controller {
 				$arr = array_merge(range(0, 9), range('a', 'z'));
 				shuffle($arr);
 				$str = substr(implode('', $arr), 0, 10);
-				
-				$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$_SESSION['outside_fair_url']."\r\n\r\nUsername: ".$_POST['username']."\r\nPassword: ".$str;
-				
+				$fair = new Fair;
+				$fair->load($_POST['fair'], 'id');
+				$this->set('d', $fair->get('url'));
+				$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$fair->get('url')."\r\n\r\nUsername: ".$_POST['username']."\r\nPassword: ".$str;
 				$user->setPassword($str);
 				$userId = $user->save();
 				sendMail($user->email, 'Your password', $msg);
