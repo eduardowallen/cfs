@@ -82,7 +82,7 @@ function prepFormChecker() {
 			$(this).css("color", "#000000");
 			
 			//Exclude hidden fields
-			if ($(this).parent().parent().is(":visible")) {
+			
 				
 				var label = $(this).text();
 				
@@ -114,7 +114,7 @@ function prepFormChecker() {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
-					
+
 					//Date inputs
 					if (input.hasClass('date') && !input.val().match(/^(\d\d-\d\d-\d\d\d\d)$/)) {
 						$(this).css("color", "red");
@@ -129,7 +129,7 @@ function prepFormChecker() {
 					}
 					
 					//Textareas
-					if (input.is('textarea') && input.val() == '') {
+					if (input.is('textarea') && input.html() == '') {
 						//Mark empty
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
@@ -141,8 +141,8 @@ function prepFormChecker() {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
-					
-				}
+
+				
 				
 			}
 			

@@ -17,6 +17,24 @@
 				}
 			});
 		});
+
+		// Bind contact_info så att info blir obligatorisk
+		var check = setInterval(function(){
+			if(strcmp(tinyMCE.get('contact_info'), "undefined")){
+				bindMce();
+			}
+		}, 1);
+
+		function strcmp(a, b)
+		{   
+		    return (a<b?-1:(a>b?1:0));  
+		}
+		function bindMce(){
+			clearInterval(check);
+			tinyMCE.get('contact_info').onKeyUp.add(function(ed, e) {
+				$('#contact_info').html(tinyMCE.get('contact_info').getContent());
+			});
+		}
 	});
 </script>
 
@@ -49,7 +67,7 @@
 	-->
 
 	<?php (empty($disable)) ? tiny_mce() : ''; ?>
-	<label for="contact_info"><?php echo $contact_label; ?></label>
+	<label for="contact_info"><?php echo $contact_label; ?> *</label>
 	<textarea<?php echo $disable; ?> name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
 
 	<?php if (userLevel() == 4): ?>
