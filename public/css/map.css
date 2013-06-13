@@ -243,6 +243,7 @@
 	background-color: #47832F;
 	padding: 5px;
 	margin-left: -5px;
+	word-wrap:break-word;
 	margin-top: -5px;
 }
 .marker_tooltip p {
@@ -292,6 +293,9 @@
 	width:100%;
 	text-align:left;
 }
+.ssinfo {
+	
+}
 #more_info_dialogue {
 	height:auto;
 }
@@ -321,13 +325,23 @@
 
 .dialogue h3{
 	width:90%;
-	float:left;
+
+	word-wrap:break-word;
+	overflow:hidden;
+}
+.closeDialogue label{
+	display:block;
+	width:100%;
 	word-wrap:break-word;
 	overflow:hidden;
 }
 .closeDialogue {
 	float:right;
 	cursor:pointer;
+}
+
+.standSpaceName{ 
+	display:inline;
 }
 #reserve_position_dialogue {
 	/*height:420px;*/
