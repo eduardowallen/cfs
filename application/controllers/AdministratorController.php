@@ -512,8 +512,7 @@ WHERE user.owner = ? AND user.level = ?");
 				}
 				
 				if (!$this->Administrator->emailExists() || $id != 'new') {
-					
-					if ((!$this->Administrator->aliasExists() || $id != 'new') && isset($_POST['fair_permission'])) {
+					if ((!$this->Administrator->aliasExists() || $id != 'new') && isset($_POST['fair_permission']) && isset($_POST['maps'])) {
 						
 						$aId = $this->Administrator->save();
 						require_once ROOT.'application/models/FairUserRelation.php';
@@ -545,7 +544,7 @@ WHERE user.owner = ? AND user.level = ?");
 						//header("Location: ".BASE_URL."administrator/mine");
 						//exit;
 					//}
-				}elseif( $this->Administrator->emailExists() ){
+				} else if( $this->Administrator->emailExists() ){
 					//$this->Administrator->addRelation($fair);
 					//$this->Administrator->save();
 					//header("Location: ".BASE_URL."administrator/mine");
