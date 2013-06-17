@@ -68,7 +68,7 @@
 
 	<?php (empty($disable)) ? tiny_mce() : ''; ?>
 	<label for="contact_info"><?php echo $contact_label; ?> *</label>
-	<textarea<?php echo $disable; ?> name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
+	<textarea <?php echo $disable; ?> name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
 
 	<?php if (userLevel() == 4): ?>
 	<label for="arranger"><?php echo $arranger_label; ?></label>
@@ -86,6 +86,6 @@
 	</select>
 	<?php endif; ?>
 
-	<p><input<?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 
 </form>
