@@ -336,7 +336,9 @@ ORDER BY creation_time DESC";
 					$str.= 'Username: '.$_POST['alias']."\r\n";
 					$str.= 'Password: '.$password."\r\n";
 					$str.= 'Access level: Organizer'."\r\n";
-					$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
+
+
+					//$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
 
 					sendMail($_POST['email'], 'Your user account', $str);
 				} else {
