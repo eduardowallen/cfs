@@ -249,9 +249,9 @@ class ExhibitorController extends Controller {
 								$pos->get('name'),
 								$pos->get('exhibitor')->get('company'),
 								$pos->get('exhibitor')->get('address').' '.$pos->get('exhibitor')->get('city'),
-								$pos->get('exhibitor')->get('name'),
 								$pos->get('exhibitor')->get('commodity'),
-								$pos->get('exhibitor')->get('phone1'),						
+								$pos->get('exhibitor')->get('phone1'),
+								$pos->get('exhibitor')->get('name'),						
 								$pos->get('exhibitor')->get('email'),
 								$pos->get('exhibitor')->get('website'),
 							);
@@ -282,9 +282,9 @@ class ExhibitorController extends Controller {
 			$stplace = $alpha[$count];
 			$xls->getActiveSheet()->SetCellValue($stplace.'1', $this->translate->{'Status'});
 			$count++;
-		} if($co == 1) {
-			$coplace = $alpha[$count];
-			$xls->getActiveSheet()->SetCellValue($coplace.'1', $this->translate->{'Stand Space'});
+		} if($nm == 1) {
+			$nmplace = $alpha[$count];
+			$xls->getActiveSheet()->SetCellValue($nmplace.'1', $this->translate->{'Stand space'});
 			$count++;
 		} if($cp == 1) {
 			$cpplace = $alpha[$count];
@@ -302,9 +302,9 @@ class ExhibitorController extends Controller {
 			$phplace = $alpha[$count];
 			$xls->getActiveSheet()->SetCellValue($phplace.'1', $this->translate->{'Phone'});
 			$count++;
-		} if($nm == 1) {
-			$nmplace = $alpha[$count];
-			$xls->getActiveSheet()->SetCellValue($nmplace.'1', $this->translate->{'Name'});
+		} if($co == 1) {
+			$coplace = $alpha[$count];
+			$xls->getActiveSheet()->SetCellValue($coplace.'1', $this->translate->{'Name'});
 			$count++;
 		} if($em == 1) {
 			$emplace = $alpha[$count];
@@ -320,18 +320,18 @@ class ExhibitorController extends Controller {
 		foreach ($data as $row) {
 			if($st == 1)
 				$xls->getActiveSheet()->SetCellValue($stplace.$i, $row[0]);
-			if($co == 1)
-				$xls->getActiveSheet()->SetCellValue($coplace.$i, $row[1]);
+			if($nm == 1)
+				$xls->getActiveSheet()->SetCellValue($nmplace.$i, $row[1]);
 			if($cp == 1)
 				$xls->getActiveSheet()->SetCellValue($cpplace.$i, $row[2]);
 			if($ad == 1)
 				$xls->getActiveSheet()->SetCellValue($adplace.$i, $row[3]);
 			if($br == 1)
-				$xls->getActiveSheet()->SetCellValue($brplace.$i, $row[5]);
+				$xls->getActiveSheet()->SetCellValue($brplace.$i, $row[4]);
 			if($ph == 1)
-				$xls->getActiveSheet()->SetCellValue($phplace.$i, $row[6], PHPEXcel_Cell_Datatype::TYPE_STRING);
-			if($nm == 1)
-				$xls->getActiveSheet()->SetCellValueExplicit($nmplace.$i, $row[4]);
+				$xls->getActiveSheet()->SetCellValue($phplace.$i, $row[5], PHPEXcel_Cell_Datatype::TYPE_STRING);
+			if($co == 1)
+				$xls->getActiveSheet()->SetCellValueExplicit($coplace.$i, $row[6]);
 			if($em == 1)
 				$xls->getActiveSheet()->SetCellValue($emplace.$i, $row[7]);
 			if($wb == 1)
