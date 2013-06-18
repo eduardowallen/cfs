@@ -219,7 +219,8 @@ class ExhibitorController extends Controller {
 
 	}
 	
-	public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb) {
+	public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $selectedRows) {
+		$rows = explode(";", $selectedRows);
 		
 		setAuthLevel(3);
 		$this->set('noView', true);
@@ -239,24 +240,22 @@ class ExhibitorController extends Controller {
 		if(is_array($fair->get('maps'))) {
 			foreach ($fair->get('maps') as $map) {
 				foreach ($map->get('positions') as $pos) {
-					
 					if ($pos->get('exhibitor')) {
-						
 						$commodity = $pos->get('exhibitor')->get('commodity');
 						$commodity = (empty($commodity)) ? $pos->get('user')->get('commodity') : $pos->get('exhibitor')->get('commodity');
-						
-						
-						$data[] = array(
-							$this->translate->{$pos->get('statusText')},
-							$pos->get('name'),
-							$pos->get('exhibitor')->get('company'),
-							$pos->get('exhibitor')->get('address').' '.$pos->get('exhibitor')->get('city'),
-							$pos->get('exhibitor')->get('name'),
-							$pos->get('exhibitor')->get('commodity'),
-							$pos->get('exhibitor')->get('phone1'),						
-							$pos->get('exhibitor')->get('email'),
-							$pos->get('exhibitor')->get('website'),
-						);
+						if(in_array($pos->get('id'), $rows)){
+							$data[] = array(
+								$this->translate->{$pos->get('statusText')},
+								$pos->get('name'),
+								$pos->get('exhibitor')->get('company'),
+								$pos->get('exhibitor')->get('address').' '.$pos->get('exhibitor')->get('city'),
+								$pos->get('exhibitor')->get('name'),
+								$pos->get('exhibitor')->get('commodity'),
+								$pos->get('exhibitor')->get('phone1'),						
+								$pos->get('exhibitor')->get('email'),
+								$pos->get('exhibitor')->get('website'),
+							);
+						}
 					}
 					
 				}
@@ -272,7 +271,6 @@ class ExhibitorController extends Controller {
 		header("Content-Type: application/download");
 		header("Content-Disposition: attachment;filename=".$filename);
 		header("Content-Transfer-Encoding: binary");
-		
 		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
 		
 		$xls = new PHPExcel();
@@ -284,9 +282,9 @@ class ExhibitorController extends Controller {
 			$stplace = $alpha[$count];
 			$xls->getActiveSheet()->SetCellValue($stplace.'1', $this->translate->{'Status'});
 			$count++;
-		} if($sp == 1) {
-			$spplace = $alpha[$count];
-			$xls->getActiveSheet()->SetCellValue($spplace.'1', $this->translate->{'Stand space'});
+		} if($co == 1) {
+			$coplace = $alpha[$count];
+			$xls->getActiveSheet()->SetCellValue($coplace.'1', $this->translate->{'Stand Space'});
 			$count++;
 		} if($cp == 1) {
 			$cpplace = $alpha[$count];
@@ -296,17 +294,17 @@ class ExhibitorController extends Controller {
 			$adplace = $alpha[$count];
 			$xls->getActiveSheet()->SetCellValue($adplace.'1', $this->translate->{'Address'});
 			$count++;
-		} if($nm == 1) {
-			$nmplace = $alpha[$count];
-			$xls->getActiveSheet()->SetCellValue($nmplace.'1', $this->translate->{'Name'});
-			$count++;
-		} if($as == 1) {
-			$asplace = $alpha[$count];
-			$xls->getActiveSheet()->SetCellValue($asplace.'1', $this->translate->{'Branch'});
+		} if($br == 1) {
+			$brplace = $alpha[$count];
+			$xls->getActiveSheet()->SetCellValue($brplace.'1', $this->translate->{'Branch'});
 			$count++;
 		} if($ph == 1) {
 			$phplace = $alpha[$count];
-			$xls->getActiveSheet()->SetCellValue($phplace.'1', $this->translate->{'Phone number'});
+			$xls->getActiveSheet()->SetCellValue($phplace.'1', $this->translate->{'Phone'});
+			$count++;
+		} if($nm == 1) {
+			$nmplace = $alpha[$count];
+			$xls->getActiveSheet()->SetCellValue($nmplace.'1', $this->translate->{'Name'});
 			$count++;
 		} if($em == 1) {
 			$emplace = $alpha[$count];
@@ -322,18 +320,18 @@ class ExhibitorController extends Controller {
 		foreach ($data as $row) {
 			if($st == 1)
 				$xls->getActiveSheet()->SetCellValue($stplace.$i, $row[0]);
-			if($sp == 1)
-				$xls->getActiveSheet()->SetCellValue($spplace.$i, $row[1]);
+			if($co == 1)
+				$xls->getActiveSheet()->SetCellValue($coplace.$i, $row[1]);
 			if($cp == 1)
 				$xls->getActiveSheet()->SetCellValue($cpplace.$i, $row[2]);
 			if($ad == 1)
 				$xls->getActiveSheet()->SetCellValue($adplace.$i, $row[3]);
-			if($nm == 1)
-				$xls->getActiveSheet()->SetCellValue($nmplace.$i, $row[4]);
-			if($as == 1)
-				$xls->getActiveSheet()->SetCellValue($asplace.$i, $row[5]);
+			if($br == 1)
+				$xls->getActiveSheet()->SetCellValue($brplace.$i, $row[5]);
 			if($ph == 1)
-				$xls->getActiveSheet()->SetCellValueExplicit($phplace.$i, $row[6], PHPEXcel_Cell_Datatype::TYPE_STRING);
+				$xls->getActiveSheet()->SetCellValue($phplace.$i, $row[6], PHPEXcel_Cell_Datatype::TYPE_STRING);
+			if($nm == 1)
+				$xls->getActiveSheet()->SetCellValueExplicit($nmplace.$i, $row[4]);
 			if($em == 1)
 				$xls->getActiveSheet()->SetCellValue($emplace.$i, $row[7]);
 			if($wb == 1)
@@ -346,7 +344,7 @@ class ExhibitorController extends Controller {
 		));
 		
 		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+		$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
 		$objWriter->save('php://output');
 		
 	}
