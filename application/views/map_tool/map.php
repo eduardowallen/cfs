@@ -105,7 +105,14 @@ function makeUserOptions3($sel=0, $fair) {
 	<?php endforeach; ?>
 
 	$(document).ready(function() {
-		maptool.init(<?php echo reset($fair->get('maps'))->get('id'); ?>);
+		<?php 
+			if($myMap == "false"){ ?>
+				maptool.init(<?php echo reset($fair->get('maps'))->get('id'); ?>);
+			<?php } else { ?>
+				maptool.init(<?php echo $myMap?>);
+			<? }
+		?>
+		
 		<?php if (isset($_SESSION['copied_exhibitor'])): ?>
 		copiedExhibitor = "<?php echo $_SESSION['copied_exhibitor'] ?>";
 		<?php endif; ?>
