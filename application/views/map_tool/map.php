@@ -3,7 +3,7 @@ if ($notfound)
 	die('Fair not found');
 
 function makeUserOptions2($sel=0, $fair) {
-	$users = User::getExhibitorsForArranger($fair->get('created_by'));
+	$users = User::getExhibitorsForFair($fair->get('id'));
 
 	$ret = '';
 	foreach ($users as $user) {
@@ -14,7 +14,7 @@ function makeUserOptions2($sel=0, $fair) {
 }
 
 function makeUserOptions3($sel=0, $fair) {
-	$users = User::getExhibitorsForArranger($fair->get('created_by'));
+	$users = User::getExhibitorsForFair($fair->get('id'));
 
 	$ret = '';
 	foreach ($users as $user) {
@@ -106,11 +106,16 @@ function makeUserOptions3($sel=0, $fair) {
 
 	$(document).ready(function() {
 		<?php 
-			if($myMap == "false"){ ?>
-				maptool.init(<?php echo reset($fair->get('maps'))->get('id'); ?>);
-			<?php } else { ?>
-				maptool.init(<?php echo $myMap?>);
-			<? }
+			$id = "";
+			if(!empty($myMap)){
+				if($myMap == '\'false\''){
+					$id = reset($fair->get('maps'))->get('id');
+				} else {
+					$id = $myMap;
+				}
+			}
+			echo 'maptool.init('.$id.');';
+			
 		?>
 		
 		<?php if (isset($_SESSION['copied_exhibitor'])): ?>
