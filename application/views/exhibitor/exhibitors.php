@@ -7,7 +7,7 @@
 		var count = 0;
 		var rows = '/';
 		$('tbody > tr').each(function(i){
-			var checkBox = $(this).children(':first').children(':first');
+			var checkBox = $(this).children(':last').children(':first');
 			
 			if(checkBox.prop('checked')){
 				var cBoxId = checkBox.attr('id').replace("exp_row_","");
@@ -100,7 +100,7 @@
 	<thead>
 		
 		<tr>
-			<th></th>
+			
 			<th><?php echo $th_status; ?></th>
 			<th><?php echo $th_name; ?></th>
 			<th><?php echo $th_company; ?></th>
@@ -113,13 +113,14 @@
 			<th><?php echo $th_view; ?></th>
 			<?php if (userLevel() > 0): ?>
 			<th></th>
+			<th></th>
 			<?php endif; ?>
 		</tr>
 	</thead>
 	<tbody>
 		<?php foreach ($exhibitors as $pos): ?>
 		<tr>		
-			<td><input type="checkbox" id="exp_row_<?php echo $pos['position']?>" checked></input></td>
+			
 			<td><?php echo ($pos['posstatus'] == 2 ? 'booked' : ($pos['posstatus'] == 1 ? 'reserved' : '')); ?></td>
 			<td class="center"><?php echo $pos['posname']; ?></td>
 			<td class="center"><?php echo $pos['company']; ?></td>
@@ -138,6 +139,7 @@
 			<?php if (userLevel() > 0): ?>
 			<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt=""/></a></td>
 			<?php endif; ?>
+			<td><input type="checkbox" id="exp_row_<?php echo $pos['position']?>" checked></input></td>
 		</tr>
 		<?php endforeach; ?>
 	</tbody>
