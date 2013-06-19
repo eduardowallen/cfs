@@ -242,7 +242,7 @@ class ExhibitorController extends Controller {
 				foreach ($map->get('positions') as $pos) {
 					if ($pos->get('exhibitor')) {
 						$commodity = $pos->get('exhibitor')->get('commodity');
-						$commodity = (empty($commodity)) ? $pos->get('user')->get('commodity') : $pos->get('exhibitor')->get('commodity');
+						//$commodity = (empty($commodity)) ? $pos->get('user')->get('commodity') : $pos->get('exhibitor')->get('commodity');
 						if(in_array($pos->get('id'), $rows)){
 							$data[] = array(
 								$this->translate->{$pos->get('statusText')},

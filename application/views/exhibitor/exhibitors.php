@@ -3,10 +3,24 @@
 
 <?php if (userLevel() > 2): ?>
 <script type="text/javascript">
+	$(document).ready(function(){
+		$('#markAll').click(function(){
+			var check = $('#markAll').prop('checked');
+			var test = $('.data');
+			$('.data').children().each(function(){
+				var checkBox = $('input', $(this));
+				if(checkBox.prop('checked') && check == false){
+					checkBox.prop('checked', false);
+				} else if(checkBox.prop('checked') == false && check == true) {
+					checkBox.prop('checked', true);
+				}
+			});
+		});
+	});
 	function sendRequest(){
 		var count = 0;
 		var rows = '/';
-		$('tbody > tr').each(function(i){
+		$('tbody:last > tr').each(function(i){
 			var checkBox = $(this).children(':last').children(':first');
 			
 			if(checkBox.prop('checked')){
@@ -75,28 +89,32 @@
 		}
 	}
 </script>
-<input type="button" value="<?php echo $export_button ?>" class="floatright" onclick="sendRequest()"/>
+<input type="button" value="<?php echo $export_button ?>" style="float:left;" onclick="sendRequest()"/>
 
 <?php endif; ?>
 <style>
 	.std_table tbody{border-top:0px;}
 	.std_table tr.special th{background:#fff; border-left:1px solid #000; border-right:1px solid #000;}
 </style>
-<table class="std_table">
+<table class="std_table" style="float:left;">
+	<?php if (userLevel() > 2): ?>
 	<tr class="special">
+		<th style="border:0px;"><input type="checkbox" id="exp_st" value="1" checked></input></th>
+		<th><input type="checkbox" id="exp_nm" value="2" checked></input></th>
+		<th><input type="checkbox" id="exp_cp" value="3" checked></input></th>
+		<th><input type="checkbox" id="exp_ad" value="5" checked></input></th>
+		<th><input type="checkbox" id="exp_br" value="6" checked></input></th>
+		<th><input type="checkbox" id="exp_ph" value="7" checked></input></th>
+		<th><input type="checkbox" id="exp_co" value="8" checked></input></th>
+		<th><input type="checkbox" id="exp_em" value="9" checked></input></th>
+		<th><input type="checkbox" id="exp_we" value="10" checked></input></th>
 		<th></th>
-		<th style="border:0px;"><input type="checkbox" id="exp_st" value="1"></input></th>
-		<th><input type="checkbox" id="exp_nm" value="2"></input></th>
-		<th><input type="checkbox" id="exp_cp" value="3"></input></th>
-		<th><input type="checkbox" id="exp_ad" value="5"></input></th>
-		<th><input type="checkbox" id="exp_br" value="6"></input></th>
-		<th><input type="checkbox" id="exp_ph" value="7"></input></th>
-		<th><input type="checkbox" id="exp_co" value="8"></input></th>
-		<th><input type="checkbox" id="exp_em" value="9"></input></th>
-		<th><input type="checkbox" id="exp_we" value="10"></input></th>
+		<?php if (userLevel() > 0): ?>
 		<th></th>
-		<th></th>
+		<th><input type="checkbox" id="markAll" checked></input></th>
+		<?php endif; ?>
 	</tr>
+	<?php endif; ?>
 	<thead>
 		
 		<tr>
@@ -115,9 +133,10 @@
 			<th></th>
 			<th></th>
 			<?php endif; ?>
+			
 		</tr>
 	</thead>
-	<tbody>
+	<tbody class="data">
 		<?php foreach ($exhibitors as $pos): ?>
 		<tr>		
 			
@@ -138,8 +157,9 @@
 			<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt=""/></a></td>
 			<?php if (userLevel() > 0): ?>
 			<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt=""/></a></td>
-			<?php endif; ?>
+			
 			<td><input type="checkbox" id="exp_row_<?php echo $pos['position']?>" checked></input></td>
+			<?php endif; ?>
 		</tr>
 		<?php endforeach; ?>
 	</tbody>
