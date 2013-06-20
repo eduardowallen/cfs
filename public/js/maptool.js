@@ -84,7 +84,8 @@ maptool.isOnMap = function(x, y) {
 //Open dialogue
 maptool.openDialogue = function(id) {
 	$('input#search_user_input').val("");
-	$('input#search_user_input').css('border-color', '#666666');
+	$('input#search_user_input').css('border-color', '#666666');		
+	$('.exhibitorNotFound').css('display', 'none');
 	$("#overlay").show(0, function() {
 		$(this).css({
 			height: $(document).height() + 'px'
@@ -365,7 +366,6 @@ maptool.tooltip = function(index) {
 
 //Create context menu for markers
 maptool.showContextMenu = function(position, marker) {
-	
 	if ($('#pos-' + position).hasClass('busy'))
 		return;
 
@@ -553,12 +553,20 @@ maptool.addPosition = function(clickEvent) {
 
 //Move position
 maptool.movePosition = function(clickEvent, positionObject) {
+
+	var originalPositionX = positionObject.x;
+	var originalPositionY = positionObject.y;
+
+
 	$(".marker_tooltip").remove();
 	var marker = $("#pos-" + positionObject.id);
+
 	movingMarker = marker;
 	marker.off("click");
+
 	var mapHolderContext = $("#mapHolder");
 	var mapContext = $('#map', mapHolderContext);
+
 	$('.marker').off("mouseenter mouseleave");
 	marker.prependTo('body');
 	var canAjax = true;
@@ -569,6 +577,25 @@ maptool.movePosition = function(clickEvent, positionObject) {
 	});
 
 	$(document).on('mousemove', 'body', function(e) {
+		$(document).keyup(function(e) {
+		  	if (e.keyCode == 27) {
+				
+					$.ajax({
+						url: 'ajax/maptool.php',
+						type: 'POST',
+						data: 'movePosition=' + positionObject.id + '&x=' + originalPositionX + '&y=' + originalPositionY,
+						success: function(res) {
+							maptool.markPositionAsNotBeingEdited();
+							maptool.resumeUpdate();
+							maptool.update();
+						}
+					});
+					movingMarker.remove();
+					movingMarker = null;
+				}
+				
+		});
+
 		var movePosX = e.clientX + $('body').scrollLeft();
 		var movePosY = e.clientY + $('body').scrollTop();
 
@@ -605,7 +632,7 @@ maptool.movePosition = function(clickEvent, positionObject) {
 						maptool.update();
 					}
 				});
-				movingMarker.remove();	
+				movingMarker.remove();
 			}
 			movingMarker = null;	
 		}
