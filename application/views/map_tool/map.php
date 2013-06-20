@@ -139,10 +139,10 @@ function makeUserOptions3($sel=0, $fair) {
 	<h3><?php echo $translator->{'New/Edit stand space'} ?></h3>
 
 	<label for="position_name_input"><?php echo $translator->{'Name'} ?> *</label>
-	<input type="text" name="position_name_input" id="position_name_input"/>
+	<input type="text"  class="dialogueInput"  name="position_name_input" id="position_name_input"/>
 
 	<label for="position_area_input"><?php echo $translator->{'Area'} ?> </label>
-	<input type="text" name="position_area_input" id="position_area_input"/>
+	<input type="text"  class="dialogueInput"  name="position_area_input" id="position_area_input"/>
 
 	<label for="position_info_input"><?php echo $translator->{'Information'} ?></label>
 	<textarea name="position_info_input" id="position_info_input"></textarea>
@@ -263,7 +263,6 @@ function makeUserOptions3($sel=0, $fair) {
 		<input type="button" id="apply_choose_more" value="<?php echo $translator->{'Book more stand spaces'} ?>"/>
 		<input type="button" id="apply_confirm" value="<?php echo $translator->{'Confirm'} ?>"/>
 	</p>
-	
 </div>
 
 <div id="apply_position_dialogue" class="dialogue">
