@@ -260,7 +260,6 @@ function makeUserOptions3($sel=0, $fair) {
 	<textarea name="apply_message_input" id="apply_message_input"></textarea>
 	
 	<p>
-		<input type="button" id="apply_choose_more" value="<?php echo $translator->{'Book more stand spaces'} ?>"/>
 		<input type="button" id="apply_confirm" value="<?php echo $translator->{'Confirm'} ?>"/>
 	</p>
 </div>
