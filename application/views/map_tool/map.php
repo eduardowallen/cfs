@@ -175,10 +175,11 @@ function makeUserOptions3($sel=0, $fair) {
 	</div>
 
 	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
-	<input type="text" name="search_user_input" id="search_user_input" />
+	<input type="text" class="dialogueInput" name="search_user_input" id="search_user_input" />
+	<p class="exhibitorNotFound" style="font-size:10px; font-weight:bold;"></p>
 	<input type="hidden" id="book_user_input" />
 	<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<input type="text" name="book_commodity_input" id="book_commodity_input"/>
+	<input type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"/>
 
 	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="book_message_input" id="book_message_input"></textarea>
@@ -223,13 +224,14 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<?php //print_r(makeUserOptions2(0, $fair)); ?>
 	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
-	<input type="text" name="search_user_input" id="search_user_input" />
+	<input type="text" class="dialogueInput" name="search_user_input" id="search_user_input" />
+	<p class="exhibitorNotFound" style="font-size:10px; font-weight:bold;"></p>
 	<input type="hidden" id="reserve_user_input" name="reserve_user_input" /> 
 	<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<input type="text" name="reserve_commodity_input" id="reserve_commodity_input"/>
+	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/>
 
 	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
-	<input type="text" class="datepicker" name="reserve_expires_input" id="reserve_expires_input"/>
+	<input type="text" class="dialogueInput" class="datepicker" name="reserve_expires_input" id="reserve_expires_input"/>
 
 	<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="reserve_message_input" id="reserve_message_input"></textarea>
