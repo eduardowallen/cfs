@@ -148,6 +148,10 @@ textarea {
 	background-image:url("../images/icons/zoom_neutral.png");
 }
 
+.tbld{
+	max-width:984px;
+}
+
 .tblHeader ul{
 	border-collapse:collapse;
 	font-size:11px;
@@ -175,6 +179,8 @@ textarea {
 	float:left;
 
 }
+
+.scrolltbl .std_table thead{visibility:hidden;}
 
 .onlyfive{max-height:177px;}
 
