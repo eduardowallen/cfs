@@ -143,7 +143,18 @@ function prepFormChecker() {
 		});
 		
 		if (errors.length > 0) {
-			alert("Det finns " + errors.length + " fel i formuläret.\nDu måste fylla i alla fält markerade med *");
+			var str = "There are # errors in the form. You have to enter information in all the fields marked with a *";
+
+			$.ajax({
+				url: 'ajax/translate.php',
+				type: 'POST',
+				data: {'query':str},
+				success: function(result){
+					str = result;
+					var err = str.replace('#', errors.length);
+					alert(err);
+				}
+			});	
 			return false;
 		} else {
 			return true;
