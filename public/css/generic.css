@@ -147,10 +147,7 @@ textarea {
 	padding-left:40px;
 	background-image:url("../images/icons/zoom_neutral.png");
 }
-.tblHeader{
-	width:100%;
-	float:left;
-}
+
 .tblHeader ul{
 	border-collapse:collapse;
 	font-size:11px;

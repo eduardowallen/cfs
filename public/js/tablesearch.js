@@ -27,6 +27,12 @@ function filterTable(table, str, results) {
 
 	results.text(hit_count + ' matching rows.');
 
+	if(hit_count == 0){
+		$('tbody').parent().parent().css('overflow-y', 'hidden');
+	} else {
+		$('tbody').parent().parent().css('overflow-y', 'scroll');
+	}
+
 }
 
 function filterTableTable(table, str, results) {
@@ -50,72 +56,118 @@ function filterTableTable(table, str, results) {
 			hit_count++;
 		}
 	});
+
 	results.text(hit_count + ' matching rows.');
 }
 
+	function resizeNewRes(){
+		var headerd = $('.tblHeader');
+		if(headerd.length > 0){
+		headerd.css('display', 'none');
+	
+		for(var i = 0; i<3; i++){
+				var tblarr = new Array('booked', 'reserved', 'prem');
+				var header = $('#h'+tblarr[i]+' > ul');
+				var headertmp = $('#'+tblarr[i]+' > thead > tr');
+				var headerarr = new Array();
+	
+				headertmp.children().each(function(i){
+					headerarr[i] = $(this).width();
+				});
+			
+				header.children().each(function(i){
+					$(this).css('width', headerarr[i]);
+				});
 
-function showPage(page, tbl, pgr){
-	var menuLength = $('#'+tbl+' tbody').children().length;
-	var p = 1; var m = 0;
-	for(var i=0; i<menuLength; i++){
-		var tr = $('#'+tbl+'-'+p+'-'+m);
-		if(tr !== null){
-			if(p == page){
-				tr[0].style.display = "table-row";
+				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
+				if(i == 2){headerd.css('display', 'block');}
+			}
+		}
+	}
+
+	function resizeForFair(){
+		var headerd = $('.tblHeader');
+		if(headerd.length > 0){
+		headerd.css('display', 'none');
+	
+		for(var i = 0; i<3; i++){
+			var tblarr = new Array('booked', 'connected');
+			var header = $('#h'+tblarr[i]+' > ul');
+			var headertmp = $('#'+tblarr[i]+' > thead > tr');
+			var headerarr = new Array();
+	
+			headertmp.children().each(function(i){
+				headerarr[i] = $(this).width();
+			});
+			
+			header.children().each(function(i){
+				$(this).css('width', headerarr[i]);
+			});
+
+			$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
+			if(i == 2){headerd.css('display', 'block');}
+			}
+		}
+	}
+	$(document).ready(function() {
+	var html = '<div style="width:100%; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
+			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';	
+		$('.std_table').each(function() {
+			var parstd_table = $(this).parent();
+			var std_table = parstd_table;
+			searchfield = $('<p></p>');
+			searchfield = searchfield.prepend(html);
+			var url = document.URL;
+			var site = "";
+
+			
+			if(url.indexOf('newReservations') > 0){
+				site = "newRes";
+			}
+			if(url.indexOf('forFair')  > 0){
+				site = "forFair";
+			}
+			
+			if ($(this).parent().hasClass('scrolltbl')) {
+				$(this).parent().prev().before(searchfield);
+
 			} else {
-				tr[0].style.display = "none";
+				$(this).before(searchfield);
 			}
-		}
-		m = m + 1;
-		if(m==5){m=0; p+=1;}
-	}
+			
+			searchfield.find("#search_button").click(function() {
+				filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
 
-	var pagerLength = $('#'+pgr).children().length;
-	for(var i = 1; i<pagerLength+1; i++){
-		if(page == i){
-			$('#'+pgr+' .'+i).css("font-weight", "bold");
-			$('#'+pgr+' .'+i).css("color", "#128913");
-			$('#'+pgr+' .'+i).text("["+i+"]");
-		} else if(page != i){
-			$('#'+pgr+' .'+i).css("font-weight", "normal");
-			$('#'+pgr+' .'+i).css("color", "#000000");
-			$('#'+pgr+' .'+i).text(i);
-		}
-	}
-}
+				if(site == "forFair"){
+					resizeForFair();
+				}
+				if(site == "newRes"){
+					resizeNewRes();
+				}
+			});
 
-$(document).ready(function() {
-	var html = '<div style="width:100%; float:left;"><input type="text" id="search_input"/>'
-			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';
+			searchfield.find("#search_input").keyup(function(e) {
+				if (e.keyCode == 13) {
+					filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
 
-	$('.tblHeader').each(function() {
-		var parstd_table = $(this).parent();
-		var std_table = parstd_table;
-		searchfield = $('<p></p>');
-		searchfield = searchfield.prepend(html);
-		if ($(this).parent().hasClass('scrolltable')) {
-			$(this).parent().before(searchfield);
-		} else {
-			$(this).before(searchfield);
-		}
-		searchfield.find("#search_button").click(function() {
-			filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
+					if(site == "forFair"){
+						resizeForFair();
+					}
+					if(site == "newRes"){
+						resizeNewRes();
+					}
+
+				}
+			});
 		});
-		searchfield.find("#search_input").keyup(function(e) {
-			if (e.keyCode == 13) {
-				filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
+
+		$.ajax({
+			url: 'ajax/translate.php',
+			type: 'POST',
+			dataType : 'html',
+			data: {'query':'Search'},
+			success: function(result){
+				$('.search_button').attr('value', result);
 			}
 		});
-	});
-
-	$.ajax({
-		url: 'ajax/translate.php',
-		type: 'POST',
-		dataType : 'html',
-		data: {'query':'Search'},
-		success: function(result){
-			$('.search_button').attr('value', result);
-		}
-	});
-
 });
