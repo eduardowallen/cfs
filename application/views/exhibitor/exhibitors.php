@@ -30,7 +30,7 @@
 			}	
 		});
 		if(count < 1){
-			alert("Välj minst en rad att exportera!");
+			alert('<?php echo $row_export_err?>');
 		} else {
 			var countCol = 0;
 			var data = '';
@@ -84,7 +84,7 @@
 			if(countCol > 0){
 				document.location.href='exhibitor/export/<?php echo $fairId;?>'+data+rows;
 			} else {
-				alert('Välj minst en kolumn att exportera!');
+				alert('<?php echo $col_export_err?>');
 			}
 		}
 	}
@@ -116,9 +116,7 @@
 	</tr>
 	<?php endif; ?>
 	<thead>
-		
 		<tr>
-			
 			<th><?php echo $th_status; ?></th>
 			<th><?php echo $th_name; ?></th>
 			<th><?php echo $th_company; ?></th>
