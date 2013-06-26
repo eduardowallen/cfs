@@ -1,5 +1,6 @@
 <h1><?php echo $headline; ?></h1>
-<p> Write your username or e-mail adress in the field below. <br />  An e-mail will then be sent to you containing your account's username and a <u>new</u> password </p>
+<p> <?php echo $line1?> <br />  <?php echo $line2?> </p>
+
 <form action="user/resetPassword" method="post">
 	<?php if (isset($new_pass)): ?>
 	
@@ -13,5 +14,7 @@
 	<p><label for="user"><?php echo $user_name.' / '.$email;?></label>
 	<input type="text" name="user" id="user"/></p>
 	<p><input type="submit" name="send" value="<?php echo $button; ?>"/></p>
+	
 	<?php endif; ?>
 </form>
+

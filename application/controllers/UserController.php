@@ -470,6 +470,7 @@ class UserController extends Controller {
 					$str.= "Your Password is : ".$pass;
 					$str.= "\r\n\r\nThanks,\r\nChartbooker International";
 					sendMail($this->User->email, 'Username & Password', $str);
+					header('Location: '.BASE_URL);
 					$this->set('ok', 'A new password has been sent to '.$this->User->email);
 				} else {
 					$this->set('error', 'E-mail address or Username not found.');
@@ -481,8 +482,10 @@ class UserController extends Controller {
 		$this->set('user_name', 'Username');
 		$this->set('email', 'E-Mail');
 		$this->set('button', 'Reset');
+		$this->set('goback', 'Go back');
 		$this->set('forgotlink', 'Forgot your password or Username?');
-
+		$this->set('line1', 'Write your username or e-mail adress in the field below.');
+		$this->set('line2', 'An e-mail will then be sent to you containing your account\'s username and a new password.');
 	}
 
 	function forgotUsername() {
