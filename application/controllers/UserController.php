@@ -470,7 +470,8 @@ class UserController extends Controller {
 				$str.= "Your Password is : ".$pass;
 				$str.= "\r\n\r\nThanks,\r\nChartbooker International";
 				sendMail($this->User->email, 'Username & Password', $str);
-				$this->set('ok', 'A new password has been sent to '.$this->User->email);
+				$_SESSION['m'] = $this->User->email;
+				header('Location: '.BASE_URL.'user/login/ok');
 			} else {
 				$this->User->load($_POST['user'], 'email');
 				if ($this->User->wasLoaded()) {
