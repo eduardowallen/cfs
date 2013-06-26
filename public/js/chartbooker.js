@@ -1,3 +1,84 @@
+/* Funktioner för att visa popuper under newReservations! Hämtar data från tabellen och placerar i en popup! */
+function showPopup(type, activator){
+	
+	var row = $(activator).parent().parent();
+
+	if(type == "reserve"){
+		var link = row.find('.reserve').text();
+		reservePopup(row, link);
+	}
+
+	if(type == "book"){
+		var link = row.find('.approve').text();
+		bookPopup(row, link);
+		
+	}
+}
+
+function reservePopup(row, link){
+	$('#reserve_position_dialogue').css('display', 'block');
+	var infoArray = new Array(7);
+
+	row.children().each(function(i){
+		if(i < 7){
+			infoArray[i] = $(this).text();
+		}
+	});
+	var categories = infoArray[6];
+	var catArr = categories.split("|");
+
+	$('#reserve_category_scrollbox > p').each(function(){
+		var categoryValue = $(this).children().val();
+		for(var i = 0; i < catArr.length; i++){
+			if(categoryValue == catArr[i]){
+				$(this).children().attr('checked', 'checked');
+			}
+		}
+	});
+
+	$('#reserve_user').text(infoArray[2]);
+	$('#reserve_commodity_input').val(infoArray[3]);
+	$('#reserve_message_input').val(infoArray[5]);
+
+	$('#reserve_post').attr('href', link);
+	
+}
+
+function bookPopup(row, link){
+	$('#book_position_dialogue').css('display', 'block');
+
+	$('#book_position_dialogue').css('display', 'block');
+	var infoArray = new Array(7);
+
+	row.children().each(function(i){
+		if(i < 7){
+			infoArray[i] = $(this).text();
+		}
+	});
+
+	var categories = infoArray[6];
+	var catArr = categories.split("|");
+
+	$('#book_category_scrollbox > p').each(function(){
+		var categoryValue = $(this).children().val();
+		for(var i = 0; i < catArr.length; i++){
+			if(categoryValue == catArr[i]){
+				$(this).children().attr('checked', 'checked');
+			}
+		}
+	});
+
+	$('#book_user').text(infoArray[2]);
+	$('#book_commodity_input').val(infoArray[3]);
+	$('#book_message_input').val(infoArray[5]);	
+
+	$('#book_post').attr('href', link);
+}
+
+function closeDialogue(pref){
+	$('#'+pref+'_position_dialogue').css('display', 'none');
+}
+
 function ajaxContent(e, handle) {
 	e.preventDefault();
 	e.stopPropagation();
@@ -28,20 +109,17 @@ function ajaxContent(e, handle) {
 }
 
 $(document).ready(function() {
-
 	$('.datepicker').datepicker();
 	$('.datepicker').datepicker('option', 'dateFormat', 'dd-mm-yy');
 	$('.datepicker').each(function() {
 		$(this).datepicker('setDate', $(this).attr('value'));
 	});
-	
-	$('#languages a.selected').attr('href', 'javascript:void(0)').append('&nbsp;&nbsp;<img src="images/arrow_down.png" alt=""/>').prependTo('#languages');
-	
+	$('#languages a.selected').attr('href', 'javascript:void(0)').append('&nbsp;&nbsp;<img src="images/arrow_down.png" alt=""/>').prependTo('#languages');	
 	$('.loginlink').click(function(e) {
 		e.preventDefault();
 		e.stopPropagation();
 		$('#overlay').show();
-		
+
 		var url = $(this).attr('href');
 		var html = '<form action="' + url + '" method="post" id="popupform">'
 				 + 		'<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>'

@@ -1,3 +1,45 @@
+<style>
+	.dialogue {
+	display:none;
+	position:absolute;
+	z-index:10000;
+	width:400px;
+	/*height:420px;*/
+	top:50%;
+	left:50%;
+	margin-left:-222px;
+	margin-top:-200px;
+	padding:20px;
+	background:#ffffff;
+	border:4px solid #333333;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+	overflow:auto;
+	}
+
+	.dialogue h3 {
+		width:90%;
+
+		word-wrap:break-word;
+		overflow:hidden;
+	}
+
+	.closeDialogue label {
+		display:block;
+		width:100%;
+		word-wrap:break-word;
+		overflow:hidden;
+	}
+
+	.closeDialogue {
+		float:right;
+		cursor:pointer;
+	}
+
+	
+</style>
+
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $fair->get('name'); ?></h1> 
 <script type="text/javascript">
@@ -26,6 +68,67 @@
 </script>
 
 <?php if ($hasRights): ?>
+
+<div id="reserve_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('reserve')" class="closeDialogue"/>
+	<h3><?php echo $translator->{'Reserve stand space'} ?></h3>
+
+	<div class="ssinfo"></div>
+	
+	<label for="reserve_category_input"><?php echo $translator->{'Category'} ?></label>
+	<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('categories') as $cat): ?>
+			<p style="margin:0; width:100%; float:left;">
+				<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled><?php echo $cat->get('name') ?></input>
+			</p>
+		<?php endforeach; ?>
+	</div>
+	
+	<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input" disabled/>
+
+	
+	<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+	<textarea name="reserve_message_input" id="reserve_message_input" disabled></textarea>
+
+
+	<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
+	<select style="width:300px;" name="reserve_user_input" id="reserve_user_input" disabled>
+		<option id="reserve_user"></option>
+	</select>
+
+	<p><a id="reserve_post"><input type="button" value="<?php echo $translator->{'Confirm reservation'} ?>"/></a></p>
+
+</div>
+
+<div id="book_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('book')" class="closeDialogue"/>
+	<h3><?php echo $translator->{'Book stand space'} ?></h3>
+
+	<div class="ssinfo"></div>
+	
+	<label for="book_category_input"><?php echo $translator->{'Category'} ?></label>
+	<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('categories') as $cat): ?>
+		<p style="margin:0; width:100%; float:left;">
+			<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled><?php echo $cat->get('name') ?></input>
+		</p>
+		<?php endforeach; ?>
+	</div>
+	
+	<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+	<input type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input" disabled/>
+
+	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+	<textarea name="book_message_input" id="book_message_input" disabled></textarea>
+
+	<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
+	<select  style="width:300px;" name="book_user_input" id="book_user_input" disabled>
+		<option id="book_user">asd</ul>
+	</select>
+
+	<p><a id="book_post"><input type="button" value="<?php echo $translator->{'Confirm booking'} ?>"/></a></p>
+</div>
 
 <div class="tbld">
 <h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
@@ -66,7 +169,8 @@
 		<td class="center"><?php echo $pos['commodity']; ?></td>
 		<td ><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 		<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
-		<td class="center">
+		<td style="display:none;"><?php echo $pos['categories']?></td>
+		<td>
 		<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
@@ -76,6 +180,7 @@
 				<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
+		
 	</tr>
 <?php //$count +=1; ?>
 <?php //if($count == 5):
@@ -146,18 +251,22 @@
 				<td class="center"><?php echo $pos['commodity']; ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 				<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+				<td style="display:none;"><?php echo $pos['categories']?></td>
+				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'.$pos['position']?></td>
 				<td class="center">
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 					</a>
 				</td>
+				
 				<td class="center">
 					<a href="<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>" title="<?php echo $tr_delete; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 					</a>
 				</td>
 				<td class="center">
-					<a href="<?php echo BASE_URL.'administrator/approveReservation/'.$pos['position'] ?>" title="<?php echo $tr_approve; ?>">
+					<?php //echo "href=".BASE_URL.'administrator/approveReservation/'.$pos['position'] ?><?php //echo " title=".$tr_approve; ?>
+					<a onclick="showPopup('book',this)">
 						<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 					</a>
 				</td>
@@ -215,6 +324,9 @@
 				<td class="center"><?php echo $pos['commodity']; ?></td>
 				<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 				<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+				<td style="display:none;"><?php echo $pos['categories']?></td>
+				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'.$pos['id']?></td>
+				<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id']?></td>
 				<td class="center">
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'] ?>" title="<?php echo $tr_view; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -225,13 +337,16 @@
 						<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
 					</a>
 				</td>
+				
 				<td class="center">
-					<a href="<?php echo BASE_URL.'administrator/newReservations/approve/'.$pos['id'] ?>" title="<?php echo $tr_approve; ?>">
+					<?php //echo BASE_URL.'administrator/newReservations/approve/'.$pos['id'] ?><?php //echo $tr_approve; ?>
+					<a onclick="showPopup('book',this)">
 						<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 					</a>
 				</td>
 				<td class="center">
-					<a href="<?php echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id'] ?>" title="<?php echo $tr_reserve; ?>">
+					<!-- <a href="<?php //echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id'] ?>" title="<?php //echo $tr_reserve; ?>"> -->
+					<a onclick="showPopup('reserve',this)">
 						<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 					</a>
 				</td>
