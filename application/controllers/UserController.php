@@ -237,8 +237,6 @@ class UserController extends Controller {
 			$this->set('locked_label', 'Account locked');
 			$this->set('locked_label0', 'No');
 			$this->set('locked_label1', 'Yes');
-			
-
 		}
 	}
 
@@ -276,7 +274,23 @@ class UserController extends Controller {
 		if( $fUrl == 'confirmed'){
 			$this->set('confirmed_msg', 'Your account has been activated. Please log in to proceed.');
 		}
+
+		if( $fUrl == 'ok') :
+			$this->set('good', 'yes');
+			$this->set('res_msg', 'A new password has been sent to '.$_SESSION['m']);
+			$_SESSION['m'] = "";
+		elseif($fUrl == 'err') :
+			$this->set('good', 'no');
+			$this->set('res_msg', 'E-mail address or Username not found.');
+		endif;
 		
+		if(!empty($_SESSION['error'])) :
+			if($_SESSION['error'] == true) :
+				$this->set('error', 'Log in failed.');
+				$_SESSION['error'] = false;
+			endif;
+		endif;
+
 		if (isset($_POST['login'])) {
 
 			if ($this->User->login($_POST['user'], $_POST['pass'])) {
@@ -340,7 +354,8 @@ class UserController extends Controller {
 				}
 				exit;
 			} else {
-				$this->set('error', 'Log in failed.');
+				header("Location: ".BASE_URL."user/login");
+				$_SESSION['error'] = true;
 			}
 
 		}
@@ -470,10 +485,10 @@ class UserController extends Controller {
 					$str.= "Your Password is : ".$pass;
 					$str.= "\r\n\r\nThanks,\r\nChartbooker International";
 					sendMail($this->User->email, 'Username & Password', $str);
-					header('Location: '.BASE_URL);
-					$this->set('ok', 'A new password has been sent to '.$this->User->email);
+					$_SESSION['m'] = $this->User->email;
+					header('Location: '.BASE_URL.'user/login/ok');
 				} else {
-					$this->set('error', 'E-mail address or Username not found.');
+					header('Location: '.BASE_URL.'user/login/err');
 				}
 			}
 		}
@@ -754,7 +769,6 @@ class UserController extends Controller {
 			$str.= 'Password: '.$str."\r\n";
 
 			sendMail($this->User->get('email'), 'Your user account', $str);
-
 			$this->set('user_message', 'The user\'s password was reset and a mail was sent.');
 		} else {
 			$this->set('error_message', 'That user does not exist.');
