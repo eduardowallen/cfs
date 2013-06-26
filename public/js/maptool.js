@@ -684,6 +684,15 @@ maptool.bookPosition = function(positionObject) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
 		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
+		var categories = positionObject.exhibitor.categories;
+		for(var i = 0; i < categories.length; i++){
+			$('#book_category_scrollbox > p').each(function(){
+				var value = $(this).children().val();
+				if(value == categories[i].category_id){
+					$(this).children().attr('checked', 'checked');
+				}
+			});
+		}
 	} else {
 		$("#book_commodity_input, #book_message_input").val("");
 	}
@@ -1250,7 +1259,6 @@ maptool.searchForExhibitor = function(searchTerm, box){
 */
 //Reserve open position
 maptool.reservePosition = function(positionObject) {
-	
 	$('#reserve_category_input').css('border-color', '#000000');
 	
 	if (maptool.map.userlevel < 2) {
@@ -1260,6 +1268,15 @@ maptool.reservePosition = function(positionObject) {
 		$("#reserve_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#reserve_message_input").val(positionObject.exhibitor.arranger_message);
 		$('#reserve_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
+		var categories = positionObject.exhibitor.categories;
+		for(var i = 0; i < categories.length; i++){
+			$('#reserve_category_scrollbox > p').each(function(){
+				var value = $(this).children().val();
+				if(value == categories[i].category_id){
+					$(this).children().attr('checked', 'checked');
+				}
+			});
+		}
 	} else {
 		$("#reserve_commodity_input, #reserve_message_input, #reserve_expires_input").val("");
 	}
@@ -1427,8 +1444,7 @@ maptool.reservePosition = function(positionObject) {
 				   + catStr;
 		
 		if (maptool.map.userlevel > 1) {
-			
-			dataString += '&user=' + $("input#reserve_user_input").val();
+			dataString += '&user=' + $("#reserve_user_input").val();
 		}
 
 		$.ajax({
