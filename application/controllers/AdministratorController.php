@@ -370,6 +370,7 @@ WHERE user.owner = ? AND user.level = ?");
 		$stmt->execute(array($_SESSION['user_id'], 2));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$as = array();
+	
 		foreach ($result as $res) {
 			// Temporary work around
 			// If there are no admins we will get a row of null values.
@@ -386,7 +387,14 @@ WHERE user.owner = ? AND user.level = ?");
 			$stmt3->execute(array($res['id'], 'POSITION_UPDATED'));
 			$res3 = $stmt3->fetch(PDO::FETCH_ASSOC);
 			$res['log_count'] = $res3['log_count'];
+
+			$stmt4 = $this->Administrator->db->prepare("SELECT COUNT(*) AS position_count FROM fair_map_position WHERE created_by = ?");
+			$stmt4->execute(array($res['id']));
+			$res4 = $stmt4->fetch(PDO::FETCH_ASSOC);
+			$res['position_count'] = $res4['position_count'];
+
 			$as[] = $res;
+			
 		}
 		
 		$this->set('button_new', 'Create new administrator');
@@ -414,8 +422,14 @@ WHERE user.owner = ? AND user.level = ?");
 		$stmt->execute(array(2));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$as = array();
+	
 		foreach ($result as $res) {
-			
+			// Temporary work around
+			// If there are no admins we will get a row of null values.
+			if (is_null($res['id'])) {
+				continue;
+			}
+
 			$stmt2 = $this->Administrator->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 			$stmt2->execute(array($res['id']));
 			$res2 = $stmt2->fetch(PDO::FETCH_ASSOC);
@@ -425,15 +439,17 @@ WHERE user.owner = ? AND user.level = ?");
 			$stmt3->execute(array($res['id'], 'POSITION_UPDATED'));
 			$res3 = $stmt3->fetch(PDO::FETCH_ASSOC);
 			$res['log_count'] = $res3['log_count'];
-			
+
 			$stmt4 = $this->Administrator->db->prepare("SELECT COUNT(*) AS position_count FROM fair_map_position WHERE created_by = ?");
 			$stmt4->execute(array($res['id']));
 			$res4 = $stmt4->fetch(PDO::FETCH_ASSOC);
 			$res['position_count'] = $res4['position_count'];
-			
+
 			$as[] = $res;
+			
 		}
 		$this->set('headline', 'My administrators');
+		$this->set('create_link', 'Create new administrator');
 		$this->set('th_name', 'User');
 		$this->set('th_email', 'E-mail');
 		$this->set('th_phone', 'phone');
@@ -522,6 +538,7 @@ WHERE user.owner = ? AND user.level = ?");
 	
 						if (isset($_POST['fair_permission'])) {
 							foreach ($_POST['fair_permission'] as $fairId) {
+								
 								if (isset($_POST['maps'][$fairId])) {
 									$rel = new FairUserRelation;
 									$rel->set('fair', $fairId);
