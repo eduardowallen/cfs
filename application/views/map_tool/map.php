@@ -2,6 +2,17 @@
 if ($notfound)
 	die('Fair not found');
 
+function makeUserOptions1($sel=0, $fair) {
+	$users = User::getExhibitorsForFair($fair->get('id'));
+
+	$ret = '';
+	foreach ($users as $user) {
+		$chk = ($sel == $user->get('id')) ? ' selected="selected"' : '';
+		$ret.= '<option value="'.$user->get('id').'"'.$chk.'>'.$user->get('company').'</option>';
+	}
+	return $ret;
+}
+
 function makeUserOptions2($sel=0, $fair) {
 	$users = User::getExhibitorsForFair($fair->get('id'));
 
@@ -168,21 +179,35 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php endforeach; ?>
 	</div>
 	
+	<?php /*
 	<div id="hiddenExhibitorList_d">
 		<ul>
 			<?php echo makeUserOptions3(0, $fair)?>
 		</ul>
 	</div>
+	
 
 	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
 	<input type="text" class="dialogueInput" name="search_user_input" id="search_user_input" />
 	<p class="exhibitorNotFound" style="font-size:10px; font-weight:bold;"></p>
 	<input type="hidden" id="book_user_input" />
+
+	*/?>
+	
 	<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
 	<input type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"/>
 
 	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="book_message_input" id="book_message_input"></textarea>
+
+	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
+	<input type="text" style="width:300px;" name="search_user_input" id="search_user_input" />
+
+	<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
+	<select  style="width:300px;" name="book_user_input" id="book_user_input">
+		<?php echo makeUserOptions1(0, $fair); ?>
+		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
+	</select>
 
 	<p><input type="button" id="book_post" value="<?php echo $translator->{'Confirm booking'} ?>"/></p>
 
@@ -215,7 +240,7 @@ function makeUserOptions3($sel=0, $fair) {
 			</p>
 		<?php endforeach; ?>
 	</div>
-
+	<?php /*
 	<div id="hiddenExhibitorList">
 		<ul>
 			<?php echo makeUserOptions2(0, $fair)?>
@@ -227,17 +252,27 @@ function makeUserOptions3($sel=0, $fair) {
 	<input type="text" class="dialogueInput" name="search_user_input" id="search_user_input" />
 	<p class="exhibitorNotFound" style="font-size:10px; font-weight:bold;"></p>
 	<input type="hidden" id="reserve_user_input" name="reserve_user_input" /> 
+	*/?>
+	
 	<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
 	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/>
 
-	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
-	<input type="text" class="dialogueInput" class="datepicker" name="reserve_expires_input" id="reserve_expires_input"/>
-
+	
 	<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="reserve_message_input" id="reserve_message_input"></textarea>
 
-	<p><input type="button" id="reserve_post" value="<?php echo $translator->{'Confirm reservation'} ?>"/></p>
+	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
+	<input type="text" name="search_user_input" id="search_user_input" />
 
+	<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
+	<select style="width:300px;" name="reserve_user_input" id="reserve_user_input">
+		<?php echo makeUserOptions1(0, $fair); ?>
+		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
+	</select>
+
+	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
+	<input type="text" class="dialogueInput date datepicker" name="reserve_expires_input" id="reserve_expires_input" value="<?php if ($edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_close')); } ?>"/>
+	<p><input type="button" id="reserve_post" value="<?php echo $translator->{'Confirm reservation'} ?>"/></p>
 </div>
 
 <div id="apply_mark_dialogue" class="dialogue">
@@ -247,7 +282,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<div class="mssinfo"></div>
 	
 	<label for="apply_category_input"><?php echo $translator->{'Category'} ?></label>
-	<select name="apply_category_input[]" id="apply_category_input" multiple="multiple">
+	<select style="width:300px;" name="apply_category_input[]" id="apply_category_input" multiple="multiple">
 		<?php foreach($fair->get('categories') as $cat): ?>
 		<option value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></option>
 		<?php endforeach; ?>
