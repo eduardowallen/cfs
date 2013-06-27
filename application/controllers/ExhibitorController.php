@@ -188,7 +188,7 @@ class ExhibitorController extends Controller {
 		$this->set('users', $exhibitors);
 		$this->set('connected', $connected);
 		$this->set('th_copy', 'Copy to map');
-		
+		$this->set('export', 'Export to Excel');
 	}
 	
 	public function exhibitors($fairId=0) {
@@ -220,6 +220,134 @@ class ExhibitorController extends Controller {
 
 	}
 	
+	public function exportForFair($fairId=0, $tbl){
+		setAuthLevel(3);
+		$this->set('noView', true);
+
+		if($tbl == 1) : // Exportera tabellen 'bokade' till Excel
+			/* Samla tabellinfo till array */
+			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id, COUNT(user.id) AS ex_count FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
+			$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$exhibitors = array();
+			$connected = array();
+			$exIds = array();
+			$fairs = 0;
+			$currentFair = 0;
+			foreach ($result as $res) {
+				if (intval($res['id']) > 0) {
+					array_push($exIds, $res['id']);
+					$ex = new User;
+					$ex->load($res['id'], 'id');
+					$ex->set('ex_count', $res['ex_count']);
+				
+					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
+					$stmt2->execute(array($res['id']));
+					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+					$ex->set('fair_count', $result2['fair_count']);
+				
+					$exhibitors[] = $ex;
+					if ($res['fair'] != $currentFair) {
+						$fairs++;
+						$currentFair = $res['fair'];
+					}
+				}
+			}	
+		elseif($tbl == 2) : // Exportera tabellen 'anslutna' till Excel 
+			/* Samla tabellinfo till array */
+			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
+			$stmt->execute(array($_SESSION['user_fair'], 1));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $res) {
+				if (!in_array($res['user'], $exIds)) {
+					$ex = new User;
+					$ex->load($res['user'], 'id');
+				
+					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
+					$stmt2->execute(array($res['user']));
+					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+					$ex->set('fair_count', $result2['fair_count']);
+				
+					$exhibitors[] = $ex;
+				}
+			}
+		endif;
+
+		/* Har nu tabellinformationen i en array, 
+		sätt in informationen i ett exceldokument 
+		och skicka i headern */
+
+		if($tbl == 1 )
+			$filename = "booked.xlsx";
+		else
+			$filename = "connected.xlsx";
+			
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+		header("Content-Type: application/force-download");
+		header("Content-Type: application/octet-stream");
+		header("Content-Type: application/download");
+		header("Content-Disposition: attachment;filename=".$filename);
+		header("Content-Transfer-Encoding: binary");
+						
+		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
+		
+		$xls = new PHPExcel();
+		
+		$xls->setActiveSheetIndex(0);
+		$count = 0;
+		$alpha = range('A', 'Z');
+			
+		$xls->getActiveSheet()->SetCellValue('A1', $this->translate->{'Company'});
+		$xls->getActiveSheet()->SetCellValue('B1', $this->translate->{'Name'});
+		$xls->getActiveSheet()->SetCellValue('C1', $this->translate->{'Events'});
+		if($tbl == 1) :
+			$xls->getActiveSheet()->SetCellValue('D1', $this->translate->{'Bookings'});
+		endif;
+		
+		if($tbl == 2) :
+			$xls->getActiveSheet()->SetCellValue('D1', $this->translate->{'Last Login'});
+		else:
+			$xls->getActiveSheet()->SetCellValue('E1', $this->translate->{'Last Login'});
+		endif;
+
+		$row = 2;
+		foreach($exhibitors as $connected) :		
+			$xls->getActiveSheet()->SetCellValue('A'.$row, $connected->get('company')); 
+			$xls->getActiveSheet()->SetCellValue('B'.$row, $connected->get('name')); 
+			$xls->getActiveSheet()->SetCellValue('C'.$row, $connected->get('fair_count'));
+
+			if($tbl == 1) :  
+				$xls->getActiveSheet()->SetCellValue('D'.$row, $connected->get('ex_count'));
+			endif;
+
+			$dt = $connected->get('last_login');
+			if($dt > 0) :
+				$dt = date('Y/m/d', $connected->get('last_login'));
+			else:
+				$dt = "Never";
+			endif;
+ 
+			if($tbl == 2) :
+				$xls->getActiveSheet()->SetCellValue('D'.$row, $dt);
+			else:
+				$xls->getActiveSheet()->SetCellValue('E'.$row, $dt);
+			endif;
+
+			$row++; 
+		endforeach;
+		
+			
+		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
+			'font' => array('bold' => true)
+		));
+		
+		$objWriter = new PHPExcel_Writer_Excel2007($xls);
+		$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+		$objWriter->save('php://output');
+	}
+
 	public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $selectedRows) {
 		$rows = explode(";", $selectedRows);
 		
@@ -228,7 +356,7 @@ class ExhibitorController extends Controller {
 		
 		$fair = new Fair;
 		
-		if ($fairId > 0) {
+		if (!$fairId == 0) {
 			$fair->load($fairId, 'id');
 		} else {
 			if (isset($_SESSION['user_fair']))
