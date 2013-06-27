@@ -4,9 +4,8 @@
 		var headerd = $('.tblHeader');
 		headerd.css('display', 'none');
 		setTimeout(function(){
-			
+			anpassaTabeller();
 			for(var i = 0; i<3; i++){
-				
 				var tblarr = new Array('booked', 'connected');
 				var header = $('#h'+tblarr[i]+' > ul');
 				var headertmp = $('#'+tblarr[i]+' > thead > tr');
@@ -24,10 +23,20 @@
 			}
 		}, 500);
 	});
+	function anpassaTabeller(){
+		var tbl1width = $('#booked').width();
+		var tbl2width = $('#connected').width();
+		
+		$('.tbl1').css('max-width', tbl1width);
+		$('.tbl2').css('max-width', tbl2width);
+	}
 </script>
 <h1><?php echo $headline; ?></h1>
 <p><a class="button add" href="administrator/newExhibitor"><?php echo $create_link; ?></a></p>
+
 <h2 class="tblsite"><?php echo $table_exhibitors ?></h2>
+<div class="tbld tbl1">
+<a href="<?php echo BASE_URL.'/exhibitor/exportForFair/'.$_SESSION['user_fair'].'/1'?>"><button style="float:right;"><?php echo $export?></button></a>
 <div class="tblHeader" id="hbooked">
 	<ul>
 		<li><?php echo $th_company; ?></li>
@@ -65,7 +74,11 @@
 	</tbody>
 </table>
 </div>
+</div>
 <h2 class="tblsite"><?php echo $table_connected ?></h2>
+
+<div class="tbld tbl2">
+<a href="<?php echo BASE_URL.'/exhibitor/exportForFair/'.$_SESSION['user_fair'].'/2'?>"><button style="float:right; "><?php echo $export?></button></a>
 <div class="tblHeader" id="hconnected">
 	<ul>
 		<li><?php echo $th_company; ?></li>
@@ -76,7 +89,7 @@
 	</ul>
 </div>
 <div class="scrolltbl">
-<table class="std_table" id="connected">
+<table class="std_table"id="connected">
 	<thead>
 		<tr>
 			<th><?php echo $th_company ?></th>
@@ -100,3 +113,5 @@
 		<?php endforeach; ?>
 	</tbody>
 </table>
+</div>
+</div>
