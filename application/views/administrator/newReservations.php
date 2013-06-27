@@ -43,6 +43,7 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $fair->get('name'); ?></h1> 
 <script type="text/javascript">
+	var confirmDialogue = "<?php echo $confirm_delete?>";
 	function hider(btn,elem){
 		var element = $('#'+elem);
 		var helement = $('#h'+elem);
@@ -176,7 +177,8 @@
 			</a>
 		</td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
+			<a style="cursor:pointer;" onclick="denyPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')">
+		
 				<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
@@ -260,7 +262,7 @@
 				</td>
 				
 				<td class="center">
-					<a href="<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>" title="<?php echo $tr_delete; ?>">
+					<a style="cursor:pointer;" onclick="denyPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_delete; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 					</a>
 				</td>
@@ -333,7 +335,7 @@
 					</a>
 				</td>
 				<td class="center">
-					<a href="<?php echo BASE_URL.'administrator/newReservations/deny/'.$pos['id'] ?>" title="<?php echo $tr_deny; ?>">
+					<a style="cursor:pointer;" onclick="denyPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_deny; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
 					</a>
 				</td>

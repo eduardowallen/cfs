@@ -79,6 +79,12 @@ function closeDialogue(pref){
 	$('#'+pref+'_position_dialogue').css('display', 'none');
 }
 
+function denyPosition(link){
+	if(confirm(confirmDialogue)){
+		window.location = link;
+	}
+}
+
 function ajaxContent(e, handle) {
 	e.preventDefault();
 	e.stopPropagation();
