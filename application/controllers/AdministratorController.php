@@ -328,7 +328,6 @@ class AdministratorController extends Controller {
 		$this->set('tr_approve', 'Approve');
 		$this->set('tr_deny', 'Deny');
 		$this->set('tr_reserve', 'Reserve stand space');
-
 		$this->set('confirm_delete', 'Are you sure?');
 	}
 
