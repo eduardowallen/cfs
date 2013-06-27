@@ -36,7 +36,7 @@
 
 <h2 class="tblsite"><?php echo $table_exhibitors ?></h2>
 <div class="tbld tbl1">
-<a href="<?php echo BASE_URL.'/exhibitor/exportForFair/'.$_SESSION['user_fair'].'/1'?>"><button style="float:right;"><?php echo $export?></button></a>
+<a href="<?php echo BASE_URL.'exhibitor/exportForFair/'.$_SESSION['user_fair'].'/1'?>"><button style="float:right;"><?php echo $export?></button></a>
 <div class="tblHeader" id="hbooked">
 	<ul>
 		<li><?php echo $th_company; ?></li>
@@ -78,7 +78,7 @@
 <h2 class="tblsite"><?php echo $table_connected ?></h2>
 
 <div class="tbld tbl2">
-<a href="<?php echo BASE_URL.'/exhibitor/exportForFair/'.$_SESSION['user_fair'].'/2'?>"><button style="float:right; "><?php echo $export?></button></a>
+<a href="<?php echo BASE_URL.'exhibitor/exportForFair/'.$_SESSION['user_fair'].'/2'?>"><button style="float:right; "><?php echo $export?></button></a>
 <div class="tblHeader" id="hconnected">
 	<ul>
 		<li><?php echo $th_company; ?></li>
