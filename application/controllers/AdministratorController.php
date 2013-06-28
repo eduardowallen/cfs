@@ -208,6 +208,94 @@ class AdministratorController extends Controller {
 
 	}
 
+
+	/* Exportering till Excel för sidan newReservations */
+	public function exportNewReservations($tbl){
+		setAuthLevel(2);
+		$this->set('noView', true);
+		/* Samla relevant information till en array
+		beroende på vilken tabell som är vald */
+		$u = new User;
+		$u->load($_SESSION['user_id'], 'id');
+
+		if($tbl == 1) :
+			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+			$stmt->execute(array($_SESSION['user_fair'], 2));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$arr = $result;
+		elseif($tbl == 2) : 
+			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+			$stmt->execute(array($_SESSION['user_fair'], 1));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$arr = $result;
+		elseif($tbl == 3) :
+			$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
+			$stmt->execute(array($_SESSION['user_fair']));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$arr = $result;
+		endif;
+
+		/* Har nu tabellinformationen i en array, 
+		sätt in informationen i ett exceldokument 
+		och skicka i headern */
+		
+		if($tbl == 1 )
+			$filename = "BookedStandSpaces.xlsx";
+		else if($tbl == 2)
+			$filename = "ReservedStandSpaces.xlsx";
+		else if($tbl == 3)
+			$filename = "PreliminaryBookings.xlsx";
+			
+
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+		header("Content-Type: application/force-download");
+		header("Content-Type: application/octet-stream");
+		header("Content-Type: application/download");
+		header("Content-Disposition: attachment;filename=".$filename);
+		header("Content-Transfer-Encoding: binary");
+						
+		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
+		
+		$xls = new PHPExcel();
+		
+		$xls->setActiveSheetIndex(0);
+		$count = 0;
+		$alpha = range('A', 'Z');
+		
+		
+			$xls->getActiveSheet()->SetCellValue('A1', $this->translate->{'Stand'});
+			$xls->getActiveSheet()->SetCellValue('B1', $this->translate->{'Area'});
+			$xls->getActiveSheet()->SetCellValue('C1', $this->translate->{'Booked by'});
+			$xls->getActiveSheet()->SetCellValue('D1', $this->translate->{'Trade'});
+			$xls->getActiveSheet()->SetCellValue('E1', $this->translate->{'Time of booking'});
+			$xls->getActiveSheet()->SetCellValue('F1', $this->translate->{'Message to organizer'});
+	
+
+		$row = 2;
+		foreach($arr as $arrChild) :		
+			$xls->getActiveSheet()->SetCellValue('A'.$row, $arrChild['name']); 
+			$xls->getActiveSheet()->SetCellValue('B'.$row, $arrChild['area']); 
+			$xls->getActiveSheet()->SetCellValue('C'.$row, $arrChild['company']);
+			$xls->getActiveSheet()->SetCellValue('D'.$row, $arrChild['commodity']);
+			$xls->getActiveSheet()->SetCellValue('E'.$row, date('d-m-Y H:i:s', $arrChild['booking_time']));
+			$xls->getActiveSheet()->SetCellValue('F'.$row, $arrChild['arranger_message']);
+			$row++; 
+		endforeach;
+		
+			
+		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
+			'font' => array('bold' => true)
+		));
+		
+		$objWriter = new PHPExcel_Writer_Excel2007($xls);
+		$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+		$objWriter->save('php://output');
+		
+	}
+
+
 	public function newReservations($action='', $param='') {
 
 		setAuthLevel(2);
@@ -329,6 +417,7 @@ class AdministratorController extends Controller {
 		$this->set('tr_deny', 'Deny');
 		$this->set('tr_reserve', 'Reserve stand space');
 		$this->set('confirm_delete', 'Are you sure?');
+		$this->set('export', 'Export to Excel');
 	}
 
 	public function delete($id, $confirmed='', $from='') {

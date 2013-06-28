@@ -63,9 +63,21 @@
 
 	$(document).ready(function(){
 		setTimeout(function(){
+			anpassaTabeller();
 			resizeNewRes();
+			
 		}, 500);
 	});
+
+	function anpassaTabeller(){
+		var tbl1width = $('#booked').width();
+		var tbl2width = $('#reserved').width();
+		var tbl3width = $('#prem').width();
+
+		$('.tbl1').css('max-width', tbl1width);
+		$('.tbl2').css('max-width', tbl2width);
+		$('.tbl3').css('max-width', tbl3width);
+	}
 </script>
 
 <?php if ($hasRights): ?>
@@ -131,8 +143,10 @@
 	<p><a id="book_post"><input type="button" value="<?php echo $translator->{'Confirm booking'} ?>"/></a></p>
 </div>
 
-<div class="tbld">
+<div class="tbld tbl1" style="margin-top:50px;">
+
 <h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+<a href="<?php echo BASE_URL.'administrator/exportNewReservations/1'?>"><button style="float:right; margin-right:15px;"><?php echo $export?></button></a>
 <?php if(count($positions) > 0){ ?>
 <div class="tblHeader" id="hbooked">
 	<ul>
@@ -212,8 +226,9 @@
 
 
 
-<div class="tbld">
+<div class="tbld tbl2">
 	<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>
+	<a href="<?php echo BASE_URL.'administrator/exportNewReservations/2'?>"><button style="float:right; margin-right:15px;"><?php echo $export?></button></a>
 	<?php if(count($rpositions) > 0){?>
 	<div class="tblHeader" id="hreserved">
 		<ul>
@@ -284,8 +299,9 @@
 <?php }?>
 
 
-<div class="tbld">
+<div class="tbld tbl3">
 	<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+	<a href="<?php echo BASE_URL.'administrator/exportNewReservations/3'?>"><button style="float:right; margin-right:15px;"><?php echo $export?></button></a>
 	<?php if(count($prelpos) > 0){ ?>
 	<div class="tblHeader"  id="hprem">
 		<ul>
