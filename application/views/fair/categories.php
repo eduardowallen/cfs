@@ -18,23 +18,26 @@
 	<input type="submit" name="save" value="<?php echo $save_label; ?>"/>
 </form>
 
-<table class="std_table">
-	<thead>
-		<tr>
-			<th><?php echo $th_name; ?></th>
-			<th><?php echo $th_edit; ?></th>
-			<th><?php echo $th_delete; ?></th>
-		</tr>
-	</thead>
-	<tbody>
-		<?php foreach ($categories as $cat): ?>
-		<tr>
-			<td><?php echo $cat->get('name'); ?></td>
-			<td class="center"><a href="fair/categories/<?php echo $fair_id; ?>/edit/<?php echo $cat->get('id'); ?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
-			<td class="center"><a onclick="return confirm('<?php echo $confirm_delete; ?>')" href="fair/categories/<?php echo $fair_id; ?>/delete/<?php echo $cat->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="Delete"/></a></td>
-		</tr>
-		<?php endforeach; ?>
-	</tbody>
-</table>
-
+<?php if(count($categories) > 0) : ?>
+	<div class="tbld">
+		<table class="std_table">
+			<thead>
+				<tr>
+					<th><?php echo $th_name; ?></th>
+					<th><?php echo $th_edit; ?></th>
+					<th><?php echo $th_delete; ?></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ($categories as $cat): ?>
+				<tr>
+					<td><?php echo $cat->get('name'); ?></td>
+					<td class="center"><a href="fair/categories/<?php echo $fair_id; ?>/edit/<?php echo $cat->get('id'); ?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
+					<td class="center"><a onclick="return confirm('<?php echo $confirm_delete; ?>')" href="fair/categories/<?php echo $fair_id; ?>/delete/<?php echo $cat->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="Delete"/></a></td>
+				</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+	</div>
+<?php endif; ?>
 <?php endif; ?>
