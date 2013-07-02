@@ -149,7 +149,8 @@ textarea {
 }
 
 .tbld{
-	max-width:984px;
+	max-width:1280px;
+	float:left;
 }
 
 .tblHeader ul{
@@ -159,18 +160,21 @@ textarea {
 	float:left;
 	margin:0;
 	padding:0;
-	max-height:19px;
 	border-top:1px solid #000;
 	text-align:center;
 	font-weight:bold;
 	overflow:hidden;
 }
+
 .tblHeader ul li{
 	display:inline;
 	float:left;
-	height:22px;
 	border-left:1px solid #000;
 	padding:0px 5px 0px 5px;
+}
+
+.tblrow1{
+	height:35px;
 }
 
 .scrolltbl{
@@ -212,14 +216,16 @@ p.pricetag{margin:0; padding:0;}
 p.pricetag input{margin:0; padding:0; margin-top:2px; height:23px; width:120px;}
 
 .std_table, .std_table table {
+	float:left;
 	border-collapse:collapse;
 	font-size:12px;
+	min-width:400px;
 }
-
 
 .scrolltbl .std_table, .scrolltbl .std_table table{
-	margin-top:-22px;
+	min-width:400px;
 }
+
 .std_table th {
 	padding:0 5px 0 5px;
 	cursor:pointer;
