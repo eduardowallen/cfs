@@ -2,6 +2,8 @@
 if ($notfound)
 	die('Fair not found');
 
+
+
 function makeUserOptions1($sel=0, $fair) {
 	$users = User::getExhibitorsForFair($fair->get('id'));
 
@@ -37,7 +39,50 @@ function makeUserOptions3($sel=0, $fair) {
 
 ?>
 
+<?php 
+	$visible = 'true';
+	if($fair->get('hidden') == 1) :
+		
+		if (userLevel() < 2 && !userIsConnectedTo($fair->get('id'))):
+			$visible = 'false';
+		endif;
+	endif;
+	
 
+	if($visible == 'false') : ?>
+	
+			<script>
+				$('#map_content').css('width', '100%');
+				function connectToFair(id){
+					$.ajax({
+						url: 'ajax/maptool.php',
+						type: 'POST',
+						data: 'connectToFair=1&fairId=' + id,
+						success: function(response) {
+							res = JSON.parse(response);
+							alert(res.message);
+							if (res.success) {
+								$("#connect")[0].remove();
+								window.location = '<?php echo $fair->get('url')?>';
+							}
+						}
+					});
+				}
+			</script>
+
+			<div id="right_sidebar">
+				<div>
+				<?php $link = $fair->get('id')?>
+				<?php if(userLevel() > 0) : ?>
+					<p><a onclick="connectToFair(<?php echo $fair->get('id')?>)" id="connect"><?php echo $connect; ?></a></p>
+				<?php else :?>
+					<p><a href="user/login/<?php echo $fair->get('url')?>" id="connect"><?php echo $connect; ?></a></p>
+				<?php endif;?>
+				</div>
+			</div>
+		<?php
+	else :
+?>
 <div id="fullscreen">
 	<p id="fullscreen_controls">
 		<a class="button delete" href="javascript:void(0)" id="closeFullscreen"><?php echo $translator->{'Leave fullscreen'} ?></a>
@@ -346,4 +391,5 @@ function makeUserOptions3($sel=0, $fair) {
 		$('#map_link_<?php echo $myMap; ?>').click();
 	});
 </script>
+<?php endif; ?>
 <?php endif; ?>

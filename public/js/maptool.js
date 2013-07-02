@@ -2149,6 +2149,7 @@ $(document).ready(function() {
 			$('.marker_tooltip').hide();
 		}
 	});
+	/*
 	$("#connect").click(function(e) {
 		if (!$(this).hasClass("loginlink")) {
 			$.ajax({
@@ -2164,7 +2165,7 @@ $(document).ready(function() {
 				}
 			});
 		}
-	});
+	});*/
 	$("#create_position").click(function(e) {
 		if (hasRights && maptool.ownsMap()) {
 			maptool.addPosition(e);

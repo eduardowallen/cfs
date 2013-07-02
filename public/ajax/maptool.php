@@ -439,7 +439,9 @@ if (isset($_POST['connectToFair'])) {
 		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`) VALUES (?,?)";
 		$stmt = $globalDB->prepare($sql);
 		$stmt->execute(array($_POST['fairId'], $_SESSION['user_id']));
-		$response['message'] = $trans->{'Connected to fair.'};
+		$fair = new Fair;
+		$fair->load($_POST['fairId'], 'id');
+		$response['message'] = $trans->{'Connected to fair'}.' '.$fair->get('name');
 		$response['success'] = true;
 	} else {
 		$response['message'] = $trans->{'Unable to connect to fair.'};
