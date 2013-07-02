@@ -210,9 +210,13 @@ class AdministratorController extends Controller {
 
 
 	/* Exportering till Excel för sidan newReservations */
-	public function exportNewReservations($tbl){
+	public function exportNewReservations($tbl, $cols, $rows){
 		setAuthLevel(2);
+
 		$this->set('noView', true);
+		$cols = explode('|', $cols);
+		$rows = explode('|', $rows);
+		
 		/* Samla relevant information till en array
 		beroende på vilken tabell som är vald */
 		$u = new User;
@@ -245,7 +249,6 @@ class AdministratorController extends Controller {
 			$filename = "ReservedStandSpaces.xlsx";
 		else if($tbl == 3)
 			$filename = "PreliminaryBookings.xlsx";
-			
 
 		header("Pragma: public");
 		header("Expires: 0");
@@ -255,7 +258,7 @@ class AdministratorController extends Controller {
 		header("Content-Type: application/download");
 		header("Content-Disposition: attachment;filename=".$filename);
 		header("Content-Transfer-Encoding: binary");
-						
+				
 		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
 		
 		$xls = new PHPExcel();
@@ -263,25 +266,69 @@ class AdministratorController extends Controller {
 		$xls->setActiveSheetIndex(0);
 		$count = 0;
 		$alpha = range('A', 'Z');
+		$numcols = 0;
 		
+		$arr2 = array('d', $this->translate->{'Stand'}, $this->translate->{'Area'}, $this->translate->{'Booked by'}, $this->translate->{'Trade'}, $this->translate->{'Time of booking'}, $this->translate->{'Message to organizer'});
 		
-			$xls->getActiveSheet()->SetCellValue('A1', $this->translate->{'Stand'});
-			$xls->getActiveSheet()->SetCellValue('B1', $this->translate->{'Area'});
-			$xls->getActiveSheet()->SetCellValue('C1', $this->translate->{'Booked by'});
-			$xls->getActiveSheet()->SetCellValue('D1', $this->translate->{'Trade'});
-			$xls->getActiveSheet()->SetCellValue('E1', $this->translate->{'Time of booking'});
-			$xls->getActiveSheet()->SetCellValue('F1', $this->translate->{'Message to organizer'});
-	
+
+		if(!empty($cols[1])) : 
+			$xls->getActiveSheet()->SetCellValue('A1', $arr2[$cols[1]]);
+		endif;
+
+		if(!empty($cols[2])) : 
+			$xls->getActiveSheet()->SetCellValue('B1', $arr2[$cols[2]]);
+		endif;
+
+		if(!empty($cols[3])) : 
+			$xls->getActiveSheet()->SetCellValue('C1', $arr2[$cols[3]]);
+		endif;
+
+		if(!empty($cols[4])) : 
+			$xls->getActiveSheet()->SetCellValue('D1', $arr2[$cols[4]]);
+		endif;
+		
+		if(!empty($cols[5])) :
+			$xls->getActiveSheet()->SetCellValue('E1', $arr2[$cols[5]]);
+		endif;
+
+		if(!empty($cols[6])) :
+			$xls->getActiveSheet()->SetCellValue('F1', $arr2[$cols[6]]);
+		endif;
 
 		$row = 2;
-		foreach($arr as $arrChild) :		
-			$xls->getActiveSheet()->SetCellValue('A'.$row, $arrChild['name']); 
-			$xls->getActiveSheet()->SetCellValue('B'.$row, $arrChild['area']); 
-			$xls->getActiveSheet()->SetCellValue('C'.$row, $arrChild['company']);
-			$xls->getActiveSheet()->SetCellValue('D'.$row, $arrChild['commodity']);
-			$xls->getActiveSheet()->SetCellValue('E'.$row, date('d-m-Y H:i:s', $arrChild['booking_time']));
-			$xls->getActiveSheet()->SetCellValue('F'.$row, $arrChild['arranger_message']);
-			$row++; 
+
+		foreach($arr as $arrChild) :
+			if(in_array($arrChild['id'], $rows)):
+				
+				
+				
+				$arr = array('d', $arrChild['name'], $arrChild['area'], $arrChild['company'], $arrChild['commodity'], date('d-m-Y H:i:s', $arrChild['booking_time']), $arrChild['arranger_message']);
+				
+				if(!empty($cols[1])) : 	
+					$xls->getActiveSheet()->SetCellValue('A'.$row, $arr[$cols[1]]); 
+				endif;
+
+				if(!empty($cols[2])) : 
+					$xls->getActiveSheet()->SetCellValue('B'.$row, $arr[$cols[2]]);
+				endif;
+
+				if(!empty($cols[3])) : 
+					$xls->getActiveSheet()->SetCellValue('C'.$row, $arr[$cols[3]]);
+				endif;
+
+				if(!empty($cols[4])) :  
+					$xls->getActiveSheet()->SetCellValue('D'.$row, $arr[$cols[4]]);
+				endif;
+
+				if(!empty($cols[5])) : 
+					$xls->getActiveSheet()->SetCellValue('E'.$row, $arr[$cols[5]]);
+				endif;
+	
+				if(!empty($cols[6])) : 
+					$xls->getActiveSheet()->SetCellValue('F'.$row, $arr[$cols[6]]);
+				endif;
+				$row++; 
+			endif;
 		endforeach;
 		
 			
@@ -292,7 +339,6 @@ class AdministratorController extends Controller {
 		$objWriter = new PHPExcel_Writer_Excel2007($xls);
 		$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
 		$objWriter->save('php://output');
-		
 	}
 
 
@@ -418,6 +464,8 @@ class AdministratorController extends Controller {
 		$this->set('tr_reserve', 'Reserve stand space');
 		$this->set('confirm_delete', 'Are you sure?');
 		$this->set('export', 'Export to Excel');
+		$this->set('col_export_err', 'Select at least one column in order to export!');
+		$this->set('row_export_err', 'Select at least one row in order to export!');
 	}
 
 	public function delete($id, $confirmed='', $from='') {
