@@ -220,9 +220,11 @@ class ExhibitorController extends Controller {
 
 	}
 	
-	public function exportForFair($fairId=0, $tbl){
+	public function exportForFair($tbl, $cols, $rows){
 		setAuthLevel(3);
 		$this->set('noView', true);
+		$cols = explode('|', $cols);
+		$rows = explode('|', $rows);
 
 		if($tbl == 1) : // Exportera tabellen 'bokade' till Excel
 			/* Samla tabellinfo till array */
@@ -276,12 +278,13 @@ class ExhibitorController extends Controller {
 		/* Har nu tabellinformationen i en array, 
 		sätt in informationen i ett exceldokument 
 		och skicka i headern */
-
-		if($tbl == 1 )
+		
+		if($tbl == 1) : 
 			$filename = "booked.xlsx";
-		else
+		else :
 			$filename = "connected.xlsx";
-			
+		endif;
+
 		header("Pragma: public");
 		header("Expires: 0");
 		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
@@ -298,44 +301,68 @@ class ExhibitorController extends Controller {
 		$xls->setActiveSheetIndex(0);
 		$count = 0;
 		$alpha = range('A', 'Z');
-			
-		$xls->getActiveSheet()->SetCellValue('A1', $this->translate->{'Company'});
-		$xls->getActiveSheet()->SetCellValue('B1', $this->translate->{'Name'});
-		$xls->getActiveSheet()->SetCellValue('C1', $this->translate->{'Events'});
+		$numcols = 0;
+		
 		if($tbl == 1) :
-			$xls->getActiveSheet()->SetCellValue('D1', $this->translate->{'Bookings'});
+			$arr2 = array('d', $this->translate->{'Company'}, $this->translate->{'Name'}, $this->translate->{'Event'}, $this->translate->{'Bookings'}, $this->translate->{'Last login'});
+		else :
+			$arr2 = array('d', $this->translate->{'Company'}, $this->translate->{'Name'}, $this->translate->{'Event'}, $this->translate->{'Last login'});
+		endif;
+
+		if(!empty($cols[1])) : 
+			$xls->getActiveSheet()->SetCellValue('A1', $arr2[$cols[1]]);
+		endif;
+
+		if(!empty($cols[2])) : 
+			$xls->getActiveSheet()->SetCellValue('B1', $arr2[$cols[2]]);
+		endif;
+
+		if(!empty($cols[3])) : 
+			$xls->getActiveSheet()->SetCellValue('C1', $arr2[$cols[3]]);
+		endif;
+
+		if(!empty($cols[4])) : 
+			$xls->getActiveSheet()->SetCellValue('D1', $arr2[$cols[4]]);
 		endif;
 		
-		if($tbl == 2) :
-			$xls->getActiveSheet()->SetCellValue('D1', $this->translate->{'Last Login'});
-		else:
-			$xls->getActiveSheet()->SetCellValue('E1', $this->translate->{'Last Login'});
+		if(!empty($cols[5])) :
+			$xls->getActiveSheet()->SetCellValue('E1', $arr2[$cols[5]]);
 		endif;
 
 		$row = 2;
-		foreach($exhibitors as $connected) :		
-			$xls->getActiveSheet()->SetCellValue('A'.$row, $connected->get('company')); 
-			$xls->getActiveSheet()->SetCellValue('B'.$row, $connected->get('name')); 
-			$xls->getActiveSheet()->SetCellValue('C'.$row, $connected->get('fair_count'));
+		foreach($exhibitors as $connected) :
+			if(in_array($connected->get('id'), $rows)):
+				
+				$dt = date('d/m/y', $connected->get('last_login'));
+				
 
-			if($tbl == 1) :  
-				$xls->getActiveSheet()->SetCellValue('D'.$row, $connected->get('ex_count'));
-			endif;
+				if($tbl == 1) :
+					$arr = array('d', $connected->get('company'), $connected->get('name'), $connected->get('fair_count'), $connected->get('ex_count'), $dt);
+				else:
+					$arr = array('d', $connected->get('company'), $connected->get('name'), $connected->get('fair_count'), $dt);
+				endif;
 
-			$dt = $connected->get('last_login');
-			if($dt > 0) :
-				$dt = date('Y/m/d', $connected->get('last_login'));
-			else:
-				$dt = "Never";
-			endif;
- 
-			if($tbl == 2) :
-				$xls->getActiveSheet()->SetCellValue('D'.$row, $dt);
-			else:
-				$xls->getActiveSheet()->SetCellValue('E'.$row, $dt);
-			endif;
+				if(!empty($cols[1])) : 	
+					$xls->getActiveSheet()->SetCellValue('A'.$row, $arr[$cols[1]]); 
+				endif;
 
-			$row++; 
+				if(!empty($cols[2])) : 
+					$xls->getActiveSheet()->SetCellValue('B'.$row, $arr[$cols[2]]);
+				endif;
+
+				if(!empty($cols[3])) : 
+					$xls->getActiveSheet()->SetCellValue('C'.$row, $arr[$cols[3]]);
+				endif;
+
+				if(!empty($cols[4])) :  
+					$xls->getActiveSheet()->SetCellValue('D'.$row, $arr[$cols[4]]);
+				endif;
+
+				if(!empty($cols[5])) : 
+					$xls->getActiveSheet()->SetCellValue('E'.$row, $arr[$cols[5]]);
+				endif;
+				$row++; 
+			endif;
 		endforeach;
 		
 			
