@@ -214,6 +214,7 @@ class FairController extends Controller {
 				} else {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
 				}
+				$this->Fair->set('hidden', $_POST['hidden']);
 				$fId = $this->Fair->save();
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;

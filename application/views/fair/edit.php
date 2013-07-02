@@ -86,6 +86,12 @@
 	</select>
 	<?php endif; ?>
 
+	<label for="hidden"> Hide fair for unauthorized accounts </label>
+	<select name="hidden" id="hidden">
+		<option value="0"> false </option>
+		<option value="1"> true </option>
+	</select>
+
 	<p><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 
 </form>
