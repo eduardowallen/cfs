@@ -52,7 +52,7 @@ function makeUserOptions3($sel=0, $fair) {
 	if($visible == 'false') : ?>
 	
 			<script>
-				$('#map_content').css('width', '100%');
+			
 				function connectToFair(id){
 					$.ajax({
 						url: 'ajax/maptool.php',
