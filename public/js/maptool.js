@@ -400,6 +400,9 @@ maptool.showContextMenu = function(position, marker) {
 		contextMenu.append('<li id="cm_edit">' + lang.editStandSpace + '</li><li id="cm_move">' + lang.moveStandSpace + '</li><li id="cm_delete">' + lang.deleteStandSpace + '</li>');
 	}
 	
+	if((maptool.map.userlevel == 2 && maptool.ownsMap()) || maptool.map.userlevel > 2){
+		contextMenu.append('<li id="cm_note"> Anteckningar </li>');
+	}
 	contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
 
 	if (maptool.map.positions[objIndex].status > 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
@@ -453,6 +456,8 @@ maptool.showContextMenu = function(position, marker) {
 				maptool.editBooking(maptool.map.positions[objIndex]);
 			} else if (e.target.id == 'cm_cancel_booking') {
 				maptool.cancelBooking(maptool.map.positions[objIndex]);
+			} else if(e.target.id == 'cm_note') {
+				maptool.makeNote(maptool.map.positions[objIndex]);
 			}
 		});
 	}
@@ -1585,6 +1590,59 @@ maptool.positionInfo = function(positionObject) {
 
 	maptool.openDialogue('more_info_dialogue');
 
+}
+
+maptool.getNotes = function(positionObject){
+	$('#note_dialogue > textarea').text ="";
+	var lblTitle = $('#note_dialogue h3');
+	lblTitle.text('Notes on '+positionObject.name);
+	var fairId = maptool.map.fair;
+	var exhibitorId = positionObject.exhibitor.user;
+	var positionId = positionObject.id;
+	
+	if(exhibitorId != "undefined"){	
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST', 
+			data: 'getComment=1&fair='+fairId+'&exhibitor='+exhibitorId+'&position='+positionId
+		}).success(function(response){
+			$('.commentList').html(response);
+		});
+	} 
+}
+
+maptool.makeNote = function(positionObject){
+	$('#note_dialogue > button').off('click');
+	var lblTitle = $('#note_dialogue h3');
+	lblTitle.text('Notes on '+positionObject.name);
+	$('#note_dialogue > textarea').val = "";
+	var fairId = maptool.map.fair;
+	var exhibitorId = positionObject.exhibitor.user;
+	var positionId = positionObject.id;
+	var who = $('#noteName').text();
+
+
+	maptool.getNotes(positionObject);
+	$('#note_dialogue > button').click(function(){
+		var text = $('#note_dialogue > textarea').val();
+		
+		var place;
+
+		if($('#commentOnSpace').val() == '1'){
+			place = 0;
+		} else {
+			place = positionId;
+		}
+
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST', 
+			data: 'makeComment=1&fair='+fairId+'&exhibitor='+exhibitorId+'&position='+place+'&text='+text
+		}).success(function(response){
+			maptool.getNotes(positionObject);
+		});
+	});
+	maptool.openDialogue('note_dialogue');
 }
 
 //Zoom to 0

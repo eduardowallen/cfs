@@ -266,6 +266,29 @@ function makeUserOptions3($sel=0, $fair) {
 	<p class="presentation" style="margin-top: 0px;"></p>
 	<p class="website_link"></p>
 </div>
+<?php
+	if((userLevel() == 2 && isConnectedToFair($fair->get('id'))) || userLevel() > 2) : ?>
+		<div id="note_dialogue" class="dialogue">
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />
+		<h2></h2>
+		<h3>Kommentarer för </h3>
+		<div class="commentList">
+			<ul>
+				<li>
+					<div class="comment">
+						<ul>
+							<li>Skrivet av: </li>
+							<li>Datum: </li>
+							<li>Kommentar: </li>
+						</ul>
+					</div>
+				</li>
+			</ul>
+		</div>
+		<textarea cols="30" rows="10" style="resize:none;"></textarea>
+		<button>Skicka kommentar</button> <select id="commentOnSpace"><option value="0">För enbart denna platsen</option><option value="1">För utställarens alla platser</option></select>
+	<?php endif?>
+</div>
 
 <div id="todayDt" td="<?php echo strtotime(date('d-m-Y'))?>"> </div>
 <div id="closeDt" td="<?php echo $fair->get('auto_close')?>"> </div>
