@@ -42,7 +42,6 @@ function makeUserOptions3($sel=0, $fair) {
 <?php 
 	$visible = 'true';
 	if($fair->get('hidden') == 1) :
-		
 		if (userLevel() < 2 && !userIsConnectedTo($fair->get('id'))):
 			$visible = 'false';
 		endif;
@@ -50,9 +49,7 @@ function makeUserOptions3($sel=0, $fair) {
 	
 
 	if($visible == 'false') : ?>
-	
 			<script>
-				
 				function connectToFair(id){
 					$.ajax({
 						url: 'ajax/maptool.php',
