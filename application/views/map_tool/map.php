@@ -46,8 +46,9 @@ function makeUserOptions3($sel=0, $fair) {
 			$visible = 'false';
 		endif;
 	endif;
-	
 
+
+	
 	if($visible == 'false') : ?>
 			<script>
 				function connectToFair(id){
@@ -64,28 +65,37 @@ function makeUserOptions3($sel=0, $fair) {
 							}
 						}
 					});
-				}
-			</script>
+				}</script>
+			
 
-			<div id="right_sidebar">
-				<div>
-				<?php $link = $fair->get('id')?>
-				<?php if(userLevel() > 0) : ?>
-					<p><a onclick="connectToFair(<?php echo $fair->get('id')?>)" id="connect"><?php echo $connect; ?></a></p>
-				<?php else :?>
-					<p><a href="user/login/<?php echo $fair->get('url')?>" id="connect"><?php echo $connect; ?></a></p>
-				<?php endif;?>
-				</div>
-			</div>
-		<?php
-	else :
-?>
+	<?php endif;?>
+
+	<?php if($visible == 'true') : ?>
+	<div id="mapHolder">
+		<div id="map">
+			<img src="<?php echo reset($fair->get('maps'))->get('image'); ?>" alt="" id="map_img"/>
+		</div>
+		<div id="pancontrols">
+			<img src="images/icons/pan_left.png" id="panleft" alt=""/>
+			<img src="images/icons/pan_up.png" id="panup" alt=""/>
+			<img src="images/icons/pan_down.png" id="pandown" alt=""/>
+			<img src="images/icons/pan_right.png" id="panright" alt=""/>
+		</div>
+
+		<p id="zoombar">
+			<img src="images/zoom_marker_new.png" alt=""/>
+			<a href="javascript:void(0)" id="in"></a>
+			<a href="javascript:void(0)" id="out"></a>
+		</p>
+	</div>
+
+<?php endif;?>
+		
 <div id="fullscreen">
 	<p id="fullscreen_controls">
 		<a class="button delete" href="javascript:void(0)" id="closeFullscreen"><?php echo $translator->{'Leave fullscreen'} ?></a>
 	</p>
 </div>
-
 <!--<h1 class="inline-block"><?php echo $fair->get('name'); ?>
 	<span style="color:#000"> &ndash; <?php echo $translator->{'Available maps'} ?>: </span>
 	<ul id="map_nav">
@@ -387,29 +397,12 @@ function makeUserOptions3($sel=0, $fair) {
 
 </div>
 
-<div id="pancontrols">
-	<img src="images/icons/pan_left.png" id="panleft" alt=""/>
-	<img src="images/icons/pan_up.png" id="panup" alt=""/>
-	<img src="images/icons/pan_down.png" id="pandown" alt=""/>
-	<img src="images/icons/pan_right.png" id="panright" alt=""/>
-</div>
 
-<p id="zoombar">
-	<img src="images/zoom_marker_new.png" alt=""/>
-	<a href="javascript:void(0)" id="in"></a>
-	<a href="javascript:void(0)" id="out"></a>
-</p>
 
-<div id="mapHolder">
-	<div id="map">
-		<img src="<?php echo reset($fair->get('maps'))->get('image'); ?>" alt="" id="map_img"/>
-	</div>
-</div>
 <?php if( is_int($myMap) ) : ?>
 <script>
 	$(document).ready(function(){
 		$('#map_link_<?php echo $myMap; ?>').click();
 	});
 </script>
-<?php endif; ?>
 <?php endif; ?>
