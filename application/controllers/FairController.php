@@ -221,7 +221,8 @@ class FairController extends Controller {
 					if (userLevel() == 3) {
 						$user = new User;
 						$user->load($_SESSION['user_id'], 'id');
-						/* Alias */						
+						/* Alias */
+						/*					
 						$organizermail = $user->get('email');
 						$fairmail = $_POST['name'];
 						require('lib/classes/Alias.php');
@@ -229,7 +230,7 @@ class FairController extends Controller {
 						if((strlen($organizermail) > 1) && (strlen($fairmail) > 1)):
 							Alias::addNew($fairmail, $organizermail);
 						endif;
-						
+						*/
 
 						sendMail(EMAIL_FROM_ADDRESS, 'Chartbooker International', 'A new fair '.BASE_URL.$this->Fair->get('url').' has been created by '.$user->get('company'));
 					}
