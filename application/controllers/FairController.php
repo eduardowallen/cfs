@@ -213,6 +213,7 @@ class FairController extends Controller {
 					$this->Fair->set('created_by', $_POST['arranger']);
 				} else {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
+					$this->Fair->set('approved', 1);
 				}
 				$this->Fair->set('hidden', $_POST['hidden']);
 				$fId = $this->Fair->save();
