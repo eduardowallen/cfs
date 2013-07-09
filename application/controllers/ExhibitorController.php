@@ -731,6 +731,8 @@ class ExhibitorController extends Controller {
 		$this->set('presentation_label', 'Company presentation');
 		$this->set('save_label', 'Save');
 		
+		$this->set('customer_id', 'Customer Number');
+		$this->set('save_customer_id', 'Save Customer Number');
 		//$this->set('ban_section_header', 'Ban user');
 		//$this->set('ban_msg_label', 'Reason for ban');
 		//$this->set('ban_save', 'Save');
@@ -841,6 +843,29 @@ class ExhibitorController extends Controller {
 			header('Location: '.BASE_URL.'exhibitor/all');
 			exit;
 		}
+	}
+
+	function saveCustomerId($id, $customerId){
+		setAuthLevel(3);
+		$this->set('noView', true);
+		$user = new User;
+		$user->load($id, 'id');
+
+
+		if($user->wasLoaded()):
+			$statement = $user->db->prepare('SELECT customer_nr FROM user WHERE customer_nr = ?');
+			$statement->execute(array($customerId));
+			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(count($result) < 1):
+				$user->set('customer_nr', $customerId);
+				$user->save();
+				echo $this->translate->{'Successfully saved customer number...'};
+			else:
+					echo $this->translate->{'Customer number already exists...'};
+			endif;
+		else:
+			echo $this->translate->{'Could not load user with ID'}.": ".$id;
+		endif;
 	}
 
 	function pre_delete($id, $user_id, $position){

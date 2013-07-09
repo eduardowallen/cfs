@@ -1,3 +1,18 @@
+<script>
+	function saveCustomId(){
+		// Hämta kundnummer
+		var customerId = $('#customid').val();
+
+		$.ajax({
+			url: 'exhibitor/saveCustomerId/<?php echo $user->get('id')?>/'+customerId,
+			type: 'GET'
+		}).success(function(responseData){
+		
+			alert(responseData);
+		});
+	}
+</script>
+
 <h1><?php echo $headline; ?></h1>
 <form action="" method="post">
 
@@ -42,7 +57,13 @@
 
 	<label for="website"><?php echo $website_label; ?></label>
 	<input type="text" disabled="disabled" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
+
+	<?php if(userLevel() > 3) :?>
+	<label for="customid"><?php echo $customer_id;?></label>
+	<input type="text" name="customid" id="customid" value="<?php echo $user->get('customer_nr');?>" />
+	<button onclick="saveCustomId()" type="button"><?php echo $save_customer_id?></button>
 	</div>
+	<?php endif;?>
 
 	<div class="form_column">
 
