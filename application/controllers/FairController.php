@@ -262,7 +262,7 @@ class FairController extends Controller {
 				$this->setNoTranslate('app_sel2', 'selected="selected"');
 			}
 
-			if(userLevel() != 4){
+			if(userLevel() < 3){
 					$this->setNoTranslate('disable', 'disabled="disabled"');
 				}else{
 					$this->setNoTranslate('disable', '');
