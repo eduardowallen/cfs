@@ -47,6 +47,7 @@
 
 									<input type="text" name="search_filter" id="search_filter"/></p>
 								</div>
+								<ul></ul>
 							</div>
 					</div>
 					<?php else:?>
@@ -61,6 +62,8 @@
 						</div>
 					</div>
 					<?php endif;?>
+				z</div>			
+			</div>
 		</div><!-- end content-->
 	</div><!-- end wrapper-->
 	<div id="footer"></div>
