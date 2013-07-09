@@ -213,6 +213,7 @@ class FairController extends Controller {
 					$this->Fair->set('created_by', $_POST['arranger']);
 				} else {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
+					$this->Fair->set('approved', 1);
 				}
 				$this->Fair->set('hidden', $_POST['hidden']);
 				$fId = $this->Fair->save();
@@ -262,7 +263,7 @@ class FairController extends Controller {
 				$this->setNoTranslate('app_sel2', 'selected="selected"');
 			}
 
-			if(userLevel() != 4){
+			if(userLevel() < 3){
 					$this->setNoTranslate('disable', 'disabled="disabled"');
 				}else{
 					$this->setNoTranslate('disable', '');
