@@ -62,7 +62,7 @@
 						</div>
 					</div>
 					<?php endif;?>
-				z</div>			
+				</div>			
 			</div>
 		</div><!-- end content-->
 	</div><!-- end wrapper-->
