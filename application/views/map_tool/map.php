@@ -71,11 +71,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<?php endif;?>
 
 	<?php if($visible == 'true') : ?>
-	<div id="mapHolder">
-		<div id="map">
-			<img src="<?php echo reset($fair->get('maps'))->get('image'); ?>" alt="" id="map_img"/>
-		</div>
-		<div id="pancontrols">
+	<div id="pancontrols">
 			<img src="images/icons/pan_left.png" id="panleft" alt=""/>
 			<img src="images/icons/pan_up.png" id="panup" alt=""/>
 			<img src="images/icons/pan_down.png" id="pandown" alt=""/>
@@ -87,6 +83,11 @@ function makeUserOptions3($sel=0, $fair) {
 			<a href="javascript:void(0)" id="in"></a>
 			<a href="javascript:void(0)" id="out"></a>
 		</p>
+	<div id="mapHolder">
+		<div id="map">
+			<img src="<?php echo reset($fair->get('maps'))->get('image'); ?>" alt="" id="map_img"/>
+		</div>
+		
 	</div>
 
 <?php endif;?>
