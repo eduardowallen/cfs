@@ -89,7 +89,7 @@ function ajaxContent(e, handle) {
 	e.preventDefault();
 	e.stopPropagation();
 	$.ajax({
-		url: 'ajax/cfs/page.php',
+		url: 'ajax/page.php',
 		type: 'POST',
 		data: 'ajaxContent=' + handle,
 		success: function(response) {
@@ -151,9 +151,9 @@ $(document).ready(function() {
 		var splitted = $(this).attr('class').split(" ");
 		$('#overlay').show();
 		if($(splitted[1]).text() == "undefined"){
-			var link = '/cfs/page/contact';
+			var link = 'page/contact';
 		} else {
-			var link = '/cfs/page/contact/'+splitted[1];
+			var link = '/page/contact/'+splitted[1];
 		}
 		var ajxReq = $.ajax({
 			url : link,
@@ -188,7 +188,7 @@ var closeButton = $('.closeDialogue');
 	$('.helpLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : '/cfs/page/help',
+			url : 'page/help',
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupformTwo" style="padding:20px; margin:0 auto; top:30px;"></div>';
@@ -219,7 +219,7 @@ var closeButton = $('.closeDialogue');
 	$('.helpOrgLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : '/cfs/page/help_organizer',
+			url : 'page/help_organizer',
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
