@@ -323,22 +323,6 @@
 	overflow:auto;
 }
 
-.dialogue h3{
-	width:90%;
-
-	word-wrap:break-word;
-	overflow:hidden;
-}
-.closeDialogue label{
-	display:block;
-	width:100%;
-	word-wrap:break-word;
-	overflow:hidden;
-}
-.closeDialogue {
-	float:right;
-	cursor:pointer;
-}
 
 .standSpaceName{ 
 	display:inline;
