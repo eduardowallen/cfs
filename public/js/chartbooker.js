@@ -153,7 +153,7 @@ $(document).ready(function() {
 		if($(splitted[1]).text() == "undefined"){
 			var link = 'page/contact';
 		} else {
-			var link = '/page/contact/'+splitted[1];
+			var link = 'page/contact/'+splitted[1];
 		}
 		var ajxReq = $.ajax({
 			url : link,
@@ -175,9 +175,11 @@ var closeButton = $('.closeDialogue');
 				$('#popupformTwo').remove();
 				$('#overlay').hide();
 			});
+
 			if(popupform.width() > 760){
 				popupform.css('width', 760);		
 			}
+
 			popupform.css('left', '50%');
 			popupform.css('margin-left', (popupform.width() + 48)/-2);
 			var d = popupform.width() - 15;
@@ -225,7 +227,7 @@ var closeButton = $('.closeDialogue');
 			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
 			var filteredResponse = $(reqResp).find('#content').html();
 			$('body').append(html);
-			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 470px;"/>' + filteredResponse);
+			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
 			$('#popupform > p').css('text-align', 'left');
 			$('.closeDialogue').click(function(){
 				$(this).off('click');
