@@ -1,25 +1,23 @@
-			</div><!-- end map_content-->
-			
-			
-				<?php
-				$f = new Fair;
-				if (userLevel() > 0) {
-					$f->load($_SESSION['user_fair'], 'id');
-				} else {
-					$f->load($_SESSION['outside_fair_url'], 'url');
-				}
-				?>
+			</div><!-- end map_content-->	
+					<?php
+						$f = new Fair;
+						if (userLevel() > 0) {
+							$f->load($_SESSION['user_fair'], 'id');
+						} else {
+							$f->load($_SESSION['outside_fair_url'], 'url');
+						}
+					?>
 
-				<?php
-					$visible = 'true';
-					
-					
-						if (userLevel() < 2 && !userIsConnectedTo($f->get('id'))):
+					<?php
+						$visible = 'true';
+						if (userLevel() == 1 && !userIsConnectedTo($f->get('id'))):
+							$visible = 'false';
+						elseif(userLevel() == 0):
 							$visible = 'false';
 						endif;
-					
-				
-				?>
+
+						
+					?>
 					<?php if($visible == 'true'):?>
 						<div id="right_sidebar">
 							<div>
@@ -49,18 +47,19 @@
 								</div>
 								<ul></ul>
 							</div>
-					</div>
-					<?php else:?>
-					<div id="right_sidebar">
-						<div>
-							<?php $link = $fair->get('id')?>
-							<?php if(userLevel() > 0) : ?>
-								<p><a onclick="connectToFair(<?php echo $fair->get('id')?>)" id="connect"><?php echo $connect; ?></a></p>
-							<?php else :?>
-								<p><a href="user/login/<?php echo $fair->get('url')?>" id="connect"><?php echo $connect; ?></a></p>
-							<?php endif;?>
 						</div>
-					</div>
+					<?php else:?>
+						<div id="right_sidebar">
+							<div>
+								
+								<?php $link = $fair->get('id')?>
+								<?php if(userLevel() > 0) : ?>
+									<p><a onclick="connectToFair(<?php echo $fair->get('id')?>)" id="connect"><?php echo $connect; ?></a></p>
+								<?php else :?>
+									<p><a href="user/login/<?php echo $fair->get('url')?>" id="connect"><?php echo $connect; ?></a></p>
+								<?php endif;?>
+							</div>
+						</div>
 					<?php endif;?>
 				</div>			
 			</div>

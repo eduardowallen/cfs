@@ -41,13 +41,22 @@ function makeUserOptions3($sel=0, $fair) {
 
 <?php 
 	$visible = 'true';
-	if($fair->get('hidden') == 1) :
-		if (userLevel() < 2 && !userIsConnectedTo($fair->get('id'))):
+
+	$f = new Fair;
+	if (userLevel() > 0) {
+		$f->load($_SESSION['user_fair'], 'id');
+	} else {
+		$f->load($_SESSION['outside_fair_url'], 'url');
+	}
+	if (userLevel() == 1 && !userIsConnectedTo($f->get('id'))):
+		if($fair->get('hidden') == 1) :
+			$visible = 'false';
+		endif;
+	elseif(userLevel() == 0):
+		if($fair->get('hidden') == 1) :
 			$visible = 'false';
 		endif;
 	endif;
-
-
 	
 	if($visible == 'false') : ?>
 			<script>
@@ -275,7 +284,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<p class="website_link"></p>
 </div>
 <?php
-	if((userLevel() == 2 && isConnectedToFair($fair->get('id'))) || userLevel() > 2) : ?>
+	if((userLevel() == 2 && userIsConnectedTo($fair->get('id'))) || userLevel() > 2) : ?>
 		<div id="note_dialogue" class="dialogue">
 		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />
 		<h2></h2>
