@@ -150,11 +150,12 @@ $(document).ready(function() {
 	$('.contactLink').click(function() {
 		var splitted = $(this).attr('class').split(" ");
 		$('#overlay').show();
-		if($(splitted[1]).text() == "undefined"){
+		if(splitted[1] == null){
 			var link = 'page/contact';
 		} else {
 			var link = 'page/contact/'+splitted[1];
 		}
+
 		var ajxReq = $.ajax({
 			url : link,
 			method : 'GET',
@@ -164,9 +165,9 @@ $(document).ready(function() {
 
 			$('body').append(html);
 			var popupform = $('#popupformTwo');
-			 popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
+			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
 var closeButton = $('.closeDialogue');
-			 popupform.css('text-align', 'left');
+			popupform.css('text-align', 'left');
 			$('#popupformTwo > table > tbody > tr > td > p').css('text-align', 'left');
 			
 			$('.closeDialogue').click(function(){

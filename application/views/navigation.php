@@ -60,8 +60,8 @@
 				</li>
 				<li><span><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{'Support'} ?></span>
 					<ul>
-						<li><a href="page/help_organizer"><?php echo $translator->{'Help'} ?></a></li>
-						<li><a href="page/contact"><?php echo $translator->{'Contact us'} ?></a></li>
+						<li><a class="helpOrgLink"><?php echo $translator->{'Help'} ?></a></li>
+						<li><a class="contactLink"><?php echo $translator->{'Contact us'} ?></a></li>
 					</ul>
 				</li>
 				
