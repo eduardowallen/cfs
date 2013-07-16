@@ -400,7 +400,7 @@ maptool.showContextMenu = function(position, marker) {
 		contextMenu.append('<li id="cm_edit">' + lang.editStandSpace + '</li><li id="cm_move">' + lang.moveStandSpace + '</li><li id="cm_delete">' + lang.deleteStandSpace + '</li>');
 	}
 	
-	if((maptool.map.userlevel == 2 && maptool.ownsMap()) || maptool.map.userlevel > 2){
+	if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0){
 		contextMenu.append('<li id="cm_note"> Anteckningar </li>');
 	}
 	contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
@@ -2207,7 +2207,7 @@ $(document).ready(function() {
 			$('.marker_tooltip').hide();
 		}
 	});
-	/*
+	
 	$("#connect").click(function(e) {
 		if (!$(this).hasClass("loginlink")) {
 			$.ajax({
@@ -2223,7 +2223,8 @@ $(document).ready(function() {
 				}
 			});
 		}
-	});*/
+	});
+
 	$("#create_position").click(function(e) {
 		if (hasRights && maptool.ownsMap()) {
 			maptool.addPosition(e);
@@ -2243,11 +2244,10 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		var isiPad = /ipad/i.test(navigator.userAgent.toLowerCase());
 		if(jQuery.browser.mobile){
-			console.log("Du är inne via mobilen!");
+
 		} else if (isiPad) {
-			console.log("Du är inne via surfplatta!");
+
 		} else {
-			console.log("Du är inne via datorn!");
 			maptool.reload();
 		}
 	});
