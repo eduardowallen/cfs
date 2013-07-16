@@ -867,9 +867,24 @@ maptool.markForApplication = function(positionObject) {
 			return;
 		}
 		
-		var cats = $('#apply_category_input').val();
+		var cats = new Array();
+		var count = 0;
+
+		$('#apply_category_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		var catStr = '';
+		for (var j=0; j<cats.length; j++) {
+			catStr += '&categories[]=' + cats[j];
+		}
+
 		if (cats === null) {
-			$('#apply_category_input').css('border-color', 'red');
+			$('#apply_category_scrollbox').css('border-color', 'red');
 			return;
 		}
 		
@@ -882,7 +897,7 @@ maptool.markForApplication = function(positionObject) {
 		if (!exists) {
 			positionObject.user_commodity = $("#apply_commodity_input").val();
 			positionObject.user_message = $("#apply_message_input").val();
-			positionObject.user_categories = $("#apply_category_input").val();
+			positionObject.user_categories = catStr;
 			markedAsBooked.push(positionObject);
 		}
 		maptool.closeDialogues();
@@ -894,7 +909,17 @@ maptool.markForApplication = function(positionObject) {
 			$('#apply_commodity_input').css('border-color', 'red');
 			return;
 		}
-		var cats = $('#apply_category_input').val();
+		
+		var cats = new Array();
+		var count = 0;
+		$('#apply_category_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != null){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
+
 		if (cats === null) {
 			$('#apply_category_input').css('border-color', 'red');
 			return;
@@ -908,7 +933,7 @@ maptool.markForApplication = function(positionObject) {
 		if (!exists) {
 			positionObject.user_commodity = $("#apply_commodity_input").val();
 			positionObject.user_message = $("#apply_message_input").val();
-			positionObject.user_categories = $("#apply_category_input").val();
+			positionObject.user_categories = cats;
 			markedAsBooked.push(positionObject);
 		}
 		
@@ -928,7 +953,6 @@ maptool.editMarking = function(id) {
 	
 	$("#apply_commodity_input").val(obj.user_commodity);
 	$("#apply_message_input").val(obj.user_message);
-	$("#apply_category_input").val(obj.user_categories);
 	
 	$('.mssinfo').html('<strong>' + lang.space + ' ' + obj.name + '<br/>' + lang.area + ':</strong> ' + obj.area + '<br/><strong>' + lang.info + ': </strong>' + obj.information);
 	maptool.openDialogue('apply_mark_dialogue');
@@ -954,7 +978,6 @@ maptool.applyForPositions = function() {
 			for (var j=0; j<markedAsBooked[i].user_categories.length; j++) {
 				catStr += 'categories[' + i + '][]=' + markedAsBooked[i].user_categories[j] + '&';
 			}
-			
 		}
 		
 		var dataString = posStr
@@ -985,13 +1008,21 @@ maptool.applyForPosition = function(positionObject) {
 	
 	maptool.openDialogue('apply_position_dialogue');
 	$("#apply_post").click(function() {
-		var cats = $('#apply_category_input').val();
-		if (cats === null)
-			return;
+		var cats = new Array();
+		var count = 0;
+		$('#apply_category_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
 		var catStr = '';
-		for (var i=0; i<cats.length; i++) {
-			catStr += '&cat[]=' + cats[i];
+		for (var j=0; j<cats.length; j++) {
+			catStr += '&categories[]=' + cats[j];
 		}
+	
 		var dataString = 'preliminary=' + positionObject.id
 				   + '&commodity=' + $("#apply_commodity_input").val()
 				   + '&message=' + $("#apply_message_input").val()
@@ -1149,7 +1180,11 @@ maptool.editBooking = function(positionObject) {
 	$('#' + prefix + '_category_input option').prop("selected", false);
 	
 	for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
-		$('#' + prefix + '_category_input option[value="' + positionObject.exhibitor.categories[i].category_id + '"]').prop("selected", true);
+		$('#'+prefix+'_category_scrollbox').children().each(function(j){
+			if(positionObject.exhibitor.categories[i].category_id == $(this).children('input').val()){
+				$(this).children('input').attr('checked', 'checked');
+			}
+		});
 	}
 	
 	$("#" + prefix + "_post").unbind("click");

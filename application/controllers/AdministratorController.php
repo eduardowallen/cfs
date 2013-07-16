@@ -427,14 +427,74 @@ class AdministratorController extends Controller {
 		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 2));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$positions = $result;
+		$positions_unfinished = $result;
 
+	
+		$positions = array();
+
+		foreach($positions_unfinished as $pos):
+			$exCat = null;
+			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor=?');
+
+			$stmt->execute(array($pos['id']));
+			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$c = 0;
+			if(count($poscats) > 0) : 
+				foreach($poscats as $cat):
+					if($cat['category'] != 0) : 
+						if($c > 0):
+							$exCat.= '|'.$cat['category'];
+						else:
+							$exCat= $cat['category'];
+							$c++;
+						endif;	
+					endif;
+					
+				endforeach;
+
+				$catarray = array('categories'=>$exCat);
+				$pos = array_merge($pos, $catarray);
+			endif;
+
+			array_push($positions, $pos);
+		endforeach;
 		
-		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+
+
+		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, ex.id AS posid FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 1));
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$rpositions = $result;
 		
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$rpositions_unfinished = $result;
+		$rpositions = array();
+
+		foreach($rpositions_unfinished  as $pos) : 
+			$exCat = null;
+			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor=?');
+
+			$stmt->execute(array($pos['id']));
+			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$c = 0;
+			if(count($poscats) > 0) : 
+				foreach($poscats as $cat):
+					if($cat['category'] != 0) : 
+						if($c > 0):
+							$exCat.= '|'.$cat['category'];
+						else:
+							$exCat= $cat['category'];
+							$c++;
+						endif;	
+					endif;
+					
+				endforeach;
+
+				$catarray = array('categories'=>$exCat);
+				$pos = array_merge($pos, $catarray);
+			endif;
+
+			array_push($rpositions, $pos);
+		endforeach;
+
 
 		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
 		$stmt->execute(array($_SESSION['user_fair']));

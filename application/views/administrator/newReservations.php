@@ -281,12 +281,13 @@
 			<?php foreach($positions as $pos):?>
 				<tr>
 					<td><?php echo $pos['name']; ?></td>
+					
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td ><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 					<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
-					<td style="display:none;"><?php echo $pos['categories']?></td>
+					<td style="display:none;"><?php echo $pos['categories']?> </td>
 					<td>
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />

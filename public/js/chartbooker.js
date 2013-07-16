@@ -40,23 +40,24 @@ function reservePopup(row, link){
 	$('#reserve_commodity_input').val(infoArray[3]);
 	$('#reserve_message_input').val(infoArray[5]);
 
-	$('#reserve_post').attr('href', link);
-	
+	$('#reserve_post').attr('href', link);	
 }
 
 function bookPopup(row, link){
 	$('#book_position_dialogue').css('display', 'block');
-
-	$('#book_position_dialogue').css('display', 'block');
-	var infoArray = new Array(7);
+	
+	var infoArray = new Array(8);
 
 	row.children().each(function(i){
-		if(i < 7){
+		if(i < 8){
 			infoArray[i] = $(this).text();
 		}
 	});
 
+	console.log(infoArray);
+
 	var categories = infoArray[6];
+	
 	var catArr = categories.split("|");
 
 	$('#book_category_scrollbox > p').each(function(){

@@ -366,12 +366,14 @@ function makeUserOptions3($sel=0, $fair) {
 	
 	<div class="mssinfo"></div>
 	
-	<label for="apply_category_input"><?php echo $translator->{'Category'} ?></label>
-	<select style="width:300px;" name="apply_category_input[]" id="apply_category_input" multiple="multiple">
+	<label for="apply_category_scrollbox"><?php echo $translator->{'Category'} ?></label>
+	<div style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;" id="apply_category_scrollbox">
 		<?php foreach($fair->get('categories') as $cat): ?>
-		<option value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></option>
+		<p>
+			<input type="checkbox" value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></input>
+		</p>
 		<?php endforeach; ?>
-	</select>
+	</div>
 	
 	<label for="apply_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
 	<input type="text" name="apply_commodity_input" id="apply_commodity_input"/>
