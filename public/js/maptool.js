@@ -1520,10 +1520,10 @@ maptool.savePosition = function() {
 		var yPercent = '';
 	}
 	
-	var dataString = 'savePosition=' + $("#position_id_input").val()
-				   + '&name=' + $("#position_name_input").val()
-				   + '&area=' + $("#position_area_input").val()
-				   + '&information=' + $("#position_info_input").val()
+	var dataString = 'savePosition=' + encodeURIComponent($("#position_id_input").val())
+				   + '&name=' + encodeURIComponent($("#position_name_input").val())
+				   + '&area=' + encodeURIComponent($("#position_area_input").val())
+				   + '&information=' + encodeURIComponent($("#position_info_input").val())
 				   + '&x=' + xPercent
 				   + '&y=' + yPercent
 				   + '&map=' + maptool.map.id;
