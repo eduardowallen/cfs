@@ -1183,11 +1183,11 @@ maptool.editBooking = function(positionObject) {
 	
 	$("#" + prefix + "_post").unbind("click");
 	$("#" + prefix + "_post").click(function() {
-		var dataString = 'editBooking=' + positionObject.id
-				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
-				   + '&message=' + $("#" + prefix + "_message_input").val()
-				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
-				   + '&map=' + maptool.map.id;
+		var dataString = 'editBooking=' + encodeURIComponent(positionObject.id)
+				   + '&commodity=' + encodeURIComponent($("#" + prefix + "_commodity_input").val())
+				   + '&message=' + encodeURIComponent($("#" + prefix + "_message_input").val())
+				   + '&exhibitor_id=' + encodeURIComponent(positionObject.exhibitor.exhibitor_id)
+				   + '&map=' + encodeURIComponent(maptool.map.id);
 		
 		var cats = new Array();
 		var count = 0;
