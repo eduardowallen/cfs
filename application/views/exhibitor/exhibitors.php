@@ -99,6 +99,16 @@
 
 
 <?php if(count($exhibitors) > 0): ?>
+<p><a class="button add" href="mailto:<?php
+	$count=0;
+	foreach ($exhibitors as $user): 
+		if($count == 0):
+			echo "?bcc=".$user['email'];
+		else:
+			echo "&bcc=".$user['email'];
+		endif;
+		$count++;
+	endforeach;?>"><?php echo $mail_link;?><?php echo $translator->{'Send mail'}?></a></p>
 <div class="tbld" style="">
 	<input type="button" value="<?php echo $export_button ?>" style="float:right;" onclick="sendRequest()"/>
 	<table class="std_table">

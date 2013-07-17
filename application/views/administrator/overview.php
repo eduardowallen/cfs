@@ -1,7 +1,18 @@
 <h1><?php echo $headline; ?></h1>
 
 <p><a class="button add" href="administrator/edit/new/<?php echo $fair; ?>"><?php echo $create_link; ?></a></p>
-<?php if(count($users)) : ?>
+
+<?php if(count($users) > 0) : ?>
+<p><a class="button add" href="mailto:<?php
+	$count=0;
+	foreach ($users as $user): 
+		if($count == 0):
+			echo "?bcc=".$user->get('email');
+		else:
+			echo "&bcc=".$user->get('email');
+		endif;
+		$count++;
+	endforeach;?>"><?php echo $mail_link;?><?php echo $translator->{'Send mail'}?></a></p>
 	<div class="tbld">
 		<table class="std_table">
 			<thead>

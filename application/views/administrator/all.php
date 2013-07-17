@@ -2,7 +2,16 @@
 <h1><?php echo $headline; ?></h1>
 
 <p><a class="button add" href="administrator/edit/new"><?php echo $create_link; ?></a></p>
-
+<p><a class="button add" href="mailto:<?php
+	$count=0;
+	foreach ($admins as $user): 
+		if($count == 0):
+			echo "?bcc=".$user['email'];
+		else:
+			echo "&bcc=".$user['email'];
+		endif;
+		$count++;
+	endforeach;?>"><?php echo $mail_link;?><?php echo $translator->{'Send mail'}?></a></p>
 <div class="tbld">
 	<table class="std_table" style="width:100%;">
 		<thead>
