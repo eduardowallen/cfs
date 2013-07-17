@@ -207,28 +207,11 @@ maptool.placeMarkers = function() {
 			tooltip += '<p class="info"><strong>' + lang.commodity_label + ':</strong> ' + maptool.map.positions[i].exhibitor.commodity + '</p>';
 		} else {
 			var info =  maptool.map.positions[i].information;
-			info = info.substring(0, 80);
-			var row1 = info.substring(0,26);
-			var row2 = info.substring(26,53);
-			var row3 = info.substring(53,79);
-			if(row1.length > 0 || row2.length > 0 || row3.length > 0){
-				tooltip+= '<p class="info">';
-				if(row1.length > 0){
-					tooltip += row1;
-				} 
+			
+			tooltip+= '<p style="max-height:42px; overflow-y:hidden; line-height:14px; word-wrap:break-word;" class="info">';
+			tooltip+=info;
+			tooltip+='</p>';
 
-				if(row2.length > 0) {
-					tooltip += '<br />' + row2;
-				} 
-
-				if(row3.length > 0 && row3.length < 26) {
-					tooltip += '<br />' + row3;
-				} else if (row3.length == 26) {
-					row3 = row3.substring(0, 23) + '...';
-					tooltip += '<br />' + row3;
-				}
-				tooltip+= '</p>';
-			}
 			if (maptool.map.userlevel > 0) {
 				tooltip += '<p><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
 			}
@@ -257,6 +240,7 @@ maptool.placeMarkers = function() {
 	}	
 	$("#mapHolder #map").prepend(markerHTML);
 	$("#mapHolder").prepend(tooltipHTML);
+
 	// Pause update
 	/*
 	$(".marker", mapContext).hover(function() {
@@ -268,6 +252,7 @@ maptool.placeMarkers = function() {
 
 	//Display tooltip on hover
 	$(".marker", mapContext).hover(function(e) {
+
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		var marker = $(this);
 		if (!tooltip.is(":visible")) {
@@ -305,6 +290,13 @@ maptool.placeMarkers = function() {
 			}
 			//$(".marker_tooltip", mapHolderContext).hide();
 			tooltip.css('display', 'inline');
+
+			var infoText = tooltip.children('.info');
+			var textHeight = tooltip.children('.info').height();
+			if(textHeight > 41){
+				
+				infoText.text(infoText.text().substr(0, 70) + '...');
+			}
 		}
 	}, function() {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
