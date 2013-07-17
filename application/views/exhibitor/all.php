@@ -1,4 +1,47 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
+<script type="text/javascript">
+	function destroyPopup(){
+		$('#overlay').remove();
+		$('#popupform').remove();
+	}
+
+	function resendDetails(id){
+		if(confirm("<?php echo $translator->{'Really reset user password?'} ?>") == true){
+			$.ajax({
+				url: 'user/resendDetails/'+id, 
+				type: 'GET'
+			}).success(function(responseData){
+				var reponse = $(responseData).children('#content');
+				
+				$('body').append('<div id="overlay"></div><div id="popupform"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue">'+reponse.html()+'</div>');
+				$('#overlay').css('display', 'block');
+
+				$('#overlay').bind('click',function(){
+					destroyPopup();
+				});
+
+				$('.closeDialogue').bind('click', function(){
+					destroyPopup();
+				});
+			}).error(function(){
+				$('body').append('<div id="overlay"></div><div id="popupform"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"><p style="color:#f00;"><?php echo $translator->{'Error: Could not resend user details!'}?></p></div>');
+				$('#overlay').css('display', 'block');
+
+				$('#overlay').bind('click',function(){
+					destroyPopup();
+				});
+
+				$('.closeDialogue').bind('click', function(){
+					destroyPopup();
+				});
+			});	
+		}
+	}
+</script>
+
+<style>
+	#popupform{padding:20px;}
+</style>
 <h1><?php echo $headline; ?></h1>
 
 <p><a class="button add" href="user/edit/new/1"><?php echo $create_link; ?></a></p>
@@ -35,7 +78,7 @@
 				<td><?php echo date('d/m/y', $user->get('created')); ?></td>
 				<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $translator->{'Edit'} ?>"/></a></td>
 				<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really delete?'} ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
-				<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really reset user password?'} ?>');" href="user/resendDetails/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
+				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>)"> <img src="images/icons/delete.png" alt=""/></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>
