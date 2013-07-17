@@ -821,13 +821,15 @@ maptool.bookPosition = function(positionObject) {
 		for (var j=0; j<cats.length; j++) {
 			catStr += '&categories[]=' + cats[j];
 		}
+
+		
 		var dataString = 'bookPosition=' + positionObject.id
-				   + '&commodity=' + $("#book_commodity_input").val()
-				   + '&message=' + $("#book_message_input").val()
+				   + '&commodity=' + encodeURIComponent($("#book_commodity_input").val())
+				   + '&message=' + encodeURIComponent($("#book_message_input").val())
 				   + '&map=' + maptool.map.id
 				   + catStr;
 		if (maptool.map.userlevel > 1) {
-			dataString += '&user=' + $("#book_user_input").val();
+			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
 		}
 		$.ajax({
 			url: 'ajax/maptool.php',
@@ -972,11 +974,11 @@ maptool.applyForPositions = function() {
 			}
 		}
 		
-		var dataString = posStr
-				   + msgStr
-				   + comStr
-				   + 'map=' + maptool.map.id
-				   + '&' + catStr;
+		var dataString = encodeURIComponent(posStr)
+				   + encodeURIComponent(msgStr)
+				   + encodeURIComponent(comStr)
+				   + 'map=' + encodeURIComponent(maptool.map.id)
+				   + '&' + encodeURIComponent(catStr);
 		
 		$.ajax({
 			url: 'ajax/maptool.php',
@@ -1324,7 +1326,7 @@ maptool.reservePosition = function(positionObject) {
 		$.ajax({
 			url: 'ajax/maptool.php',
 			type: 'POST',
-			data: 'getUserCommodity=1&userId=' + $('#reserve_user_input').val(),
+			data: 'getUserCommodity=1&userId=' + encodeURIComponent($('#reserve_user_input').val()),
 			success: function(response) {
 				if (response) {
 					r = JSON.parse(response);
@@ -1469,14 +1471,14 @@ maptool.reservePosition = function(positionObject) {
 			catStr += '&categories[]=' + cats[j];
 		}
 		var dataString = 'reservePosition=' + positionObject.id
-				   + '&commodity=' + $("#reserve_commodity_input").val()
-				   + '&message=' + $("#reserve_message_input").val()
-				   + '&expires=' + $("#reserve_expires_input").val()
+				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
+				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
+				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
 				   + '&map=' + maptool.map.id
 				   + catStr;
 		
 		if (maptool.map.userlevel > 1) {
-			dataString += '&user=' + $("#reserve_user_input").val();
+			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
 		}
 
 		$.ajax({
