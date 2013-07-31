@@ -131,6 +131,7 @@ class ExhibitorController extends Controller {
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$exhibitors = array();
 		$connected = array();
+		$canceled = array();
 		$exIds = array();
 		$fairs = 0;
 		$currentFair = 0;
@@ -161,19 +162,43 @@ class ExhibitorController extends Controller {
 			if (!in_array($res['user'], $exIds)) {
 				$ex = new User;
 				$ex->load($res['user'], 'id');
-				
+
 				$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 				$stmt2->execute(array($res['user']));
 				$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+
 				$ex->set('fair_count', $result2['fair_count']);
+				$exhibitorId = $ex->get('id');
+
+
+				$stmt3 = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor_canceled WHERE fairId = ? AND exhibitorId = ?");
+				$stmt3->execute(array($_SESSION['user_fair'], $exhibitorId));
+				$result3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
+
+				if(count($result3)  == 0):
+					$connected[] = $ex;
+				endif;
 				
-				$connected[] = $ex;
 			}
 		}
+
+		$stmt = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor_canceled INNER JOIN user ON exhibitor_canceled.exhibitorId = user.id WHERE fairId = ?");
+		$stmt->execute(array($_SESSION['user_fair']));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		foreach($result as $unbooked):
+			$stmt2 = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor WHERE user = ? and fair = ?");
+			$stmt2->execute(array($unbooked['exhibitorId'], $unbooked['fairId']));
+			$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+			
 		
+			if(count($result2) == 0):
+				$canceled[] = $unbooked;
+			endif;
+		endforeach;
+
 		$this->set('table_exhibitors', 'Booked exhibitors');
 		$this->set('table_connected', 'Connected exhibitors');
-		$this->set('headline', 'Exhibitors');
+		$this->set('table_canceled', 'Canceled exhibitors');
 		$this->set('headline', 'Exhibitors');
 		$this->set('create_link', 'New exhibitor');
 		$this->set('th_company', 'Company');
@@ -187,6 +212,7 @@ class ExhibitorController extends Controller {
 		$this->set('', $fairs);
 		$this->set('users', $exhibitors);
 		$this->set('connected', $connected);
+		$this->set('canceled', $canceled);
 		$this->set('th_copy', 'Copy to map');
 		$this->set('export', 'Export to Excel');
 	}
@@ -221,8 +247,10 @@ class ExhibitorController extends Controller {
 	}
 	
 	public function exportForFair($tbl, $cols, $rows){
-		setAuthLevel(3);
+		setAuthLevel(2);
+
 		$this->set('noView', true);
+
 		$cols = explode('|', $cols);
 		$rows = explode('|', $rows);
 
