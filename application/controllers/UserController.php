@@ -47,7 +47,6 @@ class UserController extends Controller {
 		$res = $stmt->fetchAll();
 		$users = array();
 		if ($res > 0) {
-
 			foreach ($res as $result) {
 				$u = new User;
 				$u->load($result['id'], 'id');
@@ -459,7 +458,7 @@ class UserController extends Controller {
 		if (isset($_POST['send'])) {
 			$this->User->load($_POST['user'], 'alias');
 			if ($this->User->wasLoaded()) {
-				$pass = md5('YmdHis');
+				$pass = md5(date('YmdHis'));
 				$pass = substr($pass, -30, 6);
 				$this->User->setPassword($pass);
 				$this->User->save();
