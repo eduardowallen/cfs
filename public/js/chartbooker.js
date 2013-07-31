@@ -80,9 +80,14 @@ function closeDialogue(pref){
 	$('#'+pref+'_position_dialogue').css('display', 'none');
 }
 
-function denyPosition(link){
+function denyPosition(link, comment){
 	if(confirm(confirmDialogue)){
-		window.location = link;
+		$.ajax({
+			url : link,
+			type: 'POST',
+			data: 'comment='+comment
+		})
+		window.location = 'administrator/newReservations';
 	}
 }
 
@@ -343,6 +348,25 @@ var closeButton = $('.closeDialogue');
 		hookUpPasswdMeter();
 		prepFormChecker();
 		
+		$('#password').keyup(function(){
+			var password = $(this).val();
+
+			var numbers = /\d{2,}/.test(password);
+			var capitalLetter = /[A-ZÅÄÖ]{1,}/.test(password);
+
+			if(numbers){
+				if(capitalLetter){
+					
+					$(this).css('border', 'solid 1px #00FF00');
+				} else {
+					
+					$(this).css('border', 'solid 1px #FF0000');
+				}
+			} else {
+				$(this).css('border', 'solid 1px #FF0000');
+			}
+		});
+
 		$("#copy").change(function() {
 			if ($(this).is(":checked")) {
 				$('#invoice_company').val($('#company').val());
