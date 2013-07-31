@@ -1,5 +1,4 @@
 function filterTable(table, str, results) {
-
 	if (table.hasClass("of-tables")) {
 		filterTableTable(table, str, results);
 		return;
@@ -25,26 +24,24 @@ function filterTable(table, str, results) {
 		}
 	});
 	results.text(hit_count + ' matching rows.');
-	if(hit_count == 0){
-		$('tbody').parent().parent().css('overflow-y', 'hidden');
-	} else {
-		$('tbody').parent().parent().css('overflow-y', 'scroll');
-	}
+
 
 }
 
 function filterTableTable(table, str, results) {
 	var hits = new Array;
 	var hit_count = 0;
-
-	table.find("tbody td.container").each(function() {
-		
+	
+	table.find("tbody tr.container").each(function() {
+			
 		if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) >= 0) {
-			hits.push($(this).parent());
+			
+			hits.push($(this));
 		}
 	});
 	
 	table.find("tbody tr.container").hide();
+
 	for (i=0; i<hits.length; i++) {
 		hits[i].show();
 	}
@@ -114,10 +111,10 @@ function filterTableTable(table, str, results) {
 		}
 	}
 	$(document).ready(function() {
-	var html = '<div style="width:40%; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
+	var html = '<div style="width:270px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
 			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';	
 		$('.std_table').each(function() {
-			var parstd_table = $(this).parent();
+			var parstd_table = $(this);
 			var std_table = parstd_table;
 			searchfield = $('<p></p>');
 			searchfield = searchfield.prepend(html);
@@ -157,10 +154,10 @@ function filterTableTable(table, str, results) {
 					if(site == "forFair"){
 						resizeForFair();
 					}
+
 					if(site == "newRes"){
 						resizeNewRes();
 					}
-
 				}
 			});
 		});
