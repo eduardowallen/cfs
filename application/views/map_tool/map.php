@@ -57,26 +57,23 @@ function makeUserOptions3($sel=0, $fair) {
 			$visible = 'false';
 		endif;
 	endif;
-	
-	if($visible == 'false') : ?>
-			<script>
-				function connectToFair(id){
-					$.ajax({
-						url: 'ajax/maptool.php',
-						type: 'POST',
-						data: 'connectToFair=1&fairId=' + id,
-						success: function(response) {
-							res = JSON.parse(response);
-							alert(res.message);
-							window.location = '<?php echo $fair->get('url')?>';
-						}
-					});
-				}</script>
-			
-
-	<?php endif;?>
-
+	?>
+	<script>
+		function connectToFair(id){
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: 'connectToFair=1&fairId=' + id,
+					success: function(response) {
+						res = JSON.parse(response);
+						alert(res.message);
+						window.location = '<?php echo $fair->get('url')?>';
+					}
+				});
+			}
+	</script>
 	<?php if($visible == 'true') : ?>
+
 	<div id="pancontrols">
 			<img src="images/icons/pan_left.png" id="panleft" alt=""/>
 			<img src="images/icons/pan_up.png" id="panup" alt=""/>
