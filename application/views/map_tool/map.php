@@ -68,10 +68,7 @@ function makeUserOptions3($sel=0, $fair) {
 						success: function(response) {
 							res = JSON.parse(response);
 							alert(res.message);
-							if (res.success) {
-								$("#connect")[0].remove();
-								window.location = '<?php echo $fair->get('url')?>';
-							}
+							window.location = '<?php echo $fair->get('url')?>';
 						}
 					});
 				}</script>
