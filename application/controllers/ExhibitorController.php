@@ -857,16 +857,41 @@ class ExhibitorController extends Controller {
 		$user = new User;
 		$user->load($user_id, 'id');
 		if ($user->wasLoaded()) {
-			
-			$stmt = $user->db->prepare("SELECT position FROM exhibitor WHERE user = ?");
+
+			// Avboka plats för utställare.
+			$stmt = $user->db->prepare("SELECT position, id FROM exhibitor WHERE user = ?");
 			$stmt->execute(array($user->get('id')));
 			foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $res) {
 				$upd = $user->db->prepare("UPDATE fair_map_position SET status = ? WHERE id = ?");
 				$upd->execute(array(0, $res['position']));
+
+				// Ta bort alla kommentarer om uställaren
+				$statement = $user->db->prepare("DELETE FROM comment WHERE exhibitorId = ?");
+				$statement->execute(array($res['id']));
+
+				// Ta bort alla avbokade bokningar som är relaterade till utställaren
+				$statement = $user->db->prepare("DELETE FROM exhibitor_cancelled WHERE exhibitorId = ?");
+				$statement->execute(array($res['id']));
+
+				// Ta bort alla kategorirelationer som är relaterade till utställaren
+				$statement = $user->db->prepare("DELETE FROM exhibitor_category_rel WHERE exhibitor = ?");
+				$statement->execute(array($res['id']));
 			}
+
+			// Ta bort exhibitor som är relaterad till user
 			$del = $user->db->prepare("DELETE FROM exhibitor WHERE user = ?");
 			$del->execute(array($user->get('id')));
-			
+
+
+			// Ta bort preliminära bokningar som är förknippade till user
+			$del = $user->db->prepare("DELETE FROM preliminary_bookings WHERE user = ?");
+			$del->execute(array($user->get('id')));
+
+			// Ta bort användarens relationer till mässorna.
+			$del = $user->db->prepare("DELETE FROM fair_user_relation WHERE user = ?");
+			$del->execute(array($user->get('id')));
+
+			// Ta bort användaren
 			$user->delete();
 			header('Location: '.BASE_URL.'exhibitor/all');
 			exit;
