@@ -59,6 +59,10 @@ function makeUserOptions3($sel=0, $fair) {
 	endif;
 	?>
 	<script>
+		$().ready(function(){
+			
+		});
+
 		function connectToFair(id){
 			$.ajax({
 				url: 'ajax/maptool.php',
@@ -88,7 +92,7 @@ function makeUserOptions3($sel=0, $fair) {
 		</p>
 	<div id="mapHolder">
 		<div id="map">
-			<img src="<?php echo reset($fair->get('maps'))->get('image'); ?>" alt="" id="map_img"/>
+			<img  alt="" id="map_img"/>
 		</div>
 		
 	</div>

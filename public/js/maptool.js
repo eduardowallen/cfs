@@ -1973,7 +1973,7 @@ maptool.fullScreenOn = function() {
 	});
 
 	var largeSrc = $('#mapHolder #map').attr('src').replace('.png', '_large.png');
-	$('#map').attr("src", largeSrc);
+	$('#map').attr("src", largeSrc+ new Date().getTime());
 
 	var screenImage = $("#image");
 
@@ -2091,7 +2091,7 @@ maptool.init = function(mapId) {
 				canvasOriginalOffset = $("#mapHolder").offset();
 			}
 
-			$("#map > #map_img").attr("src", maptool.map.image);
+			$("#map > #map_img").attr("src", maptool.map.image+"?date="+ new Date().getTime());
 			
 			var holderHeight = $(document).height() - $('#header').height() -48;
 			var listHeight = holderHeight - $('#right_sidebar div:first-child').height() - $('#right_sidebar .pre_list').height() - 84;
