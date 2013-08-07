@@ -306,7 +306,9 @@
 }
 #more_info_dialogue .presentation {
 	max-height:200px;
-	border:1px solid #000;
+	word-wrap:break-word;
+	border:1px solid #aaa;
+	padding:5px;
 	overflow-y:scroll;
 }
 .dialogue {
