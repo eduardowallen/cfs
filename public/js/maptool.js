@@ -204,7 +204,7 @@ maptool.placeMarkers = function() {
 			if (maptool.map.positions[i].status == 1) {
 				tooltip += '<p><strong>' + lang.reservedUntil + ':</strong> ' + maptool.map.positions[i].expires + '</p>';
 			}
-			tooltip = tooltip + '<p class="info"> <strong>' + lang.commodity_label + ':</strong>';
+			tooltip = tooltip + '<p class="info"> <strong>' + lang.commodity_label + ':</strong> ';
 			tooltip += maptool.map.positions[i].exhibitor.commodity + '</p>';
 		} else {
 			var info =  maptool.map.positions[i].information;
