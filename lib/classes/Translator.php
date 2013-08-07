@@ -14,22 +14,24 @@ class Translator {
 	}
 	
 	public function __get($val) {
+		// Om translate == true, så sparas strängar som kan översättas i databasen.
+		if($translate == true):
+			global $globalDB;
+			$this->db = $globalDB;
 		
-		/*global $globalDB;
-		$this->db = $globalDB;
-		
-		$stmt = $this->db->prepare("SELECT `group` FROM language_string ORDER BY `group` DESC LIMIT 0,1");
-		$stmt->execute(array());
-		$res = $stmt->fetch(PDO::FETCH_ASSOC);
-		$nextGroup = $res['group'] + 1;
+			$stmt = $this->db->prepare("SELECT `group` FROM language_string ORDER BY `group` DESC LIMIT 0,1");
+			$stmt->execute(array());
+			$res = $stmt->fetch(PDO::FETCH_ASSOC);
+			$nextGroup = $res['group'] + 1;
 
-		$stmt = $this->db->prepare("SELECT * FROM language_string WHERE value = ?");
-		$stmt->execute(array($val));
-		$res = $stmt->fetch(PDO::FETCH_ASSOC);
-		if (!$res) {
-			$stmt = $this->db->prepare("INSERT INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
-			$stmt->execute(array($val, 'en', $nextGroup));
-		}*/
+			$stmt = $this->db->prepare("SELECT * FROM language_string WHERE value = ?");
+			$stmt->execute(array($val));
+			$res = $stmt->fetch(PDO::FETCH_ASSOC);
+			if (!$res) {
+				$stmt = $this->db->prepare("INSERT INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
+				$stmt->execute(array($val, 'en', $nextGroup));
+			}
+		endif;
 		
 		if (isset($this->data->{$val})) {
 			return $this->data->{$val};
