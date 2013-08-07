@@ -65,7 +65,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<?php endif;
 
 	// Om mässan är synlig
-	if(($visible == 'false' && userLevel() > 2) || ($visible == 'false' && userLevel() == 1 && hasRights()) || $visible == 'true') :
+	if(($visible == 'false' && userLevel() > 2) || ($visible == 'false' && userLevel() == 2 && hasRights()) || $visible == 'true') :
 		// Om användaren har nivå 1 men ej är ansluten till mässan
 		if (userLevel() == 1 && !userIsConnectedTo($f->get('id'))):
 			// Ajax-kod för att ansluta en användare till mässan ?>
@@ -145,7 +145,7 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.print = '<?php echo $translator->{"Print"} ?>';
 	lang.category = '<?php echo $translator->{"Categories"} ?>';
 	lang.noPlaceRights = '<?php echo $translator->{"You do not have administrative rights on this map"} ?>';
-
+	lang.clickToViewMoreInfo = '<?php echo $translator->{"Click to view more information"} ?>';
 	lang.StatusText = function(str) {
 		if (str == 'open')
 			return '<?php echo $translator->{"open"} ?>';
@@ -260,10 +260,10 @@ function makeUserOptions3($sel=0, $fair) {
 	*/?>
 	
 	<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<textarea rows="3" style="height:45px;"type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"></textarea>
+	<textarea rows="3" style="height:45px; resize:none;" type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"></textarea>
 
 	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
-	<textarea name="book_message_input" id="book_message_input"></textarea>
+	<textarea name="book_message_input" style="resize:none;" id="book_message_input"></textarea>
 
 	<label for="search_user_input"><?php echo $translator->{'Search'}; ?></label>
 	<input type="text" style="width:300px;" name="search_user_input" id="search_user_input" />
