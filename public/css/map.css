@@ -216,7 +216,7 @@
 	filter: alpha(opacity=95);
 	opacity: 0.95;
 	padding: 5px;
-	width:240px;
+	width:210px;
 	position:absolute;
 	z-index:1000;
 	display:none;
@@ -226,7 +226,7 @@
 .marker_tooltip_flipped {
 }
 .marker_tooltip .info {
-	width:240px;
+	width:210px;
 	word-wrap:break-word;
 }
 .marker_tooltip h3 {
@@ -243,10 +243,9 @@
 }
 .marker_tooltip p {
 	margin:4px 0 4px 0;
-	max-width:230px;
 }
 
-.marker_tooltip p strong{font-size:11px;}
+.marker_tooltip p strong{font-size:12px;}
 .contextmenu {
 	padding:0;
 	margin:0;
