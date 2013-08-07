@@ -204,8 +204,8 @@ maptool.placeMarkers = function() {
 			if (maptool.map.positions[i].status == 1) {
 				tooltip += '<p><strong>' + lang.reservedUntil + ':</strong> ' + maptool.map.positions[i].expires + '</p>';
 			}
-			tooltip = tooltip + '<p class="info"> <strong>' + lang.commodity_label + ':</strong> ';
-			tooltip += maptool.map.positions[i].exhibitor.commodity + '</p>';
+			tooltip += '<strong>' + lang.commodity_label + ':</strong> <span class="info">';
+			tooltip += maptool.map.positions[i].exhibitor.commodity + '</span>';
 		} else {
 			var info =  maptool.map.positions[i].information;
 			
@@ -215,8 +215,12 @@ maptool.placeMarkers = function() {
 
 			if (maptool.map.userlevel > 0) {
 				tooltip += '<p><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
-			}
+			} 
 			freeSpots++;
+		}
+
+		if(maptool.map.userlevel == 0){
+			tooltip += '<p><strong>' + lang.clickToViewMoreInfo + '</strong></p>';
 		}
 		tooltip += '</div>';
 
@@ -295,8 +299,7 @@ maptool.placeMarkers = function() {
 			var infoText = tooltip.children('.info');
 			var textHeight = tooltip.children('.info').height();
 			if(textHeight > 41){
-				
-				infoText.text(infoText.text().substr(0, 70) + '...');
+				infoText.html(infoText.html().replace('...', '').substr(0, 70) + '...');
 			}
 		}
 	}, function() {
@@ -409,7 +412,7 @@ maptool.showContextMenu = function(position, marker) {
 	}
 
 	if ($("li", contextMenu).length > 0) {
-		$("#mapHolder").prepend(contextMenu);
+		
 
 		contextMenu.css({
 			left: $("#pos-" + position).offset().left + config.iconOffset,
@@ -420,39 +423,44 @@ maptool.showContextMenu = function(position, marker) {
 		//$(".contextmenu li").off("click");
 		
 		//click handlers for context menu
-		$(".contextmenu li").click(function(e) {
-			var positionId = $(this).parent().attr("id").replace("cm-", "");
-			if (e.target.id == 'cm_delete') {
-				maptool.deletePosition(positionId);
-			} else if (e.target.id == 'cm_book') {
-				maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-				maptool.bookPosition(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_reserve') {
-				maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-				maptool.reservePosition(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_edit') {
-				maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-				maptool.editPosition(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_move') {
-				maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-				maptool.movePosition(e, maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_more') {
+		if(maptool.map.userlevel > 0){
+			$("#mapHolder").prepend(contextMenu);
+			$(".contextmenu li").click(function(e) {
+				var positionId = $(this).parent().attr("id").replace("cm-", "");
+				if (e.target.id == 'cm_delete') {
+					maptool.deletePosition(positionId);
+				} else if (e.target.id == 'cm_book') {
+					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+					maptool.bookPosition(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_reserve') {
+					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+					maptool.reservePosition(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_edit') {
+					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+					maptool.editPosition(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_move') {
+					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+					maptool.movePosition(e, maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_more') {
+					maptool.positionInfo(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_apply') {
+					maptool.markForApplication(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_cancel') {
+					maptool.cancelApplication(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_paste') {
+					maptool.pasteExhibitor(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_edit_booking') {
+					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+					maptool.editBooking(maptool.map.positions[objIndex]);
+				} else if (e.target.id == 'cm_cancel_booking') {
+					maptool.cancelBooking(maptool.map.positions[objIndex]);
+				} else if(e.target.id == 'cm_note') {
+					maptool.makeNote(maptool.map.positions[objIndex]);
+				}
+			}); 		
+			} else {
 				maptool.positionInfo(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_apply') {
-				maptool.markForApplication(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_cancel') {
-				maptool.cancelApplication(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_paste') {
-				maptool.pasteExhibitor(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_edit_booking') {
-				maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-				maptool.editBooking(maptool.map.positions[objIndex]);
-			} else if (e.target.id == 'cm_cancel_booking') {
-				maptool.cancelBooking(maptool.map.positions[objIndex]);
-			} else if(e.target.id == 'cm_note') {
-				maptool.makeNote(maptool.map.positions[objIndex]);
 			}
-		});
 	}
 
 	var map = $('#mapHolder');
