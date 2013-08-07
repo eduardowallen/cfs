@@ -209,8 +209,7 @@ maptool.placeMarkers = function() {
 		} else {
 			var info =  maptool.map.positions[i].information;
 			info = info.substr(0, 100);
-
-			tooltip+= '<p style="width:210px; overflow-y:hidden; line-height:14px; word-wrap:break-word;" class="info">';
+			tooltip+= '<p style="width:210px; overflow-y:hidden; line-height:14px; word-wrap:break-word;">';
 			tooltip+=info;
 			tooltip+='</p>';
 
