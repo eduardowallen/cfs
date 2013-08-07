@@ -40,7 +40,7 @@ function makeUserOptions3($sel=0, $fair) {
 ?>
 
 <?php 
-	$visible = 'true';
+	$visible = null;
 
 	$f = new Fair;
 	if (userLevel() > 0) {
@@ -48,35 +48,36 @@ function makeUserOptions3($sel=0, $fair) {
 	} else {
 		$f->load($_SESSION['outside_fair_url'], 'url');
 	}
-	if (userLevel() == 1 && !userIsConnectedTo($f->get('id'))):
-		if($fair->get('hidden') == 1) :
-			$visible = 'false';
-		endif;
-	elseif(userLevel() == 0):
-		if($fair->get('hidden') == 1) :
-			$visible = 'false';
-		endif;
+	
+	// Hämta ut fältet hidden för att se om mässan är dold eller ej.
+	if($f->get('hidden') == 0) :
+		$visible = 'true';
+	else:
+		$visible = 'false';
 	endif;
-	?>
-	<script>
-		$().ready(function(){
-			
-		});
+		
 
-		function connectToFair(id){
-			$.ajax({
+	// Om mässan är synlig
+	if($visible == 'true' || ($visible == 'false' && userLevel() > 1)) :
+		// Om användaren har nivå 1 men ej är ansluten till mässan
+		if (userLevel() == 1 && !userIsConnectedTo($f->get('id'))):
+			// Ajax-kod för att ansluta en användare till mässan ?>
+			$().ready(function(){
+				$.ajax({
 				url: 'ajax/maptool.php',
 				type: 'POST',
 				data: 'connectToFair=1&fairId=' + id,
-					success: function(response) {
-						res = JSON.parse(response);
-						alert(res.message);
-						window.location = '<?php echo $fair->get('url')?>';
-					}
-				});
-			}
+
+				success: function(response) {
+					res = JSON.parse(response);
+					alert(res.message);
+					window.location = '<?php echo $fair->get('url')?>';
+				}
+			});
+		});
+		<?php endif;?>
 	</script>
-	<?php if($visible == 'true') : ?>
+
 
 	<div id="pancontrols">
 			<img src="images/icons/pan_left.png" id="panleft" alt=""/>

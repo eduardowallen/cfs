@@ -345,6 +345,29 @@ var closeButton = $('.closeDialogue');
 		
 		$('body').prepend(html);
 
+	  	tinyMCE.init({
+	        //General options
+	        mode : "textareas",
+	        theme : "advanced",
+	        plugins : "style,table,advimage,advlink,inlinepopups,insertdatetime,preview,paste,fullscreen,noneditable,visualchars,xhtmlxtras",
+
+	        // Theme option
+	        theme_advanced_toolbar_location : "top",
+	        theme_advanced_toolbar_align : "left",
+	        theme_advanced_statusbar_location : "bottom",
+	        theme_advanced_resizing : false,
+	        paste_text_sticky: true,
+			paste_text_sticky_default: true,
+
+	        /*content_css : "../css/tiny.css",*/
+
+	        //Drop lists for link/image/media/template dialogs
+	        template_external_list_url : "js/template_list.js",
+	        external_link_list_url : "js/link_list.js",
+	        external_image_list_url : "js/image_list.js",
+	        media_external_list_url : "js/media_list.js",
+		});
+
 		hookUpPasswdMeter();
 		prepFormChecker();
 		
