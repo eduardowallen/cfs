@@ -19,6 +19,7 @@
 <script type="text/javascript" src="js/chartbooker.js"></script>
 <script type="text/javascript" src="js/mobilecheck.js"></script>
 <script type="text/javascript" src="js/maptool.js"></script>
+<script language="javascript" type="text/javascript" src="js/tiny_mce/tiny_mce.js"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('.std_table').tablesorter();
@@ -62,7 +63,6 @@
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">
-	
 	function confirmBox(evt, message, url) {
 		evt.preventDefault();
 		$('#overlay').show();
@@ -132,27 +132,25 @@
 			<?php
 				$bookCount = '';
 				$fairCount = '';
-	
+
 				if (userLevel() == 1) {
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
 					$stmt->execute(array($_SESSION['user_id']));
 					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 					$opts = '';
+
 					foreach ($result as $res) {
 						$opts.= '<li><a href="page/loggedin/setFair/'.$res['fair'].'">'.$res['name'].'</a></li>';
 					}
 	
 					if (userLevel() == 2) {
-	
 						$db = new Database;
 						$stmt = $db->prepare("SELECT COUNT(*) AS bookings FROM preliminary_booking WHERE fair = ?");
 						$stmt->execute(array($_SESSION['user_fair']));
 						$result = $stmt->fetch(PDO::FETCH_ASSOC);
 						$bookCount = ($result['bookings'] > 0) ? '('.$result['bookings'].')' : '';
-	
 					}
-				
 				} else if (userLevel() == 2) {
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
@@ -163,7 +161,6 @@
 						$opts.= '<li><a href="page/loggedin/setFair/'.$res['fair'].'">'.$res['name'].'</a></li>';
 					}
 				} else if (userLevel() == 3) {
-	
 					$db = new Database;
 					$stmt = $db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
 					$stmt->execute(array($_SESSION['user_id']));

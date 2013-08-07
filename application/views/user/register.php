@@ -250,6 +250,7 @@
 	<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
 
 	<label for="presentation"><?php echo $presentation_label; ?></label>
+	<?php tiny_mce() ?>
 	<textarea name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
 	</div>
 
