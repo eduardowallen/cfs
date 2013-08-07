@@ -208,8 +208,9 @@ maptool.placeMarkers = function() {
 			tooltip += maptool.map.positions[i].exhibitor.commodity + '</span>';
 		} else {
 			var info =  maptool.map.positions[i].information;
-			
-			tooltip+= '<p style="max-height:42px; overflow-y:hidden; line-height:14px; word-wrap:break-word;" class="info">';
+			info = info.substr(0, 100);
+
+			tooltip+= '<p style="width:210px; overflow-y:hidden; line-height:14px; word-wrap:break-word;" class="info">';
 			tooltip+=info;
 			tooltip+='</p>';
 
