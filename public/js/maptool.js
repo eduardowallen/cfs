@@ -1599,7 +1599,12 @@ maptool.positionInfo = function(positionObject) {
 		$('#more_info_dialogue h4').text(lang.presentation + ":");
 		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
 		$("#more_info_dialogue p.presentation").empty();
-		$("#more_info_dialogue p.presentation").append(positionObject.exhibitor.presentation);
+		if(positionObject.exhibitor.presentation.length < 1){
+			$("#more_info_dialogue p.presentation").append(lang.noPresentationText);
+		}else{
+			$("#more_info_dialogue p.presentation").append(positionObject.exhibitor.presentation);
+		}
+		
 		if (positionObject.exhibitor.website != '') {
 			var website = positionObject.exhibitor.website;
 			if (website.indexOf("http://") == -1) {
@@ -1610,7 +1615,12 @@ maptool.positionInfo = function(positionObject) {
 			$("#more_info_dialogue p.website_link").html('');
 		
 	} else {
-		$("#more_info_dialogue p.presentation").html(positionObject.information.replace(/\n/g, '<br/>')); //replace(/ /g, '&nbsp;')
+		if(positionObject.information.length > 1){
+			$('#more_info_dialogue p.presentation').css('display', 'none');
+		} else {
+			$('#more_info_dialogue p.presentation').css('display', 'block');
+			$("#more_info_dialogue p.presentation").html(positionObject.information.replace(/\n/g, '<br/>')); //replace(/ /g, '&nbsp;')
+		}
 	}
 
 	if (positionObject.exhibitor) {
