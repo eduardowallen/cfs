@@ -1571,7 +1571,11 @@ maptool.deletePosition = function(id) {
 
 //View more information about a certain position
 maptool.positionInfo = function(positionObject) {
-	
+	$("#more_info_dialogue h3").text("");
+	$('#more_info_dialogue h4').text("");
+	$("#more_info_dialogue p.presentation").html("");
+	$("#more_info_dialogue p.website_link").html("");
+
 	if (positionObject.exhibitor)
 		$("#more_info_dialogue h3").text(positionObject.name + ': ' + positionObject.exhibitor.company);
 	else
@@ -1599,7 +1603,9 @@ maptool.positionInfo = function(positionObject) {
 		$('#more_info_dialogue h4').text(lang.presentation + ":");
 		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
 		$("#more_info_dialogue p.presentation").empty();
+		$('#more_info_dialogue p.presentation').css('display', 'block');
 		if(positionObject.exhibitor.presentation.length < 1){
+			
 			$("#more_info_dialogue p.presentation").append(lang.noPresentationText);
 		}else{
 			$("#more_info_dialogue p.presentation").append(positionObject.exhibitor.presentation);
