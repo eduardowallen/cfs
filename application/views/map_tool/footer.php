@@ -8,7 +8,13 @@
 						}
 					?>
 
-					<?php if($f->get('hidden') == 0) : ?>
+					<?php if($f->get('hidden') == 1) : ?>
+						<script type="text/javascript">
+							$().ready(function(){
+								alert("<?php echo $translator->{'This fair is hidden'}?>");
+							});
+						</script>
+					<?php else if($f->get('hidden') == 0) : ?>
 						<div id="right_sidebar">
 								<div>
 									<h2><?php echo $translator->{'Maps'}?></h2>
