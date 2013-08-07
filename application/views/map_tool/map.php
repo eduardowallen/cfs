@@ -56,13 +56,14 @@ function makeUserOptions3($sel=0, $fair) {
 		$visible = 'false';
 	endif;
 		
-	if($visible == 'false' && userLevel() < 0) : ?>
+	if($visible == 'false' && !(userLevel() > 1)) : ?>
 		<script type="text/javascript">
 			$().ready(function(){
 				alert("<?php echo $translator->{'This fair is hidden'}?>");
 			});
 		</script>
 	<?php endif;
+
 	// Om mässan är synlig
 	if($visible == 'true' || ($visible == 'false' && userLevel() > 1)) :
 		// Om användaren har nivå 1 men ej är ansluten till mässan
