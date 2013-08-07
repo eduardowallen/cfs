@@ -204,7 +204,8 @@ maptool.placeMarkers = function() {
 			if (maptool.map.positions[i].status == 1) {
 				tooltip += '<p><strong>' + lang.reservedUntil + ':</strong> ' + maptool.map.positions[i].expires + '</p>';
 			}
-			tooltip += '<p class="info"><strong>' + lang.commodity_label + ':</strong> ' + maptool.map.positions[i].exhibitor.commodity + '</p>';
+			tooltip = tooltip + '<p class="info"> <strong>' + lang.commodity_label + ':</strong>';
+			tooltip += maptool.map.positions[i].exhibitor.commodity + '</p>';
 		} else {
 			var info =  maptool.map.positions[i].information;
 			
@@ -698,7 +699,7 @@ maptool.bookPosition = function(positionObject) {
 
 	$('#book_position_dialogue h3 .standSpaceName').text(positionObject.name);
 
-	$('.ssinfo').html('<strong>'+lang.area + ': ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	$('.ssinfo').html('<strong>'+lang.area +  ' </strong>: ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
 	$('#book_user_input').unbind('change');
 	$('#book_user_input').change(function() {
