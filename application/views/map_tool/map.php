@@ -67,27 +67,22 @@ function makeUserOptions3($sel=0, $fair) {
 	// Om mässan är synlig
 	if($visible == 'true' || ($visible == 'false' && userLevel() > 1)) :
 		// Om användaren har nivå 1 men ej är ansluten till mässan
-		if (userLevel() == 1 || !userIsConnectedTo($f->get('id'))):
+		if (userLevel() == 1 && !userIsConnectedTo($f->get('id'))):
 			// Ajax-kod för att ansluta en användare till mässan ?>
 			<script type="text/javascript">
 				$().ready(function(){
 					$.ajax({
 					url: 'ajax/maptool.php',
 					type: 'POST',
-					data: 'connectToFair=1&fairId=' + id,
-
+					data: 'connectToFair=1&fairId=' + <?php echo $f->get('id')?>,
 					success: function(response) {
 						res = JSON.parse(response);
-						alert(res.message);
 						window.location = '<?php echo $fair->get('url')?>';
 					}
 				});
 			});
 			</script>
 		<?php endif;?>
-	
-
-
 	<div id="pancontrols">
 			<img src="images/icons/pan_left.png" id="panleft" alt=""/>
 			<img src="images/icons/pan_up.png" id="panup" alt=""/>
@@ -265,7 +260,7 @@ function makeUserOptions3($sel=0, $fair) {
 	*/?>
 	
 	<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<input type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"/>
+	<textarea rows="3" style="height:45px;"type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"></textarea>
 
 	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="book_message_input" id="book_message_input"></textarea>
