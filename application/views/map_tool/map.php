@@ -146,6 +146,7 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.category = '<?php echo $translator->{"Categories"} ?>';
 	lang.noPlaceRights = '<?php echo $translator->{"You do not have administrative rights on this map"} ?>';
 	lang.clickToViewMoreInfo = '<?php echo $translator->{"Click to view more information"} ?>';
+	lang.noPresentationText = '<?php echo $translator->{"The company has not specified any information."}?>';
 	lang.StatusText = function(str) {
 		if (str == 'open')
 			return '<?php echo $translator->{"open"} ?>';
