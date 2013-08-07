@@ -56,7 +56,7 @@ function makeUserOptions3($sel=0, $fair) {
 		$visible = 'false';
 	endif;
 		
-	if($visible = 'false' && userLevel() < 0) : ?>
+	if($visible == 'false' && userLevel() < 0) : ?>
 		<script type="text/javascript">
 			$().ready(function(){
 				alert("<?php echo $translator->{'This fair is hidden'}?>");
