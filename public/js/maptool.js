@@ -1615,7 +1615,7 @@ maptool.positionInfo = function(positionObject) {
 			$("#more_info_dialogue p.website_link").html('');
 		
 	} else {
-		if(positionObject.information.length > 1){
+		if(positionObject.information.length < 1){
 			$('#more_info_dialogue p.presentation').css('display', 'none');
 		} else {
 			$('#more_info_dialogue p.presentation').css('display', 'block');
