@@ -62,21 +62,23 @@ function makeUserOptions3($sel=0, $fair) {
 		// Om användaren har nivå 1 men ej är ansluten till mässan
 		if (userLevel() == 1 && !userIsConnectedTo($f->get('id'))):
 			// Ajax-kod för att ansluta en användare till mässan ?>
-			$().ready(function(){
-				$.ajax({
-				url: 'ajax/maptool.php',
-				type: 'POST',
-				data: 'connectToFair=1&fairId=' + id,
+			<script type="text/javascript">
+				$().ready(function(){
+					$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: 'connectToFair=1&fairId=' + id,
 
-				success: function(response) {
-					res = JSON.parse(response);
-					alert(res.message);
-					window.location = '<?php echo $fair->get('url')?>';
-				}
+					success: function(response) {
+						res = JSON.parse(response);
+						alert(res.message);
+						window.location = '<?php echo $fair->get('url')?>';
+					}
+				});
 			});
-		});
+			</script>
 		<?php endif;?>
-	</script>
+	
 
 
 	<div id="pancontrols">
