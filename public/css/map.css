@@ -39,6 +39,7 @@
 		color-stop(0.50, #FFFFFF)
 	);
 }
+
 #right_sidebar div.pre_list {
 	margin-bottom:0px;
 	border:none;
@@ -215,7 +216,7 @@
 	filter: alpha(opacity=95);
 	opacity: 0.95;
 	padding: 5px;
-	width:210px;
+	width:240px;
 	position:absolute;
 	z-index:1000;
 	display:none;
@@ -225,7 +226,7 @@
 .marker_tooltip_flipped {
 }
 .marker_tooltip .info {
-	width:210px;
+	width:240px;
 	word-wrap:break-word;
 }
 .marker_tooltip h3 {
@@ -242,10 +243,10 @@
 }
 .marker_tooltip p {
 	margin:4px 0 4px 0;
-	
+	max-width:230px;
 }
 
-.marker_tooltip p strong{font-size:10px;}
+.marker_tooltip p strong{font-size:11px;}
 .contextmenu {
 	padding:0;
 	margin:0;
@@ -291,9 +292,12 @@
 	opacity: 0.5;
 }
 .ssinfo {
-	padding:8px 0 0 0;
-	width:100%;
+	padding:0px 0 0 0;
+	width:400px;
+	word-wrap:break-word;
 	text-align:left;
+	float:left;
+	margin-bottom:10px;
 }
 .ssinfo {
 	
@@ -312,7 +316,7 @@
 	z-index:10000;
 	width:400px;
 	/*height:420px;*/
-	top:50%;
+	top:30%;
 	left:50%;
 	margin-left:-222px;
 	margin-top:-200px;
