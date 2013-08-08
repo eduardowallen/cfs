@@ -46,7 +46,6 @@ class AdministratorController extends Controller {
 		$res = $stmt->fetchAll();
 		$users = array();
 		if ($res > 0) {
-
 			foreach ($res as $result) {
 				if (userLevel() == 4 || in_array($result['fair'], $myFairs)) {
 					$u = new User;
@@ -383,7 +382,7 @@ class AdministratorController extends Controller {
       $mail->send();
 			
 			$pb->delete();
-			header("Location: ".BASE_URL."administrator/newReservations");
+			header();
 			exit;
 		} else if ($action == 'approve') {
 
@@ -526,6 +525,7 @@ class AdministratorController extends Controller {
 		$this->set('tr_deny', 'Deny');
 		$this->set('tr_reserve', 'Reserve stand space');
 		$this->set('confirm_delete', 'Are you sure?');
+		$this->set('deletion_comment', '');
 		$this->set('export', 'Export to Excel');
 		$this->set('col_export_err', 'Select at least one column in order to export!');
 		$this->set('row_export_err', 'Select at least one row in order to export!');
@@ -803,6 +803,12 @@ WHERE user.owner = ? AND user.level = ?");
 	public function deleteBooking($id = 0, $posId = 0) {
 		setAuthLevel(2);
 
+		$comment = $_POST['comment'];
+		
+		if(empty($comment)):
+			$comment = " ";
+		endif;
+		
 		$exhib = new Exhibitor;
 		$exhib->load($id, 'id');
 
@@ -814,11 +820,17 @@ WHERE user.owner = ? AND user.level = ?");
 
 		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
 		$stmt->execute(array($posId));
-
+		
+		$userId = $u->get('id');
+		$fairId = $_SESSION['user_fair'];
+		
+		$stmt = $this->db->prepare("INSERT INTO exhibitor_canceled(exhibitorId, fairId, comment) VALUES(?, ?, ?)");
+		$stmt->execute(array($userId, $fairId, $comment));
+	
     $mail = new Mail($u->get('email'), 'booking_cancelled');
     $mail->send();
-
-		header('Location: '.BASE_URL.'administrator/newReservations');
+		
+		//header('Location: '.BASE_URL.'administrator/newReservations');
 	}
 
 	public function approveReservation($posId = 0) {

@@ -85,14 +85,26 @@ h3 {
 }
 label {
 	display:block;
-	width:200px;
+	width:300px;
 	padding:8px 0 0 0;
-	font-size:.9em;
-	font-weight:bold;
+	font-size:12px;
+	font-weight:700;
 }
 label.inline-block {
 	width:auto;
 }
+
+.form_column input[type=text], .form_column input[type=password], .form_colum textarea {
+	border:1px solid #666666;
+	-moz-border-radius:4px;
+	-webkit-border-radius:4px;
+	border-radius:4px;
+	padding:5px 3px 5px 3px;
+	width:250px;
+	font-family:Arial, Helvetica, Sans-serif;
+	font-size:12px;
+}
+
 input[type=text], input[type=password], textarea {
 	border:1px solid #666666;
 	-moz-border-radius:4px;
@@ -103,6 +115,7 @@ input[type=text], input[type=password], textarea {
 	font-family:Arial, Helvetica, Sans-serif;
 	font-size:12px;
 }
+
 input[type=button], input[type=submit], .td_button {
 	border:1px solid #666666;
 	-moz-border-radius:4px;
@@ -318,7 +331,7 @@ p.pricetag input{margin:0; padding:0; margin-top:2px; height:23px; width:120px;}
 
 .form_column {
 	display:inline-block;
-	width:280px;
+	width:300px;
 	vertical-align:top;
 }
 .inline-block {

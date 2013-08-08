@@ -147,7 +147,7 @@ function logToDB($db, $action, $data) {
 	$stmt->execute(array($_SESSION['user_id'], $action, time(), $data));
 }
 
-function tiny_mce($path='js/tiny_mce/tiny_mce.js') {
+function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=nulll) {
 	
 	if (userLevel() < 2) {
 		$toolbar = 'theme_advanced_buttons1 : "undo,redo,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste",
@@ -166,7 +166,15 @@ function tiny_mce($path='js/tiny_mce/tiny_mce.js') {
 
 	  tinyMCE.init({
 	        //General options
-	        mode : "textareas",
+		';
+		if(!$box == null) :
+			echo 'mode : "specific_textareas",';
+			echo 'editor_selector : "'.$box.'",';
+		else :
+			echo 'mode : "textareas",';
+		endif;
+		
+	        echo '
 	        theme : "advanced",
 	        plugins : "style,table,advimage,advlink,inlinepopups,insertdatetime,preview,paste,fullscreen,noneditable,visualchars,xhtmlxtras",
 
@@ -185,7 +193,16 @@ function tiny_mce($path='js/tiny_mce/tiny_mce.js') {
 	        template_external_list_url : "js/template_list.js",
 	        external_link_list_url : "js/link_list.js",
 	        external_image_list_url : "js/image_list.js",
-	        media_external_list_url : "js/media_list.js",
+	        media_external_list_url : "js/media_list.js",';
+		if(!empty($width)) :
+
+		echo '	
+   			theme_advanced_resizing_use_cookie : false,
+			width : '.$width.',';
+
+		endif;
+
+		echo'
 		});
 		function toggle(folderID) {
 			var folder = document.getElementById(folderID);
