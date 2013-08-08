@@ -11,7 +11,7 @@
 	margin-top:-200px;
 	padding:20px;
 	background:#ffffff;
-	border:4px solid #333333;
+	border:4px solid #33333
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
 	border-radius:8px;
@@ -304,7 +304,7 @@
 					<td class="center">
 						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')">
 		
-							<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
+							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
 						</a>
 					</td>
 					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked></input></td>
@@ -374,7 +374,7 @@
 				
 				<td class="center">
 					<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_delete; ?>">
-						<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
+						<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 					</a>
 				</td>
 				<td class="center">
@@ -453,7 +453,7 @@
 					</td>
 					<td class="center">
 						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_deny; ?>">
-							<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
+							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
 						</a>
 					</td>
 				
