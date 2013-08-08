@@ -37,6 +37,7 @@
 		cursor:pointer;
 	}
 
+	button{position:relative; top:-5px;}
 	#content{max-width:1280px;}
 	
 </style>
@@ -45,6 +46,12 @@
 <h1><?php echo $fair->get('name'); ?></h1> 
 <script type="text/javascript">
 	var confirmDialogue = "<?php echo $confirm_delete?>";
+
+	function denyPrepPosition(link){
+		var message = prompt("<?php echo $deletion_comment?>", "");
+		denyPosition(link, message);
+	}
+
 	function hider(btn,elem){
 		var element = $('#'+elem);
 		var helement = $('#h'+elem);
@@ -173,7 +180,7 @@
 		var tbl1width = $('#booked').width();
 		var tbl2width = $('#reserved').width();
 		var tbl3width = $('#prem').width();
-		
+
 		$('.tbl1').css('width', tbl1width);
 		$('.tbl2').css('width', tbl2width);
 		$('.tbl3').css('width', tbl3width);
@@ -246,10 +253,11 @@
 
 
 <h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
-<div class="tbld tbl1" style="margin-top:50px;">
+<div class="tbld tbl1">
 <?php if(count($positions) > 0){ ?>
-	<a onclick="prepareTable('booked')"><button style="float:right; margin-right:15px;"><?php echo $export?></button></a>
+	
 	<div class="tblHeader" id="hbooked">
+		<a onclick="prepareTable('booked')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked></input></li>
 			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked></input></li>
@@ -294,7 +302,7 @@
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')">
+						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')">
 		
 							<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
 						</a>
@@ -316,8 +324,8 @@
 
 <div class="tbld tbl2">
 	<?php if(count($rpositions) > 0){?>
-	<a onclick="prepareTable('reserved')"><button style="float:right; margin-right:15px;"><?php echo $export?></button></a>
 	<div class="tblHeader" id="hreserved">
+		<a onclick="prepareTable('reserved')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked></input></li>
 			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked></input></li>
@@ -365,7 +373,7 @@
 				</td>
 				
 				<td class="center">
-					<a style="cursor:pointer;" onclick="denyPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_delete; ?>">
+					<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_delete; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 					</a>
 				</td>
@@ -393,8 +401,8 @@
 	
 <div class="tbld tbl3">
 <?php if(count($prelpos) > 0){ ?>
-	<a onclick="prepareTable('prem')"><button style="float:right; margin-right:15px;"><?php echo $export?></button></a>
 	<div class="tblHeader" id="hprem">
+		<a onclick="prepareTable('prem')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked></input></li>
 			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked></input></li>
@@ -444,7 +452,7 @@
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_deny; ?>">
+						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_deny; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
 						</a>
 					</td>

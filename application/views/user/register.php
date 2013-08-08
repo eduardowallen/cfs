@@ -200,7 +200,7 @@
 	<p class="error"><?php echo $error; ?></p>
 	
 	<div class="form_column">
-	<!--<h3><?php echo $company_section; ?></h3>-->
+	<h3 style="margin-top:7px;"><?php echo $company_section; ?></h3>
 
 	<label for="orgnr"><?php echo $orgnr_label; ?> *</label>
 	<input type="text" name="orgnr" id="orgnr" value="<?php echo $user->get('orgnr'); ?>"/>
@@ -209,7 +209,7 @@
 	<input type="text" name="company" id="company" value="<?php echo $user->get('company'); ?>"/>
 
 	<label for="commodity"><?php echo $commodity_label; ?> *</label>
-	<input type="text" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"/>
+	<textarea rows="3" style="width:250px; height:40px; resize:none;" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"></textarea>
 
 	<!--<label for="category"><?php echo $category_label; ?> *</label>
 	<select name="category" id="category">
@@ -226,7 +226,7 @@
 	<input type="text" name="city" id="city" value="<?php echo $user->get('city'); ?>"/>
 	
 	<label for="country"><?php echo $country_label; ?> *</label>
-	<select name="country" id="country">
+	<select name="country" id="country" style="width:258px;">
 	<?php foreach($country_list as $country) : ?>
 		<option value="<?php echo $country?>"><?php echo $country?></option>
 	<?php endforeach; ?>
@@ -237,9 +237,6 @@
 	<label for="phone2"><?php echo $phone2_label; ?></label>
 	<input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
 
-	<label for="phone3"><?php echo $phone3_label; ?></label>
-	<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('phone3'); ?>"/>
-
 	<label for="fax"><?php echo $fax_label; ?></label>
 	<input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
 
@@ -249,12 +246,14 @@
 	<label for="website"><?php echo $website_label; ?></label>
 	<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
 
-	<label for="presentation"><?php echo $presentation_label; ?></label>
-	<?php tiny_mce() ?>
-	<textarea name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
+		<div style="">
+			<label for="presentation"><?php echo $presentation_label; ?></label>
+			<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 570, 'presentation') ?>
+			<textarea name="presentation" class="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
+		</div>
 	</div>
 
-	<div class="form_column">
+	<div class="form_column" style="margin-top:12px;">
 
 	<h3><?php echo $invoice_section; ?></h3>
 	
@@ -274,24 +273,31 @@
 
 	<label for="invoice_email"><?php echo $invoice_email_label; ?> *</label>
 	<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
+	<div style="padding-top:7px;">
+	<h3 style="margin-top:20px;"><?php echo $contact_section; ?></h3>
 
-	<!--<h3><?php echo $contact_section; ?></h3>-->
-
+	
 	<label for="username"><?php echo $alias_label; ?> *</label>
 	<input type="text" name="username" id="username" value="<?php echo $user->get('alias'); ?>"  />
 
 	<label for="name"><?php echo $contact_label; ?> *</label>
 	<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
+	<label for="phone3"><?php echo $phone3_label; ?></label>
+	<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('phone3'); ?>"/>
+
+	<label for="phone4"><?php echo $phone4_label; ?></label>
+	<input type="text" name="phone4" id="phone4" value="<?php echo $user->get('phone4'); ?>"/>
+
 	<label for="password"><?php echo $password_label; ?> *</label>
 	<input type="password" name="password" id="password" class="hasIndicator"/>
 
 	<label for="password_repeat"><?php echo $password_repeat_label; ?> *</label>
 	<input type="password" name="password_repeat" id="password_repeat"/>
-
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	</div>
+	<p style="position:relative; bottom:90px; left:300px; width:235px; background:#efefef; border:1px solid #b1b1b1; padding:10px; "><?php echo $pass_standard ?></p>
 	</div>
 	
-	<p style="display:inline-block; width:160px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;"><?php echo $pass_standard ?></p>
-
+	
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 </form>

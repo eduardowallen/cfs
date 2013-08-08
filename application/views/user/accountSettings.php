@@ -82,8 +82,8 @@
 	
 	
 	<label for="presentation"><?php echo $presentation_label; ?></label>
-	<?php tiny_mce() ?>
-	<textarea style="width:420px; height:490px" name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
+	<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 300, 'presentation')?> 
+	<textarea style="width:400px; height:400px" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
 	<?php endif; ?>
 	</div>
 	
