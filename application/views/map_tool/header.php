@@ -46,6 +46,7 @@
 	lang.phone1_label = '<?php echo $translator->{"Phone 1"} ?>';
 	lang.phone2_label = '<?php echo $translator->{"Phone 2"} ?>';
 	lang.phone3_label = '<?php echo $translator->{"Phone 3"} ?>';
+	lang.phone4_label = '<?php echo $translator->{"Phone 4"} ?>';
 	lang.fax_label = '<?php echo $translator->{"Fax number"} ?>';
 	lang.website_label = '<?php echo $translator->{"Website"} ?>';
 	lang.email_label = '<?php echo $translator->{"E-mail"} ?>';

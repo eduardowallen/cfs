@@ -317,12 +317,13 @@ img#logo {
 	width: 200px;
 	position: absolute;
 	left: 50%;
-	margin-left: -100px;
-	margin-top: 20px;
+	margin-left: -105px;
+	margin-top: 30px;
 }
 #popupform p {
 	text-align:center;
 }
+
 #popupform_register {
 	position:absolute;
 	z-index:99999;
@@ -339,3 +340,5 @@ img#logo {
 	border-radius:8px;
 	padding:20px 0 0 40px;
 }
+
+

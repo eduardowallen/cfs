@@ -62,7 +62,6 @@
 						<td><?php echo $th_total ?>: <?php echo $fair->get('total'); ?></td>
 						<td><?php echo $th_auto_publish ?>: <?php echo date('d-m-Y H:i:s', $fair->get('auto_publish')); ?></td>
 						<td><?php echo $th_auto_close ?>: <?php echo date('d-m-Y H:i:s', $fair->get('auto_close')); ?></td>
-						
 					</tr>
 					<?php if (userLevel() > 3): ?>
 					<tr>

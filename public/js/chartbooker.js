@@ -276,7 +276,7 @@ var closeButton = $('.closeDialogue');
 				 +				'<label for="city">' + lang.city_label + ' *</label>'
 				 +				'<input type="text" name="city" id="city"/>'
 				 +				'<label for="country">' + lang.country_label + ' *</label>'
-				+				'<select name="country" id="country">';
+				+				'<select name="country" id="country" style="width:258px;">';
 				for(var i = 0; i<states.length; i++){
 				 html = html + '<option value="'+states[i]+'">'+states[i]+'</option>';
 				 
@@ -300,7 +300,7 @@ var closeButton = $('.closeDialogue');
 				 +				'<input type="text" name="website" id="website"/>'
 							
 				 +				'<label for="presentation">' + lang.presentation_label + '</label>'
-				 +				'<textarea name="presentation" id="presentation"></textarea>'
+				 +				'<textarea name="presentation" id="presentation" class="presentation"></textarea>'
 				 +				'</div>'
 							
 				 +				'<div class="form_column">'
@@ -338,16 +338,19 @@ var closeButton = $('.closeDialogue');
 				 +				'<label for="password_repeat">' + lang.password_repeat_label + ' *</label>'
 				 +				'<input type="password" name="password_repeat" id="password_repeat"/>'
 		
-				 +				'<p><input type="submit" name="save" value="' + lang.save_label + '"/></p>'
+				
+				 +			'<p style="display:inline-block; width:236px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">'  + lang.password_standard + '</p>'
 				 +			'</div>'
-				 +			'<p style="display:inline-block; width:160px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">' + lang.password_standard + '</p>'
+				 +				'<p><input type="submit" name="save" value="' + lang.save_label + '"/></p>'
+				
 				 + 	'</form>';
 		
 		$('body').prepend(html);
 
 	  	tinyMCE.init({
 	        //General options
-	        mode : "textareas",
+	        mode : "specific_textareas",
+		editor_selector : "presentation",
 	        theme : "advanced",
 	        plugins : "style,table,advimage,advlink,inlinepopups,insertdatetime,preview,paste,fullscreen,noneditable,visualchars,xhtmlxtras",
 
@@ -366,6 +369,7 @@ var closeButton = $('.closeDialogue');
 	        external_link_list_url : "js/link_list.js",
 	        external_image_list_url : "js/image_list.js",
 	        media_external_list_url : "js/media_list.js",
+		width : 565,
 		});
 
 		hookUpPasswdMeter();

@@ -19,7 +19,7 @@
 	<input type="text" name="company" id="company" value="<?php echo $user->get('company'); ?>"/>
 	
 	<label for="commodity"><?php echo $commodity_label; ?> *</label>
-	<input type="text" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"/>
+	<textarea rows="3" style="width:250px; height:40px; resize:none;" name="commodity" id="commodity" value="<?php echo $user->get('commodity'); ?>"></textarea>
 	
 	<!--<label for="category"><?php echo $category_label; ?> *</label>
 	<select name="category" id="category">
@@ -62,10 +62,12 @@
 	<label for="email"><?php echo $email_label; ?> *</label>
 	<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
 	
+	
 	<label for="presentation"><?php echo $presentation_label; ?></label>
-	<textarea name="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
+	<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 300, 'presentation')?> 
+	<textarea name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
 	</div>
-	<div class="form_column">
+	<div class="form_column" style="margin-top:19px;">
 	<h3><?php echo $invoice_section; ?></h3>
 	
 	<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
@@ -85,6 +87,7 @@
 	<label for="invoice_email"><?php echo $invoice_email_label; ?></label>
 	<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
 	
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	
 	</div>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 </form>

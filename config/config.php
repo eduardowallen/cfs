@@ -8,7 +8,7 @@ putenv('PATH=/bin:/usr/bin:/usr/local/bin');
 define('DEV', 'true');
 
 //path settings
-define('BASE_URL', '/');
+define('BASE_URL', 'http://localhost/cfs/');
 
 //Database settings
 define('DB_HOST', 'localhost');
