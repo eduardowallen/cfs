@@ -22,6 +22,7 @@
 				</li>
 				<li><span><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{'Support'} ?></span>
 					<ul>
+						<li><a href="mail/edit"><?php echo $translator->{'Mails'} ?></a></li>
 						<li><a href="page/edit"><?php echo $translator->{'Pages'} ?></a></li>
 						<li><a href="translate/all"><?php echo $translator->{'Translate'} ?></a></li>
 					</ul>
