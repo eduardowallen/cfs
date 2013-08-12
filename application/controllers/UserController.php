@@ -221,7 +221,8 @@ class UserController extends Controller {
 			$this->set('country_label', 'Country');
 			$this->set('phone1_label', 'Phone 1');
 			$this->set('phone2_label', 'Phone 2');
-			$this->set('phone3_label', 'Phone 3');
+			$this->set('phone3_label', 'Contact Phone');
+			$this->set('phone4_label', 'Contact Phone 2');
 			$this->set('fax_label', 'Fax number');
 			$this->set('website_label', 'Website');
 			$this->set('email_label', 'E-mail');
@@ -532,6 +533,7 @@ class UserController extends Controller {
 			$this->User->set('address', $_POST['address']);
 			$this->User->set('zipcode', $_POST['zipcode']);
 			$this->User->set('city', $_POST['city']);
+
 			if (userLevel() != 2) {
 				$this->User->set('name', $_POST['name']);
 				$this->User->set('invoice_address', $_POST['invoice_address']);
@@ -540,10 +542,12 @@ class UserController extends Controller {
 				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('presentation', $_POST['presentation']);
 			}
+
 			$this->User->set('country', $_POST['country']);
 			$this->User->set('phone1', $_POST['phone1']);
 			$this->User->set('phone2', $_POST['phone2']);
-			$this->User->set('phone3', $_POST['phone3']);
+			$this->User->set('contact_phone', $_POST['phone3']);
+			$this->User->set('contact_phone2', $_POST['phone4']);
 			$this->User->set('fax', $_POST['fax']);
 			$this->User->set('website', $_POST['website']);
 			$this->User->set('email', $_POST['email']);
@@ -583,7 +587,8 @@ class UserController extends Controller {
 		$this->set('country_label', 'Country');
 		$this->set('phone1_label', 'Phone 1');
 		$this->set('phone2_label', 'Phone 2');
-		$this->set('phone3_label', 'Phone 3');
+		$this->set('phone3_label', 'Contact Phone');
+		$this->set('phone4_label', 'Contact Phone 2');
 		$this->set('fax_label', 'Fax number');
 		$this->set('website_label', 'Website');
 		$this->set('email_label', 'E-mail');
@@ -607,7 +612,8 @@ class UserController extends Controller {
 			$this->User->set('country', $_POST['country']);
 			$this->User->set('phone1', $_POST['phone1']);
 			$this->User->set('phone2', $_POST['phone2']);
-			$this->User->set('phone3', $_POST['phone3']);
+			$this->User->set('contact_phone', $_POST['phone3']);
+			$this->User->set('contact_phone2', $_POST['phone4']);
 			$this->User->set('fax', $_POST['fax']);
 			$this->User->set('website', $_POST['website']);
 			$this->User->set('email', $_POST['email']);
@@ -703,7 +709,8 @@ class UserController extends Controller {
 		$this->set('country_label', 'Country');
 		$this->set('phone1_label', 'Phone 1');
 		$this->set('phone2_label', 'Phone 2');
-		$this->set('phone3_label', 'Phone 3');
+		$this->set('phone3_label', 'Contact Phone');
+		$this->set('phone4_label', 'Contact Phone 2');
 		$this->set('fax_label', 'Fax number');
 		$this->set('website_label', 'Website');
 		$this->set('email_label', 'E-mail');
@@ -738,9 +745,22 @@ class UserController extends Controller {
 
 		if ($confirmed == 'confirmed') {
 			$this->User->load($id, 'id');
-			$this->User->delete();
-			header("Location: ".BASE_URL."user/overview/4");
-			exit;
+			$userid = $id;	
+
+			// Hämta användarens olika exhibitorId'n
+			$statement = $this->db->prepare("SELECT id FROM exhibitor WHERE user = ?");
+			$statement->execute(array($userid));
+			$result = $statement->fetchAll();
+	
+			foreach($result as $exhibitor):
+				//$statement = $this->db->prepare("DELETE * FROM exhibitor_category_rel WHERE exhibitor = ?");
+				//$statement->execute(array($exhibitor->id));
+				echo $exhibitor->id;
+			endforeach;
+
+			//$this->User->delete();
+			//header("Location: ".BASE_URL."user/overview/4");
+			//exit;
 		} else {
 			$this->setNoTranslate('user_id', $id);
 			$this->set('warning', 'Do you really want to delete this super user?');

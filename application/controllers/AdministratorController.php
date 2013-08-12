@@ -382,7 +382,7 @@ class AdministratorController extends Controller {
       $mail->send();
 			
 			$pb->delete();
-			header();
+			header("Location: ".BASE_URL."administrator/newReservations");
 			exit;
 		} else if ($action == 'approve') {
 
@@ -820,17 +820,11 @@ WHERE user.owner = ? AND user.level = ?");
 
 		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
 		$stmt->execute(array($posId));
-		
-		$userId = $u->get('id');
-		$fairId = $_SESSION['user_fair'];
-		
-		$stmt = $this->db->prepare("INSERT INTO exhibitor_canceled(exhibitorId, fairId, comment) VALUES(?, ?, ?)");
-		$stmt->execute(array($userId, $fairId, $comment));
-	
+    
     $mail = new Mail($u->get('email'), 'booking_cancelled');
     $mail->send();
-		
-		//header('Location: '.BASE_URL.'administrator/newReservations');
+
+		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
 
 	public function approveReservation($posId = 0) {

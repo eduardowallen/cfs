@@ -330,6 +330,7 @@ ORDER BY creation_time DESC";
 					$password = substr(implode('', $pw_arr), 0, 10);
 
 					$this->Arranger->set('password', $password);
+					$id = $this->Arranger->save();
 
           $mail = new Mail($_POST['email'], 'new_account');
           $mail->setMailVar('alias', $_POST['alias']);
@@ -345,7 +346,7 @@ ORDER BY creation_time DESC";
 						return;
 					}
 				}
-				$id = $this->Arranger->save();
+				
 				//header('Location: '.BASE_URL.'arranger/overview');
 				//exit;
 			}

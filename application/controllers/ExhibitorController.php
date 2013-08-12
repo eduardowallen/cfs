@@ -853,7 +853,6 @@ class ExhibitorController extends Controller {
 		$user = new User;
 		$user->load($user_id, 'id');
 		if ($user->wasLoaded()) {
-
 			// Avboka plats för utställare.
 			$stmt = $user->db->prepare("SELECT position, id FROM exhibitor WHERE user = ?");
 			$stmt->execute(array($user->get('id')));
