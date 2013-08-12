@@ -233,7 +233,10 @@ class FairController extends Controller {
 						endif;
 						*/
 
-						sendMail(EMAIL_FROM_ADDRESS, 'Chartbooker International', 'A new fair '.BASE_URL.$this->Fair->get('url').' has been created by '.$user->get('company'));
+            $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
+            $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+            $mail->setMailVar('company', $user->get('company'));
+            $mail->send();
 					}
 					header("Location: ".BASE_URL."fair/overview");
 					exit;

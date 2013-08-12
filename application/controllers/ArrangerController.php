@@ -330,6 +330,7 @@ ORDER BY creation_time DESC";
 					$password = substr(implode('', $pw_arr), 0, 10);
 
 					$this->Arranger->set('password', $password);
+					$id = $this->Arranger->save();
 
 					$str = 'Welcome to Chartbooker'."\r\n\r\n";
 					$str.= "Someone has registered this e-mail address for the Chartbooker fair system\r\n";
@@ -348,7 +349,7 @@ ORDER BY creation_time DESC";
 						return;
 					}
 				}
-				$id = $this->Arranger->save();
+				
 				//header('Location: '.BASE_URL.'arranger/overview');
 				//exit;
 			}
