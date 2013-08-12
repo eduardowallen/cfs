@@ -50,7 +50,8 @@ class MailController extends Controller {
 			$this->set('save_label', 'Save');
 			
 			if (isset($_POST['save'])) {
-				
+
+      // Attempt to update the mail, if it fails, assume the user is adding a translated version into the database
 				$stmt = $this->db->prepare("UPDATE mail_content SET subject = ?, content = ? WHERE mail = ? AND language = ?");
 				if(!$stmt->execute(array($_POST['mail_subject'], $_POST['mail_content'], $mail, $lang)))
         {
