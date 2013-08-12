@@ -422,13 +422,9 @@ if (isset($_POST['getUserCommodity'])) {
 }
 
 if (isset($_POST['emailExists'])) {
-	if (userLevel() < 1) {
-		exit;
-	}
-
 	$user = new User;
 	$user->load($_POST['email'], 'email');
-	echo json_encode(array('emailExists' => $user->wasLoaded()));
+	echo json_encode(array('emailExists' => $user->wasLoaded()));	
 	exit;
 }
 

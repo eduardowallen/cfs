@@ -58,6 +58,9 @@ class FairMapController extends Controller {
 		$this->set('name_label', 'Name');
 		$this->set('save_label', 'Save');
 		$this->set('image_label', 'Image');
+		$this->set('f_hide_label', 'Hide fair for unauthorized accounts');
+		$this->set('f_show', 'Show');
+		$this->set('f_hide', 'Hide');
 
 	}
 	

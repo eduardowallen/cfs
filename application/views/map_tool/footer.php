@@ -24,7 +24,6 @@
 								<div>
 									<div class="pre_list">
 										<h2 id="exh2"><img src="images/icons/icon_utstallarlista.png" alt=""/> <?php echo $translator->{'Exhibitor list'} ?></h2>
-					
 											<p><?php echo $translator->{'Spots'} ?>: <span id="spots_total"></span> <?php echo $translator->{'Available spots'} ?>: <span id="spots_free"></span></p>
 					
 											<select id="category_filter">

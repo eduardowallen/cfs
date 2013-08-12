@@ -16,6 +16,8 @@
 <script type="text/javascript" src="js/passwd_meter.js"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js"></script>
 <script type="text/javascript" src="js/chartbooker.js"></script>
+<script type="text/javascript" src="js/tiny_mce/tiny_mce.js"></script>
+
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('.std_table').tablesorter();

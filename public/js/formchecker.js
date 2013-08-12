@@ -23,10 +23,13 @@ function prepFormChecker() {
 						success: function(response) {
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
+								$('.email_err').remove();
 								input.css('border', '1px solid #FF0000');
+								input.after("<p class=\"email_err\">asdasd</p>");
 								input.data('valid', false);
 							} else {
 								input.css('border', '1px solid #00FF00');
+								$('#email_err').remove();
 								input.data('valid', true);
 							}
 						}
@@ -52,10 +55,12 @@ function prepFormChecker() {
 						url: 'ajax/maptool.php',
 						type: 'POST',
 						data: 'emailExists=1&email=' + input.val(),
-						success: function(response) {
+						success: function(response) {	
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
+								$('.email_err').remove();
 								input.css('border', '1px solid #FF0000');
+								input.after("<p class=\"email_err\">asdasd</p>");
 								input.data('valid', false);
 							} else {
 								input.css('border', '1px solid #00FF00');
@@ -77,7 +82,7 @@ function prepFormChecker() {
 		var errors = new Array();		
 		
 		$("label", thisForm).each(function() {
-			
+
 			//Reset all fields to ok
 			$(this).css("color", "#000000");
 			
@@ -154,7 +159,7 @@ function prepFormChecker() {
 					var err = str.replace('#', errors.length);
 					alert(err);
 				}
-			});	
+			});
 			return false;
 		} else {
 			return true;

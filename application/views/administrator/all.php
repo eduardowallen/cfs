@@ -12,6 +12,9 @@
 		endif;
 		$count++;
 	endforeach;?>"><?php echo $mail_link;?><?php echo $translator->{'Send mail'}?></a></p>
+<?php 
+	CurrencyCalculator::convertValues(2000,'EUR');
+?>
 <div class="tbld">
 	<table class="std_table" style="width:100%;">
 		<thead>

@@ -289,7 +289,6 @@
 			<?php foreach($positions as $pos):?>
 				<tr>
 					<td><?php echo $pos['name']; ?></td>
-					
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
@@ -297,7 +296,7 @@
 					<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
 					<td style="display:none;"><?php echo $pos['categories']?> </td>
 					<td>
-					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
+					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 						</a>
 					</td>
@@ -367,7 +366,7 @@
 				<td style="display:none;"><?php echo $pos['categories']?></td>
 				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'.$pos['position']?></td>
 				<td class="center">
-					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position']; ?>" title="<?php echo $tr_view; ?>">
+					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 					</a>
 				</td>
@@ -447,7 +446,7 @@
 					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'.$pos['id']?></td>
 					<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id']?></td>
 					<td class="center">
-						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'] ?>" title="<?php echo $tr_view; ?>">
+						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 						</a>
 					</td>

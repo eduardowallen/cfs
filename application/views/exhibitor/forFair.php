@@ -6,7 +6,7 @@
 		setTimeout(function(){
 			anpassaTabeller();
 			for(var i = 0; i<3; i++){
-				var tblarr = new Array('booked', 'connected');
+				var tblarr = new Array('booked', 'connected', 'canceled');
 				var header = $('#h'+tblarr[i]+' > ul');
 				var headertmp = $('#'+tblarr[i]+' > thead > tr');
 			
@@ -14,12 +14,12 @@
 				
 				headertmp.children().each(function(i){
 					headerarr[i] = $(this).width();
-				
 				});
 			
 				header.children().each(function(i){
 					$(this).css('width', headerarr[i]);
 				});
+
 				var height = $('#'+tblarr[i]+' > thead').height();
 				height = height * -1;
 				$('#'+tblarr[i]).css('margin-top', height);
@@ -61,6 +61,8 @@
 			exportTableToExcel(rowArray, colArray, 1);
 		} else if(tbl == "connected"){
 			exportTableToExcel(rowArray, colArray, 2);
+		}  else if(tbl == "canceled"){
+			exportTableToExcel(rowArray, colArray, 3);
 		}
 		
 
@@ -106,9 +108,11 @@
 	function anpassaTabeller(){
 		var tbl1width = $('#booked').width();
 		var tbl2width = $('#connected').width();
-		
+		var tbl3width = $('#canceled').width();
+
 		$('.tbl1').css('max-width', tbl1width);
 		$('.tbl2').css('max-width', tbl2width);
+		$('.tbl3').css('max-width', tbl3width);
 	}
 </script>
 <h1><?php echo $headline; ?></h1>
@@ -215,3 +219,41 @@
 	</div>
 <?php endif;?>
 
+
+<h2 class="tblsite"><?php echo $table_canceled ?></h2>
+<?php if(count($canceled) > 0): ?>
+	<div class="tbld tbl3">
+		<a onclick="prepareTable('canceled')"><button style="float:right; margin-top:17px;"><?php echo $export?></button></a>
+		<div class="tblHeader" id="hcanceled">
+			<ul>
+				<li><div class="tblrow1"><?php echo $th_company; ?></div><input type="checkbox" value="1" checked></input></li>
+				<li><div class="tblrow1"><?php echo $th_name; ?></div><input type="checkbox" value="2" checked></input></li>
+				<li><div class="tblrow1"><?php echo $th_fairs; ?></div><input type="checkbox" value="3" checked></input></li>
+			</ul>
+		</div>
+		<div class="scrolltbl">
+			<table class="std_table" id="canceled">
+				<thead style="height:22px;">
+					<tr>
+						<th>col1</th>
+						<th>col2</th>
+						<th>col3</th>
+					</tr>
+				</thead>
+				<tbody>
+					<?php foreach ($canceled as $user): ?>
+						<tr>
+							<td><?php echo $user['company']?></td>
+							<td><?php echo $user['name']?></td>
+							<td><?php echo $user['comment']?></td>
+						</tr>
+					<?php endforeach; ?>
+				</tbody>
+			</table>
+		</div>
+	</div>
+<?php else:?>
+	<div class="tbld tbl3">
+		<p>Det finns inga avbokade utställare.</p>
+	</div>
+<?php endif?>
