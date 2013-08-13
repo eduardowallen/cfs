@@ -793,6 +793,8 @@ WHERE user.owner = ? AND user.level = ?");
 			$this->set('phone1_label', 'Phone 1');
 			$this->set('phone2_label', 'Phone 2');
 			$this->set('phone3_label', 'Contact Phone');
+			$this->set('event_without_maps_obs', 'OBS! ');
+			$this->set('event_without_maps_label', 'Events without maps are not listed.');
 			$this->set('email_label', 'E-mail');
 			$this->set('maps_label', 'Map access');
 			$this->set('save_label', 'Save');
