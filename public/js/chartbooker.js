@@ -424,8 +424,7 @@ var closeButton = $('.closeDialogue');
 			$("#newMarkerIcon").remove();
 		});
 		
-		});
-		
+			
 		return false;
 		
 	});
