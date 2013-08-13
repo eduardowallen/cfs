@@ -44,6 +44,7 @@
 	lang.phone1_label = '<?php echo $translator->{"Phone 1"} ?>';
 	lang.phone2_label = '<?php echo $translator->{"Phone 2"} ?>';
 	lang.phone3_label = '<?php echo $translator->{"Phone 3"} ?>';
+	lang.phone4_label = '<?php echo $translator->{"Phone 4"} ?>';
 	lang.fax_label = '<?php echo $translator->{"Fax number"} ?>';
 	lang.website_label = '<?php echo $translator->{"Website"} ?>';
 	lang.email_label = '<?php echo $translator->{"E-mail"} ?>';
@@ -52,11 +53,12 @@
 	lang.password_standard = '<?php echo $translator->{"Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter."} ?>';
 	lang.forgot_pass = '<?php echo $translator->{"Forgot your password?"} ?>';
 	lang.forgot_user = '<?php echo $translator->{"Forgot your username?"} ?>';
-	lang.save_label = '<?php echo $translator->{"Save"} ?>';
-	lang.alias_label = '<?php echo $translator->{"Username"} ?>';
-	lang.company_section = '<?php echo $translator->{"Company"} ?>';
-	lang.invoice_section = '<?php echo $translator->{"Billing address"} ?>';
-	lang.contact_section = '<?php echo $translator->{"Contact"} ?>';
+	lang.save_label = '<?php echo $translator->{"Save"}?>';
+	lang.alias_label = '<?php echo $translator->{"Username"}?>';
+	lang.company_section = '<?php echo $translator->{"Company"}?>';
+	lang.invoice_section = '<?php echo $translator->{"Billing address"}?>';
+	lang.contact_section = '<?php echo $translator->{"Contact"}?>';
+	lang.contact_email = '<?php echo $translateor->{"Contact Email"}?>';
 	lang.copy_label = '<?php echo $translator->{"Copy from company details"} ?>';
 </script>
 <?php if (userLevel() > 0): ?>
