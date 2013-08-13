@@ -98,9 +98,12 @@ maptool.openDialogue = function(id) {
 maptool.closeDialogues = function() {
 	if (userIsEditing > 0) {
 		maptool.markPositionAsNotBeingEdited();
-	}
+	}			
 	$(".dialogue").hide(0, function() {
-		$("#overlay, #popupform").hide();
+		$("#overlay").hide();
+		$("#popupform").remove();
+		$("#popupform_register").remove();
+		$('#popupformTwo').remove();
 		$("#newMarkerIcon").remove();
 	});
 }

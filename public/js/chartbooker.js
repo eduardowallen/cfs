@@ -54,8 +54,6 @@ function bookPopup(row, link){
 		}
 	});
 
-	console.log(infoArray);
-
 	var categories = infoArray[6];
 	
 	var catArr = categories.split("|");
@@ -419,8 +417,14 @@ var closeButton = $('.closeDialogue');
 		});
 		
 		$(".closeDialogue").click(function() {
-			$('#popupform_register').remove();
-			$('#overlay').hide();
+			$("#overlay").hide();
+			$("#popupform").remove();
+			$("#popupform_register").remove();
+			$('#popupformTwo').remove();
+			$("#newMarkerIcon").remove();
+		});
+}
+
 		});
 		
 		return false;
