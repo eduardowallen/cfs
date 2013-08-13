@@ -60,7 +60,7 @@
 	lang.company_section = '<?php echo $translator->{"Company"} ?>';
 	lang.invoice_section = '<?php echo $translator->{"Billing address"} ?>';
 	lang.contact_section = '<?php echo $translator->{"Contact"} ?>';
-	lang.contact_email = '<?php echo $translateor->{"Contact Email"}';
+	lang.contact_email = '<?php echo $translateor->{"Contact Email"} ?>';
 	lang.copy_label = '<?php echo $translator->{"Copy from company details"} ?>';
 </script>
 <?php if (userLevel() > 0): ?>
