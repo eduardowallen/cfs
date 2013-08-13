@@ -74,8 +74,21 @@ function prepFormChecker() {
 			$(this).css('border', '1px solid #FF0000');
 			$(this).data('valid', false);
 		}
+
 	});
 	
+	$("form #contact_email").data('valid', true);
+	$("form #contact_email").keyup(function() {
+		if (isValidEmailAddress($(this).val())) {
+			$(this).css('border', '1px solid #00FF00');
+			var input = $(this);
+			input.data('valid', true);
+		} else {
+			$(this).css('border', '1px solid #FF0000');
+			$(this).data('valid', false);
+		}
+	});
+
 	$("form").submit(function() {
 		
 		var thisForm = $(this);
