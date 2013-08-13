@@ -291,7 +291,7 @@
 	<label for="name"><?php echo $contact_label; ?> *</label>
 	<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
-	<label for="phone3"><?php echo $phone3_label; ?></label>
+	<label for="phone3"><?php echo $phone3_label; ?> *</label>
 	<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
 
 	<label for="phone4"><?php echo $phone4_label; ?></label>
