@@ -85,16 +85,15 @@ class UserController extends Controller {
 		}
 
 		if (!empty($id)) {
-
 			if ($id == 'new') {
+				$this->set('disabled', '');
 				$this->set('edit_headline', 'New user');
 			} else {
+				$this->set('disabled', 'disabled="disabled"');
 				$this->set('edit_headline', 'Edit user');
 				$this->User->load($id, 'id');
-			}
-
-			if (isset($_POST['save'])) {
-				
+			} 
+			if (isset($_POST['save'])) {				
 				if (preg_match('/^new/', $id)) {
 				
 					$this->User->set('email', $_POST['email']);
@@ -219,6 +218,7 @@ class UserController extends Controller {
 			else :
 				$this->set('headline', 'New User');
 			endif;
+
  			$this->setNoTranslate('edit_id', $id);
 			$this->setNoTranslate('edit_level', $level);
 			$this->set('user', $this->User);
