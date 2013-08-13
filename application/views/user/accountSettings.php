@@ -200,6 +200,26 @@
 
 <form action="user/accountSettings" method="post">
 	<div class="form_column">
+		<?php if (userLevel() == 2): ?>
+		<label for="alias"><?php echo $alias_label; ?> *</label>
+		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>" disabled="disabled"/>
+
+		<label for="name"><?php echo $contact_label; ?> *</label>
+		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
+
+		<label for="phone1"><?php echo $phone1_label; ?> *</label>
+		<input type="text" name="phone1" id="phone1" value="<?php echo $user->get('phone1'); ?>"/>
+	
+		<label for="phone2"><?php echo $phone2_label; ?></label>
+		<input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
+
+		<label for="phone3"><?php echo $phone3_label; ?></label>
+		<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
+		
+		<label for="email"><?php echo $email_label; ?> *</label>
+		<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
+
+		<?php else:?>
 		<h3><?php echo $company_section; ?></h3>
 	
 		<label for="orgnr"><?php echo $orgnr_label; ?> *</label>
@@ -249,7 +269,7 @@
 	</div>
 	
 
-		<?php if (userLevel() != 2): ?>
+		
 		<div class="form_column">
 		<h3><?php echo $invoice_section; ?></h3>
 			<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
@@ -272,7 +292,7 @@
 			<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation')?> 
 			<textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
 		</div>
-		<?php endif; ?>
+		
 
 	<div class="form_column">
 		<h3><?php echo $contact_section; ?></h3>
@@ -290,8 +310,8 @@
 
 		<label for="contact_email"><?php echo $contact_email ?> *</label>
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
-	</div>	
-	<p
-><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	</div>
+	<?php endif; ?>	
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 	
 </form>
