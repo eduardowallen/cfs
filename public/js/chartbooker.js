@@ -423,8 +423,7 @@ var closeButton = $('.closeDialogue');
 			$('#popupformTwo').remove();
 			$("#newMarkerIcon").remove();
 		});
-}
-
+		
 		});
 		
 		return false;
