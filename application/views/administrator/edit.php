@@ -67,26 +67,31 @@
 <p id="permission_search"><input type="text" id="search_input"/>
 			<input type="button" id="search_button" value="<?php echo $translator->{'Search'} ?>"/></p>
 <form action="administrator/edit/<?php echo $edit_id; ?>" method="post">
-	
 	<div id="permission_box">
 		<h2><?php echo $permissions_headline ?></h2>
 		<div id="permission_search">
 			
 		</div>
+		<p style="text-align:center;"><strong style="margin-right:10px;"><?php echo $event_without_maps_obs?></strong><?php echo $event_without_maps_label?></p>
 		<?php foreach ($fairs as $fair): ?>
-			
+			<?php if(count($fair->get('maps')) > 1) :?>
 			<div class="fair">
+				
 				<input<?php if(is_array($user_fairs) && in_array($fair->get('id'), $user_fairs)) { echo ' checked="checked"'; } ?> type="checkbox" name="fair_permission[]" value="<?php echo $fair->get('id') ?>" class="fair_input"/>
 				<strong><?php echo $fair->get('name'); ?></strong>
 				<p>
-				<?php foreach($fair->get('maps') as $map): ?>
-					<input<?php if(is_array($user_maps) && in_array($map->get('id'), $user_maps)) { echo ' checked="checked"'; } ?> type="checkbox" name="maps[<?php echo $fair->get('id') ?>][]" value="<?php echo $map->get('id'); ?>" id="mapbox<?php echo $map->get('id'); ?>"/>
-					<label style="font-weight:normal;" for="mapbox<?php echo $map->get('id'); ?>" class="inline-block"><?php echo $map->get('name'); ?></label>
-				<?php endforeach; ?>
+				
+					<?php foreach($fair->get('maps') as $map): ?>
+						<input<?php if(is_array($user_maps) && in_array($map->get('id'), $user_maps)) { echo ' checked="checked"'; } ?> type="checkbox" name="maps[<?php echo $fair->get('id') ?>][]" value="<?php echo $map->get('id'); ?>" id="mapbox<?php echo $map->get('id'); ?>"/>
+						<label style="font-weight:normal;" for="mapbox<?php echo $map->get('id'); ?>" class="inline-block"><?php echo $map->get('name'); ?></label>
+					<?php endforeach; ?>
+				
 				</p>
+				
 			</div>
-		
+			<?php endif?>
 		<?php endforeach; ?>
+		
 	</div>
 	
 	<label for="#"><?php echo $locked_label; ?></label>

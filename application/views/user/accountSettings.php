@@ -267,10 +267,9 @@
 		<label for="website"><?php echo $website_label; ?></label>
 		<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
 	</div>
-	
 
 		
-		<div class="form_column">
+	<div class="form_column">
 		<h3><?php echo $invoice_section; ?></h3>
 			<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
 			<label for="invoice_company"><?php echo $invoice_company_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
@@ -302,7 +301,7 @@
 		<label for="name"><?php echo $contact_label; ?> *</label>
 		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
-		<label for="phone3"><?php echo $phone3_label; ?></label>
+		<label for="phone3"><?php echo $phone3_label; ?> *</label>
 		<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
 
 		<label for="phone4"><?php echo $phone4_label; ?></label>
