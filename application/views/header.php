@@ -135,6 +135,11 @@
 				$fairCount = '';
 	
 				if (userLevel() == 1) {
+					echo '<style>
+						#header ul li{background-color:#73d367;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#73d367; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -145,7 +150,7 @@
 					}
 	
 					if (userLevel() == 2) {
-	
+						
 						$db = new Database;
 						$stmt = $db->prepare("SELECT COUNT(*) AS bookings FROM preliminary_booking WHERE fair = ?");
 						$stmt->execute(array($_SESSION['user_fair']));
@@ -155,6 +160,11 @@
 					}
 				
 				} else if (userLevel() == 2) {
+					echo '<style>
+						#header ul li{background-color:#82cce4;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#82cce4; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -164,12 +174,21 @@
 						$opts.= '<li><a href="page/loggedin/setFair/'.$res['fair'].'">'.$res['name'].'</a></li>';
 					}
 				} else if (userLevel() == 3) {
-	
-					$db = new Database;
+					echo '<style>
+						#header ul li{background-color:#f9c969;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#f9c969; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';
+					$db = new Database;	
 					$stmt = $db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
 					$stmt->execute(array($_SESSION['user_id']));
 					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				} else if (userLevel() == 4) {
+					echo '<style>
+						#header ul li{background-color:#c7c7c7;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#c7c7c7; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';
 					$db = new Database;
 					$stmt = $db->prepare("SELECT COUNT(*) AS fairs FROM fair WHERE approved = ?");
 					$stmt->execute(array(0));
