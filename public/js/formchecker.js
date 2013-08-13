@@ -82,9 +82,11 @@ function prepFormChecker() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
+
 			input.data('valid', true);
 		} else {
 			$(this).css('border', '1px solid #FF0000');
+
 			$(this).data('valid', false);
 		}
 	});
@@ -123,6 +125,12 @@ function prepFormChecker() {
 					
 					//Email addresses 2
 					if (input.attr("name") == "invoice_email" && (!isValidEmailAddress(input.val()) || !input.data('valid'))) {
+						$(this).css("color", "red");
+						errors.push($(this).attr("for"));
+					}
+
+					//Email addresses 3
+					if (input.attr("name") == "contact_email" && (!isValidEmailAddress(input.val()) || !input.data('valid'))) {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
