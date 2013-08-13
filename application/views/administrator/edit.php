@@ -112,7 +112,7 @@
 	<input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
 
 	<label for="phone3"><?php echo $phone3_label; ?></label>
-	<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('phone3'); ?>"/>
+	<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
 
 	<label for="email"><?php echo $email_label; ?> *</label>
 	<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
