@@ -264,8 +264,8 @@ var closeButton = $('.closeDialogue');
 				 +				'<label for="company">' + lang.company_label + ' *</label>'
 				 +				'<input type="text" name="company" id="company"/>'
 							
-				 +				'<label for="commodity">' + lang.commodity_label + ' *</label>'
-				 +				'<input type="text" name="commodity" id="commodity"/>'
+				+				'<label for="commodity">'+ lang.commodity_label +'</label>'
+				+				'<textarea rows="3" style="width:250px; height:40px; resize:none;" name="commodity" id="commodity"></textarea>'
 							
 				 +				'<label for="address">' + lang.address_label + ' *</label>'
 				 +				'<input type="text" name="address" id="address"/>'
@@ -287,9 +287,6 @@ var closeButton = $('.closeDialogue');
 				 +				'<label for="phone2">' + lang.phone2_label + '</label>'
 				 +				'<input type="text" name="phone2" id="phone2"/>'
 							
-				 +				'<label for="phone3">' + lang.phone3_label + '</label>'
-				 +				'<input type="text" name="phone3" id="phone3"/>'
-							
 				 +				'<label for="fax">' + lang.fax_label + '</label>'
 				 +				'<input type="text" name="fax" id="fax"/>'
 							
@@ -299,9 +296,11 @@ var closeButton = $('.closeDialogue');
 				 +				'<label for="website">' + lang.website_label + '</label>'
 				 +				'<input type="text" name="website" id="website"/>'
 							
+				+				'<div style="margin-top:30px;">'
 				 +				'<label for="presentation">' + lang.presentation_label + '</label>'
 				 +				'<textarea name="presentation" id="presentation" class="presentation"></textarea>'
 				 +				'</div>'
+				+				'</div>'
 							
 				 +				'<div class="form_column">'
 							
@@ -331,7 +330,16 @@ var closeButton = $('.closeDialogue');
 							
 				 +				'<label for="name">' + lang.contact_label + ' *</label>'
 				 +				'<input type="text" name="name" id="name"/>'
-							
+				 
+				 +				'<label for="phone3">' + lang.phone3_label + '</label>'
+				 +				'<input type="text" name="phone3" id="phone3"/>'
+
+				 +				'<label for="phone4">' + lang.phone4_label + '</label>'
+				 +				'<input type="text" name="phone4" id="phone4"/>'
+
+				 +				'<label for="contact_email">' + lang.contact_email + ' *</label>' 
+				 +				'<input type="text" name="contact_email" id="contact_email"/>'
+		
 				 +				'<label for="password">' + lang.password_label + ' *</label>'
 				 +				'<input type="password" name="password" id="password" class="hasIndicator"/>'
 							
@@ -339,7 +347,7 @@ var closeButton = $('.closeDialogue');
 				 +				'<input type="password" name="password_repeat" id="password_repeat"/>'
 		
 				
-				 +			'<p style="display:inline-block; width:236px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">'  + lang.password_standard + '</p>'
+				 +			'<p style="position:relative; left:280px; bottom:95px; display:inline-block; width:180px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">'  + lang.password_standard + '</p>'
 				 +			'</div>'
 				 +				'<p><input type="submit" name="save" value="' + lang.save_label + '"/></p>'
 				

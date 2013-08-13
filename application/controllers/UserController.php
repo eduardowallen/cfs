@@ -88,7 +88,6 @@ class UserController extends Controller {
 
 			if ($id == 'new') {
 				$this->set('edit_headline', 'New user');
-
 			} else {
 				$this->set('edit_headline', 'Edit user');
 				$this->User->load($id, 'id');
@@ -139,7 +138,9 @@ class UserController extends Controller {
 					$this->User->set('country', $_POST['country']);
 					$this->User->set('phone1', $_POST['phone1']);
 					$this->User->set('phone2', $_POST['phone2']);
-					$this->User->set('phone3', $_POST['phone3']);
+					$this->User->set('contact_phone', $_POST['phone3']);
+					$this->User->set('contact_phone2', $_POST['phone4']);
+					$this->User->set('contact_email', $_POST['contact_email']);
 					$this->User->set('fax', $_POST['fax']);
 					$this->User->set('website', $_POST['website']);
 					$this->User->set('invoice_company', $_POST['invoice_company']);
@@ -176,12 +177,12 @@ class UserController extends Controller {
 								$lvl = 'Exhibitor';
 								break;
 						}
-            
-            $mail = new Mail($_POST['email'], 'welcome');
-            $mail->setMailVar('alias', $_POST['alias']);
-            $mail->setMailVar('password', $password);
-            $mail->setMailVar('accesslevel', $lvl);
-            $mail->send();
+					    
+						$mail = new Mail($_POST['email'], 'welcome');
+						$mail->setMailVar('alias', $_POST['alias']);
+						$mail->setMailVar('password', $password);
+						$mail->setMailVar('accesslevel', $lvl);
+						$mail->send();
 					}
 	
 					$iid = $this->User->save();
@@ -204,8 +205,21 @@ class UserController extends Controller {
  			} else {
  				$this->setNoTranslate('openFields', false);
  			}
- 			
-			$this->setNoTranslate('edit_id', $id);
+ 
+			if(!empty($level)) : 
+				if($level == 1):
+					$this->set('headline', 'New Exhibitor');
+				elseif($level == 2):
+					$this->set('headline', 'New Administrator');
+				elseif($level == 3):
+					$this->set('headline', 'New Arranger');
+				elseif($level == 4):
+					$this->set('headline', 'New Master');
+				endif;
+			else :
+				$this->set('headline', 'New User');
+			endif;
+ 			$this->setNoTranslate('edit_id', $id);
 			$this->setNoTranslate('edit_level', $level);
 			$this->set('user', $this->User);
 			$this->set('commodity_label', 'Commodity');
@@ -223,6 +237,7 @@ class UserController extends Controller {
 			$this->set('phone2_label', 'Phone 2');
 			$this->set('phone3_label', 'Contact Phone');
 			$this->set('phone4_label', 'Contact Phone 2');
+			$this->set('contact_email', 'Contact Email');
 			$this->set('fax_label', 'Fax number');
 			$this->set('website_label', 'Website');
 			$this->set('email_label', 'E-mail');
@@ -533,9 +548,10 @@ class UserController extends Controller {
 			$this->User->set('address', $_POST['address']);
 			$this->User->set('zipcode', $_POST['zipcode']);
 			$this->User->set('city', $_POST['city']);
-
+			$this->User->set('commodity', $_POST['commodity']);
 			if (userLevel() != 2) {
 				$this->User->set('name', $_POST['name']);
+				$this->User->set('invoice_company', $_POST['invoice_company']);
 				$this->User->set('invoice_address', $_POST['invoice_address']);
 				$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
 				$this->User->set('invoice_city', $_POST['invoice_city']);
@@ -548,6 +564,7 @@ class UserController extends Controller {
 			$this->User->set('phone2', $_POST['phone2']);
 			$this->User->set('contact_phone', $_POST['phone3']);
 			$this->User->set('contact_phone2', $_POST['phone4']);
+			$this->User->set('contact_email', $_POST['contact_email']);
 			$this->User->set('fax', $_POST['fax']);
 			$this->User->set('website', $_POST['website']);
 			$this->User->set('email', $_POST['email']);
@@ -573,6 +590,7 @@ class UserController extends Controller {
 		$this->set('contact_section', 'Contact person');
 		$this->set('presentation_section', 'Presentation');
 
+		$this->set('invoice_company_label', 'Company');
 		$this->set('invoice_address_label', 'Address');
 		$this->set('invoice_zipcode_label', 'Zip code');
 		$this->set('invoice_city_label', 'City');
@@ -589,6 +607,7 @@ class UserController extends Controller {
 		$this->set('phone2_label', 'Phone 2');
 		$this->set('phone3_label', 'Contact Phone');
 		$this->set('phone4_label', 'Contact Phone 2');
+		$this->set('contact_email', 'Contact Email');
 		$this->set('fax_label', 'Fax number');
 		$this->set('website_label', 'Website');
 		$this->set('email_label', 'E-mail');
@@ -614,6 +633,7 @@ class UserController extends Controller {
 			$this->User->set('phone2', $_POST['phone2']);
 			$this->User->set('contact_phone', $_POST['phone3']);
 			$this->User->set('contact_phone2', $_POST['phone4']);
+			$this->User->set('contact_email', $_POST['contact_email']);
 			$this->User->set('fax', $_POST['fax']);
 			$this->User->set('website', $_POST['website']);
 			$this->User->set('email', $_POST['email']);
@@ -711,6 +731,7 @@ class UserController extends Controller {
 		$this->set('phone2_label', 'Phone 2');
 		$this->set('phone3_label', 'Contact Phone');
 		$this->set('phone4_label', 'Contact Phone 2');
+		$this->set('contact_email', 'Contact Email');
 		$this->set('fax_label', 'Fax number');
 		$this->set('website_label', 'Website');
 		$this->set('email_label', 'E-mail');

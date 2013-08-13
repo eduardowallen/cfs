@@ -93,8 +93,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_resend', 'Reset');
 		$this->set('fairs', $fairs);
 		$this->set('', $fairs);
-		$this->set('users', $unique);
-		
+		$this->set('users', $unique);		
 	}
 	
 	public function forFair($param='', $value='') {
@@ -189,8 +188,7 @@ class ExhibitorController extends Controller {
 			$stmt2 = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor WHERE user = ? and fair = ?");
 			$stmt2->execute(array($unbooked['exhibitorId'], $unbooked['fairId']));
 			$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-			
-		
+
 			if(count($result2) == 0):
 				$canceled[] = $unbooked;
 			endif;
@@ -270,7 +268,7 @@ class ExhibitorController extends Controller {
 					$ex = new User;
 					$ex->load($res['id'], 'id');
 					$ex->set('ex_count', $res['ex_count']);
-				
+
 					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 					$stmt2->execute(array($res['id']));
 					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
@@ -292,12 +290,12 @@ class ExhibitorController extends Controller {
 				if (!in_array($res['user'], $exIds)) {
 					$ex = new User;
 					$ex->load($res['user'], 'id');
-				
+
 					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 					$stmt2->execute(array($res['user']));
 					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
 					$ex->set('fair_count', $result2['fair_count']);
-				
+
 					$exhibitors[] = $ex;
 				}
 			}
@@ -321,7 +319,7 @@ class ExhibitorController extends Controller {
 		header("Content-Type: application/download");
 		header("Content-Disposition: attachment;filename=".$filename);
 		header("Content-Transfer-Encoding: binary");
-						
+
 		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
 		
 		$xls = new PHPExcel();
