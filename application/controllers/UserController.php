@@ -147,6 +147,7 @@ class UserController extends Controller {
 					$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
 					$this->User->set('invoice_city', $_POST['invoice_city']);
 					$this->User->set('invoice_email', $_POST['invoice_email']);
+					$this->User->set('invoice_country', $_POST['invoice_country']);
 					$this->User->set('locked', $_POST['locked']);
 					$this->User->set('presentation', $_POST['presentation']);
 
@@ -241,6 +242,7 @@ class UserController extends Controller {
 			$this->set('phone2_label', 'Phone 2');
 			$this->set('phone3_label', 'Contact Phone');
 			$this->set('phone4_label', 'Contact Phone 2');
+			$this->set('contact_country', 'Contact Country');
 			$this->set('contact_email', 'Contact Email');
 			$this->set('fax_label', 'Fax number');
 			$this->set('website_label', 'Website');
@@ -551,7 +553,6 @@ class UserController extends Controller {
 		$this->User->load($_SESSION['user_id'], 'id');
 
 		if (isset($_POST['save'])) {
-			print_r($_POST);
 			$this->User->set('phone1', $_POST['phone1']);
 			$this->User->set('phone2', $_POST['phone2']);
 			$this->User->set('contact_phone', $_POST['phone3']);
@@ -569,6 +570,7 @@ class UserController extends Controller {
 				$this->User->set('invoice_address', $_POST['invoice_address']);
 				$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
 				$this->User->set('invoice_city', $_POST['invoice_city']);
+				$this->User->set('invoice_country', $_POST['invoice_country']);
 				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('presentation', $_POST['presentation']);
 				$this->User->set('country', $_POST['country']);
@@ -608,7 +610,6 @@ class UserController extends Controller {
 		$this->set('invoice_zipcode_label', 'Zip code');
 		$this->set('invoice_city_label', 'City');
 		$this->set('invoice_email_label', 'E-mail');
-
 		$this->set('company_label', 'Company');
 		$this->set('contact_label', 'Contact person');
 		$this->set('orgnr_label', 'Organization number');
@@ -656,6 +657,7 @@ class UserController extends Controller {
 			$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
 			$this->User->set('invoice_city', $_POST['invoice_city']);
 			$this->User->set('invoice_email', $_POST['invoice_email']);
+			$this->User->set('invoice_country', $_POST['invoice_country']);
 			$this->User->set('commodity', $_POST['commodity']);
 			//$this->User->set('category', $_POST['category']);
 			$this->User->set('level', 1);
