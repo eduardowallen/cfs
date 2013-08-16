@@ -205,18 +205,22 @@ class UserController extends Controller {
  				$this->setNoTranslate('openFields', false);
  			}
  
-			if(!empty($level)) : 
-				if($level == 1):
-					$this->set('headline', 'New Exhibitor');
-				elseif($level == 2):
-					$this->set('headline', 'New Administrator');
-				elseif($level == 3):
-					$this->set('headline', 'New Arranger');
-				elseif($level == 4):
-					$this->set('headline', 'New Master');
+			if($id == 'new') :
+				if(!empty($level)) : 
+					if($level == 1):
+						$this->set('headline', 'New Exhibitor');
+					elseif($level == 2):
+						$this->set('headline', 'New Administrator');
+					elseif($level == 3):
+						$this->set('headline', 'New Arranger');
+					elseif($level == 4):
+						$this->set('headline', 'New Master');
+					endif;
+				else :
+					$this->set('headline', 'New User');
 				endif;
-			else :
-				$this->set('headline', 'New User');
+			else:
+				$this->set('headline', 'Edit user');
 			endif;
 
  			$this->setNoTranslate('edit_id', $id);
@@ -281,6 +285,10 @@ class UserController extends Controller {
 
 	function login($fUrl='', $status = null) {
 		unset($_SESSION['visitor']);
+		if(isset($_SESSION['user_id'])) :
+			 header("Location: ".BASE_URL."page/loggedin"); 
+		endif;
+
 		$this->set('error', '');
 		$this->setNoTranslate('fair_url', $fUrl);
 		if( $status !== null){
@@ -541,32 +549,37 @@ class UserController extends Controller {
 		$this->User->load($_SESSION['user_id'], 'id');
 
 		if (isset($_POST['save'])) {
-			$this->User->set('company', $_POST['company']);
-			$this->User->set('orgnr', $_POST['orgnr']);
-			$this->User->set('address', $_POST['address']);
-			$this->User->set('zipcode', $_POST['zipcode']);
-			$this->User->set('city', $_POST['city']);
-			$this->User->set('commodity', $_POST['commodity']);
+			print_r($_POST);
+			$this->User->set('phone1', $_POST['phone1']);
+			$this->User->set('phone2', $_POST['phone2']);
+			$this->User->set('contact_phone', $_POST['phone3']);
+			$this->User->set('email', $_POST['email']);
+			$this->User->set('name', $_POST['name']);
+
 			if (userLevel() != 2) {
-				$this->User->set('name', $_POST['name']);
+				$this->User->set('company', $_POST['company']);
+				$this->User->set('orgnr', $_POST['orgnr']);
+				$this->User->set('address', $_POST['address']);
+				$this->User->set('zipcode', $_POST['zipcode']);
+				$this->User->set('city', $_POST['city']);
+				$this->User->set('commodity', $_POST['commodity']);
 				$this->User->set('invoice_company', $_POST['invoice_company']);
 				$this->User->set('invoice_address', $_POST['invoice_address']);
 				$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
 				$this->User->set('invoice_city', $_POST['invoice_city']);
 				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('presentation', $_POST['presentation']);
+				$this->User->set('country', $_POST['country']);
+				$this->User->set('contact_phone2', $_POST['phone4']);
+				$this->User->set('contact_email', $_POST['contact_email']);
+				$this->User->set('fax', $_POST['fax']);
+				$this->User->set('website', $_POST['website']);
+				$this->User->set('commodity', $_POST['commodity']);
 			}
 
-			$this->User->set('country', $_POST['country']);
-			$this->User->set('phone1', $_POST['phone1']);
-			$this->User->set('phone2', $_POST['phone2']);
-			$this->User->set('contact_phone', $_POST['phone3']);
-			$this->User->set('contact_phone2', $_POST['phone4']);
-			$this->User->set('contact_email', $_POST['contact_email']);
-			$this->User->set('fax', $_POST['fax']);
-			$this->User->set('website', $_POST['website']);
-			$this->User->set('email', $_POST['email']);
-			$this->User->set('commodity', $_POST['commodity']);
+			
+			
+
 			//$this->User->set('category', $_POST['category']);
 			//$this->User->set('level', 1);
 

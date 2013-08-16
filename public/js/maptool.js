@@ -188,8 +188,13 @@ maptool.placeMarkers = function() {
 	var mapContext = $('#map', mapHolderContext);
 	
 	for (var i=0; i<maptool.map.positions.length; i++) {
+		
 		if (maptool.map.positions[i].applied) {
-			maptool.map.positions[i].statusText = 'applied';
+			if(maptool.map.positions[i].statusText == "booked" || maptool.map.positions[i].statusText == "reserved"){
+
+			} else {
+				maptool.map.positions[i].statusText = 'applied';
+			}
 		}
 		//Prepare HTML
 		var markerId = 'pos-' + maptool.map.positions[i].id;
@@ -687,7 +692,9 @@ maptool.traceMouse = function(e) {
 
 //Book open position
 maptool.bookPosition = function(positionObject) {
-	$('#book_category_input').css('border-color', '#000000');
+	$('#book_category_input').css('border-color', '#666');
+	$('#book_category_scrollbox').css('border-color', '#000000');
+
 	if (maptool.map.userlevel < 2) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
@@ -697,11 +704,12 @@ maptool.bookPosition = function(positionObject) {
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
 		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
 		var categories = positionObject.exhibitor.categories;
+		$('#book_category_scrollbox > p > input').prop('checked', false);
 		for(var i = 0; i < categories.length; i++){
 			$('#book_category_scrollbox > p').each(function(){
 				var value = $(this).children().val();
 				if(value == categories[i].category_id){
-					$(this).children().attr('checked', 'checked');
+					$(this).children().prop('checked', true);
 				}
 			});
 		}
@@ -712,7 +720,7 @@ maptool.bookPosition = function(positionObject) {
 	maptool.openDialogue('book_position_dialogue');
 
 	$('#book_position_dialogue h3 .standSpaceName').text(positionObject.name);
-
+	$('.ssinfo').html("");
 	$('.ssinfo').html('<strong>'+lang.area +  ' </strong>: ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
 	$('#book_user_input').unbind('change');
@@ -833,40 +841,49 @@ maptool.bookPosition = function(positionObject) {
 			}
 		});
 		var catStr = '';
-		for (var j=0; j<cats.length; j++) {
-			catStr += '&categories[]=' + cats[j];
-		}
 
+		for (var j=0; j<cats.length; j++) {
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
+		}
 		
 		var dataString = 'bookPosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#book_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#book_message_input").val())
 				   + '&map=' + maptool.map.id
 				   + catStr;
+
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
 		}
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: dataString,
-			success: function(response) {
-				maptool.markPositionAsNotBeingEdited();
-				maptool.update();
-				maptool.closeDialogues();
-				$('#book_position_dialogue input[type="text"], #book_position_dialogue textarea').val("");
-				$('.ssinfo').html('');
-			}
-		});
+		console.log(dataString);
+		if(catStr.length != 0){
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: dataString,
+				success: function(response) {
+					maptool.markPositionAsNotBeingEdited();
+					maptool.update();
+					maptool.closeDialogues();
+					$('#book_position_dialogue input[type="text"], #book_position_dialogue textarea').val("");
+					$('.ssinfo').html('');
+				}
+			});
+		} else {
+			$('#book_category_scrollbox').css('border', '1px solid #f00');
+		}
 	});
 }
 
 maptool.markForApplication = function(positionObject) {
-	
+	$('#apply_category_input').css('border', '1px solid #666');
 	$('#apply_category_input, #apply_commodity_input').css('border-color', '#000000');
-	$('#apply_mark_dialogue input[type="text"], #apply_mark_dialogue textarea, #apply_mark_dialogue select').val("");
-	$('.mssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
-	
+	$('#apply_mark_dialogue textarea, #apply_mark_dialogue select').val("");
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+
 	maptool.openDialogue('apply_mark_dialogue');
 	
 	$("#apply_choose_more").unbind('click');
@@ -889,11 +906,13 @@ maptool.markForApplication = function(positionObject) {
 
 		var catStr = '';
 		for (var j=0; j<cats.length; j++) {
-			catStr += '&categories[]=' + cats[j];
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
 		}
 
-		if (cats === null) {
-			$('#apply_category_scrollbox').css('border-color', 'red');
+		if (cats.length == 0) {
+			$('#apply_category_scrollbox').css('border', '1px solid #f00');
 			return;
 		}
 		
@@ -918,7 +937,6 @@ maptool.markForApplication = function(positionObject) {
 			$('#apply_commodity_input').css('border-color', 'red');
 			return;
 		}
-		
 		var cats = new Array();
 		var count = 0;
 		$('#apply_category_scrollbox > p').each(function(){
@@ -929,8 +947,8 @@ maptool.markForApplication = function(positionObject) {
 			}
 		});
 
-		if (cats === null) {
-			$('#apply_category_input').css('border-color', 'red');
+		if (count == 0) {
+			$('#apply_category_scrollbox').css('border', '1px solid #f00');
 			return;
 		}
 		var exists = false;
@@ -989,11 +1007,11 @@ maptool.applyForPositions = function() {
 			}
 		}
 		
-		var dataString = encodeURIComponent(posStr)
-				   + encodeURIComponent(msgStr)
-				   + encodeURIComponent(comStr)
-				   + 'map=' + encodeURIComponent(maptool.map.id)
-				   + '&' + encodeURIComponent(catStr);
+		var dataString = posStr
+				   + msgStr
+				   + comStr
+				   + 'map=' + maptool.map.id
+				   + '&' + catStr;
 		
 		$.ajax({
 			url: 'ajax/maptool.php',
@@ -1012,8 +1030,9 @@ maptool.applyForPositions = function() {
 }
 
 maptool.applyForPosition = function(positionObject) {
-	
-	$('.pssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	$('#apply_category_input').css('border', '1px solid #666');
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 	
 	maptool.openDialogue('apply_position_dialogue');
 	$("#apply_post").click(function() {
@@ -1029,7 +1048,9 @@ maptool.applyForPosition = function(positionObject) {
 		});
 		var catStr = '';
 		for (var j=0; j<cats.length; j++) {
-			catStr += '&categories[]=' + cats[j];
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
 		}
 	
 		var dataString = 'preliminary=' + positionObject.id
@@ -1037,16 +1058,21 @@ maptool.applyForPosition = function(positionObject) {
 				   + '&message=' + $("#apply_message_input").val()
 				   + '&map=' + maptool.map.id
 				   + catStr;
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: dataString,
-			success: function(response) {
-				maptool.update();
-				maptool.closeDialogues();
-				$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
-			}
-		});
+
+		if(catStr.length != 0){
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: dataString,
+				success: function(response) {
+					maptool.update();
+					maptool.closeDialogues();
+					$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
+				}
+			});
+		}  else {
+			$('#apply_category_scrollbox').css('border', '1px solid #f00');
+		}
 	});
 }
 
@@ -1062,6 +1088,7 @@ maptool.cancelApplication = function(positionObject) {
 }
 
 maptool.editBooking = function(positionObject) {
+
 	if (positionObject.status == 2) {
 		//booked
 		//maptool.openDialogue('book_position_dialogue');
@@ -1071,6 +1098,21 @@ maptool.editBooking = function(positionObject) {
 		//maptool.openDialogue('reserve_position_dialogue');
 		var prefix = 'reserve';
 		$('#' + prefix + '_expires_input').val(positionObject.expires);
+	}
+
+	$('#'+prefix+'_category_input').css('border', '1px solid #666');
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	var categories = positionObject.exhibitor.categories;
+	$('#'+prefix+'_category_scrollbox > p > input').prop('checked', false);
+	for(var i = 0; i < categories.length; i++){
+		$('#'+prefix+'_category_scrollbox > p').each(function(){
+			var value = $(this).children().val();
+			
+			if(value == categories[i].category_id){
+					$(this).children().prop('checked', true);
+			}
+		});
 	}
 
 	$('#'+prefix+'_user_input').unbind('change');
@@ -1187,22 +1229,18 @@ maptool.editBooking = function(positionObject) {
 	$('#' + prefix + '_user_input option[value="' + positionObject.exhibitor.user + '"]').prop('selected', true);
 	
 	$('#' + prefix + '_category_input option').prop("selected", false);
-	
+	var categories = positionObject.exhibitor.categories;
+	$('#' + prefix + '_category_scrollbox > p > input').prop('checked', false);
 	for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
 		$('#'+prefix+'_category_scrollbox').children().each(function(j){
 			if(positionObject.exhibitor.categories[i].category_id == $(this).children('input').val()){
-				$(this).children('input').attr('checked', 'checked');
+				$(this).children('input').prop('checked', true);
 			}
 		});
 	}
 	
 	$("#" + prefix + "_post").unbind("click");
 	$("#" + prefix + "_post").click(function() {
-		var dataString = 'editBooking=' + encodeURIComponent(positionObject.id)
-				   + '&commodity=' + encodeURIComponent($("#" + prefix + "_commodity_input").val())
-				   + '&message=' + encodeURIComponent($("#" + prefix + "_message_input").val())
-				   + '&exhibitor_id=' + encodeURIComponent(positionObject.exhibitor.exhibitor_id)
-				   + '&map=' + encodeURIComponent(maptool.map.id);
 		
 		var cats = new Array();
 		var count = 0;
@@ -1215,11 +1253,19 @@ maptool.editBooking = function(positionObject) {
 			}
 		});
 
-		if (cats) {
-			for (var i=0; i<cats.length; i++) {
-				dataString += '&category[]=' + cats[i];
+		var catStr = '';
+		for (var j=0; j<cats.length; j++) {
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
 			}
 		}
+
+		var dataString = 'editBooking=' + positionObject.id
+				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
+				   + '&message=' + $("#" + prefix + "_message_input").val()
+				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
+				   + '&map=' + maptool.map.id
+				   + catStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + $("#" + prefix + "_user_input").val();
@@ -1228,19 +1274,23 @@ maptool.editBooking = function(positionObject) {
 		if (positionObject.status == 1) {
 			dataString += '&expires=' + $("#" + prefix + "_expires_input").val();
 		}
-		
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: dataString,
-			success: function(response) {
-				maptool.markPositionAsNotBeingEdited();
-				maptool.update();
-				maptool.closeDialogues();
-				$('#' + prefix + 'book_position_dialogue input[type="text"], #' + prefix + '_position_dialogue textarea').val("");
-				$('.ssinfo').html('');
-			}
-		});
+
+		if(catStr.length > 0){
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: dataString,
+				success: function(response) {
+					maptool.markPositionAsNotBeingEdited();
+					maptool.update();
+					maptool.closeDialogues();
+					$('#' + prefix + 'book_position_dialogue input[type="text"], #' + prefix + '_position_dialogue textarea').val("");
+					$('.ssinfo').html('');
+				}
+			});
+		} else {
+			$('#'+prefix+'_category_scrollbox').css('border', '1px solid #f00');
+		}
 	});
 	
 }
@@ -1308,11 +1358,12 @@ maptool.searchForExhibitor = function(searchTerm, box){
 */
 //Reserve open position
 maptool.reservePosition = function(positionObject) {
-	$('#reserve_category_input').css('border-color', '#000000');
+	$('#reserve_category_input').css('border', '1px solid #666');
 	
 	if (maptool.map.userlevel < 2) {
 		$('#reserve_user_input, label[for="reserve_user_input"]').hide();
 	}
+
 	if (positionObject.status == 2) {
 		$("#reserve_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#reserve_message_input").val(positionObject.exhibitor.arranger_message);
@@ -1333,8 +1384,8 @@ maptool.reservePosition = function(positionObject) {
 	maptool.openDialogue('reserve_position_dialogue');
 
 	$('#reserve_position_dialogue h3 .standSpaceName').text(positionObject.name);
-
-	$('.ssinfo').html('<strong>'+lang.area + ': ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 
 	$('#reserve_user_input').unbind('change');
 	$('#reserve_user_input').change(function() {
@@ -1483,8 +1534,11 @@ maptool.reservePosition = function(positionObject) {
 
 		var catStr = '';
 		for (var j=0; j<cats.length; j++) {
-			catStr += '&categories[]=' + cats[j];
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
 		}
+
 		var dataString = 'reservePosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
@@ -1495,21 +1549,25 @@ maptool.reservePosition = function(positionObject) {
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
 		}
-
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: dataString,
-			success: function(response) {
-				maptool.markPositionAsNotBeingEdited();
-				maptool.update();
-				//document.location = document.location.replace('reserve', '');
-				reserveId = false;					
-				maptool.closeDialogues();
-				$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
-				$('.ssinfo').html('');
-			}
-		});
+		
+		if(catStr.length != 0){
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: dataString,
+				success: function(response) {
+					maptool.markPositionAsNotBeingEdited();
+					maptool.update();
+					//document.location = document.location.replace('reserve', '');
+					reserveId = false;					
+					maptool.closeDialogues();
+					$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
+					$('.ssinfo').html('');
+				}
+			});
+		}  else {
+			$('#reserve_category_scrollbox').css('border', '1px solid #f00');
+		}
 
 	});
 }

@@ -293,7 +293,7 @@ function makeUserOptions3($sel=0, $fair) {
 		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />
 		<h2></h2>
 		<h3>Kommentarer för </h3>
-		<div class="commentList">
+		<div class="commentList" style="max-height:280px; margin-bottom:30px; overflow-y:scroll;">
 			<ul>
 				<li>
 					<div class="comment">
@@ -368,7 +368,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'Apply for stand space'} ?></h3>
 	
-	<div class="mssinfo"></div>
+	<div class="ssinfo"></div>
 	
 	<label for="apply_category_scrollbox"><?php echo $translator->{'Category'} ?></label>
 	<div style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;" id="apply_category_scrollbox">
@@ -380,7 +380,12 @@ function makeUserOptions3($sel=0, $fair) {
 	</div>
 	
 	<label for="apply_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<input type="text" name="apply_commodity_input" id="apply_commodity_input"/>
+	<?php if(isset($me)) : ?>
+		<input type="text" name="apply_commodity_input" id="apply_commodity_input" value="<?php echo $me->get('commodity')?>"/>
+	<?php else : ?>
+		<input type="text" name="apply_commodity_input" id="apply_commodity_input"/>
+	<?php endif; ?>
+
 
 	<label for="apply_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
 	<textarea name="apply_message_input" id="apply_message_input"></textarea>

@@ -172,7 +172,7 @@
 <h2 class="tblsite"><?php echo $table_connected ?></h2>
 <?php if(count($connected) > 0 ) : ?>
 <div class="tbld tbl2">
-<a onclick="prepareTable('connected')"><button style="float:left; margin-top:17px;"><?php echo $export?></button></a>
+<!--<a onclick="prepareTable('connected')"><button style="float:left; margin-top:17px;"><?php echo $export?></button></a>-->
 <div class="tblHeader" id="hconnected">
 	<ul>
 		<li><div class="tblrow1"><?php echo $th_company; ?></div><input type="checkbox" value="1" checked></input></li>

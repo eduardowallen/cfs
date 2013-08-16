@@ -31,7 +31,7 @@ $maps = $maps[0]->get('positions');
 		<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
 		<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$pos->get('map');  ?>" title="<?php echo $tr_view; ?>">
+			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
@@ -73,7 +73,7 @@ $maps = $maps[0]->get('positions');
 		<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
 		<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$pos->get('map'); ?>" title="<?php echo $tr_view; ?>">
+			<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
@@ -98,6 +98,7 @@ $maps = $maps[0]->get('positions');
 	</tr>
 </thead>
 <tbody>
+<?php $count = 0; ?>
 <?php foreach($prelpos as $pos): ?>
 <?php
 $booking_time = $pos->get('exhibitor')->getPreliminaries($_SESSION['user_id']);
@@ -110,6 +111,7 @@ $fair->load($map->get('fair'), 'id');
 $maps = $fair->get('maps');
 $maps = $maps[0]->get('positions');
 //$maps = $maps[2]->get('positions');
+
 ?>
 	<tr>
 		<td><?php echo $fair->get('name'); ?></td>
@@ -117,20 +119,21 @@ $maps = $maps[0]->get('positions');
 		<td class="center"><?php echo $pos->get('area'); ?></td>
 		<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
 		<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
-		<td class="center"><?php echo date('d-m-Y H:i:s', $booking_time[0]['booking_time']); ?></td>
+		<td class="center"><?php echo date('d-m-Y H:i:s', $booking_time[$count]['booking_time']); ?></td>
 		<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'mapTool/map/'.$booking_time[0]['fair'].'/'.$pos->get('id').'/'.$pos->get('map'); ?>" title="<?php echo $tr_view; ?>">
+			<a href="<?php echo BASE_URL.'mapTool/map/'.$booking_time[$count]['fair'].'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 				<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 			</a>
 		</td>
 		<td class="center">
-			<a href="<?php echo BASE_URL.'exhibitor/pre_delete/'.$booking_time[0]['id'].'/'.$_SESSION['user_id'].'/'.$booking_time[0]['position']; ?>" title="<?php echo $tr_delete; ?>" onclick="return confirm('<?php echo $confirm_delete; ?>');">
+			<a href="<?php echo BASE_URL.'exhibitor/pre_delete/'.$booking_time[$count]['id'].'/'.$_SESSION['user_id'].'/'.$booking_time[$count]['position']; ?>" title="<?php echo $tr_delete; ?>" onclick="return confirm('<?php echo $confirm_delete; ?>');">
 				<img src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 			</a>
 		</td>
 
 	</tr>
+<?php $count++?>
 <?php endforeach; ?>
 </tbody>
 </table>

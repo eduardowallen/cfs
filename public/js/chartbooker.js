@@ -78,15 +78,15 @@ function closeDialogue(pref){
 	$('#'+pref+'_position_dialogue').css('display', 'none');
 }
 
-function denyPosition(link, comment){
-	if(confirm(confirmDialogue)){
+function denyPosition(link, comment, position, status){
 		$.ajax({
 			url : link,
 			type: 'POST',
-			data: 'comment='+comment
-		})
-		window.location = 'administrator/newReservations';
-	}
+			data: 'comment='+comment+'&positionName='+position+'&status='+status
+		}).success(function(response){
+			//console.log(response);
+			window.location = 'administrator/newReservations';
+		});
 }
 
 function ajaxContent(e, handle) {

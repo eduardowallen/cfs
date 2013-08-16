@@ -60,7 +60,7 @@
 	lang.company_section = '<?php echo $translator->{"Company"} ?>';
 	lang.invoice_section = '<?php echo $translator->{"Billing address"} ?>';
 	lang.contact_section = '<?php echo $translator->{"Contact"} ?>';
-	lang.contact_email = '<?php echo $translateor->{"Contact Email"} ?>';
+	lang.contact_email = '<?php echo $translator->{"Contact Email"} ?>';
 	lang.copy_label = '<?php echo $translator->{"Copy from company details"} ?>';
 </script>
 <?php if (userLevel() > 0): ?>
@@ -137,9 +137,9 @@
 
 				if (userLevel() == 1) {
 					echo '<style>
-						#header ul li{background-color:#73d367;}
+						#header ul li{background-color:#82c979;}
 						#header ul li a, #header ul li span{background:none; border:0;}
-						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#73d367; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#82c979; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
 					</style>';
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
