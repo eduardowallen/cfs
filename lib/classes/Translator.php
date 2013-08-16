@@ -1,10 +1,8 @@
 <?php
 class Translator {
-	
 	private $lang_file_path = 'application/lang/';
 	private $lang;
 	private $data;
-	
 	public function __construct($lang) {
 		$this->lang = $lang;
 		if (file_exists(ROOT.$this->lang_file_path.$this->lang.'.json')) {
@@ -14,7 +12,7 @@ class Translator {
 	}
 	
 	public function __get($val) {
-
+		// Om translate == true, så sparas strängar som kan översättas i databasen.
 			global $globalDB;
 			$this->db = $globalDB;
 		
