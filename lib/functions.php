@@ -172,7 +172,7 @@ function logToDB($db, $action, $data) {
 	$stmt->execute(array($_SESSION['user_id'], $action, time(), $data));
 }
 
-function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=nulll) {
+function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 	
 	if (userLevel() < 2) {
 		$toolbar = 'theme_advanced_buttons1 : "undo,redo,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste",

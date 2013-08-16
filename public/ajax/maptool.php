@@ -299,11 +299,9 @@ if (isset($_POST['editBooking'])) {
 	
 	$map->db->query("DELETE FROM exhibitor_category_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
 	
-	if (isset($_POST['category'])) {
-		foreach ($_POST['category'] as $cat) {
-			echo "INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES ('".intval($_POST['exhibitor_id'])."', '".intval($cat)."')";
-			$map->db->query("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES ('".intval($_POST['exhibitor_id'])."', '".intval($cat)."')");
-		}
+	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+	foreach ($_POST['categories'] as $cat) {
+		$stmt->execute(array($exId, $cat));
 	}
 	
 	//$pos->set('status', 1);
@@ -447,8 +445,8 @@ if (isset($_POST['connectToFair'])) {
 }
 
 if(isset($_POST['makeComment'])){
-	$comment = new Comment;
 	session_start();
+	$comment = new Comment;
 	$me = new User;
 	$me->load($_SESSION['user_id'], 'id');
 	$author = $me->get('name');

@@ -41,7 +41,7 @@ function showLabel($label) {
 <?php echo '<strong>'.$label_country.':</strong> '.$user->get('country'); ?><br />
 <?php echo '<strong>'.$label_phone1.':</strong> '.$user->get('phone1'); ?><br />
 <?php echo '<strong>'.$label_phone2.':</strong> '.$user->get('phone2'); ?><br />
-<?php echo '<strong>'.$label_phone3.':</strong> '.$user->get('phone3'); ?><br />
+<?php echo '<strong>'.$label_phone3.':</strong> '.$user->get('contact_phone'); ?><br />
 <?php echo '<strong>'.$label_fax.':</strong> '.$user->get('fax'); ?><br />
 <?php echo '<strong>'.$label_website.':</strong> <a target="_blank" href="' . $user->get('website') . '">' . $user->get('website') . '</a>'; ?><br />
 <?php echo '<strong>'.$label_email.':</strong> <a href="mailto:' . $user->get('email') . '">' . $user->get('email') . '</a>'; ?><br />

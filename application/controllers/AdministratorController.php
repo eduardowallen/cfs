@@ -426,7 +426,7 @@ class AdministratorController extends Controller {
 		$u = new User;
 		$u->load($_SESSION['user_id'], 'id');
 
-		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.map FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 2));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$positions_unfinished = $result;
@@ -463,7 +463,7 @@ class AdministratorController extends Controller {
 		
 
 
-		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, ex.id AS posid FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.map, ex.id AS posid FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 1));
 		
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -498,7 +498,7 @@ class AdministratorController extends Controller {
 		endforeach;
 
 
-		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
+		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, pos.map, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
 		$stmt->execute(array($_SESSION['user_fair']));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$prelpos = $result;
@@ -506,11 +506,10 @@ class AdministratorController extends Controller {
 		$this->set('positions', $positions);
 		$this->set('rpositions', $rpositions);
 		$this->set('prelpos', $prelpos);
-
+		$this->set('deletion_comment', 'Enter comment about deletion');
 		$this->set('booked_notfound', 'No booked booths was found.');
 		$this->set('reserv_notfound', 'No reservations was found.');
 		$this->set('prel_notfound', 'No preliminary bookings was found.');
-
 		$this->set('prel_table', 'Preliminary bookings');
 		$this->set('tr_fair', 'Fair');
 		$this->set('tr_pos', 'Stand space');
@@ -525,7 +524,6 @@ class AdministratorController extends Controller {
 		$this->set('tr_deny', 'Deny');
 		$this->set('tr_reserve', 'Reserve stand space');
 		$this->set('confirm_delete', 'Are you sure?');
-		$this->set('deletion_comment', '');
 		$this->set('export', 'Export to Excel');
 		$this->set('col_export_err', 'Select at least one column in order to export!');
 		$this->set('row_export_err', 'Select at least one row in order to export!');
@@ -805,23 +803,35 @@ WHERE user.owner = ? AND user.level = ?");
 	public function deleteBooking($id = 0, $posId = 0) {
 		setAuthLevel(2);
 
+		$positionName = $_POST['positionName'];
 		$comment = $_POST['comment'];
-		
+		$status = $_POST['status'];
+
+		if($status == "Preliminary Booking"):
+			$pb = new PreliminaryBooking;
+			$pb->load($id, 'id');
+			
+
+			$u = new User();
+			$u->load($pb->get('user'), 'id');
+			$pb->delete();
+		else:
+			$exhib = new Exhibitor;
+			$exhib->load($id, 'id');
+
+			$u = new User;
+			$u->load($exhib->get('user'), 'id');
+
+			$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND position = ?");
+			$stmt->execute(array($id, $posId));
+
+			$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
+			$stmt->execute(array($posId));
+		endif;
+
 		if(empty($comment)):
 			$comment = " ";
 		endif;
-		
-		$exhib = new Exhibitor;
-		$exhib->load($id, 'id');
-
-		$u = new User;
-		$u->load($exhib->get('user'), 'id');
-
-		$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND position = ?");
-		$stmt->execute(array($id, $posId));
-
-		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
-		$stmt->execute(array($posId));
     
     $mail = new Mail($u->get('email'), 'booking_cancelled');
     $mail->send();

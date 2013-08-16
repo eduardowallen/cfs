@@ -11,9 +11,9 @@
 
 		*/
 
-		public static function convertValues($amount, $from, $to){
+		public static function convertValues($from, $to){
 			/* Hämta information med cURL */
-			$requestUrl = "http://www.google.com/ig/calculator?hl=en&q=".$amount."".$from."=?".$to;
+			$requestUrl = "http://www.google.com/ig/calculator?hl=en&q=1".$from."=?".$to;
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 			curl_setopt($ch, CURLOPT_URL, $requestUrl);
@@ -21,9 +21,18 @@
 			/* Hämta information med cURL */
 
 			/* Plocka ut relevant information */
-			$response = utf8_encode($data);
-			echo json_decode($response);
-		
+			$response =  substr($data, 3);
+			$response =$response;
+			$response = json_decode($response);
+			print_r($response);
 		}
+
+
+		public static function storeValues(){
+
+
+		}
+
+		
 	}
 ?>

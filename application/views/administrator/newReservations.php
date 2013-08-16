@@ -11,7 +11,7 @@
 	margin-top:-200px;
 	padding:20px;
 	background:#ffffff;
-	border:4px solid #33333
+	border:4px solid #333333;
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
 	border-radius:8px;
@@ -46,10 +46,13 @@
 <h1><?php echo $fair->get('name'); ?></h1> 
 <script type="text/javascript">
 	var confirmDialogue = "<?php echo $confirm_delete?>";
+	var deletion = "<?php echo $deletion_comment?>";
 
-	function denyPrepPosition(link){
-		var message = prompt("<?php echo $deletion_comment?>", "");
-		denyPosition(link, message);
+	function denyPrepPosition(link, position, status){
+		if(confirm(confirmDialogue)){
+			var message = prompt(deletion, "");
+			denyPosition(link, message, position, status);
+		}
 	}
 
 	function hider(btn,elem){
@@ -217,6 +220,9 @@
 		<option id="reserve_user"></option>
 	</select>
 
+	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
+	<input type="text" class="dialogueInput date datepicker" name="reserve_expires_input" id="reserve_expires_input" value="<?php echo date('d-m-Y', $fairCloses);  ?>"/>
+
 	<p><a id="reserve_post"><input type="button" value="<?php echo $translator->{'Confirm reservation'} ?>"/></a></p>
 
 </div>
@@ -301,7 +307,7 @@
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')">
+						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
 		
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
 						</a>
@@ -372,13 +378,13 @@
 				</td>
 				
 				<td class="center">
-					<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_delete; ?>">
+					<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Reservation')">
 						<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 					</a>
 				</td>
 				<td class="center">
 					<?php //echo "href=".BASE_URL.'administrator/approveReservation/'.$pos['position'] ?><?php //echo " title=".$tr_approve; ?>
-					<a onclick="showPopup('book',this)">
+					<a  style="cursor:pointer;"  onclick="showPopup('book',this)">
 						<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 					</a>
 				</td>
@@ -396,8 +402,7 @@
 
 
 
-	<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
-	
+<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
 <div class="tbld tbl3">
 <?php if(count($prelpos) > 0){ ?>
 	<div class="tblHeader" id="hprem">
@@ -435,8 +440,23 @@
 		</thead>
 			<tbody>
 			<?php foreach($prelpos as $pos): ?>
-				<tr id="prem-<?php echo $page.'-'.$count; ?>" <?php if($page>1){echo 'style="display:none;"';}?>>
-					<td><?php echo $pos['name']; ?></td>
+				<?php
+					$hidden = 0;
+					foreach($rpositions as $postemp):
+						if($postemp['position'] == $pos['position']):
+							$hidden = 1;
+						endif;
+					endforeach;
+
+					foreach($positions as $postemp):
+						if($postemp['position'] == $pos['position']):
+							$hidden = 1;
+						endif;
+					endforeach;
+				?>
+				<?php if($hidden == 0) : ?>
+				<tr id="prem" <?php if($page>1){echo 'style="display:none;"';}?>>
+					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
@@ -451,26 +471,25 @@
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>')" title="<?php echo $tr_deny; ?>">
+						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Preliminary Booking')">
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
 						</a>
 					</td>
-				
 					<td class="center">
 						<?php //echo BASE_URL.'administrator/newReservations/approve/'.$pos['id'] ?><?php //echo $tr_approve; ?>
-						<a onclick="showPopup('book',this)">
+						<a style="cursor:pointer;" onclick="showPopup('book',this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 						</a>
 					</td>
 					<td class="center">
 						<!-- <a href="<?php //echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id'] ?>" title="<?php //echo $tr_reserve; ?>"> -->
-						<a onclick="showPopup('reserve',this)">
+						<a style="cursor:pointer;" onclick="showPopup('reserve',this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>
 					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked></input></td>
-
 				</tr>
+				<?php endif?>
 			<?php endforeach;?>
 			</tbody>
 		</table>

@@ -272,19 +272,19 @@
 	<div class="form_column">
 		<h3><?php echo $invoice_section; ?></h3>
 			<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
-			<label for="invoice_company"><?php echo $invoice_company_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
+			<label for="invoice_company"><?php echo $invoice_company_label; ?> *</label>
 			<input type="text" name="invoice_company" id="invoice_company" value="<?php echo $user->get('invoice_company'); ?>"/>
 
-			<label for="invoice_address"><?php echo $invoice_address_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
+			<label for="invoice_address"><?php echo $invoice_address_label; ?> *</label>
 			<input type="text" name="invoice_address" id="invoice_address" value="<?php echo $user->get('invoice_address'); ?>"/>
 
-			<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
+			<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> *</label>
 			<input type="text" name="invoice_zipcode" id="invoice_zipcode" value="<?php echo $user->get('invoice_zipcode'); ?>"/>
 
-			<label for="invoice_city"><?php echo $invoice_city_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
+			<label for="invoice_city"><?php echo $invoice_city_label; ?> *</label>
 			<input type="text" name="invoice_city" id="invoice_city" value="<?php echo $user->get('invoice_city'); ?>"/>
 
-			<label for="invoice_email"><?php echo $invoice_email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
+			<label for="invoice_email"><?php echo $invoice_email_label; ?> *</label>
 			<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
 	
 			<label for="presentation"><?php echo $presentation_label; ?></label>

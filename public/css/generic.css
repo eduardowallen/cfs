@@ -85,7 +85,7 @@ h3 {
 }
 label {
 	display:block;
-	width:300px;
+	max-width:250px;
 	padding:8px 0 0 0;
 	font-size:12px;
 	font-weight:700;
