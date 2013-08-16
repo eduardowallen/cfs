@@ -244,11 +244,15 @@
 	
 		<label for="city"><?php echo $city_label; ?> *</label>
 		<input type="text" name="city" id="city" value="<?php echo $user->get('city'); ?>"/>
-	
+
 		<label for="country"><?php echo $country_label; ?> *</label>
 		<select name="country" id="country" style="width:258px;">
 		<?php foreach($country_list as $country) : ?>
-			<option value="<?php echo $country?>"><?php echo $country?></option>
+			<?php if($country == $user->get('country')):?>
+				<option value="<?php echo $country?>" selected><?php echo $country?></option>
+			<?php else:?>
+				<option value="<?php echo $country?>"><?php echo $country?></option>
+			<?php endif?>
 		<?php endforeach; ?>
 		</select>
 
@@ -284,6 +288,17 @@
 			<label for="invoice_city"><?php echo $invoice_city_label; ?> *</label>
 			<input type="text" name="invoice_city" id="invoice_city" value="<?php echo $user->get('invoice_city'); ?>"/>
 
+			<label for="invoice_country"><?php echo $country_label; ?> *</label>
+			<select name="invoice_country" id="invoice_country" style="width:258px;">
+			<?php foreach($country_list as $country) : ?>
+				<?php if($country == $user->get('invoice_country')):?>
+					<option value="<?php echo $country?>" selected><?php echo $country?></option>
+				<?php else:?>
+					<option value="<?php echo $country?>"><?php echo $country?></option>
+				<?php endif?>
+			<?php endforeach; ?>
+			</select>
+
 			<label for="invoice_email"><?php echo $invoice_email_label; ?> *</label>
 			<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
 	
@@ -309,6 +324,7 @@
 
 		<label for="contact_email"><?php echo $contact_email ?> *</label>
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
+
 	</div>
 	<?php endif; ?>	
 	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
