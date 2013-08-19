@@ -109,27 +109,32 @@ class AdministratorController extends Controller {
 
 		if (isset($_POST['save'])) {
 			
-			$user->set('alias', $_POST['username']);
-			$user->set('company', $_POST['company']);
-			$user->set('name', $_POST['name']);
 			$user->set('orgnr', $_POST['orgnr']);
+			$user->set('company', $_POST['company']);
+			$user->set('commodity', $_POST['commodity']);
 			$user->set('address', $_POST['address']);
 			$user->set('zipcode', $_POST['zipcode']);
 			$user->set('city', $_POST['city']);
 			$user->set('country', $_POST['country']);
 			$user->set('phone1', $_POST['phone1']);
 			$user->set('phone2', $_POST['phone2']);
-			$user->set('phone3', $_POST['phone3']);
 			$user->set('fax', $_POST['fax']);
-			$user->set('website', $_POST['website']);
 			$user->set('email', $_POST['email']);
+			$user->set('website', $_POST['website']);
+      
 			$user->set('invoice_company', $_POST['invoice_company']);
 			$user->set('invoice_address', $_POST['invoice_address']);
 			$user->set('invoice_zipcode', $_POST['invoice_zipcode']);
 			$user->set('invoice_city', $_POST['invoice_city']);
+			$user->set('invoice_country', $_POST['invoice_country']);
 			$user->set('invoice_email', $_POST['invoice_email']);
-			$user->set('commodity', $_POST['commodity']);
 			$user->set('presentation', $_POST['presentation']);
+      
+			$user->set('alias', $_POST['alias']);
+			$user->set('name', $_POST['name']);
+			$user->set('contact_phone', $_POST['phone3']);
+			$user->set('contact_phone2', $_POST['phone4']);
+			$user->set('contact_email', $_POST['contact_email']);
 			$user->set('level', 1);
 			$user->set('locked', 0);
 
@@ -149,7 +154,7 @@ class AdministratorController extends Controller {
 				$userId = $user->save();
         $mail = new Mail($user->email, 'event_account');
         $mail->setMailVar('url', BASE_URL.$fair->get('url'));
-        $mail->setMailVar('alias', $_POST['username']);
+        $mail->setMailVar('alias', $_POST['alias']);
         $mail->setMailVar('password', $str);
         $mail->send();
 
@@ -180,35 +185,44 @@ class AdministratorController extends Controller {
 		$this->set('error', $error);
 		$this->set('user', $user);
 		
-		$this->set('alias_label', 'Username');
-		$this->set('copy_label', 'Copy from company details');
+		//$this->set('category_label', 'Category');
+		//$this->set('customer_nr_label', 'Customer number');
+    
 		$this->set('headline', 'New exhibitor');
-		$this->set('invoice_section', 'Billing address');
+    
 		$this->set('fair_label', 'Fair');
-		$this->set('company_label', 'Company');
-		$this->set('category_label', 'Category');
-		$this->set('presentation_label', 'Presentation');
-		$this->set('commodity_label', 'Commodity');
-		$this->set('customer_nr_label', 'Customer number');
-		$this->set('contact_label', 'Contact person');
-		$this->set('orgnr_label', 'Organization number');
-		$this->set('address_label', 'Address');
-		$this->set('zipcode_label', 'Zip code');
-		$this->set('city_label', 'City');
-		$this->set('country_label', 'Country');
-		$this->set('phone1_label', 'Phone 1');
-		$this->set('phone2_label', 'Phone 2');
-		$this->set('phone3_label', 'Phone 3');
-		$this->set('fax_label', 'Fax number');
-		$this->set('website_label', 'Website');
-		$this->set('email_label', 'E-mail');
-		$this->set('invoice_company_label', 'Company');
-		$this->set('invoice_address_label', 'Address');
-		$this->set('invoice_zipcode_label', 'Zip code');
-		$this->set('invoice_city_label', 'City');
-		$this->set('invoice_email_label', 'E-mail');
-		$this->set('save_label', 'Save');
 
+		$this->set('company_section', 'Company');
+    $this->set('orgnr_label', 'Organization number');
+    $this->set('company_label', 'Company');
+    $this->set('commodity_label', 'Commodity');
+    $this->set('address_label', 'Address');
+    $this->set('zipcode_label', 'Zip code');
+    $this->set('city_label', 'City');
+    $this->set('country_label', 'Country');
+    $this->set('phone1_label', 'Phone 1');
+    $this->set('phone2_label', 'Phone 2');
+    $this->set('fax_label', 'Fax number');
+    $this->set('email_label', 'E-mail');
+    $this->set('website_label', 'Website');
+    
+		$this->set('invoice_section', 'Billing address');
+		$this->set('copy_label', 'Copy from company details');
+    $this->set('invoice_company_label', 'Company');
+    $this->set('invoice_address_label', 'Address');
+    $this->set('invoice_zipcode_label', 'Zip code');
+    $this->set('invoice_city_label', 'City');
+    $this->set('invoice_email_label', 'E-mail');
+    $this->set('presentation_label', 'Presentation');
+    
+		$this->set('contact_section', 'Contact person');
+    $this->set('alias_label', 'Alias');
+    $this->set('contact_label', 'Contact person');
+    $this->set('phone3_label', 'Contact Phone');
+    $this->set('phone4_label', 'Contact Phone 2');
+    $this->set('contact_email', 'Contact Email');
+    
+		$this->set('save_label', 'Save');
 	}
 
 
