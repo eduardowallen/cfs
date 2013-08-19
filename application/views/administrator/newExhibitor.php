@@ -196,7 +196,19 @@
 ?>
 <h1><?php echo $headline; ?></h1>
 <form action="administrator/newExhibitor" method="post">
+  <?php if(isset($error) && $error != ''): ?>
+    <p class="error"><?php echo $error; ?></p>
+  <?php endif; ?>
+	
+	<label for="fair"><?php echo $fair_label; ?> *</label>
+	<select name="fair" id="fair">
+		<?php foreach ($fairs as $fair): ?>
+		<option<?php if (isset($_SESSION['user_fair']) && $_SESSION['user_fair'] == $fair->get('id')) { echo ' selected="selected"'; } ?> value="<?php echo $fair->get('id'); ?>"><?php echo $fair->get('name'); ?></option>
+		<?php endforeach; ?>
+	</select>
+	<br class="clear">
   
+	<div class="form_column">
   <h3><?php echo $company_section; ?></h3>
 	
 		<label for="orgnr"><?php echo $orgnr_label; ?> *</label>
@@ -288,7 +300,7 @@
 	<div class="form_column">
 		<h3><?php echo $contact_section; ?></h3>
 		<label for="alias"><?php echo $alias_label; ?> *</label>
-		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>" disabled="disabled"/>
+		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>"/>
 
 		<label for="name"><?php echo $contact_label; ?> *</label>
 		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
@@ -303,6 +315,5 @@
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
 
 	</div>
-	<?php endif; ?>	
 	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 </form>
