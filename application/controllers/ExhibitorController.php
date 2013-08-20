@@ -590,15 +590,12 @@ class ExhibitorController extends Controller {
 				if ($fairUrl != '') {
 					$fair = new Fair($this->Exhibitor->db);
 					$fair->load($fairUrl, 'url');
-
-					$str = 'Welcome to Chartbooker'."\r\n\r\n";
-					$str.= 'Someone has registered this e-mail address for the fair '.$fair->get('name')."\r\n";
-					$str.= 'Username: '.$_POST['alias']."\r\n";
-					$str.= 'Password: '.$password."\r\n";
-					$str.= 'Access level: Participant'."\r\n";
-					$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
-
-					sendMail($_POST['email'], 'Your user account', $str);
+          
+          $mail = new Mail($_POST['email'], 'new_account');
+          $mail->setMailVar('alias', $_POST['alias']);
+          $mail->setMailVar('password', $password);
+          $mail->setMailVar('accesslevel', 'Participant');
+          $mail->send();
 
 					require_once ROOT.'application/models/Exhibitor.php';
 					require_once ROOT.'application/models/ExhibitorCategory.php';
@@ -614,12 +611,11 @@ class ExhibitorController extends Controller {
 						$ful->save();
 					}
 				} else {
-					$str = 'Welcome to Chartbooker'."\r\n\r\n";
-					$str.= 'Username: '.$_POST['alias']."\r\n";
-					$str.= 'Password: '.$password."\r\n";
-					$str.= 'Access level: Participant';
-
-					sendMail($_POST['email'], 'Your user account', $str);
+          $mail = new Mail($_POST['email'], 'welcome');
+          $mail->setMailVar('alias', $_POST['alias']);
+          $mail->setMailVar('password', $password);
+          $mail->setMailVar('accesslevel', 'Participant');
+          $mail->send();
 				}
 				$this->set('js_confirm_text', 'The user was created successfully.');
 

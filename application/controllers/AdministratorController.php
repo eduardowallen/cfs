@@ -145,10 +145,14 @@ class AdministratorController extends Controller {
 				$fair = new Fair;
 				$fair->load($_POST['fair'], 'id');
 				$this->set('d', $fair->get('url'));
-				$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$fair->get('url')."\r\n\r\nUsername: ".$_POST['username']."\r\nPassword: ".$str;
+				//$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$fair->get('url')."\r\n\r\nUsername: ".$_POST['username']."\r\nPassword: ".$str;
 				$user->setPassword($str);
 				$userId = $user->save();
-				sendMail($user->email, 'Your password', $msg);
+        $mail = new Mail($user->email, 'event_account');
+        $mail->setMailVar('url', BASE_URL.$fair->get('url'));
+        $mail->setMailVar('alias', $_POST['username']);
+        $mail->setMailVar('password', $str);
+        $mail->send();
 
 				//require_once ROOT.'application/models/FairUserRelation.php';
 				$stmt = $this->Administrator->db->prepare("INSERT INTO fair_user_relation (fair, user) VALUES (?, ?)");
@@ -375,9 +379,8 @@ class AdministratorController extends Controller {
 			$u = new User;
 			$u->load($pb->get('user'), 'id');
 			
-			$emstr = "Dear user,\r\n\r\nWe regret to inform you that your reservation has been cancelled by an administrator.";
-			$emstr.= "\r\n\r\nBest regards,\r\nChartbooker International";
-			sendMail($u->get('email'), 'Reservation cancelled', $emstr);
+      $mail = new Mail($u->get('email'), 'reservation_cancelled');
+      $mail->send();
 			
 			$pb->delete();
 			header("Location: ".BASE_URL."administrator/newReservations");
@@ -812,9 +815,8 @@ WHERE user.owner = ? AND user.level = ?");
 		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
 		$stmt->execute(array($posId));
 
-		$emstr = "Dear user,\r\n\r\nWe regret to inform you that your booking has been cancelled by an administrator.";
-		$emstr.= "\r\n\r\nBest regards,\r\nChartbooker International";
-		sendMail($u->get('email'), 'Booking cancelled', $emstr);
+    $mail = new Mail($u->get('email'), 'booking_cancelled');
+    $mail->send();
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 	}

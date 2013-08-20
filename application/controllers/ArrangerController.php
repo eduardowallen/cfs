@@ -331,16 +331,13 @@ ORDER BY creation_time DESC";
 
 					$this->Arranger->set('password', $password);
 
-					$str = 'Welcome to Chartbooker'."\r\n\r\n";
-					$str.= "Someone has registered this e-mail address for the Chartbooker fair system\r\n";
-					$str.= 'Username: '.$_POST['alias']."\r\n";
-					$str.= 'Password: '.$password."\r\n";
-					$str.= 'Access level: Organizer'."\r\n";
-
-
-					//$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
-
-					sendMail($_POST['email'], 'Your user account', $str);
+          $mail = new Mail($_POST['email'], 'new_account');
+          $mail->setMailVar('alias', $_POST['alias']);
+          $mail->setMailVar('password', $password);
+          $mail->setMailVar('accesslevel', 'Organizer');
+          $mail->send();
+          
+					// //$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
 				} else {
 					if ($this->Arranger->get('email') != $_POST['email'] && $this->Arranger->emailExists($_POST['email'])) {
 						$this->set('user_message', 'The email address already exists in our system.');
