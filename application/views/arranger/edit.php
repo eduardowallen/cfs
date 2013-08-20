@@ -198,7 +198,7 @@
 
 <!--<a class="button settings floatright" href="user/changePassword"><?php echo $translator->{'Change password'} ?></a>-->
 
-<form action="user/accountSettings" method="post">
+<form action="arranger/edit/<?php echo $edit_id; ?>" method="post">
 	<div class="form_column">
 		<h3><?php echo $company_section; ?></h3>
 	
