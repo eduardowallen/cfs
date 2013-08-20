@@ -825,7 +825,6 @@ WHERE user.owner = ? AND user.level = ?");
 			$pb = new PreliminaryBooking;
 			$pb->load($id, 'id');
 			
-
 			$u = new User();
 			$u->load($pb->get('user'), 'id');
 			$pb->delete();

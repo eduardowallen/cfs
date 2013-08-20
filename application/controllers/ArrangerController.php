@@ -341,7 +341,6 @@ ORDER BY creation_time DESC";
           $mail->setMailVar('accesslevel', 'Organizer');
           $mail->send();
           
-					// //$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
 				} else {
 					if ($this->Arranger->get('email') != $_POST['email'] && $this->Arranger->emailExists($_POST['email'])) {
 						$this->set('user_message', 'The email address already exists in our system.');
