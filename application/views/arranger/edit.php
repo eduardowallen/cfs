@@ -278,7 +278,7 @@
 	<div class="form_column">
 		<h3><?php echo $contact_section; ?></h3>
 		<label for="alias"><?php echo $alias_label; ?> *</label>
-		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>" disabled="disabled"/>
+		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>"<?php if ($edit_id != 'new') { echo 'disabled="disabled"'; } ?>/>
 
 		<label for="name"><?php echo $contact_label; ?> *</label>
 		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
