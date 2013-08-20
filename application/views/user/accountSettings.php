@@ -244,7 +244,7 @@
 	
 		<label for="city"><?php echo $city_label; ?> *</label>
 		<input type="text" name="city" id="city" value="<?php echo $user->get('city'); ?>"/>
-	
+
 		<label for="country"><?php echo $country_label; ?> *</label>
 		<select name="country" id="country" style="width:258px;">
 		<?php foreach($country_list as $country) : ?>
@@ -324,6 +324,7 @@
 
 		<label for="contact_email"><?php echo $contact_email ?> *</label>
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
+
 	</div>
 	<?php endif; ?>	
 	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>

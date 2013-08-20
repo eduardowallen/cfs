@@ -4,7 +4,7 @@
 function setReporting() {
 	if (DEV == true) {
 		error_reporting(E_ALL);
-		ini_set('display_errors','true');
+		ini_set('display_errors','false');
 	} else {
 		error_reporting(0);
 		ini_set('display_errors','false');
@@ -73,22 +73,32 @@ function callHook() {
 function __autoload($className) {
 	if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
 		require_once(ROOT.'lib/classes/'.$className.'.php');
+		return true;
 
 	} else if (file_exists(ROOT.'application/controllers/'.$className.'.php')) {
 		require_once(ROOT.'application/controllers/'.$className.'.php');
+		return true;
 
 	} else if (file_exists(ROOT.'application/models/'.$className.'.php')) {
 		require_once(ROOT.'application/models/'.$className.'.php');
 		return true;
 	
-	} else {
-		//throw new Exception("500");
 	}
+  
+  // This is the else without the else, but works exactly as else
+  error_log("Class not found: ".$className);
+  //throw new Exception("500");
+  return false;
 }
 
 $lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
 define('LANGUAGE', $lang);
 $translator = new Translator($lang);
+
+// Sätt till true om scriptet skall översätta text, false om den inte skall översätta text.
+// Detta är för att undvika dubletter & att scriptet skall bli slött.
+$translate = false;
+global $translate;
 
 $globalDB = new Database;
 global $globalDB;

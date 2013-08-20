@@ -17,6 +17,24 @@
 				}
 			});
 		});
+
+		// Bind contact_info så att info blir obligatorisk
+		var check = setInterval(function(){
+			if(strcmp(tinyMCE.get('contact_info'), "undefined")){
+				bindMce();
+			}
+		}, 1);
+
+		function strcmp(a, b)
+		{   
+		    return (a<b?-1:(a>b?1:0));  
+		}
+		function bindMce(){
+			clearInterval(check);
+			tinyMCE.get('contact_info').onKeyUp.add(function(ed, e) {
+				$('#contact_info').html(tinyMCE.get('contact_info').getContent());
+			});
+		}
 	});
 </script>
 
@@ -49,8 +67,8 @@
 	-->
 
 	<?php (empty($disable)) ? tiny_mce() : ''; ?>
-	<label for="contact_info"><?php echo $contact_label; ?></label>
-	<textarea<?php echo $disable; ?> name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
+	<label for="contact_info"><?php echo $contact_label; ?> *</label>
+	<textarea <?php echo $disable; ?> name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
 
 	<?php if (userLevel() == 4): ?>
 	<label for="arranger"><?php echo $arranger_label; ?></label>
@@ -68,6 +86,12 @@
 	</select>
 	<?php endif; ?>
 
-	<p><input<?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<label for="hidden"> Hide fair for unauthorized accounts </label>
+	<select name="hidden" id="hidden">
+		<option value="0"> false </option>
+		<option value="1"> true </option>
+	</select>
+
+	<p><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
 
 </form>

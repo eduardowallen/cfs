@@ -6,15 +6,15 @@ $(document).ready(function() {
 	
 	$('th').click(function() {
 		var colIndex = $(this).index();
-		console.log(rows);
+
 		rows.sort(function(a, b) {
 			var keyA = $('td:eq(' + colIndex + ')', a).text();
 	        var keyB = $('td:eq(' + colIndex + ')', b).text();
-			console.log('test');
+
 	        return (keyA > keyB) ? 1 : 0;
 			
 	        rows.each(function(index, row) {
-	        	console.log(index);
+
 	        	table.append(row);
 	        	
 	        });

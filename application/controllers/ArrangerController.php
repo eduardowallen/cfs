@@ -191,7 +191,8 @@ ORDER BY creation_time DESC";
 			$this->set('invoice_section', 'Billing address');
 			$this->set('contact_section', 'Contact');
 			$this->set('presentation_section', 'Presentation');
-	
+			$this->set('presentation_label', 'Presentation');
+
 			if ($id == 'new') {
 				$this->set('headline', 'New organizer');
 
@@ -223,8 +224,8 @@ ORDER BY creation_time DESC";
 			$this->set('country_label', 'Country');
 			$this->set('invoice_company_label', 'Company');
 			$this->set('invoice_address_label', 'Address');
-			$this->set('presentation_label', 'Presentation');
 			$this->set('invoice_zipcode_label', 'Zip code');
+			$this->set('invoice_country_label', 'Country');
 			$this->set('invoice_city_label', 'City');
 			$this->set('invoice_email_label', 'E-mail');
 			$this->set('phone1_label', 'Phone 1');
@@ -290,26 +291,42 @@ ORDER BY creation_time DESC";
 				//if (!empty($_POST['password']) && $_POST['password'] == $_POST['password_repeat'])
 					//$this->Arranger->setPassword($_POST['password']);
 				
-				$this->Arranger->set('customer_nr', $_POST['customer_nr']);
-				$this->Arranger->set('company', $_POST['company']);
-				$this->Arranger->set('name', $_POST['name']);
+        // Company Section
 				$this->Arranger->set('orgnr', $_POST['orgnr']);
+				$this->Arranger->set('company', $_POST['company']);
+				$this->Arranger->set('commodity', $_POST['commodity']);
 				$this->Arranger->set('address', $_POST['address']);
 				$this->Arranger->set('zipcode', $_POST['zipcode']);
 				$this->Arranger->set('city', $_POST['city']);
 				$this->Arranger->set('country', $_POST['country']);
 				$this->Arranger->set('phone1', $_POST['phone1']);
 				$this->Arranger->set('phone2', $_POST['phone2']);
-				$this->Arranger->set('phone3', $_POST['phone3']);
 				$this->Arranger->set('fax', $_POST['fax']);
+        // This field is only visible when creating new arranger and is taken care of further on in the code
+				//$this->Arranger->set('email', $_POST['email']);
 				$this->Arranger->set('website', $_POST['website']);
-				$this->Arranger->set('level', 3);
+        
+        // Invoice Section
 				$this->Arranger->set('invoice_company', $_POST['invoice_company']);
 				$this->Arranger->set('invoice_address', $_POST['invoice_address']);
 				$this->Arranger->set('invoice_zipcode', $_POST['invoice_zipcode']);
 				$this->Arranger->set('invoice_city', $_POST['invoice_city']);
+				$this->Arranger->set('invoice_country', $_POST['invoice_country']);
 				$this->Arranger->set('invoice_email', $_POST['invoice_email']);
+				$this->Arranger->set('presentation', $_POST['presentation']);
+        
+        // Contact Section
+        // This field is only visible when creating new arranger and is taken care of further on in the code
+				//$this->Arranger->set('alias', $_POST['alias']);
+				$this->Arranger->set('name', $_POST['name']);
+				$this->Arranger->set('contact_phone', $_POST['phone3']);
+				$this->Arranger->set('contact_phone2', $_POST['phone4']);
+				$this->Arranger->set('contact_email', $_POST['contact_email']);
+        
+				$this->Arranger->set('level', 3);
 				$this->Arranger->set('locked', $_POST['locked']);
+        if(isset($_POST['customer_nr']))
+          $this->Arranger->set('customer_nr', $_POST['customer_nr']);
 
 
 				if ($id == 'new') {
@@ -335,17 +352,16 @@ ORDER BY creation_time DESC";
 
 					$this->Arranger->set('password', $password);
 					$id = $this->Arranger->save();
+          
+          // For some reason the autoload won't even attempt to load Mail
+          require_once(ROOT.'application/models/Mail.php');
 
-					$str = 'Welcome to Chartbooker'."\r\n\r\n";
-					$str.= "Someone has registered this e-mail address for the Chartbooker fair system\r\n";
-					$str.= 'Username: '.$_POST['alias']."\r\n";
-					$str.= 'Password: '.$password."\r\n";
-					$str.= 'Access level: Organizer'."\r\n";
-
-
-					//$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
-
-					sendMail($_POST['email'], 'Your user account', $str);
+          $mail = new Mail($_POST['email'], 'new_account');
+          $mail->setMailVar('alias', $_POST['alias']);
+          $mail->setMailVar('password', $password);
+          $mail->setMailVar('accesslevel', 'Organizer');
+          $mail->send();
+          
 				} else {
 					if ($this->Arranger->get('email') != $_POST['email'] && $this->Arranger->emailExists($_POST['email'])) {
 						$this->set('user_message', 'The email address already exists in our system.');

@@ -93,11 +93,10 @@ class ExhibitorController extends Controller {
 		$this->set('th_resend', 'Reset');
 		$this->set('fairs', $fairs);
 		$this->set('', $fairs);
-		$this->set('users', $unique);
-		
+		$this->set('users', $unique);		
 	}
 	
-public function forFair($param='', $value='') {
+	public function forFair($param='', $value='') {
 		
 		setAuthLevel(2);
 
@@ -189,8 +188,7 @@ public function forFair($param='', $value='') {
 			$stmt2 = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor WHERE user = ? and fair = ?");
 			$stmt2->execute(array($unbooked['exhibitorId'], $unbooked['fairId']));
 			$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-			
-		
+
 			if(count($result2) == 0):
 				$canceled[] = $unbooked;
 			endif;
@@ -247,7 +245,7 @@ public function forFair($param='', $value='') {
 		$this->set('exhibitors', $result);
 
 	}
-
+	
 	public function exportForFair($tbl, $cols, $rows){
 		setAuthLevel(2);
 
@@ -272,7 +270,7 @@ public function forFair($param='', $value='') {
 					$ex = new User;
 					$ex->load($res['id'], 'id');
 					$ex->set('ex_count', $res['ex_count']);
-				
+
 					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 					$stmt2->execute(array($res['id']));
 					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
@@ -290,17 +288,16 @@ public function forFair($param='', $value='') {
 			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
 			$stmt->execute(array($_SESSION['user_fair'], 1));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$exIds = array();
 			foreach ($result as $res) {
 				if (!in_array($res['user'], $exIds)) {
 					$ex = new User;
 					$ex->load($res['user'], 'id');
-				
+
 					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 					$stmt2->execute(array($res['user']));
 					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
 					$ex->set('fair_count', $result2['fair_count']);
-				
+
 					$exhibitors[] = $ex;
 				}
 			}
@@ -324,7 +321,7 @@ public function forFair($param='', $value='') {
 		header("Content-Type: application/download");
 		header("Content-Disposition: attachment;filename=".$filename);
 		header("Content-Transfer-Encoding: binary");
-						
+
 		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
 		
 		$xls = new PHPExcel();
@@ -406,8 +403,7 @@ public function forFair($param='', $value='') {
 		$objWriter->save('php://output');
 	}
 
-	
-public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $selectedRows) {
+	public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $selectedRows) {
 		$rows = explode(";", $selectedRows);
 		
 		setAuthLevel(3);
@@ -415,7 +411,7 @@ public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $
 		
 		$fair = new Fair;
 		
-		if ($fairId > 0) {
+		if (!$fairId == 0) {
 			$fair->load($fairId, 'id');
 		} else {
 			if (isset($_SESSION['user_fair']))
@@ -594,15 +590,12 @@ public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $
 				if ($fairUrl != '') {
 					$fair = new Fair($this->Exhibitor->db);
 					$fair->load($fairUrl, 'url');
-
-					$str = 'Welcome to Chartbooker'."\r\n\r\n";
-					$str.= 'Someone has registered this e-mail address for the fair '.$fair->get('name')."\r\n";
-					$str.= 'Username: '.$_POST['alias']."\r\n";
-					$str.= 'Password: '.$password."\r\n";
-					$str.= 'Access level: Participant'."\r\n";
-					$str.= 'Please note that the opening date for bookings is '.date("Y-m-d h:m:s", $fair->get('auto_publish'));
-
-					sendMail($_POST['email'], 'Your user account', $str);
+          
+          $mail = new Mail($_POST['email'], 'new_account');
+          $mail->setMailVar('alias', $_POST['alias']);
+          $mail->setMailVar('password', $password);
+          $mail->setMailVar('accesslevel', 'Participant');
+          $mail->send();
 
 					require_once ROOT.'application/models/Exhibitor.php';
 					require_once ROOT.'application/models/ExhibitorCategory.php';
@@ -618,12 +611,11 @@ public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $
 						$ful->save();
 					}
 				} else {
-					$str = 'Welcome to Chartbooker'."\r\n\r\n";
-					$str.= 'Username: '.$_POST['alias']."\r\n";
-					$str.= 'Password: '.$password."\r\n";
-					$str.= 'Access level: Participant';
-
-					sendMail($_POST['email'], 'Your user account', $str);
+          $mail = new Mail($_POST['email'], 'welcome');
+          $mail->setMailVar('alias', $_POST['alias']);
+          $mail->setMailVar('password', $password);
+          $mail->setMailVar('accesslevel', 'Participant');
+          $mail->send();
 				}
 				$this->set('js_confirm_text', 'The user was created successfully.');
 
@@ -723,60 +715,61 @@ public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $
 			
 		}
 		*/
-
-				$this->set('user', $u);
+    
+		$this->set('user', $u);
 		$this->set('positions', $positions);
 		$this->set('headline', 'Exhibitor profile');
 
-			$this->set('commodity_label', 'Commodity');
-			$this->set('copy_label', 'Copy from company details');
-			$this->set('alias_label', 'Alias');
-			$this->set('company_label', 'Company');
-			$this->set('customer_nr_label', 'Customer number');
-			$this->set('contact_label', 'Contact person');
-			$this->set('orgnr_label', 'Organization number');
-			$this->set('address_label', 'Address');
-			$this->set('zipcode_label', 'Zip code');
-			$this->set('city_label', 'City');
-			$this->set('country_label', 'Country');
-			$this->set('phone1_label', 'Phone 1');
-			$this->set('phone2_label', 'Phone 2');
-			$this->set('phone3_label', 'Contact Phone');
-			$this->set('phone4_label', 'Contact Phone 2');
-			$this->set('contact_country', 'Contact Country');
-			$this->set('contact_email', 'Contact Email');
-			$this->set('fax_label', 'Fax number');
-			$this->set('website_label', 'Website');
-			$this->set('email_label', 'E-mail');
-			$this->set('password_label', 'Password');
-			$this->set('password_repeat_label', 'Password again (repeat to confirm)');
-			$this->set('presentation_label', 'Presentation');
-			$this->set('save_label', 'Save');
-			$this->set('invoice_company_label', 'Company');
-			$this->set('invoice_address_label', 'Address');
-			$this->set('invoice_zipcode_label', 'Zip code');
-			$this->set('invoice_city_label', 'City');
-			$this->set('invoice_email_label', 'E-mail');
-		$this->set('save_label', 'Save');
+		$this->set('company_section', 'Company');
+    $this->set('orgnr_label', 'Organization number');
+    $this->set('company_label', 'Company');
+    $this->set('commodity_label', 'Commodity');
+    $this->set('address_label', 'Address');
+    $this->set('zipcode_label', 'Zip code');
+    $this->set('city_label', 'City');
+    $this->set('country_label', 'Country');
+    $this->set('phone1_label', 'Phone 1');
+    $this->set('phone2_label', 'Phone 2');
+    $this->set('fax_label', 'Fax number');
+    $this->set('email_label', 'E-mail');
+    $this->set('website_label', 'Website');
+    
+		$this->set('invoice_section', 'Billing address');
+    $this->set('copy_label', 'Copy from company details');
+    $this->set('invoice_company_label', 'Company');
+    $this->set('invoice_address_label', 'Address');
+    $this->set('invoice_zipcode_label', 'Zip code');
+    $this->set('invoice_city_label', 'City');
+    $this->set('invoice_email_label', 'E-mail');
+    $this->set('presentation_label', 'Presentation');
+    
+		$this->set('contact_section', 'Contact person');
+    $this->set('alias_label', 'Alias');
+    $this->set('contact_label', 'Contact person');
+    $this->set('phone3_label', 'Contact Phone');
+    $this->set('phone4_label', 'Contact Phone 2');
+    $this->set('contact_email', 'Contact Email');
+    $this->set('contact_country', 'Contact Country');
+
+    $this->set('password_label', 'Password');
+    $this->set('password_repeat_label', 'Password again (repeat to confirm)');
+    //$this->set('save_label', 'Save');
+		//$this->set('save_label', 'Save');
 		
+    $this->set('customer_nr_label', 'Customer number');
+		$this->set('customer_id', 'Customer Number');
+		$this->set('save_customer_id', 'Save Customer Number');
+		//$this->set('ban_section_header', 'Ban user');
+		//$this->set('ban_msg_label', 'Reason for ban');
+		//$this->set('ban_save', 'Save');
+
+		$this->set('bookings_section', 'Bookings');
 		$this->set('tr_pos', 'Stand space');
 		$this->set('tr_area', 'Area');
 		$this->set('tr_booker', 'Booked by');
 		$this->set('tr_field', 'Trade');
 		$this->set('tr_time', 'Time of booking');
 		$this->set('tr_message', 'Message to organizer');
-
-		$this->set('company_section', 'Company');
-		$this->set('invoice_section', 'Billing address');
-		$this->set('contact_section', 'Contact person');
-		$this->set('presentation_section', 'Presentation');
-		$this->set('bookings_section', 'Bookings');
-
-		$this->set('customer_id', 'Customer Number');
-		$this->set('save_customer_id', 'Save Customer Number');
-		//$this->set('ban_section_header', 'Ban user');
-		//$this->set('ban_msg_label', 'Reason for ban');
-		//$this->set('ban_save', 'Save');
 	}
 
 	function myBookings() {
@@ -868,20 +861,67 @@ public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $
 		$user = new User;
 		$user->load($user_id, 'id');
 		if ($user->wasLoaded()) {
-			
-			$stmt = $user->db->prepare("SELECT position FROM exhibitor WHERE user = ?");
+			// Avboka plats för utställare.
+			$stmt = $user->db->prepare("SELECT position, id FROM exhibitor WHERE user = ?");
 			$stmt->execute(array($user->get('id')));
 			foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $res) {
 				$upd = $user->db->prepare("UPDATE fair_map_position SET status = ? WHERE id = ?");
 				$upd->execute(array(0, $res['position']));
+
+				// Ta bort alla kommentarer om uställaren
+				$statement = $user->db->prepare("DELETE FROM comment WHERE exhibitorId = ?");
+				$statement->execute(array($res['id']));
+
+				// Ta bort alla avbokade bokningar som är relaterade till utställaren
+				$statement = $user->db->prepare("DELETE FROM exhibitor_cancelled WHERE exhibitorId = ?");
+				$statement->execute(array($res['id']));
+
+				// Ta bort alla kategorirelationer som är relaterade till utställaren
+				$statement = $user->db->prepare("DELETE FROM exhibitor_category_rel WHERE exhibitor = ?");
+				$statement->execute(array($res['id']));
 			}
+
+			// Ta bort exhibitor som är relaterad till user
 			$del = $user->db->prepare("DELETE FROM exhibitor WHERE user = ?");
 			$del->execute(array($user->get('id')));
-			
+
+
+			// Ta bort preliminära bokningar som är förknippade till user
+			$del = $user->db->prepare("DELETE FROM preliminary_bookings WHERE user = ?");
+			$del->execute(array($user->get('id')));
+
+			// Ta bort användarens relationer till mässorna.
+			$del = $user->db->prepare("DELETE FROM fair_user_relation WHERE user = ?");
+			$del->execute(array($user->get('id')));
+
+			// Ta bort användaren
 			$user->delete();
 			header('Location: '.BASE_URL.'exhibitor/all');
 			exit;
 		}
+	}
+
+	function saveCustomerId($id, $customerId){
+		setAuthLevel(3);
+		$this->set('noView', true);
+		$user = new User;
+		$user->load($id, 'id');
+
+
+		if($user->wasLoaded()):
+			$statement = $user->db->prepare('SELECT customer_nr FROM user WHERE customer_nr = ?');
+			$statement->execute(array($customerId));
+			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
+			if(count($result) < 1):
+				$user->set('customer_nr', $customerId);
+				$user->save();
+				echo $this->translate->{'Successfully saved customer number...'};
+			else:
+					echo $this->translate->{'Customer number already exists...'};
+			endif;
+		else:
+			echo $this->translate->{'Could not load user with ID'}.": ".$id;
+		endif;
 	}
 
 	function pre_delete($id, $user_id, $position){

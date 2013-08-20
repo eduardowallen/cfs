@@ -3,11 +3,10 @@
 class FairController extends Controller {
 
 	public function index() {
-
+		
 	}
 
 	function overview($param='') {
-
 		setAuthLevel(3);
 		$this->setNoTranslate('param', $param);
 		$this->set('headline', 'Fair overview');
@@ -37,7 +36,6 @@ class FairController extends Controller {
 		$this->set('app_yes', 'Yes');
 		$this->set('app_no', 'No');
 		$this->set('app_locked', 'Locked');
-
 		switch(userLevel()) {
 
 			case 4:
@@ -114,9 +112,10 @@ class FairController extends Controller {
 					$cat->delete();
 				}
 			}
+			
 			$this->setNoTranslate('do', $do);
 			$this->setNoTranslate('item', $item);
-
+			
 			if ($do == 'edit') {
 				$this->set('form_headline', 'Edit category');
 				$cat = new ExhibitorCategory;
@@ -124,7 +123,7 @@ class FairController extends Controller {
 				$this->setNoTranslate('current_title', $cat->get('name'));
 			} else
 				$this->set('form_headline', 'New category');
-
+			
 			$this->set('headline', 'Exhibitor categories');
 			$this->set('fair_id', $this->Fair->get('id'));
 			$this->set('name_label', 'Name');
@@ -143,12 +142,12 @@ class FairController extends Controller {
 				$cat->set('name', $_POST['name']);
 				$cat->set('fair', $this->Fair->get('id'));
 				$cat->save();
-
+				
 				if ($do == 'edit') {
 					header('Location: '.BASE_URL.'fair/categories/'.$fairId);
 					exit;
 				}
-
+				
 			}
 			$this->Fair->load($fairId, 'id');
 			$this->set('categories', $this->Fair->get('categories'));
@@ -160,7 +159,7 @@ class FairController extends Controller {
 	public function edit($id) {
 
 		setAuthLevel(3);
-
+		
 		if (!empty($id)) {
 			function makeUserOptions($db, $sel=0) {
 				global $id;
@@ -184,15 +183,15 @@ class FairController extends Controller {
 			} else {
 				$this->set('edit_headline', 'Edit fair');
 				$this->Fair->load($id, 'id');
-
+				
 				/*if ($this->Fair->get('approved') != 1) {
 					header('Location: '.BASE_URL.'locked');
 					exit;
 				}*/
-
+				
+				
 				if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
 					toLogin();
-
 			}
 
 			if (isset($_POST['save'])) {
@@ -216,25 +215,28 @@ class FairController extends Controller {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
 					$this->Fair->set('approved', 1);
 				}
+				$this->Fair->set('hidden', $_POST['hidden']);
 				$fId = $this->Fair->save();
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
 					if (userLevel() == 3) {
 						$user = new User;
 						$user->load($_SESSION['user_id'], 'id');
-
 						/* Alias */
-						/* 
+						/*					
 						$organizermail = $user->get('email');
 						$fairmail = $_POST['name'];
 						require('lib/classes/Alias.php');
 
 						if((strlen($organizermail) > 1) && (strlen($fairmail) > 1)):
 							Alias::addNew($fairmail, $organizermail);
-							Alias::commit();
 						endif;
 						*/
-						sendMail(EMAIL_FROM_ADDRESS, 'Chartbooker International', 'A new fair '.BASE_URL.$this->Fair->get('url').' has been created by '.$user->get('company'));
+
+            $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
+            $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+            $mail->setMailVar('company', $user->get('company'));
+            $mail->send();
 					}
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
@@ -262,13 +264,13 @@ class FairController extends Controller {
 				$this->setNoTranslate('app_sel0', '');
 				$this->setNoTranslate('app_sel1', '');
 				$this->setNoTranslate('app_sel2', 'selected="selected"');
-				if(userLevel() != 4){
-					$this->setNoTranslate('disable', ' disabled="disabled"');
-				}else{
-					$this->setNoTranslate('disable', '');
-				}
 			}
 
+			if(userLevel() < 3){
+					$this->setNoTranslate('disable', 'disabled="disabled"');
+				}else{
+					$this->setNoTranslate('disable', '');
+			}
 			$this->set('map_button_label', 'Handle maps');
 			$this->set('approved_label', 'Status');
 			$this->set('arranger_label', 'Organizer');
@@ -284,6 +286,7 @@ class FairController extends Controller {
 			$this->set('auto_publish_label', 'Publish date');
 			$this->set('auto_close_label', 'Closing date');
 			$this->set('save_label', 'Save');
+
 		}
 	}
 
@@ -305,7 +308,7 @@ class FairController extends Controller {
 				toLogin();
 
 			if (isset($_POST['save'])) {
-
+				
 			}
 
 			$this->set('headline', 'Map overview');

@@ -21,5 +21,5 @@ if (isset($loggedin)) {
 	<input type="password" name="pass" id="pass"/></p>
 	<p><input type="submit" name="login" value="<?php echo $button; ?>"/></p>
 	<p><a href="user/resetPassword"><?php echo $forgotlink; ?></a></p>
-
+	<p <?php if($good == "yes"): echo 'style="color:#168912;"'; elseif($good == "no") : echo 'style="color:#F00;"'; endif;?>><?php echo $res_msg?></p>
 </form>

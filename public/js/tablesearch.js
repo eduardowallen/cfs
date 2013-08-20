@@ -1,5 +1,4 @@
 function filterTable(table, str, results) {
-
 	if (table.hasClass("of-tables")) {
 		filterTableTable(table, str, results);
 		return;
@@ -24,23 +23,25 @@ function filterTable(table, str, results) {
 			hit_count++;
 		}
 	});
-
 	results.text(hit_count + ' matching rows.');
+
 
 }
 
 function filterTableTable(table, str, results) {
 	var hits = new Array;
 	var hit_count = 0;
-
-	table.find("tbody td.container").each(function() {
-		
+	
+	table.find("tbody tr.container").each(function() {
+			
 		if ($(this).text().toLowerCase().indexOf(str.toLowerCase()) >= 0) {
-			hits.push($(this).parent());
+			
+			hits.push($(this));
 		}
 	});
 	
 	table.find("tbody tr.container").hide();
+
 	for (i=0; i<hits.length; i++) {
 		hits[i].show();
 	}
@@ -64,13 +65,19 @@ function filterTableTable(table, str, results) {
 				var header = $('#h'+tblarr[i]+' > ul');
 				var headertmp = $('#'+tblarr[i]+' > thead > tr');
 				var headerarr = new Array();
-	
+				var headerarrHeight = new Array();
+
+
 				headertmp.children().each(function(i){
 					headerarr[i] = $(this).width();
+					headerarrHeight[i] = $(this).outerHeight();
 				});
-			
+
+				header.css('max-height', headerarrHeight[0]);
+
 				header.children().each(function(i){
 					$(this).css('width', headerarr[i]);
+					$(this).css('height', headerarrHeight[i]);
 				});
 
 				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
@@ -104,10 +111,10 @@ function filterTableTable(table, str, results) {
 		}
 	}
 	$(document).ready(function() {
-	var html = '<div style="width:100%; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
+	var html = '<div style="width:300px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
 			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';	
 		$('.std_table').each(function() {
-			var parstd_table = $(this).parent();
+			var parstd_table = $(this);
 			var std_table = parstd_table;
 			searchfield = $('<p></p>');
 			searchfield = searchfield.prepend(html);
@@ -147,10 +154,10 @@ function filterTableTable(table, str, results) {
 					if(site == "forFair"){
 						resizeForFair();
 					}
+
 					if(site == "newRes"){
 						resizeNewRes();
 					}
-
 				}
 			});
 		});

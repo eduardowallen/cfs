@@ -3,6 +3,7 @@
 class TranslateController extends Controller {
 	
 	function language($lang) {
+		
 		setcookie('language', $lang, time()+60*60*24*30, '/');
 		header('Location: '.$_SERVER['HTTP_REFERER']);
 		exit;

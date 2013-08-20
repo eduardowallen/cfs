@@ -198,7 +198,7 @@
 
 <!--<a class="button settings floatright" href="user/changePassword"><?php echo $translator->{'Change password'} ?></a>-->
 
-<form action="user/accountSettings" method="post">
+<form action="arranger/edit/<?php echo $edit_id; ?>" method="post">
 	<div class="form_column">
 		<h3><?php echo $company_section; ?></h3>
 	
@@ -254,19 +254,26 @@
 		<h3><?php echo $invoice_section; ?></h3>
 	
 		<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
-		<label for="invoice_company"><?php echo $invoice_company_label; ?> *</label>
+		<label for="invoice_company"><?php echo $invoice_company_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 		<input type="text" name="invoice_company" id="invoice_company" value="<?php echo $user->get('invoice_company'); ?>"/>
 
-		<label for="invoice_address"><?php echo $invoice_address_label; ?> *</label>
+		<label for="invoice_address"><?php echo $invoice_address_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 		<input type="text" name="invoice_address" id="invoice_address" value="<?php echo $user->get('invoice_address'); ?>"/>
 
-		<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> *</label>
+		<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 		<input type="text" name="invoice_zipcode" id="invoice_zipcode" value="<?php echo $user->get('invoice_zipcode'); ?>"/>
 
-		<label for="invoice_city"><?php echo $invoice_city_label; ?> *</label>
+		<label for="invoice_city"><?php echo $invoice_city_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 		<input type="text" name="invoice_city" id="invoice_city" value="<?php echo $user->get('invoice_city'); ?>"/>
 
-		<label for="invoice_email"><?php echo $invoice_email_label; ?> *</label>
+		<label for="invoice_country"><?php echo $country_label; ?> *</label>
+		<select name="invoice_country" id="invoice_country" style="width:258px;">
+		<?php foreach($country_list as $country) : ?>
+			<option value="<?php echo $country?>"><?php echo $country?></option>
+		<?php endforeach; ?>
+		</select>
+    
+		<label for="invoice_email"><?php echo $invoice_email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 		<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
 	
 		<label for="presentation"><?php echo $presentation_label; ?></label>
@@ -278,7 +285,7 @@
 	<div class="form_column">
 		<h3><?php echo $contact_section; ?></h3>
 		<label for="alias"><?php echo $alias_label; ?> *</label>
-		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>" disabled="disabled"/>
+		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>"<?php if ($edit_id != 'new') { echo 'disabled="disabled"'; } ?>/>
 
 		<label for="name"><?php echo $contact_label; ?> *</label>
 		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>

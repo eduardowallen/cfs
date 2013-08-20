@@ -74,7 +74,7 @@
 		</div>
 		<p style="text-align:center;"><strong style="margin-right:10px;"><?php echo $event_without_maps_obs?></strong><?php echo $event_without_maps_label?></p>
 		<?php foreach ($fairs as $fair): ?>
-			<?php if(count($fair->get('maps')) > 0) :?>
+			<?php if(count($fair->get('maps')) > 1) :?>
 			<div class="fair">
 				
 				<input<?php if(is_array($user_fairs) && in_array($fair->get('id'), $user_fairs)) { echo ' checked="checked"'; } ?> type="checkbox" name="fair_permission[]" value="<?php echo $fair->get('id') ?>" class="fair_input"/>

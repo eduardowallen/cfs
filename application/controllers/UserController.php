@@ -242,6 +242,7 @@ class UserController extends Controller {
 			$this->set('phone2_label', 'Phone 2');
 			$this->set('phone3_label', 'Contact Phone');
 			$this->set('phone4_label', 'Contact Phone 2');
+			$this->set('contact_country', 'Contact Country');
 			$this->set('contact_email', 'Contact Email');
 			$this->set('fax_label', 'Fax number');
 			$this->set('website_label', 'Website');
@@ -434,7 +435,8 @@ class UserController extends Controller {
 						$this->User->setPassword($_POST['password']);
 						$this->User->save();
 						$this->set('ok', 'Password changed');
-						sendMail($this->User->email, 'Your password has been changed', "Dear user\r\n\r\nYour password has been changed.\r\n\r\nThank you for attention,\r\nChartbooker International");
+            $mail = new Mail($this->User->email, 'password_changed');
+            $mail->send();
 					} else {
 						$this->set('error', 'Your current password was wrong.');
 					}
@@ -446,10 +448,10 @@ class UserController extends Controller {
 
 		}
 
-
 	}
 
 	function resetPassword($action='', $param1='', $param2='', $param3='') {
+
 		$this->set('error', '');
 		$this->set('ok', '');
 		if ($action == 'confirm') {
@@ -466,9 +468,9 @@ class UserController extends Controller {
 						$this->User->save();
 						$this->setNoTranslate('new_pass', $str);
 
-						$emstr = "Dear user,\r\n\r\nYour new password is: ".$str;
-						$emstr.= "\r\n\r\nBest regards,\r\nChartbooker International";
-						sendMail($this->User->email, 'Your new password', $emstr);
+            $mail = new Mail($this->User->email, 'password_reset');
+            $mail->setMailVar('password', $str);
+            $mail->send();
 					} else {
 						die('timeout');
 					}
@@ -488,14 +490,12 @@ class UserController extends Controller {
 				$pass = substr($pass, -30, 6);
 				$this->User->setPassword($pass);
 				$this->User->save();
-				$str = "Dear user\r\n\r\nWe recieved a request to change your password.";
-				$str.= "\r\n\r\n";
-				$str.= "Your Username is : ".$this->User->get('alias');
-				$str.= "\r\n\r\n";
-				$str.= "Your Password is : ".$pass;
-				$str.= "\r\n\r\nThanks,\r\nChartbooker International";
-				sendMail($this->User->email, 'Username & Password', $str);
-				$this->set('ok', 'A new password has been sent to '.$this->User->email);
+        $mail = new Mail($this->User->email, 'password_reset2');
+        $mail->setMailVar('alias', $this->User->get('alias'));
+        $mail->setMailVar('password', $pass);
+        $mail->send();
+				$_SESSION['m'] = $this->User->email;
+				header('Location: '.BASE_URL.'user/login/ok');
 			} else {
 				$this->User->load($_POST['user'], 'email');
 				if ($this->User->wasLoaded()) {
@@ -503,16 +503,14 @@ class UserController extends Controller {
 					$pass = substr($pass, -30, 6);
 					$this->User->setPassword($pass);
 					$this->User->save();
-					$str = "Dear user\r\n\r\nWe recieved a request to change your password.";
-					$str.= "\r\n\r\n";
-					$str.= "Your Username is : ".$this->User->alias;
-					$str.= "\r\n\r\n";
-					$str.= "Your Password is : ".$pass;
-					$str.= "\r\n\r\nThanks,\r\nChartbooker International";
-					sendMail($this->User->email, 'Username & Password', $str);
-					$this->set('ok', 'A new password has been sent to '.$this->User->email);
+          $mail = new Mail($this->User->email, 'password_reset2');
+          $mail->setMailVar('alias', $this->User->alias);
+          $mail->setMailVar('password', $pass);
+          $mail->send();
+					$_SESSION['m'] = $this->User->email;
+					header('Location: '.BASE_URL.'user/login/ok');
 				} else {
-					$this->set('error', 'E-mail address or Username not found.');
+					header('Location: '.BASE_URL.'user/login/err');
 				}
 			}
 		}
@@ -533,7 +531,9 @@ class UserController extends Controller {
 		if (isset($_POST['remindme'])) {
 			$this->User->load($_POST['email'], 'email');
 			if ($this->User->wasLoaded()) {
-				sendMail($this->User->email, 'Chartbooker International', "Someone requested a username reminder for this account, if it was not you you can ignore this message.\r\n\r\nYour username is: " . $this->User->get('alias') . "\r\n\r\nBest regards\r\nChartbooker International");
+				$mail = new Mail($this->User->email, 'username_remind');
+        $mail->setMailVar('alias', $this->User->get('alias'));
+        $mail->send();
 				$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
 			} else {
 				$this->set('error', true);
@@ -570,8 +570,8 @@ class UserController extends Controller {
 				$this->User->set('invoice_address', $_POST['invoice_address']);
 				$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
 				$this->User->set('invoice_city', $_POST['invoice_city']);
-				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('invoice_country', $_POST['invoice_country']);
+				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('presentation', $_POST['presentation']);
 				$this->User->set('country', $_POST['country']);
 				$this->User->set('contact_phone2', $_POST['phone4']);
@@ -610,7 +610,6 @@ class UserController extends Controller {
 		$this->set('invoice_zipcode_label', 'Zip code');
 		$this->set('invoice_city_label', 'City');
 		$this->set('invoice_email_label', 'E-mail');
-
 		$this->set('company_label', 'Company');
 		$this->set('contact_label', 'Contact person');
 		$this->set('orgnr_label', 'Organization number');
@@ -679,7 +678,9 @@ class UserController extends Controller {
 						$userId = $this->User->save();
 						$hash = md5($this->User->get('email').BASE_URL.$userId);
 						$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
-						sendMail($this->User->email, 'Welcome to Chartbooker', "Welcome to Chartbooker\r\n\r\nTo confirm your account, click here: ".$url."\r\n\r\nBest regards\r\nChartbooker International");
+            $mail = new Mail($this->User->email, 'confirm_mail');
+            $mail->setMailVar('url', $url);
+            $mail->send();
 						if ($fairUrl != '') {
 							require_once ROOT.'application/models/Exhibitor.php';
 							require_once ROOT.'application/models/ExhibitorCategory.php';
@@ -807,7 +808,6 @@ class UserController extends Controller {
 
 	public function resendDetails($id) {
 
-
 		setAuthLevel(4);
 
 		$this->User->load($id, 'id');
@@ -820,12 +820,10 @@ class UserController extends Controller {
 			$this->User->setPassword($str);
 			$this->User->save();
 
-			$str = 'Welcome to Chartbooker'."\r\n\r\n";
-			$str.= 'Username: '.$this->User->get('alias')."\r\n";
-			$str.= 'Password: '.$str."\r\n";
-
-			sendMail($this->User->get('email'), 'Your user account', $str);
-
+      $mail = new Mail($this->User->get('email'), 'resend_details');
+      $mail->setMailVar('alias', $this->User->get('alias'));
+      $mail->setMailVar('password', $str);
+      $mail->send();
 			$this->set('user_message', 'The user\'s password was reset and a mail was sent.');
 		} else {
 			$this->set('error_message', 'That user does not exist.');
