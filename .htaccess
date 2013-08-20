@@ -1,0 +1,29 @@
+<IfModule mod_expires.c>
+  ExpiresActive on
+  ExpiresDefault                          "access plus 1 month"
+  ExpiresByType text/cache-manifest       "access plus 0 seconds"
+  ExpiresByType text/html                 "access plus 0 seconds"
+  ExpiresByType text/xml                  "access plus 0 seconds"
+  ExpiresByType application/xml           "access plus 0 seconds"
+  ExpiresByType application/json          "access plus 0 seconds"
+  ExpiresByType application/rss+xml       "access plus 1 hour"
+  ExpiresByType text/css                  "access plus 2 months"
+  ExpiresByType application/javascript    "access plus 2 months"
+  ExpiresByType text/javascript           "access plus 2 months"
+
+  <IfModule mod_headers.c>
+    Header append Cache-Control "public"
+  </IfModule>
+</IfModule>
+
+ExpiresActive On
+ExpiresDefault modification
+
+RewriteEngine On
+
+## Force www ##
+RewriteCond %{HTTP_HOST} ^chartbooking.com [NC]
+RewriteRule ^(.*)$ http://www.chartbooking.com/$1 [R=301,L]
+
+RewriteRule ^$ public/ [L]
+RewriteRule (.*) public/$1 [L]
