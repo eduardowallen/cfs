@@ -73,17 +73,22 @@ function callHook() {
 function __autoload($className) {
 	if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
 		require_once(ROOT.'lib/classes/'.$className.'.php');
+		return true;
 
 	} else if (file_exists(ROOT.'application/controllers/'.$className.'.php')) {
 		require_once(ROOT.'application/controllers/'.$className.'.php');
+		return true;
 
 	} else if (file_exists(ROOT.'application/models/'.$className.'.php')) {
 		require_once(ROOT.'application/models/'.$className.'.php');
 		return true;
 	
-	} else {
-		//throw new Exception("500");
 	}
+  
+  // This is the else without the else, but works exactly as else
+  error_log("Class not found: ".$className);
+  //throw new Exception("500");
+  return false;
 }
 
 $lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';

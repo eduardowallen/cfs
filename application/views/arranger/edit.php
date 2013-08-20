@@ -266,6 +266,13 @@
 		<label for="invoice_city"><?php echo $invoice_city_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 		<input type="text" name="invoice_city" id="invoice_city" value="<?php echo $user->get('invoice_city'); ?>"/>
 
+		<label for="invoice_country"><?php echo $country_label; ?> *</label>
+		<select name="invoice_country" id="invoice_country" style="width:258px;">
+		<?php foreach($country_list as $country) : ?>
+			<option value="<?php echo $country?>"><?php echo $country?></option>
+		<?php endforeach; ?>
+		</select>
+    
 		<label for="invoice_email"><?php echo $invoice_email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 		<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
 	

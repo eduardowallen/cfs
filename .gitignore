@@ -5,3 +5,6 @@ public/images/fairs/*
 # Ignore everything in tmp except empty placeholder.
 public/images/tmp/*
 !public/images/tmp/empty
+
+# Ignore all log files
+*.log
