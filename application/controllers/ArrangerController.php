@@ -372,7 +372,8 @@ ORDER BY creation_time DESC";
 						return;
 					}
 				}
-				
+				$this->Arranger->save();
+        
 				//header('Location: '.BASE_URL.'arranger/overview');
 				//exit;
 			}
