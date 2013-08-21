@@ -349,7 +349,8 @@ ORDER BY creation_time DESC";
 					shuffle($pw_arr);
 					$password = substr(implode('', $pw_arr), 0, 10);
 
-					$this->Arranger->set('password', $password);
+					//$this->Arranger->set('password', $password);
+          $this->Arranger->setPassword($password);
 					$id = $this->Arranger->save();
           
           // For some reason the autoload won't even attempt to load Mail
