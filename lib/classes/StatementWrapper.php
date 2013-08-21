@@ -4,8 +4,10 @@
 //  In case of failure, the function call is logged to the logfile.
 // This class is intended to only be used by Database class.
 class StatementWrapper {
-  public $stmt;
+  private $stmt;
   private $logfile;
+  private $prevargs; // Holds the arguments of the last function call
+  
   
   function __construct($stmt, $logfile) {
   
@@ -25,11 +27,17 @@ class StatementWrapper {
       fwrite($this->logfile,
           "Error executing function PDOStatement::".$function.": ".$error_array[2]."\n".
           "Query: ".$this->stmt->queryString."\n".
-          print_r($arguments, true)."\n".
+          "Parameters: ".($function=="fetch"||function=="fetchAll"
+              ? print_r($this->prevargs, true)."\n"
+              : print_r($arguments, true)."\n"
+            ).
           "Backtrace: ".print_r(debug_backtrace(), true)."\n\n"
         );
       fflush($this->logfile);
     }
+    // These two don't hold important arguments, so preserve those of last execute() call
+    if($function != "fetch" && $function != "fetchAll")
+      $this->prevargs = $arguments;
     return $result;
   }
 }
