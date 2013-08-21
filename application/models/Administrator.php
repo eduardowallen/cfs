@@ -40,9 +40,11 @@ class Administrator extends User {
 			
 			$this->setPassword($str);
 			
-			$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$_SESSION['outside_fair_url']."\r\n\r\nUsername: ".$this->alias."\r\nPassword: ".$str;
-			
-			sendMail($this->email, 'Your password', $msg);
+      $mail = new Mail($_POST['email'], 'administrator_new_account');
+      $mail->setMailVar('url', BASE_URL.$_SESSION['outside_fair_url']);
+      $mail->setMailVar('alias', $this->alias);
+      $mail->setMailVar('password', $str;);
+      $mail->send();
 		}
 
 		$id = parent::save();
