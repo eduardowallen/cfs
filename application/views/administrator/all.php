@@ -1,7 +1,7 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $headline; ?></h1>
 <?php
-	CurrencyCalculator::convertValues("SEK", "USD");
+	//CurrencyCalculator::convertValues("SEK", "USD");
 ?>
 <p><a class="button add" href="administrator/edit/new"><?php echo $create_link; ?></a></p>
 <p><a class="button add" href="mailto:<?php
@@ -31,7 +31,6 @@
 			</tr>
 		</thead>
 		<tbody>
-		<pre>
 			<?php foreach ($admins as $admin): ?>
 			<tr>
 				<td><?php echo $admin['name']; ?></td>
