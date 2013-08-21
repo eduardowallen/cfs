@@ -361,6 +361,10 @@ ORDER BY creation_time DESC";
           $mail->setMailVar('accesslevel', 'Organizer');
           $mail->send();
           
+          // Redirect to organizer's new profile
+          header('Location: '.BASE_URL.'arranger/info/'.$id);
+          exit;
+          
 				} else {
 					if ($this->Arranger->get('email') != $_POST['email'] && $this->Arranger->emailExists($_POST['email'])) {
 						$this->set('user_message', 'The email address already exists in our system.');
