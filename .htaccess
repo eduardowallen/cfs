@@ -7,5 +7,7 @@ RewriteEngine On
 RewriteCond %{HTTP_HOST} ^chartbooking.com [NC]
 RewriteRule ^(.*)$ http://www.chartbooking.com/$1 [R=301,L]
 
+RewriteRule .*favicon.ico favicon.ico [passthrough]
+
 RewriteRule ^$ public/ [L]
 RewriteRule (.*) public/$1 [L]
