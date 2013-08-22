@@ -27,7 +27,7 @@ class StatementWrapper {
       fwrite($this->logfile,
           "Error executing function PDOStatement::".$function.": ".$error_array[2]."\n".
           "Query: ".$this->stmt->queryString."\n".
-          "Parameters: ".($function=="fetch"||function=="fetchAll"
+          "Parameters: ".($function=="fetch"||$function=="fetchAll"
               ? print_r($this->prevargs, true)."\n"
               : print_r($arguments, true)."\n"
             ).
