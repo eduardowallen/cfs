@@ -688,6 +688,9 @@ class ExhibitorController extends Controller {
 			$pos->set('booking_time', $prel['booking_time']);
 			$pos->set('commodity', $prel['commodity']);
 			$pos->set('arranger_message', $prel['arranger_message']);
+      $fairmap = new FairMap;
+      $fairmap->load($pos->get('map'), 'id');
+      $pos->set('map', $fairmap);
 			$positions[] = $pos;
 		}
 
@@ -698,6 +701,9 @@ class ExhibitorController extends Controller {
 			$pos->set('arranger_message', $res['arranger_message']);
 			$pos->set('company', $u->get('company'));
 			$pos->set('booking_time', $res['booking_time']);
+      $fairmap = new FairMap;
+      $fairmap->load($pos->get('map'), 'id');
+      $pos->set('map', $fairmap);
 			$positions[] = $pos;
 		}
 		
@@ -764,6 +770,7 @@ class ExhibitorController extends Controller {
 		//$this->set('ban_save', 'Save');
 
 		$this->set('bookings_section', 'Bookings');
+		$this->set('tr_event', 'Fair');
 		$this->set('tr_pos', 'Stand space');
 		$this->set('tr_area', 'Area');
 		$this->set('tr_booker', 'Booked by');
