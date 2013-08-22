@@ -113,9 +113,11 @@ class ExhibitorController extends Controller {
 			$stmt->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			if (!$result) {
-				toLogin();
+				$this->set('hasRights', false);
+				return;
 			}
 		}
+    $this->set('hasRights', true);
 		
 		if ($param == 'copy') {
 
