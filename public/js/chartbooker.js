@@ -307,12 +307,14 @@ var closeButton = $('.closeDialogue');
 				$('#invoice_address').val($('#address').val());
 				$('#invoice_zipcode').val($('#zipcode').val());
 				$('#invoice_city').val($('#city').val());
+				$('#invoice_country').val($('#country').val());
 				$('#invoice_email').val($('#email').val());
 			} else {
 				$('#invoice_company').val("");
 				$('#invoice_address').val("");
 				$('#invoice_zipcode').val("");
 				$('#invoice_city').val("");
+				$('#invoice_country').val("");
 				$('#invoice_email').val("");
 			}
 		});
@@ -370,12 +372,14 @@ var closeButton = $('.closeDialogue');
 			$('#invoice_address').val($('#address').val());
 			$('#invoice_zipcode').val($('#zipcode').val());
 			$('#invoice_city').val($('#city').val());
+      $('#invoice_country').val($('#country').val());
 			$('#invoice_email').val($('#email').val());
 		} else {
 			$('#invoice_company').val("");
 			$('#invoice_address').val("");
 			$('#invoice_zipcode').val("");
 			$('#invoice_city').val("");
+      $('#invoice_country').val("");
 			$('#invoice_email').val("");
 		}
 	});
