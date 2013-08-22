@@ -149,7 +149,7 @@ function prepFormChecker() {
 					}
 					
 					//Textareas
-					if (input.is('textarea') && input.html() == '') {
+					if (input.is('textarea') && input.val() == '') {
 						//Mark empty
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));

@@ -624,7 +624,7 @@ class UserController extends Controller {
         
 			} else {
       
-				if (strlen($_POST['username']) > 3) {
+				if (strlen($_POST['alias']) > 3) {
 					if ($_POST['password'] == $_POST['password_repeat']) {
           
 						$this->User->setPassword($_POST['password']);
