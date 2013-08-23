@@ -53,7 +53,8 @@ class MailController extends Controller {
 
       // Attempt to update the mail, if it fails, assume the user is adding a translated version into the database
 				$stmt = $this->db->prepare("UPDATE mail_content SET subject = ?, content = ? WHERE mail = ? AND language = ?");
-				if(!$stmt->execute(array($_POST['mail_subject'], $_POST['mail_content'], $mail, $lang)))
+        $result = $stmt->execute(array($_POST['mail_subject'], $_POST['mail_content'], $mail, $lang));
+				if($result === false || $stmt->rowCount() === 0)
         {
           $stmt = $this->db->prepare("INSERT INTO mail_content SET subject = ?, content = ?, mail = ?, language = ?");
           $stmt->execute(array($_POST['mail_subject'], $_POST['mail_content'], $mail, $lang));
