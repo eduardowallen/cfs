@@ -6,7 +6,7 @@
     echo Form::Load("userdata_administrator",
         array(
             'headline'=>$translator->{'Account settings'},
-            'action'=>"user/accountSettings"),
+            'action'=>"user/accountSettings",
             'user'=>$user,
             'error'=>@$error
           )
