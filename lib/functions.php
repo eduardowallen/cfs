@@ -218,4 +218,16 @@ function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 	  </script>';
 }
 
+function accessLevelToText($level)
+{
+  global $translator;
+  
+  switch($level):
+    case 4: return $translator->{'Master'};
+    case 3: return $translator->{'Organizer'};
+    case 2: return $translator->{'Administrator'};
+    default: return $translator->{'Exhibitor'};
+  endswitch;
+}
+
 ?>

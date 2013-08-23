@@ -687,6 +687,19 @@ class UserController extends Controller {
 			if ($userHash == $hash && $this->User->get('locked') > 0) {
 				$this->User->set('locked', 0);
 				$this->User->save();
+        
+        // Mail here
+        $stmt = $this->db->prepare("SELECT fair.url FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
+        $stmt->execute(array($this->User->get('id')));
+        $fair = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        $mail = new Mail($this->User->get('email'), 'activate_welcome');
+        $mail->setMailVar('alias', $this->User->get('alias'));
+        $mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
+        $mail->setMailVar('url', BASE_URL.$fair['url']);
+        $mail->send();
+        $this->set('user_message', 'The user\'s password was reset and a mail was sent.');
+        
 				header('Location: '.BASE_URL.'user/login/confirmed');
 				exit;
 			} else {
