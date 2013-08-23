@@ -6,7 +6,7 @@
     echo Form::Load("userdata_administrator",
         array(
             'headline'=>$translator->{'Account settings'},
-            'action'=>"user/register".(isset($fair_url)?'/'.$fair_url:''),
+            'action'=>"user/accountSettings"),
             'user'=>$user,
             'error'=>@$error
           )
@@ -15,7 +15,7 @@
     echo Form::Load("userdata",
         array(
             'headline'=>$translator->{'Account settings'},
-            'action'=>"user/register".(isset($fair_url)?'/'.$fair_url:''),
+            'action'=>"user/accountSettings"),
             'user'=>$user,
             'error'=>@$error
           )
