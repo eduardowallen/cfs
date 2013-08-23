@@ -59,207 +59,174 @@ class UserController extends Controller {
 	}
 
 	public function edit($id='', $level=0) {
+  
 		setAuthLevel(2);
 
+		if (empty($id))
+      return;
+
 		if ($id == '') {
+    
 			$id = $_SESSION['user_id'];
 		}
 
 		if ($id != $_SESSION['user_id'] && userLevel() != 4) {
+    
 			$user = new User;
 			$user->load($id, 'id');
 
 			if ($user->wasLoaded()) {
 				if (userLevel() == 3) {
 					if ($user->get('owner') != $_SESSION['user_id']) {
+          
 						toLogin();
 					}
+          
 				} else {
+        
 					toLogin();
 				}
+        
 			} else {
+      
 				$this->set('user_message', 'The user does not exist.');
 				$halt = true;
 				$this->set('error', true);
 			}
 		}
+    
+    if ($id != 'new') {
+    
+      $this->User->load($id, 'id');
+    } 
+    
+    if (isset($_POST['save'])) {
+      if (preg_match('/^new/', $id)) {
+      
+        $this->User->set('email', $_POST['email']);
+        $this->User->set('alias', $_POST['alias']);
+        
+        if ($this->User->emailExists()) {
+        
+          $this->set('user_message', 'The email address already exists in our system. Please choose another one.');
+          $halt = true;
+          $this->set('error', true);
+        }
+          
+        if ($this->User->aliasExists()) {
+        
+          $this->set('user_message', 'The alias already exists in our system. Please choose another one.');
+          $halt = true;
+          $this->set('error', true);
+        }
+      
+      } else if ($this->User->wasLoaded()) {
+      
+        $this->User->set('email', $_POST['email']);
 
-		if (!empty($id)) {
-			if ($id == 'new') {
-				$this->set('disabled', '');
-				$this->set('edit_headline', 'New user');
-			} else {
-				$this->set('disabled', 'disabled="disabled"');
-				$this->set('edit_headline', 'Edit user');
-				$this->User->load($id, 'id');
-			} 
-			if (isset($_POST['save'])) {				
-				if (preg_match('/^new/', $id)) {
-				
-					$this->User->set('email', $_POST['email']);
-					$this->User->set('alias', $_POST['alias']);
-					
-					if ($this->User->emailExists()) {
-						$this->set('user_message', 'The email address already exists in our system. Please choose another one.');
-						$halt = true;
-						$this->set('error', true);
-					}
-						
-					if ($this->User->aliasExists()) {
-						$this->set('user_message', 'The alias already exists in our system. Please choose another one.');
-						$halt = true;
-						$this->set('error', true);
-					}
-				
-				} else if ($this->User->wasLoaded()) {
+        if ($this->User->get('email') != $_POST['email']) {
+          if ($this->User->emailExists()) {
+          
+            $this->set('user_message', 'The email address already exists in our system. Please choose another one.');
+            $halt = true;
+            $this->set('error', true);
+          }
+        }
+      }
+      
+      if (!isset($halt)) { 
+      
+        // Company section
+        $this->User->set('orgnr', $_POST['orgnr']);
+        $this->User->set('company', $_POST['company']);
+        $this->User->set('commodity', $_POST['commodity']);
+        if(isset($_POST['customer_nr']))
+          $this->User->set('customer_nr', $_POST['customer_nr']);
+        $this->User->set('address', $_POST['address']);
+        $this->User->set('zipcode', $_POST['zipcode']);
+        $this->User->set('city', $_POST['city']);
+        $this->User->set('country', $_POST['country']);
+        $this->User->set('phone1', $_POST['phone1']);
+        $this->User->set('phone2', $_POST['phone2']);
+        $this->User->set('fax', $_POST['fax']);
+        // Email is handled in the code above
+        $this->User->set('website', $_POST['website']);
+        
+        // Billing address section
+        $this->User->set('invoice_company', $_POST['invoice_company']);
+        $this->User->set('invoice_address', $_POST['invoice_address']);
+        $this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
+        $this->User->set('invoice_city', $_POST['invoice_city']);
+        $this->User->set('invoice_country', $_POST['invoice_country']);
+        $this->User->set('invoice_email', $_POST['invoice_email']);
+        $this->User->set('presentation', $_POST['presentation']);
+        
+        // Contact section
+        // Alias field is disabled and should not be changed
+        $this->User->set('name', $_POST['name']);
+        $this->User->set('contact_phone', $_POST['phone3']);
+        $this->User->set('contact_phone2', $_POST['phone4']);
+        $this->User->set('contact_email', $_POST['contact_email']);
+        
+        if(isset($_POST['locked']))
+          $this->User->set('locked', $_POST['locked']);
 
-					if ($this->User->get('email') != $_POST['email']) {
-						$this->User->set('email', $_POST['email']);
-						if ($this->User->emailExists()) {
-							$this->set('user_message', 'The email address already exists in our system. Please choose another one.');
-							$halt = true;
-							$this->set('error', true);
-						}
-					} else {
-						$this->User->set('email', $_POST['email']);
-					}
-				}
-				
-				if (!isset($halt)) { 
-					$this->User->set('customer_nr', $_POST['customer_nr']);
-					$this->User->set('commodity', $_POST['commodity']);
-					$this->User->set('company', $_POST['company']);
-					$this->User->set('name', $_POST['name']);
-					$this->User->set('orgnr', $_POST['orgnr']);
-					$this->User->set('address', $_POST['address']);
-					$this->User->set('zipcode', $_POST['zipcode']);
-					$this->User->set('city', $_POST['city']);
-					$this->User->set('country', $_POST['country']);
-					$this->User->set('phone1', $_POST['phone1']);
-					$this->User->set('phone2', $_POST['phone2']);
-					$this->User->set('contact_phone', $_POST['phone3']);
-					$this->User->set('contact_phone2', $_POST['phone4']);
-					$this->User->set('contact_email', $_POST['contact_email']);
-					$this->User->set('fax', $_POST['fax']);
-					$this->User->set('website', $_POST['website']);
-					$this->User->set('invoice_company', $_POST['invoice_company']);
-					$this->User->set('invoice_address', $_POST['invoice_address']);
-					$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
-					$this->User->set('invoice_city', $_POST['invoice_city']);
-					$this->User->set('invoice_email', $_POST['invoice_email']);
-					$this->User->set('invoice_country', $_POST['invoice_country']);
-					$this->User->set('locked', $_POST['locked']);
-					$this->User->set('presentation', $_POST['presentation']);
+        if (preg_match('/^new/', $id)) {
+          if (userLevel() == 4 && $level != 0) {
+          
+            $this->User->set('level', $level);
+          }
+          
+          // Generate a pw
+          $pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
+          shuffle($pw_arr);
+          $password = substr(implode('', $pw_arr), 0, 13);
+          // End of gen
 
-					if (preg_match('/^new/', $id)) {
-						if (userLevel() == 4 && $level != 0) {
-							$this->User->set('level', $level);
-						}
-						// Generate a pw
-						$pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
-						shuffle($pw_arr);
-						$password = substr(implode('', $pw_arr), 0, 13);
-						// End of gen
-	
-						$this->User->setPassword($password);
-						
-						switch($this->User->get('level')) {
-							case 4:
-								$lvl = 'Master';
-								break;
-							case 3:
-								$lvl = 'Organizer';
-								break;
-							case 2:
-								$lvl = 'Administrator';
-								break;
-							default:
-								$lvl = 'Exhibitor';
-								break;
-						}
-					    
-						$mail = new Mail($_POST['email'], 'welcome');
-						$mail->setMailVar('alias', $_POST['alias']);
-						$mail->setMailVar('password', $password);
-						$mail->setMailVar('accesslevel', $lvl);
-						$mail->send();
-					}
-	
-					$iid = $this->User->save();
-					if($iid > 0){
-						// Succsess
-						$this->setNoTranslate('js_confirm', true);
-						$this->set('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
-					}else{
-						// FAIL
-						$this->setNoTranslate('js_confirm', true);
-						$this->set('js_confirm_text', 'An error has occurred!'."\r\n".'Could not save user to database');
-					}
-				
-				}
+          $this->User->setPassword($password);
+          
+          switch($this->User->get('level')) :
+            case 4: $lvl = 'Master'; break;
+            case 3: $lvl = 'Organizer'; break;
+            case 2: $lvl = 'Administrator'; break;
+            default: $lvl = 'Exhibitor'; break;
+          endswitch;
+            
+          $mail = new Mail($_POST['email'], 'welcome');
+          $mail->setMailVar('alias', $_POST['alias']);
+          $mail->setMailVar('password', $password);
+          $mail->setMailVar('accesslevel', $lvl);
+          $mail->send();
+        }
 
-			}
- 			
- 			if ($id != 'new' && userLevel() == 4) {
- 				$this->setNoTranslate('openFields', true);
- 			} else {
- 				$this->setNoTranslate('openFields', false);
- 			}
- 
-			if($id == 'new') :
-				if(!empty($level)) : 
-					if($level == 1):
-						$this->set('headline', 'New Exhibitor');
-					elseif($level == 2):
-						$this->set('headline', 'New Administrator');
-					elseif($level == 3):
-						$this->set('headline', 'New Arranger');
-					elseif($level == 4):
-						$this->set('headline', 'New Master');
-					endif;
-				else :
-					$this->set('headline', 'New User');
-				endif;
-			else:
-				$this->set('headline', 'Edit user');
-			endif;
+        $iid = $this->User->save();
+        
+        if($iid > 0){
+        
+          // Succsess
+          $this->setNoTranslate('js_confirm', true);
+          $this->set('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
+          
+        }else{
+        
+          // FAIL
+          $this->setNoTranslate('js_confirm', true);
+          $this->set('js_confirm_text', 'An error has occurred!'."\r\n".'Could not save user to database');
+        }
+      }
+    }
+    
+    if ($id != 'new' && userLevel() == 4) {
+    
+      $this->setNoTranslate('openFields', true);
+    } else {
+    
+      $this->setNoTranslate('openFields', false);
+    }
 
- 			$this->setNoTranslate('edit_id', $id);
-			$this->setNoTranslate('edit_level', $level);
-			$this->set('user', $this->User);
-			$this->set('commodity_label', 'Commodity');
-			$this->set('copy_label', 'Copy from company details');
-			$this->set('alias_label', 'Alias');
-			$this->set('company_label', 'Company');
-			$this->set('customer_nr_label', 'Customer number');
-			$this->set('contact_label', 'Contact person');
-			$this->set('orgnr_label', 'Organization number');
-			$this->set('address_label', 'Address');
-			$this->set('zipcode_label', 'Zip code');
-			$this->set('city_label', 'City');
-			$this->set('country_label', 'Country');
-			$this->set('phone1_label', 'Phone 1');
-			$this->set('phone2_label', 'Phone 2');
-			$this->set('phone3_label', 'Contact Phone');
-			$this->set('phone4_label', 'Contact Phone 2');
-			$this->set('contact_country', 'Contact Country');
-			$this->set('contact_email', 'Contact Email');
-			$this->set('fax_label', 'Fax number');
-			$this->set('website_label', 'Website');
-			$this->set('email_label', 'E-mail');
-			$this->set('password_label', 'Password');
-			$this->set('password_repeat_label', 'Password again (repeat to confirm)');
-			$this->set('presentation_label', 'Presentation');
-			$this->set('save_label', 'Save');
-			$this->set('invoice_company_label', 'Company');
-			$this->set('invoice_address_label', 'Address');
-			$this->set('invoice_zipcode_label', 'Zip code');
-			$this->set('invoice_city_label', 'City');
-			$this->set('invoice_email_label', 'E-mail');
-			$this->set('locked_label', 'Account locked');
-			$this->set('locked_label0', 'No');
-			$this->set('locked_label1', 'Yes');
-		}
+    $this->setNoTranslate('edit_id', $id);
+    $this->setNoTranslate('edit_level', $level);
+    $this->set('user', $this->User);
 	}
 
 	function logout() {
@@ -547,25 +514,37 @@ class UserController extends Controller {
 	}
 
 	function accountSettings() {
+  
 		setAuthLevel(1);
 
-		$this->set('headline', 'Account settings');
 		$this->User->load($_SESSION['user_id'], 'id');
 
 		if (isset($_POST['save'])) {
+    
 			$this->User->set('phone1', $_POST['phone1']);
 			$this->User->set('phone2', $_POST['phone2']);
-			$this->User->set('contact_phone', $_POST['phone3']);
 			$this->User->set('email', $_POST['email']);
 			$this->User->set('name', $_POST['name']);
+			$this->User->set('contact_phone', $_POST['phone3']);
 
 			if (userLevel() != 2) {
-				$this->User->set('company', $_POST['company']);
+      
+        // Company section
 				$this->User->set('orgnr', $_POST['orgnr']);
+				$this->User->set('company', $_POST['company']);
+				$this->User->set('commodity', $_POST['commodity']);
+        if(isset($_POST['customer_nr']))
+          $this->User->set('customer_nr', $_POST['customer_nr']);
 				$this->User->set('address', $_POST['address']);
 				$this->User->set('zipcode', $_POST['zipcode']);
 				$this->User->set('city', $_POST['city']);
-				$this->User->set('commodity', $_POST['commodity']);
+				$this->User->set('country', $_POST['country']);
+        // Phone1 and Phone2 are handled above
+				$this->User->set('fax', $_POST['fax']);
+        // Email is handled above
+				$this->User->set('website', $_POST['website']);
+        
+        // Billing address section
 				$this->User->set('invoice_company', $_POST['invoice_company']);
 				$this->User->set('invoice_address', $_POST['invoice_address']);
 				$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
@@ -573,16 +552,13 @@ class UserController extends Controller {
 				$this->User->set('invoice_country', $_POST['invoice_country']);
 				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('presentation', $_POST['presentation']);
-				$this->User->set('country', $_POST['country']);
+        
+        // Contact section
+        // Alias field is disabled and should not be changed
+        // Name and Contact_Phone are handled above
 				$this->User->set('contact_phone2', $_POST['phone4']);
 				$this->User->set('contact_email', $_POST['contact_email']);
-				$this->User->set('fax', $_POST['fax']);
-				$this->User->set('website', $_POST['website']);
-				$this->User->set('commodity', $_POST['commodity']);
 			}
-
-			
-			
 
 			//$this->User->set('category', $_POST['category']);
 			//$this->User->set('level', 1);
@@ -594,39 +570,6 @@ class UserController extends Controller {
 
 		$this->setNoTranslate('edit_id', $_SESSION['user_id']);
 		$this->set('user', $this->User);
-
-		$this->set('copy_label', 'Copy from company details');
-		$this->set('alias_label', 'Username');
-		$this->set('category_label', 'Category');
-		$this->set('commodity_label', 'Commodity');
-
-		$this->set('company_section', 'Company');
-		$this->set('invoice_section', 'Billing address');
-		$this->set('contact_section', 'Contact person');
-		$this->set('presentation_section', 'Presentation');
-
-		$this->set('invoice_company_label', 'Company');
-		$this->set('invoice_address_label', 'Address');
-		$this->set('invoice_zipcode_label', 'Zip code');
-		$this->set('invoice_city_label', 'City');
-		$this->set('invoice_email_label', 'E-mail');
-		$this->set('company_label', 'Company');
-		$this->set('contact_label', 'Contact person');
-		$this->set('orgnr_label', 'Organization number');
-		$this->set('address_label', 'Address');
-		$this->set('zipcode_label', 'Zip code');
-		$this->set('city_label', 'City');
-		$this->set('country_label', 'Country');
-		$this->set('phone1_label', 'Phone 1');
-		$this->set('phone2_label', 'Phone 2');
-		$this->set('phone3_label', 'Contact Phone');
-		$this->set('phone4_label', 'Contact Phone 2');
-		$this->set('contact_email', 'Contact Email');
-		$this->set('fax_label', 'Fax number');
-		$this->set('website_label', 'Website');
-		$this->set('email_label', 'E-mail');
-		$this->set('presentation_label', 'Company presentation');
-		$this->set('save_label', 'Save');
 	}
 
 	function register($fairUrl='') {
@@ -635,45 +578,55 @@ class UserController extends Controller {
 
 		if (isset($_POST['save'])) {
 
-			$this->User->set('company', $_POST['company']);
-			$this->User->set('name', $_POST['name']);
+      // Company section
 			$this->User->set('orgnr', $_POST['orgnr']);
-			$this->User->set('alias', $_POST['username']);
+			$this->User->set('company', $_POST['company']);
+			$this->User->set('commodity', $_POST['commodity']);
+      // Customer_Nr should not appear here
 			$this->User->set('address', $_POST['address']);
 			$this->User->set('zipcode', $_POST['zipcode']);
 			$this->User->set('city', $_POST['city']);
 			$this->User->set('country', $_POST['country']);
 			$this->User->set('phone1', $_POST['phone1']);
 			$this->User->set('phone2', $_POST['phone2']);
-			$this->User->set('contact_phone', $_POST['phone3']);
-			$this->User->set('contact_phone2', $_POST['phone4']);
-			$this->User->set('contact_email', $_POST['contact_email']);
 			$this->User->set('fax', $_POST['fax']);
-			$this->User->set('website', $_POST['website']);
 			$this->User->set('email', $_POST['email']);
+			$this->User->set('website', $_POST['website']);
+      // For popups, the presentation is located directly below the first section, not the second
 			$this->User->set('presentation', $_POST['presentation']);
+      
+      // Billing address section
 			$this->User->set('invoice_company', $_POST['invoice_company']);
 			$this->User->set('invoice_address', $_POST['invoice_address']);
 			$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
 			$this->User->set('invoice_city', $_POST['invoice_city']);
-			$this->User->set('invoice_email', $_POST['invoice_email']);
 			$this->User->set('invoice_country', $_POST['invoice_country']);
-			$this->User->set('commodity', $_POST['commodity']);
+			$this->User->set('invoice_email', $_POST['invoice_email']);
+      
+      // Contact section
+			$this->User->set('alias', $_POST['alias']);
+			$this->User->set('name', $_POST['name']);
+			$this->User->set('contact_phone', $_POST['phone3']);
+			$this->User->set('contact_phone2', $_POST['phone4']);
+			$this->User->set('contact_email', $_POST['contact_email']);
 			//$this->User->set('category', $_POST['category']);
+      
 			$this->User->set('level', 1);
 			$this->User->set('locked', 1);
 
-
-
 			if ($this->User->aliasExists()) {
+      
 				$error.= 'The username already exists in our system.';
+        
 			} else if ($this->User->emailExists()) {
+      
 				$error.= 'The email address already exists in our system.';
+        
 			} else {
-				
-				if (strlen($_POST['username']) > 3) {
-					
+      
+				if (strlen($_POST['alias']) > 3) {
 					if ($_POST['password'] == $_POST['password_repeat']) {
+          
 						$this->User->setPassword($_POST['password']);
 						$userId = $this->User->save();
 						$hash = md5($this->User->get('email').BASE_URL.$userId);
@@ -681,7 +634,9 @@ class UserController extends Controller {
             $mail = new Mail($this->User->email, 'confirm_mail');
             $mail->setMailVar('url', $url);
             $mail->send();
+            
 						if ($fairUrl != '') {
+            
 							require_once ROOT.'application/models/Exhibitor.php';
 							require_once ROOT.'application/models/ExhibitorCategory.php';
 							require_once ROOT.'application/models/Fair.php';
@@ -689,21 +644,28 @@ class UserController extends Controller {
 							require_once ROOT.'application/models/FairMapPosition.php';
 							require_once ROOT.'application/models/PreliminaryBooking.php';
 							require_once ROOT.'application/models/FairUserRelation.php';
+              
 							$fair = new Fair;
 							$fair->load($fairUrl, 'url');
+              
 							if ($fair->wasLoaded()) {
+              
 								$ful = new FairUserRelation;
 								$ful->set('user', $userId);
 								$ful->set('fair', $fair->get('id'));
 								$ful->save();
 							}
 						}
+            
 						header('Location: '.BASE_URL.'user/login/'.$fairUrl.'/new');
+            
 					} else {
+          
 						$error.= 'The passwords did not match.';
 					}
 					
 				} else {
+        
 					$error.= 'Your alias must contain at least four characters.';
 				}
 			}
@@ -715,44 +677,6 @@ class UserController extends Controller {
 		$fair = new Fair($this->User->db);
 		$fair->load($_SESSION['outside_fair_url'], 'url');
 		$this->set('fair', $fair);
-		
-		$this->set('pass_standard', 'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.');
-		$this->set('copy_label', 'Copy from company details');
-		$this->set('company_section', 'Company');
-		$this->set('invoice_section', 'Billing address');
-		$this->set('contact_section', 'Contact');
-		$this->set('presentation_section', 'Presentation');
-
-		$this->set('alias_label', 'Username');
-
-		$this->set('headline', 'Register');
-		$this->set('company_label', 'Company');
-		$this->set('commodity_label', 'Commodity');
-		$this->set('presentation_label', 'Presentation');
-		$this->set('category_label', 'Category');
-		$this->set('customer_nr_label', 'Customer number');
-		$this->set('contact_label', 'Contact person');
-		$this->set('orgnr_label', 'Organization number');
-		$this->set('address_label', 'Address');
-		$this->set('zipcode_label', 'Zip code');
-		$this->set('city_label', 'City');
-		$this->set('invoice_company_label', 'Company');
-		$this->set('invoice_address_label', 'Address');
-		$this->set('invoice_zipcode_label', 'Zip code');
-		$this->set('invoice_city_label', 'City');
-		$this->set('invoice_email_label', 'E-mail');
-		$this->set('country_label', 'Country');
-		$this->set('phone1_label', 'Phone 1');
-		$this->set('phone2_label', 'Phone 2');
-		$this->set('phone3_label', 'Contact Phone');
-		$this->set('phone4_label', 'Contact Phone 2');
-		$this->set('contact_email', 'Contact Email');
-		$this->set('fax_label', 'Fax number');
-		$this->set('website_label', 'Website');
-		$this->set('email_label', 'E-mail');
-		$this->set('password_label', 'Password');
-		$this->set('password_repeat_label', 'Password again (repeat to confirm)');
-		$this->set('save_label', 'Save');
 	}
 
 	function confirm($user, $hash) {

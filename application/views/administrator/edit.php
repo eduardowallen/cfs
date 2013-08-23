@@ -1,3 +1,18 @@
+<?php
+  echo Form::Load("userdata_administrator",
+      array(
+          'headline'=>$translator->{($edit_id=='new'?'New administrator':'Edit administrator')},
+          'action'=>"administrator/edit/".$edit_id,
+          'user'=>$user,
+          'user_maps'=>@$user_maps,
+          'user_fairs'=>@$user_fairs,
+          'fairs'=>@$fairs,
+          'error'=>@$user_message
+        )
+    );
+  return;
+?>
+
 <script type="text/javascript">
 	
 	function filterFairs() {

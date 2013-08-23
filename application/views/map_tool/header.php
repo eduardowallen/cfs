@@ -65,6 +65,8 @@
 	lang.contact_section = '<?php echo $translator->{"Contact"} ?>';
 	lang.contact_email = '<?php echo $translator->{"Contact Email"} ?>';
 	lang.copy_label = '<?php echo $translator->{"Copy from company details"} ?>';
+  
+  form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">

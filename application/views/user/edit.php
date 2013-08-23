@@ -1,4 +1,34 @@
-<?php $country_list = array(
+<?php
+  global $translator;
+ 
+  // Select an appropriate headline
+  if($edit_id == 'new') :
+    if(!empty($edit_level)) : 
+      switch($edit_level):
+        case 1: $headline='New Exhibitor'; break;
+        case 2: $headline='New Administrator'; break;
+        case 3: $headline='New Arranger'; break;
+        case 4: $headline='New Master'; break;
+      endswitch;
+    else :
+      $headline='New User';
+    endif;
+  else:
+    $headline='Edit user';
+  endif;
+  
+  // Load form
+  echo Form::Load("userdata",
+      array(
+          'headline'=>$translator->{$headline},
+          'action'=>"user/edit/".$edit_id.(isset($edit_level)?'/'.$edit_level:''),
+          'user'=>$user,
+          'error'=>@$user_message
+        )
+    );
+  return;
+  
+  $country_list = array(
 		"Afghanistan",
 		"Albania",
 		"Algeria",
@@ -212,7 +242,7 @@
 	<label for="orgnr"><?php echo $orgnr_label; ?></label>
 	<input type="text" name="orgnr" id="orgnr" value="<?php echo $user->get('orgnr'); ?>"/>
 	
-	<label for="company"><?php echo $company_label; ?> *</label>
+	<label for="company"><?php echo $company_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="company" id="company" value="<?php echo $user->get('company'); ?>"/>
 
 	<label for="commodity"><?php echo $commodity_label; ?></label>
@@ -221,7 +251,7 @@
 	<label for="customer_nr"><?php echo $customer_nr_label; ?></label>
 	<input type="text" name="customer_nr" id="customer_nr" value="<?php echo $user->get('customer_nr'); ?>"/>
 
-	<label for="name"><?php echo $contact_label; ?> *</label>
+	<label for="name"><?php echo $contact_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
 	<label for="address"><?php echo $address_label; ?></label>
@@ -244,7 +274,7 @@
 	<?php endforeach; ?>
 	</select>
 
-	<label for="phone1"><?php echo $phone1_label; ?> *</label>
+	<label for="phone1"><?php echo $phone1_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="phone1" id="phone1" value="<?php echo $user->get('phone1'); ?>"/>
 
 	<label for="phone2"><?php echo $phone2_label; ?></label>
@@ -256,7 +286,7 @@
 	<label for="website"><?php echo $website_label; ?></label>
 	<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
 
-	<label for="email"><?php echo $email_label; ?> *</label>
+	<label for="email"><?php echo $email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
 	
 
@@ -265,16 +295,16 @@
 
 	<div class="form_column">
 	<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
-	<label for="invoice_company"><?php echo $invoice_company_label; ?> *</label>
+	<label for="invoice_company"><?php echo $invoice_company_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="invoice_company" id="invoice_company" value="<?php echo $user->get('invoice_company'); ?>"/>
 
-	<label for="invoice_address"><?php echo $invoice_address_label; ?> *</label>
+	<label for="invoice_address"><?php echo $invoice_address_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="invoice_address" id="invoice_address" value="<?php echo $user->get('invoice_address'); ?>"/>
 
-	<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> *</label>
+	<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="invoice_zipcode" id="invoice_zipcode" value="<?php echo $user->get('invoice_zipcode'); ?>"/>
 
-	<label for="invoice_city"><?php echo $invoice_city_label; ?> *</label>
+	<label for="invoice_city"><?php echo $invoice_city_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="invoice_city" id="invoice_city" value="<?php echo $user->get('invoice_city'); ?>"/>
 
 	<label for="invoice_country"><?php echo $country_label; ?> *</label>
@@ -288,7 +318,7 @@
 	<?php endforeach; ?>
 	</select>
 
-	<label for="invoice_email"><?php echo $invoice_email_label; ?> *</label>
+	<label for="invoice_email"><?php echo $invoice_email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
 		<div style="">
 			<label for="presentation"><?php echo $presentation_label; ?></label>
@@ -299,21 +329,21 @@
 
 
 	<div class="form_column">
-	<label for="alias"><?php echo $alias_label; ?> *</label>
-	<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>" <?php echo $disabled?>/>
+		<h3><?php echo $contact_section; ?></h3>
+		<label for="alias"><?php echo $alias_label; ?> *</label>
+		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>" <?php echo $disabled?>/>
 
-	<label for="name"><?php echo $contact_label; ?> *</label>
-	<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
+		<label for="name"><?php echo $contact_label; ?> *</label>
+		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
-	<label for="phone3"><?php echo $phone3_label; ?> *</label>
-	<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
+		<label for="phone3"><?php echo $phone3_label; ?> *</label>
+		<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
 
-	<label for="phone4"><?php echo $phone4_label; ?></label>
-	<input type="text" name="phone4" id="phone4" value="<?php echo $user->get('contact_phone2'); ?>"/>
+		<label for="phone4"><?php echo $phone4_label; ?></label>
+		<input type="text" name="phone4" id="phone4" value="<?php echo $user->get('contact_phone2'); ?>"/>
 
-	<label for="contact_email"><?php echo $contact_email ?> *</label>
-	<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
-
+		<label for="contact_email"><?php echo $contact_email ?> *</label>
+		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
 	</div>	
 	
 	

@@ -5,10 +5,10 @@ ini_set('max_execution_time', 60);
 putenv('PATH=/bin:/usr/bin:/usr/local/bin');
 
 //Dev mode
-define('DEV', 'false');
+define('DEV', 'true');
 
 //path settings
-define('BASE_URL', 'http://www.chartbooking.com/');
+define('BASE_URL', 'http://chartbookertest/');
 
 //Database settings
 define('DB_HOST', 'localhost');
@@ -23,7 +23,7 @@ define('SMTP_USER', '');
 define('SMTP_PASS', '');
 define('EMAIL_FROM_NAME', 'Chartbooker');
 if (DEV) {
-	define('EMAIL_FROM_ADDRESS', 'info@chartbooker.com');
+	define('EMAIL_FROM_ADDRESS', 'test.server@chartbooker.com');
 } else {
 	define('EMAIL_FROM_ADDRESS', 'info@chartbooker.com');
 }

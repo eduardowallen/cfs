@@ -19,7 +19,7 @@ class Arranger extends User {
 	
 	function save() {
 		
-		if ($this->id == 0) {
+		/*if ($this->id == 0) {
 			
 			$arr = array_merge(range(0, 9), range('a', 'z'));
 			shuffle($arr);
@@ -33,7 +33,7 @@ class Arranger extends User {
 			$emstr.= "\r\n\r\n".BASE_URL."user/login";
 			$emstr.= "\r\n\r\nBest regards,\r\nChartbooker International";
 			sendMail($this->email, 'Your user account', $emstr);
-		}
+		}*/
 		
 		$id = parent::save();
 		return $id;

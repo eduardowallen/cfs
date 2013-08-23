@@ -1,3 +1,12 @@
+<?php
+  if(!$hasRights):
+?>
+	<p>Du är inte behörig att administrera den här mässan.</p>
+<?php
+    return;
+  endif;
+?>
+
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){

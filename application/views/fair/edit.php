@@ -18,7 +18,7 @@
 			});
 		});
 
-		// Bind contact_info så att info blir obligatorisk
+		// Bind contact_info sÃ¥ att info blir obligatorisk
 		var check = setInterval(function(){
 			if(strcmp(tinyMCE.get('contact_info'), "undefined")){
 				bindMce();

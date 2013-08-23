@@ -76,11 +76,10 @@ class Exhibitor extends User {
 
 	// Preliminary bookings
 	public function del_pre_booking($id, $user_id, $position){
-		$sql = "DELETE FROM `preliminary_booking` WHERE id = '{$id}' AND user = '{$user_id}' AND position = '{$position}'";
+		$sql = "DELETE FROM `preliminary_booking` WHERE id = '{$id}' AND user = '{$user_id}'";
 		$query = $this->db->query($sql);
-	
-		//$reset_pos = "UPDATE `fair_map_position` SET `status` = '0' WHERE id = '{$position}' LIMIT 1";
-		//$query2 = $this->db->query($reset_pos);
+		$reset_pos = "UPDATE `fair_map_position` SET `status` = '0' WHERE id = '{$position}' LIMIT 1";
+		$query2 = $this->db->query($reset_pos);
 	}
 
 	public function del_booking($id, $user_id, $position){

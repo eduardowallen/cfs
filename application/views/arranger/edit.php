@@ -1,3 +1,15 @@
+<?php
+  echo Form::Load("userdata",
+      array(
+          'headline'=>$translator->{($edit_id=='new'?'New organizer':'Edit organizer')},
+          'action'=>"arranger/edit/".$edit_id,
+          'user'=>$user,
+          'error'=>@$user_message,
+          'fairs'=>@$fairs
+        )
+    );
+  return;
+?>
 <?php $country_list = array(
 		"Afghanistan",
 		"Albania",
@@ -228,7 +240,11 @@
 		<label for="country"><?php echo $country_label; ?> *</label>
 		<select name="country" id="country" style="width:258px;">
 		<?php foreach($country_list as $country) : ?>
-			<option value="<?php echo $country?>"><?php echo $country?></option>
+			<?php if($country == $user->get('country')):?>
+				<option value="<?php echo $country?>" selected><?php echo $country?></option>
+			<?php else:?>
+				<option value="<?php echo $country?>"><?php echo $country?></option>
+			<?php endif?>
 		<?php endforeach; ?>
 		</select>
 
@@ -269,7 +285,11 @@
 		<label for="invoice_country"><?php echo $country_label; ?> *</label>
 		<select name="invoice_country" id="invoice_country" style="width:258px;">
 		<?php foreach($country_list as $country) : ?>
-			<option value="<?php echo $country?>"><?php echo $country?></option>
+			<?php if($country == $user->get('invoice_country')):?>
+				<option value="<?php echo $country?>" selected><?php echo $country?></option>
+			<?php else:?>
+				<option value="<?php echo $country?>"><?php echo $country?></option>
+			<?php endif?>
 		<?php endforeach; ?>
 		</select>
     
@@ -300,10 +320,7 @@
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
 	</div>	
 	
-
-	
-	
-	
+  
 	<label for="#"><?php echo $locked_label; ?></label>
 	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo $locked_label0; ?></label>
 	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo $locked_label1; ?></label>
