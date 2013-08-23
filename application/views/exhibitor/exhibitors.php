@@ -1,3 +1,42 @@
+<?php
+  global $translator;
+  
+  // Create an array used in generating the popup form when exporting data
+  // Probably will be moved to ExhibitorControlled to be re-used to validate the received export request
+  $column_info = array(
+      $translator->{"Select all: Company"} => array(
+          'orgnr' => $translator->{'Organization number'},
+          'company' => $translator->{'Company'},
+          'commodity' => $translator->{'Commodity'},
+          // 'customer_nr' => $translator->{'Customer number'},
+          'address' => $translator->{'Address'},
+          'zipcode' => $translator->{'Zip code'},
+          'city' => $translator->{'City'},
+          'country' => $translator->{'Country'},
+          'phone1' => $translator->{'Phone 1'},
+          'phone2' => $translator->{'Phone 2'},
+          'fax' => $translator->{'Fax number'},
+          'email' => $translator->{'E-mail'},
+          'website' => $translator->{'Website'},
+          //'presentation' => $translator->{'Presentation'},
+        ),
+      $translator->{"Select all: Billing address"} => array(
+          'invoice_company' => $translator->{'Company'},
+          'invoice_address' => $translator->{'Address'},
+          'invoice_zipcode' => $translator->{'Zip code'},
+          'invoice_city' => $translator->{'City'},
+          'invoice_country' => $translator->{'Country'},
+          'invoice_email' => $translator->{'E-mail'},
+        ),
+      $translator->{"Select all: Contact person"} => array(
+          //'alias' => $translator->{'Username'},
+          'name' => $translator->{'Contact person'},
+          'phone3' => $translator->{'Contact Phone'},
+          'phone4' => $translator->{'Contact Phone 2'},
+          'contact_email' => $translator->{'Contact Email'},
+        )
+    );
+?>
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $headline; ?></h1>
 
@@ -88,6 +127,37 @@
 			}
 		}
 	}
+  function requestExport(e) {
+		e.preventDefault();
+		e.stopPropagation();
+		$('#overlay').show();
+// #####
+		var url = $(this).attr('href');
+		var html = '<form action="exhibitor/export/<?php echo $fairId;?>" method="post" id="popupform">'
+				+   '<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>'
+        
+        +   '<div class="form_column">'
+        +     '<input type="checkbox" id="copy"/>'
+        +     '<label class="inline-block" for="copy"><?php echo $translator->{'Copy from company details'}; ?></label>'
+        +   '</div>'
+        
+				+   '<p><input type="submit" id="button_cancel" value="<?php echo $translator->{'Cancel'};?>"/><input type="submit" name="export" value="<?php echo $translator->{'Export as Excel document'};?>"/></p></div>'
+				+ '</form>';
+		
+		$('body').prepend(html);
+    
+    var closePopup = function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+			$('#popupform').remove();
+			$('#overlay').hide();
+		};
+		$(".closeDialogue").click(closePopup);
+		$("#button_cancel").click(closePopup);
+		
+		return false;
+		
+	});
 </script>
 
 
