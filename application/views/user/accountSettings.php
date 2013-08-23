@@ -15,7 +15,7 @@
     echo Form::Load("userdata",
         array(
             'headline'=>$translator->{'Account settings'},
-            'action'=>"user/accountSettings"),
+            'action'=>"user/accountSettings",
             'user'=>$user,
             'error'=>@$error
           )
