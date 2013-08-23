@@ -221,7 +221,7 @@
 	</select>
 
 	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
-	<input type="text" class="dialogueInput date datepicker" name="reserve_expires_input" id="reserve_expires_input" value="<?php echo date('d-m-Y', $fairCloses);  ?>"/>
+	<input type="text" class="dialogueInput date datepicker" name="reserve_expires_input" id="reserve_expires_input" value="<?php echo date('d-m-Y', ($fairCloses>0?$fairCloses:time()));  ?>"/>
 
 	<p><a id="reserve_post"><input type="button" value="<?php echo $translator->{'Confirm reservation'} ?>"/></a></p>
 
