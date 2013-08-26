@@ -159,8 +159,8 @@ class AdministratorController extends Controller {
         $mail->send();
 
 				//require_once ROOT.'application/models/FairUserRelation.php';
-				$stmt = $this->Administrator->db->prepare("INSERT INTO fair_user_relation (fair, user) VALUES (?, ?)");
-				$stmt->execute(array($_POST['fair'], $userId));
+				$stmt = $this->Administrator->db->prepare("INSERT INTO fair_user_relation (fair, user, connected_time) VALUES (?, ?, ?)");
+				$stmt->execute(array($_POST['fair'], $userId, time()));
 
 				//header('Location: '.BASE_URL.'administrator/exhibitors');
 				header('Location: '.BASE_URL.'exhibitor/forFair');

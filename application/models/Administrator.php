@@ -72,8 +72,8 @@ class Administrator extends User {
 					$imploded = ( isset($_POST['maps']) AND count($_POST['maps']) > 0  ) ? implode( '|', $_POST['maps'] ) : array() ;
 					if( count($imploded) > 0){
 						echo 'that';
-						$dbh = $this->db->prepare("INSERT INTO fair_user_relation ('fair', 'user', 'map_access') VALUES(?, ?, ?)");
-						$dbh->execute( array($fair, $id, $imploded) );
+						$dbh = $this->db->prepare("INSERT INTO fair_user_relation ('fair', 'user', 'map_access', 'connected_time') VALUES(?, ?, ?, ?)");
+						$dbh->execute( array($fair, $id, $imploded, time()) );
 					}
 				}
 			}

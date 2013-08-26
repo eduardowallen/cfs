@@ -1,7 +1,8 @@
 <?php
+  global $translator;
   if(!$hasRights):
 ?>
-	<p>Du är inte behörig att administrera den här mässan.</p>
+	<p><?php echo $translator->{'You are not authorized to administer this fair.'}; ?></p>
 <?php
     return;
   endif;
@@ -188,6 +189,7 @@
 		<li><div class="tblrow1"><?php echo $th_name; ?></div><input type="checkbox" value="2" checked></input></li>
 		<li><div class="tblrow1"><?php echo $th_fairs; ?></div><input type="checkbox" value="3" checked></input></li>
 		<li><div class="tblrow1"><?php echo $th_last_login ;?></div><input type="checkbox" value="4" checked></input></li>
+		<li><div class="tblrow1"><?php echo $th_connect_time ;?></div><input type="checkbox" value="5" checked></input></li>
 		<li><div class="tblrow1"></div><div style="padding-top:19px;"></div></li>
 		<li><div class="tblrow1"></div><input onclick="multiCheck('connected')" type="checkbox" checked></input></li>
 	</ul>
@@ -202,6 +204,7 @@
 			<th><?php echo $th_fairs ?></th>
 			<!--<th><?php echo $th_bookings ?></th>-->
 			<th><?php echo $th_last_login ?></th>
+			<th><?php echo $th_connect_time ?></th>
 			<th><?php echo $th_copy; ?></th>
 			<th></th>
 		</tr>
@@ -214,6 +217,7 @@
 				<td class="center"><?php echo $user->get('fair_count'); ?></td>
 				<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
 				<td><?php echo date('d/m/y', $user->get('last_login')); ?></td>
+				<td><?php if($user->get('connected_time')) echo date('d/m/y', $user->get('connected_time')); else echo 'n/a'; ?></td>
 				<td class="center"><a href="exhibitor/forFair/copy/<?php echo $user->get('id'); ?>"><img src="images/icons/user_go.png" alt=""/></a></td>
 				<td><input type="checkbox" id="<?php echo $user->get('id'); ?>" checked></input></td>
 			</tr>

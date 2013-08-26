@@ -178,6 +178,7 @@ CREATE TABLE IF NOT EXISTS `fair_user_relation` (
   `user` int(9) unsigned NOT NULL,
   `fair_presentation` text COLLATE utf8_swedish_ci NOT NULL,
   `map_access` varchar(128) COLLATE utf8_swedish_ci NOT NULL,
+  `connected_time` int(11) NOT NULL,
   KEY `fair` (`fair`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
 

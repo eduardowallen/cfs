@@ -156,7 +156,7 @@ class ExhibitorController extends Controller {
 			}
 		}
 		
-		$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
+		$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
 		$stmt->execute(array($_SESSION['user_fair'], 1));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($result as $res) {
@@ -169,6 +169,7 @@ class ExhibitorController extends Controller {
 				$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
 
 				$ex->set('fair_count', $result2['fair_count']);
+				$ex->set('connected_time', $res['connected_time']);
 				$exhibitorId = $ex->get('id');
 
 
@@ -206,6 +207,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_fairs', 'Fairs');
 		$this->set('th_bookings', 'Bookings');
 		$this->set('th_last_login', 'Last login');
+		$this->set('th_connect_time', 'Connected to fair on');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
 		$this->set('fairs', $fairs);
@@ -253,20 +255,27 @@ class ExhibitorController extends Controller {
 
 		$cols = explode('|', $cols);
 		$rows = explode('|', $rows);
+    
+    // Data from first table required to populate $exIds array, used to filter table 2
+    $stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id, COUNT(user.id) AS ex_count FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
+    $stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    $exIds = array();
+    foreach ($result as $res) {
+      if (intval($res['id']) > 0) {
+        array_push($exIds, $res['id']);
+      }
+    }
 
 		if($tbl == 1) : // Exportera tabellen 'bokade' till Excel
 			/* Samla tabellinfo till array */
-			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id, COUNT(user.id) AS ex_count FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
-			$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
-			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$exhibitors = array();
 			$connected = array();
-			$exIds = array();
 			$fairs = 0;
 			$currentFair = 0;
 			foreach ($result as $res) {
 				if (intval($res['id']) > 0) {
-					array_push($exIds, $res['id']);
 					$ex = new User;
 					$ex->load($res['id'], 'id');
 					$ex->set('ex_count', $res['ex_count']);
@@ -285,7 +294,7 @@ class ExhibitorController extends Controller {
 			}	
 		elseif($tbl == 2) : // Exportera tabellen 'anslutna' till Excel 
 			/* Samla tabellinfo till array */
-			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
+			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time, user.id FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
 			$stmt->execute(array($_SESSION['user_fair'], 1));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			foreach ($result as $res) {
@@ -297,6 +306,7 @@ class ExhibitorController extends Controller {
 					$stmt2->execute(array($res['user']));
 					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
 					$ex->set('fair_count', $result2['fair_count']);
+					$ex->set('connected_time', $res['connected_time']);
 
 					$exhibitors[] = $ex;
 				}
@@ -334,7 +344,7 @@ class ExhibitorController extends Controller {
 		if($tbl == 1) :
 			$arr2 = array('d', $this->translate->{'Company'}, $this->translate->{'Name'}, $this->translate->{'Event'}, $this->translate->{'Bookings'}, $this->translate->{'Last login'});
 		else :
-			$arr2 = array('d', $this->translate->{'Company'}, $this->translate->{'Name'}, $this->translate->{'Event'}, $this->translate->{'Last login'});
+			$arr2 = array('d', $this->translate->{'Company'}, $this->translate->{'Name'}, $this->translate->{'Event'}, $this->translate->{'Last login'}, $this->translate->{'Connected to fair on'});
 		endif;
 
 		if(!empty($cols[1])) : 
@@ -367,7 +377,7 @@ class ExhibitorController extends Controller {
 				if($tbl == 1) :
 					$arr = array('d', $connected->get('company'), $connected->get('name'), $connected->get('fair_count'), $connected->get('ex_count'), $dt);
 				else:
-					$arr = array('d', $connected->get('company'), $connected->get('name'), $connected->get('fair_count'), $dt);
+					$arr = array('d', $connected->get('company'), $connected->get('name'), $connected->get('fair_count'), $dt, ($connected->get('connected_time')?date('d/m/y', $connected->get('connected_time')):'n/a'));
 				endif;
 
 				if(!empty($cols[1])) : 	
@@ -399,7 +409,7 @@ class ExhibitorController extends Controller {
 		));
 		
 		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
 		$objWriter->save('php://output');
 	}
 
