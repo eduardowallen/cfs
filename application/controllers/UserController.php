@@ -253,6 +253,9 @@ class UserController extends Controller {
 	}
 
 	function login($fUrl='', $status = null) {
+  
+    global $translator;
+  
 		unset($_SESSION['visitor']);
 		if(isset($_SESSION['user_id'])) :
 			 header("Location: ".BASE_URL."page/loggedin"); 
@@ -260,21 +263,25 @@ class UserController extends Controller {
 
 		$this->set('error', '');
 		$this->setNoTranslate('fair_url', $fUrl);
+    
 		if( $status !== null){
-			$this->set('first_time_msg', 'An email has been sent to the specified email addresses that were entered into during the registration prossesen');
+			$this->set('first_time_msg', $translator->{'An email has been sent to the specified email addresses that were entered into during the registration prossesen'});
 		}
 		
 		if( $fUrl == 'confirmed'){
-			$this->set('confirmed_msg', 'Your account has been activated. Please log in to proceed.');
+			$this->set('confirmed_msg', $translator->{'Your account has been activated. Please log in to proceed.'});
 		}
+    elseif( $fUrl == 'alreadyactivated' ) {
+      $this->set('confirmed_msg', $translator->{'Your account has already been activated.'});
+    }
 
 		if( $fUrl == 'ok') :
 			$this->set('good', 'yes');
-			$this->set('res_msg', 'A new password has been sent to '.$_SESSION['m']);
+			$this->set('res_msg', $translator->{'A new password has been sent to '}.$_SESSION['m']);
 			$_SESSION['m'] = "";
 		elseif($fUrl == 'err') :
 			$this->set('good', 'no');
-			$this->set('res_msg', 'E-mail address or Username not found.');
+			$this->set('res_msg', $translator->{'E-mail address or Username not found.'});
 		endif;
 		
 		if(!empty($_SESSION['error'])) :
@@ -355,12 +362,12 @@ class UserController extends Controller {
 
 
 
-		$this->set('headline', 'Log in');
-		$this->set('user_name', 'Username');
+		$this->set('headline', $translator->{'Log in'});
+		$this->set('user_name', $translator->{'Username'});
 		
-		$this->set('password', 'Password');
-		$this->set('button', 'Log in');
-		$this->set('forgotlink', 'Forgot your password or Username?');
+		$this->set('password', $translator->{'Password'});
+		$this->set('button', $translator->{'Log in'});
+		$this->set('forgotlink', $translator->{'Forgot your password or Username?'});
 
 	}
 
@@ -702,9 +709,16 @@ class UserController extends Controller {
         
 				header('Location: '.BASE_URL.'user/login/confirmed');
 				exit;
-			} else {
-				echo $hash.'<br/>'.$userHash;
+        
+			} else if( $hash == $userHash ) {
+      
+				header('Location: '.BASE_URL.'user/login/alreadyactivated');
+				exit;
+				//echo $hash.'<br/>'.$userHash;
 			}
+      
+      header('Location: '.BASE_URL.'user/login/');
+      exit;
 
 		}
 
