@@ -528,7 +528,127 @@ class ExhibitorController extends Controller {
 		));
 		
 		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+		$objWriter->save('php://output');
+		
+	}
+  
+  // Created a new function in case the old export is used somewhere else, which is likely
+	public function export2($fairId=0) {
+  
+		$rows = explode(";", $_POST['rows']);
+		
+		setAuthLevel(3);
+		$this->set('noView', true);
+		
+		$fair = new Fair;
+		
+		if (!$fairId == 0) {
+			$fair->load($fairId, 'id');
+		} else {
+			if (isset($_SESSION['user_fair']))
+				$fair->load($_SESSION['user_fair'], 'id');
+			else if (isset($_SESSION['outside_fair_url']))
+				$fair->load($_SESSION['outside_fair_url'], 'url');
+		}
+    
+		$sql = 'SELECT user.*, exhibitor.position AS position, exhibitor.fair AS fair, exhibitor.commodity AS excommodity, pos.name AS posname, pos.status AS posstatus, pos.map AS posmap FROM exhibitor, user, fair_map_position AS pos WHERE exhibitor.fair = ? AND exhibitor.position = pos.id AND exhibitor.user = user.id AND position IN ('.implode(",",explode(";", $_POST['rows'])).')';
+		$stmt = $this->db->prepare($sql);
+		$stmt->execute(array($fairId));
+		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    
+    global $translator;
+    $column_names = array(
+        //$translator->{"Select all:"}." ".$translator->{"Company"} => array(
+            'orgnr' => $translator->{'Organization number'},
+            'company' => $translator->{'Company'},
+            'commodity' => $translator->{'Commodity'},
+            // 'customer_nr' => $translator->{'Customer number'},
+            'address' => $translator->{'Address'},
+            'zipcode' => $translator->{'Zip code'},
+            'city' => $translator->{'City'},
+            'country' => $translator->{'Country'},
+            'phone1' => $translator->{'Phone 1'},
+            'phone2' => $translator->{'Phone 2'},
+            'fax' => $translator->{'Fax number'},
+            'email' => $translator->{'E-mail'},
+            'website' => $translator->{'Website'},
+            //'presentation' => $translator->{'Presentation'},
+        //  ),
+        //$translator->{"Select all:"}." ".$translator->{"Billing address"} => array(
+            'invoice_company' => $translator->{'Company'},
+            'invoice_address' => $translator->{'Address'},
+            'invoice_zipcode' => $translator->{'Zip code'},
+            'invoice_city' => $translator->{'City'},
+            'invoice_country' => $translator->{'Country'},
+            'invoice_email' => $translator->{'E-mail'},
+        //  ),
+        //$translator->{"Select all:"}." ".$translator->{"Contact person"} => array(
+            //'alias' => $translator->{'Username'},
+            'name' => $translator->{'Contact person'},
+            'phone3' => $translator->{'Contact Phone'},
+            'phone4' => $translator->{'Contact Phone 2'},
+            'contact_email' => $translator->{'Contact Email'},
+        //  )
+        'posstatus' => $translator->{'Status'},
+        'posname' => $translator->{'Stand space'},
+      );
+		
+		$filename = "exhibitors.xlsx";
+		header("Pragma: public");
+		header("Expires: 0");
+		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+		header("Content-Type: application/force-download");
+		header("Content-Type: application/octet-stream");
+		header("Content-Type: application/download");
+		header("Content-Disposition: attachment;filename=".$filename);
+		header("Content-Transfer-Encoding: binary");
+		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
+		
+		$xls = new PHPExcel();
+		
+		$xls->setActiveSheetIndex(0);
+		$count = 0;
+		$alpha = range('A', 'Z');
+    foreach($_POST as $postname => $postval )
+    {
+      $postname = str_replace("field_", "", $postname);
+      
+      if( !$column_names[$postname] )
+        continue;
+      
+			$stplace = $alpha[$count];
+			$xls->getActiveSheet()->SetCellValue($stplace.'1', $column_names[$postname]);
+			$count++;
+    }
+
+		$i = 2;
+		foreach ($data as $row) {
+      $count = 0;
+      foreach($_POST as $postname => $postval )
+      {
+        $postname = str_replace("field_", "", $postname);
+        
+        if( !$column_names[$postname] )
+          continue;
+          
+        // Special case taken from existing front-end code
+        if( $postname == "commodity" && empty( $row[$postname] ) )
+          $postname = "excommodity";
+        
+        $stplace = $alpha[$count];
+				$xls->getActiveSheet()->SetCellValue($stplace.$i, $row[$postname]);
+        $count++;
+      }
+			$i++;
+		}
+		
+		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
+			'font' => array('bold' => true)
+		));
+		
+		$objWriter = new PHPExcel_Writer_Excel2007($xls);
+		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
 		$objWriter->save('php://output');
 		
 	}
