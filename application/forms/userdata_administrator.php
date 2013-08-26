@@ -101,7 +101,7 @@
       <strong style="margin-right:10px;"><?php echo $translator->{'OBS! '}?></strong><?php echo $translator->{'Events without maps are not listed.'}?>
     </p>
     <?php foreach ($fairs as $fair): ?>
-      <?php if(count($fair->get('maps')) > 1) :?>
+      <?php if(count($fair->get('maps')) > 0) :?>
     <div class="fair">
       <input<?php if(is_array($user_fairs) && in_array($fair->get('id'), $user_fairs)) { echo ' checked="checked"'; } ?> type="checkbox" name="fair_permission[]" value="<?php echo $fair->get('id') ?>" class="fair_input"/>
       <strong><?php echo $fair->get('name'); ?></strong>
