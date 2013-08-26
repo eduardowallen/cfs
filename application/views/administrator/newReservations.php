@@ -1,3 +1,4 @@
+<?php global $translator; ?>
 <style>
 	.dialogue {
 	display:none;
@@ -43,7 +44,31 @@
 </style>
 
 <script type="text/javascript" src="js/tablesearch.js"></script>
-<h1><?php echo $fair->get('name'); ?></h1> 
+<h1 style="float: left; margin-right: 60px;"><?php echo $fair->get('name'); ?></h1>
+
+<?php if($fairs_admin): // If a list of accessible fairs is found, display a drop-down list to choose from ?>
+  <label class="inline-block"><?php echo $translator->{'Switch to event: '}; ?></label>
+  <select onchange="if(this.value) document.location.href=this.value;">
+  <?php
+    $own = false;
+    $options = '';
+    foreach($fairs_admin as $fa) {
+      $active = $fair->get('id') == $fa['id'];
+      $own = $own || $active;
+      $options .= '<option value="'.BASE_URL.'administrator/reservationsChangeFair/'.$fa['id'].'"'.($active?" selected":"").'>'.$fa['name'].'</option>';
+    }
+    
+    if(!$own) :
+  ?>
+    <option value selected><?php echo $fair->get('name'); ?></option>
+  <?php
+    endif;
+    echo $options;
+  ?>
+  </select>
+  <br class="clear">
+<?php endif; ?>
+
 <script type="text/javascript">
 	var confirmDialogue = "<?php echo $confirm_delete?>";
 	var deletion = "<?php echo $deletion_comment?>";

@@ -358,6 +358,13 @@ class AdministratorController extends Controller {
 		$objWriter->save('php://output');
 	}
 
+  // Helper function, used in /newReservations when changing current fair
+  public function reservationsChangeFair($fairId=0)
+  {
+    $_SESSION['user_fair'] = $fairId;
+		$this->set('noView', true);
+    header("Location: ".BASE_URL."administrator/newReservations");
+  }
 
 	public function newReservations($action='', $param='') {
 
@@ -376,14 +383,44 @@ class AdministratorController extends Controller {
 			$this->set('accessible_maps', explode('|', $result['map_access']));
 			if(!$result) {
 				$this->set('hasRights', false);
-				return;
+        $hasRights = false;
 			} else {
 				$this->set('hasRights', true);
+        $hasRights = true;
 			}
+      
+      // Get all available fairs
+			$stmt = $this->db->prepare("SELECT id, name FROM fair_user_relation AS fur LEFT JOIN fair ON fur.fair = fair.id WHERE user = ?");
+      $stmt->execute(array($_SESSION['user_id']));
+			$this->set('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
+      
+		} elseif( userLevel()  == 3 ) {
+    
+			$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
+			$prep = $this->db->prepare($sql);
+			$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
+			$result = $prep->fetchAll();
+			if(!$result) {
+				$this->set('hasRights', false);
+        $hasRights = false;
+			} else {
+				$this->set('hasRights', true);
+        $hasRights = true;
+      }
+      
+      // Get all available fairs
+			$stmt = $this->db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
+      $stmt->execute(array($_SESSION['user_id']));
+			$this->set('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
+      
 		} else {
+    
 			$this->set('hasRights', true);
+      $hasRights = true;
 			$this->set('accessible_maps', array());
 		}
+    if(!$hasRights)
+      return;
 
 		if ($action == 'deny') {
 			$pb = new PreliminaryBooking;
