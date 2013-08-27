@@ -705,18 +705,45 @@ class UserController extends Controller {
         $mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
         $mail->setMailVar('url', BASE_URL.$fair['url']);
         $mail->send();
-        $this->set('user_message', 'The user\'s password was reset and a mail was sent.');
         
-				header('Location: '.BASE_URL.'user/login/confirmed');
+        // Log the user in
+				$_SESSION['user_id'] = $this->User->get('id');
+				$_SESSION['user_level'] = $this->User->get('level');
+				$_SESSION['user_password_changed'] = $this->User->get('password_changed');
+        
+        // Get fair associated with the user
+        $stmt = $this->db->prepare("SELECT rel.fair, fair.windowtitle FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
+        $stmt->execute(array($this->User->get('id')));
+        $result = $stmt->fetch();
+        $_SESSION['user_fair'] = $result['fair'];
+        $_SESSION['fair_windowtitle'] = $result['windowtitle'];
+        
+        $this->set('noView', true);
+        
+        require_once(ROOT."application/models/Fair.php");
+        $fair = new Fair;
+        $fair->load($_SESSION['user_fair'], 'id');
+        if ($fair->wasLoaded()) {
+          if (userLevel() > 1) {
+            header("Location: ".BASE_URL.'mapTool/map/'.$fair->get('id'));
+          } else {
+            header("Location: ".BASE_URL.$fair->get('url'));
+          }
+        } else {
+          header("Location: ".BASE_URL."page/loggedin");
+        }
+        
 				exit;
         
 			} else if( $hash == $userHash ) {
       
+        $this->set('noView', true);
 				header('Location: '.BASE_URL.'user/login/alreadyactivated');
 				exit;
 				//echo $hash.'<br/>'.$userHash;
 			}
       
+      $this->set('noView', true);
       header('Location: '.BASE_URL.'user/login/');
       exit;
 
