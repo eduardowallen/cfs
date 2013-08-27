@@ -664,7 +664,9 @@ class UserController extends Controller {
 							}
 						}
             
+            $this->set('noView', true);
 						header('Location: '.BASE_URL.'user/login/'.$fairUrl.'/new');
+            exit;
             
 					} else {
           
@@ -720,19 +722,7 @@ class UserController extends Controller {
         
         $this->set('noView', true);
         
-        require_once(ROOT."application/models/Fair.php");
-        $fair = new Fair;
-        $fair->load($_SESSION['user_fair'], 'id');
-        if ($fair->wasLoaded()) {
-          if (userLevel() > 1) {
-            header("Location: ".BASE_URL.'mapTool/map/'.$fair->get('id'));
-          } else {
-            header("Location: ".BASE_URL.$fair->get('url'));
-          }
-        } else {
-          header("Location: ".BASE_URL."page/loggedin");
-        }
-        
+        header("Location: ".BASE_URL."page/loggedin");
 				exit;
         
 			} else if( $hash == $userHash ) {
