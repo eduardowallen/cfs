@@ -354,7 +354,7 @@ class AdministratorController extends Controller {
 		));
 		
 		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+		// $objWriter->save(str_replace('.php', '.xlsx', __FILE__));
 		$objWriter->save('php://output');
 	}
 
