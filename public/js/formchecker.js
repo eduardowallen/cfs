@@ -23,13 +23,17 @@ function prepFormChecker() {
 						success: function(response) {
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
-								$('.email_err').remove();
-								input.css('border', '1px solid #FF0000');
-								input.after("<p class=\"email_err\">"+lang.email_exists_label+"</p>");
-								input.data('valid', false);
+                input.prop("title", lang.email_exists_label);
+                input.tooltip().tooltip("enable");
+                input.tooltip().tooltip("open");
+								// $('.email_err').remove();
+								// input.css('border', '1px solid #FF0000');
+								// input.after("<div class=\"email_err\">"+lang.email_exists_label+"</div>");
+								// input.data('valid', false);
 							} else {
+                input.prop("title", "");
+                input.tooltip().tooltip("disable");
 								input.css('border', '1px solid #00FF00');
-								$('#email_err').remove();
 								input.data('valid', true);
 							}
 						}
@@ -58,11 +62,16 @@ function prepFormChecker() {
 						success: function(response) {	
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
-								$('.email_err').remove();
-								input.css('border', '1px solid #FF0000');
-								input.after("<p class=\"email_err\">"+lang.email_exists_label+"</p>");
-								input.data('valid', false);
+                input.prop("title", lang.email_exists_label);
+                input.tooltip().tooltip("enable");
+                input.tooltip().tooltip("open");
+								// $('.email_err').remove();
+								// input.css('border', '1px solid #FF0000');
+								// input.after("<div class=\"email_err\">"+lang.email_exists_label+"</div>");
+								// input.data('valid', false);
 							} else {
+                input.prop("title", "");
+                input.tooltip().tooltip("disable");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
