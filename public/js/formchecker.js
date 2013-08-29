@@ -30,8 +30,7 @@ function prepFormChecker() {
 								input.css('border', '1px solid #FF0000');
 								input.data('valid', false);
 							} else {
-                input.prop("title", "");
-                input.tooltip("close");
+                input.tooltip("disable");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
@@ -67,8 +66,7 @@ function prepFormChecker() {
 								input.css('border', '1px solid #FF0000');
 								input.data('valid', false);
 							} else {
-                input.prop("title", "");
-                input.tooltip("close");
+                input.tooltip("disable");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
