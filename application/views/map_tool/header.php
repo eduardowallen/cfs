@@ -26,6 +26,7 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('.std_table').tablesorter();
+    $( document ).tooltip(); // Initialize jQueryUI tooltips
 	});
 	var lang = {};
 	lang.login_username = '<?php echo $translator->{"Username"} ?>';

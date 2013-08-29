@@ -8,11 +8,13 @@ $(document).ready(function()  {
 
 function prepFormChecker() {
 	$("form #email").data('valid', true);
+  $("form #email").tooltip();
 	$("form #email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
 			input.data('valid', true);
+      input.tooltip();
 
 			if (!$(this).hasClass('nocheckdb')) {
 				if (input.val() != input.attr('value')) {
@@ -24,15 +26,12 @@ function prepFormChecker() {
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
                 input.prop("title", lang.email_exists_label);
-                input.tooltip().tooltip("enable");
-                input.tooltip().tooltip("open");
-								// $('.email_err').remove();
-								// input.css('border', '1px solid #FF0000');
-								// input.after("<div class=\"email_err\">"+lang.email_exists_label+"</div>");
-								// input.data('valid', false);
+                input.tooltip("open");
+								input.css('border', '1px solid #FF0000');
+								input.data('valid', false);
 							} else {
                 input.prop("title", "");
-                input.tooltip().tooltip("disable");
+                input.tooltip("close");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
@@ -47,6 +46,7 @@ function prepFormChecker() {
 	});
 
 	$("form #invoice_email").data('valid', true);
+  $("form #invoice_email").tooltip();
 	$("form #invoice_email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
@@ -63,15 +63,12 @@ function prepFormChecker() {
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
                 input.prop("title", lang.email_exists_label);
-                input.tooltip().tooltip("enable");
-                input.tooltip().tooltip("open");
-								// $('.email_err').remove();
-								// input.css('border', '1px solid #FF0000');
-								// input.after("<div class=\"email_err\">"+lang.email_exists_label+"</div>");
-								// input.data('valid', false);
+                input.tooltip("open");
+								input.css('border', '1px solid #FF0000');
+								input.data('valid', false);
 							} else {
                 input.prop("title", "");
-                input.tooltip().tooltip("disable");
+                input.tooltip("close");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
