@@ -791,6 +791,9 @@ WHERE user.owner = ? AND user.level = ?");
           
           $aId = $this->Administrator->save();
           require_once ROOT.'application/models/FairUserRelation.php';
+          
+          $oldful = new FairUserRelation;
+          $oldful->load($aId, 'user');
 
           $stmt = $this->Administrator->db->prepare("DELETE FROM fair_user_relation WHERE user = ?");
           $stmt->execute(array($aId));
@@ -805,6 +808,7 @@ WHERE user.owner = ? AND user.level = ?");
                 $rel->set('fair', $fairId);
                 $rel->set('user', $aId);
                 $rel->set('map_access', implode('|', $_POST['maps'][$fairId]));
+                $rel->set('connected_time', $oldful->get('connected_time'));
                 $rel->save();
               }
             }

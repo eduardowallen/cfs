@@ -660,6 +660,7 @@ class UserController extends Controller {
 								$ful = new FairUserRelation;
 								$ful->set('user', $userId);
 								$ful->set('fair', $fair->get('id'));
+								$ful->set('connected_time', time());
 								$ful->save();
 							}
 						}
