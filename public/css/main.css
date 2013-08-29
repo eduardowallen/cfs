@@ -341,4 +341,12 @@ img#logo {
 	padding:20px 0 0 40px;
 }
 
+.helpicon {
+  width: auto;
+  height: auto;
+  margin: 0;
+  padding: 0;
+  vertical-align: middle;
+}
+
 
