@@ -25,7 +25,7 @@ function prepFormChecker() {
 							if (ans.emailExists) {
 								$('.email_err').remove();
 								input.css('border', '1px solid #FF0000');
-								input.after("<p class=\"email_err\">asdasd</p>");
+								input.after("<p class=\"email_err\">"+lang.email_exists_label+"</p>");
 								input.data('valid', false);
 							} else {
 								input.css('border', '1px solid #00FF00');
@@ -60,7 +60,7 @@ function prepFormChecker() {
 							if (ans.emailExists) {
 								$('.email_err').remove();
 								input.css('border', '1px solid #FF0000');
-								input.after("<p class=\"email_err\">asdasd</p>");
+								input.after("<p class=\"email_err\">"+lang.email_exists_label+"</p>");
 								input.data('valid', false);
 							} else {
 								input.css('border', '1px solid #00FF00');
