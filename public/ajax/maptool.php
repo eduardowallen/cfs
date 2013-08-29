@@ -427,7 +427,7 @@ if (isset($_POST['emailExists'])) {
 }
 
 if (isset($_POST['connectToFair'])) {
-	$trans = new Translator;
+	$trans = new Translator((isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng');
 	$response = array();
 	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
 		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`, `connected_time`) VALUES (?,?,?)";
