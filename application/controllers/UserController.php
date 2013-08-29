@@ -311,8 +311,8 @@ class UserController extends Controller {
 						$stmt->execute(array($this->User->get('id'), $fair->get('id')));
 						$result = $stmt->fetch(PDO::FETCH_ASSOC);
 						if (!$result && $fair->wasLoaded()) {
-							$stmt = $this->db->prepare("INSERT INTO fair_user_relation (user, fair) VALUES (?, ?)");
-							$stmt->execute(array($this->User->get('id'), $fair->get('id')));
+							$stmt = $this->db->prepare("INSERT INTO fair_user_relation (user, fair, connected_time) VALUES (?, ?, ?)");
+							$stmt->execute(array($this->User->get('id'), $fair->get('id'), time()));
 						}
 					}
 					*/

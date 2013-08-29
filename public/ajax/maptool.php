@@ -430,9 +430,9 @@ if (isset($_POST['connectToFair'])) {
 	$trans = new Translator;
 	$response = array();
 	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
-		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`) VALUES (?,?)";
+		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`, `connected_time`) VALUES (?,?,?)";
 		$stmt = $globalDB->prepare($sql);
-		$stmt->execute(array($_POST['fairId'], $_SESSION['user_id']));
+		$stmt->execute(array($_POST['fairId'], $_SESSION['user_id'], time()));
 		$fair = new Fair;
 		$fair->load($_POST['fairId'], 'id');
 		$response['message'] = $trans->{'Connected to fair'}.' '.$fair->get('name');
