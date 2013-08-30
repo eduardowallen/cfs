@@ -521,7 +521,6 @@ maptool.pasteExhibitor = function(positionObject) {
 			maptool.reload();
 		}
 	});
-
 }
 
 //Create new position
@@ -692,8 +691,10 @@ maptool.traceMouse = function(e) {
 
 //Book open position
 maptool.bookPosition = function(positionObject) {
+	$('#book_position_dialogue').children(':last-child').children('.positionmoney').children('.forposition').children('.priceTag').text('0');
 	$('#book_category_input').css('border-color', '#666');
 	$('#book_category_scrollbox').css('border-color', '#000000');
+	$('.position_chosen_articles').html('');
 
 	if (maptool.map.userlevel < 2) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
@@ -764,6 +765,7 @@ maptool.bookPosition = function(positionObject) {
 			}
 		}
 	});
+
 	//var sBoxTop = $('#book_position_dialogue > #search_user_input').offset().top;
 	//var sBoxLeft = $('#book_position_dialogue > #search_user_input').offset().left;
 	//var sRes = $('#hiddenExhibitorList_d');
@@ -829,6 +831,14 @@ maptool.bookPosition = function(positionObject) {
 	});
 	*/
 
+	var m2price = parseFloat($('#m2price').text());
+	$('.standprice').text(parseFloat(positionObject.area * m2price));
+	$('#article_list_book').click(function(){
+		$(this).off('click');
+		maptool.articlelist(positionObject, 'book');
+		$('#overlay').css('z-index', '99998');
+	});
+	countTotalPrice('book');
 	$('#book_post').unbind('click');
 	$("#book_post").click(function() {
 		var cats = new Array();
@@ -857,7 +867,7 @@ maptool.bookPosition = function(positionObject) {
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
 		}
-		console.log(dataString);
+
 		if(catStr.length != 0){
 			$.ajax({
 				url: 'ajax/maptool.php',
@@ -869,11 +879,98 @@ maptool.bookPosition = function(positionObject) {
 					maptool.closeDialogues();
 					$('#book_position_dialogue input[type="text"], #book_position_dialogue textarea').val("");
 					$('.ssinfo').html('');
+					$('#article_dialogue > ul').children('li').each(function(i){
+						$('#book_position_dialogue .position_chosen_articles').html('');
+						$(this).children('ul').children('li').children('table').children('tbody').children('tr').each(function(){
+							var artid = $(this).children('.id').text();
+							var amount = parseFloat($(this).children('.arts').children('.numberOfArticles').text());
+							if(amount > 0){
+								var type = 1;
+								maptool.orderProduct(artid, amount, positionObject.id, type);
+							}		
+						});
+					});
 				}
 			});
 		} else {
 			$('#book_category_scrollbox').css('border', '1px solid #f00');
 		}
+	});
+}
+
+maptool.articlelist = function(positionObject, window){
+	$('#article_dialogue').css('display', 'block');
+
+	$('#article_dialogue .close').bind('click', function(){
+		$('#article_dialogue').hide();
+		$('#overlay').css('z-index', '9999');
+		$(this).off('click');
+	});
+
+	$('#article_dialogue div div p .cancel').bind('click', function(){
+		$('#article_dialogue').hide();
+		$('#overlay').css('z-index', '9999');
+		$(this).off('click');
+	});
+
+	$('#article_dialogue div div p .save').bind('click', function(){
+		$(this).off('click');
+		$('#'+window+'_position_dialogue .position_chosen_articles').html('');
+		$('#article_dialogue > ul').children('li').each(function(i){
+				var name = $(this).children('h3').text();
+				var html = "";
+				var amountCategory = 0;
+					$(this).children('ul').children('li').children('table').children('tbody').children('tr').each(function(){	
+						var artnr = $(this).children('.artnr').text();
+						var artid = $(this).children('.id').text();
+						var artname = $(this).children('.name').text();
+
+						var artprice = $(this).children('.price').text();
+
+						var amount = parseFloat($(this).children('.arts').children('.numberOfArticles').text());
+						amountCategory += amount;
+
+						var total = $(this).children('.totprice').text();
+						var artval = $('#article_dialogue div div p select.valuta').val();
+						if(amount > 0){
+							html += '<div class="article"><span style="display:none;" class="artid">'+artid+'</span><span class="artnr">'+artnr+'</span><span class="artname">'+artname+'</span><span class="artprice"><span class="cleanprice">'+artprice+'</span><span class="value_">'+currentvalue+'</span></span><span class="amount">'+amount+'</span><span class="total"><span class="total_price">'+total+'</span><span class="value_"> '+artval+'</span></div>';
+						}
+				});
+
+				if(amountCategory > 0){
+					$('#'+window+'_position_dialogue .position_chosen_articles').append('<div class="article_category article_categories"><div class="art_header"><p>'+name+'</p><p class="art_cat_total">0</p></div></div>');
+					$('#'+window+'_position_dialogue .position_chosen_articles .article_category').append(html);
+				}
+
+				$('#'+window+'_position_dialogue .position_chosen_articles .article_category .article').each(function(){
+					var elem = $(this).parent().children('.art_header').children('.art_cat_total');
+					var elem2 = $(this).children('.total').children('.total_price');
+					var tot = parseFloat(elem2.text()) + parseFloat(elem.text());
+					elem.html('<span class="pricetotclean">' + tot + '</span> <span class="value_">' + currentvalue + '</span>');
+				});
+				$('#'+window+'_position_dialogue .position_chosen_articles .article_category').attr('class', 'article_category_'+i+' article_categories');
+			});
+
+		var value = parseFloat($('.totalcost').val());
+		$('#'+window+'_position_dialogue div .positionmoney .forposition .priceTag').text(value);
+
+		countTotalPrice(window);
+		///console.log(value);
+		//$('#book_position_dialogue .position_chosen_articles').append();
+		
+		$('#article_dialogue').hide();
+		$('#overlay').css('z-index', '9999');
+		$(this).off('click');
+	});
+
+	$('#article_dialogue ul').children().each(function(){
+		$(this).children('h3').bind('click', function(){
+			if($(this).parent().children('ul').css('display') == 'block'){
+				$(this).parent().children('ul').css('display', 'none');
+			} else {
+				$(this).parent().children('ul').css('display', 'block');
+			}
+		});
 	});
 }
 
@@ -1087,6 +1184,32 @@ maptool.cancelApplication = function(positionObject) {
 		});
 }
 
+maptool.getArticles = function(positionObject, window, value){
+	$.ajax({
+		url: 'ajax/getProducts.php',
+		type: 'POST',
+		data: 'fair=' +maptool.map.fair+ '&exhibitor='+positionObject.id+'&value='+value,
+		success: function(response) {
+			$('.position_chosen_articles').html(response);
+			$('.position_chosen_articles').parent().children('.positionmoney').children('.forposition').children('.priceTag').text('0');
+			$('.position_chosen_articles .article_categories').each(function(){
+				var total_price_row = 0;
+
+				$(this).children('.article').each(function(){
+					total_price_row += parseFloat($(this).children('.total').text());
+				});
+
+				$(this).children('.art_header').children('.art_cat_total').children('.pricetotclean').text(total_price_row);
+				var position_article_cost = $(this).parent().parent().children('.positionmoney').children('.forposition').children('.priceTag');
+				position_article_cost.text(parseFloat(position_article_cost.text()) + total_price_row);
+
+				countTotalPrice(window);
+				//sumElem.text(summary);
+			});
+		}
+	});
+}
+
 maptool.editBooking = function(positionObject) {
 
 	if (positionObject.status == 2) {
@@ -1100,6 +1223,9 @@ maptool.editBooking = function(positionObject) {
 		$('#' + prefix + '_expires_input').val(positionObject.expires);
 	}
 
+	$('#'+prefix+'_position_dialogue div').children('.positionmoney').children('.forposition').children('.priceTag').text('0');
+	$('#'+prefix+'_position_dialogue div').children('.sum_for_position').children('h2').children('.summaryPrice').text('0');
+
 	$('#'+prefix+'_category_input').css('border', '1px solid #666');
 	$('.ssinfo').html("");
 	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
@@ -1108,7 +1234,6 @@ maptool.editBooking = function(positionObject) {
 	for(var i = 0; i < categories.length; i++){
 		$('#'+prefix+'_category_scrollbox > p').each(function(){
 			var value = $(this).children().val();
-			
 			if(value == categories[i].category_id){
 					$(this).children().prop('checked', true);
 			}
@@ -1129,7 +1254,10 @@ maptool.editBooking = function(positionObject) {
 			}
 		});
 	});
-	
+
+	$('.position_chosen_articles').html('');
+	maptool.getArticles(positionObject, prefix, currentvalue);
+
 	$('#' + prefix + '_position_dialogue > #search_user_input').unbind('keyup');
 	$('#' + prefix + '_position_dialogue > #search_user_input').val('');
 	$('#' + prefix + '_position_dialogue > #search_user_input').keyup(function(e) {
@@ -1238,7 +1366,18 @@ maptool.editBooking = function(positionObject) {
 			}
 		});
 	}
-	
+	$('.position_chosen_articles').html('');
+	var m2price = parseFloat($('#m2price').text());
+
+	$('.standprice').text(parseFloat(positionObject.area * m2price));
+
+	$('#article_list_'+prefix).click(function(){
+		$(this).off('click');
+		maptool.articlelist(positionObject, prefix);
+		$('#overlay').css('z-index', '99998');
+	});
+	countTotalPrice(prefix);
+
 	$("#" + prefix + "_post").unbind("click");
 	$("#" + prefix + "_post").click(function() {
 		
@@ -1284,8 +1423,21 @@ maptool.editBooking = function(positionObject) {
 					maptool.markPositionAsNotBeingEdited();
 					maptool.update();
 					maptool.closeDialogues();
-					$('#' + prefix + 'book_position_dialogue input[type="text"], #' + prefix + '_position_dialogue textarea').val("");
+					$('#' + prefix + '_position_dialogue input[type="text"], #' + prefix + '_position_dialogue textarea').val("");
 					$('.ssinfo').html('');
+					$('#'+prefix+'_position_dialogue input[type="text"], #book_position_dialogue textarea').val("");
+					$('.ssinfo').html('');
+					$('#article_dialogue > ul').children('li').each(function(i){
+						$('#'+reserve+'position_dialogue .position_chosen_articles').html('');
+						$(this).children('ul').children('li').children('table').children('tbody').children('tr').each(function(){
+							var artid = $(this).children('.id').text();
+							var amount = parseFloat($(this).children('.arts').children('.numberOfArticles').text());
+							if(amount > 0){
+								var type = 2;
+								maptool.orderProduct(artid, amount, positionObject.id, type);
+							}
+						});
+					});
 				}
 			});
 		} else {
@@ -1293,6 +1445,13 @@ maptool.editBooking = function(positionObject) {
 		}
 	});
 	
+}
+maptool.removeOrders = function(positionObject){
+	$.ajax({
+		url: 'ajax/getProducts.php',
+		type: 'POST',
+		data: 'delete=1&exhibitor='+positionObject.id+'&fair='+maptool.map.fair
+	}).success(function(response){console.log(response);});
 }
 
 maptool.cancelBooking = function(positionObject) {
@@ -1302,6 +1461,7 @@ maptool.cancelBooking = function(positionObject) {
 			data: 'cancelBooking=' + positionObject.id,
 			success: function(response) {
 				maptool.update();
+				maptool.removeOrders(positionObject);
 			}
 		});
 }
@@ -1495,7 +1655,17 @@ maptool.reservePosition = function(positionObject) {
 		}
 		
 	});
-	*/
+	*/	
+
+	var m2price = parseFloat($('#m2price').text());
+	$('.standprice').text(parseFloat(positionObject.area * m2price));
+	$('#article_list_reserve').click(function(){
+		$(this).off('click');
+		maptool.articlelist(positionObject, 'reserve');
+		$('#overlay').css('z-index', '99998');
+	});
+	countTotalPrice('reserve');
+
 	$("#reserve_post").unbind("click");
 	$("#reserve_post").click(function() {
 		var cats = new Array();
@@ -1563,7 +1733,23 @@ maptool.reservePosition = function(positionObject) {
 					maptool.closeDialogues();
 					$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
 					$('.ssinfo').html('');
+					$('#reserve_position_dialogue input[type="text"], #' + prefix + '_position_dialogue textarea').val("");
+					$('.ssinfo').html('');
+					$('#reserve_position_dialogue input[type="text"], #book_position_dialogue textarea').val("");
+					$('.ssinfo').html('');
+					$('#article_dialogue > ul').children('li').each(function(i){
+						$('#reserve_position_dialogue .position_chosen_articles').html('');
+						$(this).children('ul').children('li').children('table').children('tbody').children('tr').each(function(){
+							var artid = $(this).children('.id').text();
+							var amount = parseFloat($(this).children('.arts').children('.numberOfArticles').text());
+							if(amount > 0){
+								var type = 2;
+								maptool.orderProduct(artid, amount, positionObject.id, type);
+							}
+						});
+					});
 				}
+
 			});
 		}  else {
 			$('#reserve_category_scrollbox').css('border', '1px solid #f00');
@@ -2129,6 +2315,17 @@ maptool.update = function(posId) {
 	}
 }
 
+/**
+	Sparar en beställning i databasen
+***/
+maptool.orderProduct = function(artId, amt, posid, type) {
+	$.ajax({
+		url: 'ajax/orderProduct.php',
+		type: 'POST',
+		data: 'fair='+maptool.map.fair+'&position='+posid+'&amount='+amt+'&article='+artId+'&level='+type
+	});
+}
+
 maptool.pauseUpdate = function() {
 	updateTimer = null;
 	update = false;
@@ -2156,7 +2353,6 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
-	
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
 		return;
@@ -2210,7 +2406,7 @@ maptool.init = function(mapId) {
 			// Refresh the markers even if the image is already loaded.
 			maptool.placeMarkers();
 			maptool.populateList();
-
+			copyPriceOfCustom();
 		}
 	});
 	$(".closeDialogue").click(function() {
@@ -2433,11 +2629,112 @@ $(document).ready(function() {
 			curr = e.pageY;
 		});
 	});
-
 	// Start automatic updating
 	setTimeout('maptool.update()', config.markerUpdateTime * 1000);
 });
 
+function getPriceOfCustom(){
+	var value = 0;
+	$('#custom_prices .total_price_row').each(function(){
+		value += parseFloat($(this).children('.amt').text());
+	});
+	return value;
+}
+
+function convertPriceOfCustom(from, to){
+	$('#custom_prices .total_price_row').each(function(){
+		value = parseFloat($(this).children('.amt').text());
+		convertValue(from, to, value, $(this).children('.amt'), 'text', 'custom');
+	});
+}
+
+function convertPriceOfList(from, to){
+	$('#article_dialogue').children('ul').children('li').each(function(){
+		$(this).children('ul').children('li').children('table').children('tbody').children('tr').each(function(){
+			var elem = $(this).children('.price');
+			var price = $(this).children('.price').text();
+			convertValue(from, to, price, elem, 'text');
+
+			var elem =  $(this).children('.totprice');
+			var total = $(this).children('.totprice').text();
+			convertValue(from, to, total, elem, 'text');
+		});
+	});
+	var total = $('.totalcost').val();
+	var elem = $('.totalcost');
+	convertValue(from, to, total, elem, 'val');
+}
+function copyPriceOfCustom(){
+	var html = $('#custom_prices').html();
+	$('.positionmoney .customs').html('');
+	$('.positionmoney .customs').append(html);
+}
+
+function convertPriceOfChosenCategories(from, to){
+	$('.article_categories').each(function(){
+		$(this).children('.article').each(function(){
+
+			var elem = $(this).children('.artprice').children('.cleanprice');
+			var price = $(this).children('.artprice').children('.cleanprice').text();
+			convertValue(from, to, price, elem, 'text');
+
+			var elem = $(this).children('.total').children('.total_price');
+			var price = $(this).children('.total').children('.total_price').text();
+			convertValue(from, to, price, elem, 'text');
+		});
+
+		var elem = $(this).children('.art_header').children('.art_cat_total').children('.pricetotclean');
+		var price = $(this).children('.art_header').children('.art_cat_total').children('.pricetotclean').text();
+		convertValue(from, to, price, elem, 'text');
+	});
+}
+
+function convertSummary(from, to, window){
+	var elem = $('#'+window+'_position_dialogue .sum_for_position h2 .summaryPrice');
+	var price  = $('#'+window+'_position_dialogue .sum_for_position h2 .summaryPrice').text();
+	convertValue(from, to, price, elem, 'text');
+}
+
+function convertWindowPrices(from, to, window){
+	currentvalue = to;
+	var elem = $('#'+window+'_position_dialogue div .positionmoney .forposition .priceTag');
+	var articleprice = parseFloat($('#'+window+'_position_dialogue div .positionmoney .forposition .priceTag').text());
+	convertValue(from, to, articleprice, elem, 'text');
+
+	var elem =$('#'+window+'_position_dialogue div .positionmoney .total_price_row .standprice');
+	var basicstandprice = parseFloat($('#'+window+'_position_dialogue div .positionmoney .total_price_row .standprice').text());
+	convertValue(from, to, basicstandprice, elem, 'text');
+
+	convertPriceOfCustom(from, to);
+	convertPriceOfList(from, to);
+	convertPriceOfChosenCategories(from, to);
+
+	$('.selval').text(to);
+	$('.value_').text(to);
+	$('.customs .total_price_row').each(function(){
+		$(this).children('.value').text(to);
+	});
+	
+	convertSummary(from, to, window);
+}
+
+function convertAllPrices(from, to){
+	var arr = new Array(3);
+	arr[0] = 'book';
+	arr[1] = 'reserve';
+	arr[2] = 'apply';
+	for(var i = 0; i < 1; i++){
+		convertWindowPrices(from, to, arr[i]);
+	}
+}
+
+function countTotalPrice(window){
+	var articleprice = parseFloat($('#'+window+'_position_dialogue div .positionmoney .forposition .priceTag').text());
+	var basicstandprice = parseFloat($('#'+window+'_position_dialogue div .positionmoney .total_price_row .standprice').text());
+	var customprice = getPriceOfCustom();
+	var totalprice = articleprice + basicstandprice + customprice;
+	$('#'+window+'_position_dialogue div .sum_for_position h2 .summaryPrice').text(totalprice);
+}
 
 function chooseThis(thisd){
 	var text = $(thisd).text();
@@ -2457,4 +2754,20 @@ function chooseThisBook(thisd){
 	$('input#search_user_input').css('border-color','#00FF00');
 	$('input#book_user_input').val(id);
 	$('#hiddenExhibitorList').hide();
+}
+
+function tot(obj){
+	var amount = 0;
+	var priceofall = 0;
+	$('#article_dialogue ul li ul li table tbody tr').each(function(){
+		priceofall += parseFloat($(this).children('td:last-child').text());
+	});
+
+	$('#article_dialogue ul li ul li table tbody tr').each(function(){
+		amount += parseFloat($(this).children('td:nth-child(5)').text());
+	});
+
+
+	$('.totalcost').val(priceofall);
+	$('.totalamt').val(amount);
 }

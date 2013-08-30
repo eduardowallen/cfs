@@ -1,7 +1,26 @@
 <?php
 
-class Article extends Model {
+class Article extends Model{
+	public $price;
+	public $num;
+	public $name;
+	protected $id;
 
+	function __construct($id){
+		$this->id = $id;
+	}
+
+	function loadit($db){
+		if(isset($this->id)):
+			$stmt = $db->prepare("SELECT * FROM article WHERE ArticleId=?");
+			$stmt->execute(array($this->id));
+			$res  = $stmt->fetch(PDO::FETCH_ASSOC);
+			$this->price = $res['ArticlePrice'];
+			$this->num = $res['ArticleNum'];
+			$this->name = $res['ArticleName'];
+			$this->id = $res['ArticleId'];
+		endif;
+	}
 	public function getArticleFromCategory(){
 		$stmt = $this->db->prepare("SELECT * FROM article WHERE ArticleId=? AND ArticleCategory=?");
 		$stmt->execute(array($this->id, $this->fair));
@@ -26,5 +45,4 @@ class Article extends Model {
 		$stmt->execute(array($this->id, $this->fair));
 	}
 }
-
 ?>

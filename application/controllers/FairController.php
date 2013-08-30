@@ -159,7 +159,7 @@ class FairController extends Controller {
 	public function edit($id) {
 
 		setAuthLevel(3);
-		
+
 		if (!empty($id)) {
 			function makeUserOptions($db, $sel=0) {
 				global $id;
@@ -175,6 +175,8 @@ class FairController extends Controller {
 				return $opts;
 			}
 
+			
+
 			$this->setNoTranslate('fair_id', $id);
 
 			if ($id == 'new') {
@@ -188,7 +190,11 @@ class FairController extends Controller {
 					header('Location: '.BASE_URL.'locked');
 					exit;
 				}*/
-				
+								
+				$statement = $this->Fair->db->prepare("SELECT name, amount, id FROM fair_custom_fees WHERE fair = ?");
+				$statement->execute(array($id));
+				$custom_fees = $statement->fetchAll();
+				$this->setNoTranslate('custom_fees', $custom_fees);
 				
 				if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
 					toLogin();
@@ -200,12 +206,22 @@ class FairController extends Controller {
 						$this->Fair->set('name', $_POST['name']);
 					if (isset($_POST['max_positions']))
 						$this->Fair->set('max_positions', (int)$_POST['max_positions']);
+					if(isset($_POST['pricekvm'])){
+					$this->Fair->set('price_per_m2', $_POST['pricekvm']);
+					}
+				} else {
+					
+					$this->Fair->set('price_per_m2', $_POST['pricekvm']);
 				}
+
 				$this->Fair->set('windowtitle', $_POST['windowtitle']);
+				$this->Fair->set('default_currency', $_POST['currency']);
+
 				if (isset($_POST['auto_publish'])) {
 					$this->Fair->set('auto_publish', strtotime($_POST['auto_publish']));
 					$this->Fair->set('auto_close', strtotime($_POST['auto_close']));
 				}
+
 				$this->Fair->set('contact_info', $_POST['contact_info']);
 				if (userLevel() == 4)
 					$this->Fair->set('approved', $_POST['approved']);
@@ -215,15 +231,37 @@ class FairController extends Controller {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
 					$this->Fair->set('approved', 1);
 				}
+
 				$this->Fair->set('hidden', $_POST['hidden']);
 				$fId = $this->Fair->save();
+
+				/* 
+					Om mässan har några custom fee's så ta bort dessa, de nya/ändrade värdena kommer ändå skickas med i en POST array
+					så värdena kommer bara sättas in igen
+				*/
+				$statement = $this->Fair->db->prepare("DELETE FROM  fair_custom_fees WHERE fair=?");
+				$statement->execute(array($fId));
+				$result = $statement->fetch();
+
+				foreach($_POST['custom_fee'] as $key=>$val):
+					$name = str_replace('%',' ',$key);
+					$name = substr($name, 1);
+					$name = substr($name, 0, -1);
+					$price = $val;
+
+					/* Sätt in custom fee's i databasen */
+					$stmt = $this->Fair->db->prepare('INSERT INTO fair_custom_fees(fair, name, amount) VALUES(?, ?, ?)');
+					$stmt->execute(array($fId, $name, $price));	
+
+				endforeach;
+
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
 					if (userLevel() == 3) {
+						
 						$user = new User;
 						$user->load($_SESSION['user_id'], 'id');
-						/* Alias */
-						/*					
+						/* Alias */					
 						$organizermail = $user->get('email');
 						$fairmail = $_POST['name'];
 						require('lib/classes/Alias.php');
@@ -231,21 +269,19 @@ class FairController extends Controller {
 						if((strlen($organizermail) > 1) && (strlen($fairmail) > 1)):
 							Alias::addNew($fairmail, $organizermail);
 						endif;
-						*/
-
-            $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-            $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
-            $mail->setMailVar('company', $user->get('company'));
-            $mail->send();
+				
+					     $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
+					      $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+					      $mail->setMailVar('company', $user->get('company'));
+					      $mail->send();
 					}
-					header("Location: ".BASE_URL."fair/overview");
+					header("Location: ".BASE_URL."fair/maps/$fId");
 					exit;
 				} else {
-					header("Location: ".BASE_URL."fair/overview");
+					header("Location: ".BASE_URL."fair/maps/$fId");
 					exit;
 				}
-			}
-
+			} 
 			$this->setNoTranslate('edit_id', $id);
 			$this->set('fair', $this->Fair);
 
@@ -272,6 +308,7 @@ class FairController extends Controller {
 					$this->setNoTranslate('disable', '');
 			}
 			$this->set('map_button_label', 'Handle maps');
+			$this->set('lists_button_label', 'Manage articlelists');
 			$this->set('approved_label', 'Status');
 			$this->set('arranger_label', 'Organizer');
 			$this->set('app_opt0', 'Not approved');
@@ -281,12 +318,16 @@ class FairController extends Controller {
 			$this->set('max_positions_label', 'Maximum stand spaces');
 			$this->set('window_title_label', 'Window title');
 			$this->set('email_label', 'E-mail address');
+			$this->set('add_custom_fee_title_label', 'Add custom fee');
+			$this->set('add_custom_fee_name_label', 'Name');
+			$this->set('default_currency', 'Default currency');
+			$this->set('default_price', 'Price per m²');
 			//$this->set('logo_label', 'Logotype');
 			$this->set('contact_label', 'Contact information');
 			$this->set('auto_publish_label', 'Publish date');
 			$this->set('auto_close_label', 'Closing date');
 			$this->set('save_label', 'Save');
-
+			$this->set('save_and_continue_label', 'Save and continue');
 		}
 	}
 

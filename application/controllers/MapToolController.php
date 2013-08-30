@@ -61,11 +61,35 @@ class MapToolController extends Controller {
 				$this->set('closing_time', 'Closing time');
 				$this->set('notfound', false);
 				$this->set('fair_url', $fair->get('url'));
+				$this->set('basic_cost_stand', 'Basic cost stand');
+				$this->set('articles_cost', 'Articles cost');
 				($position === null || $position == 'none') ?  $this->set('position', '\'false\'') : $this->set('position', $position) ;
 				($map === null ) ?  $this->set('myMap', '\'false\'') : $this->set('myMap', (int)$map) ;
 				
 				($reserve === null || $reserve == 'none') ?  $this->set('reserve', '\'false\'') : $this->set('reserve', $position);
 				
+				/***
+					Hämta den valda mässans artiklar från databasen
+				**/
+
+				$statement = $this->db->prepare("SELECT * FROM article_list as al INNER JOIN article_category as ac ON ac.CategoryList = al.id WHERE al.active = 1 ORDER BY CategoryNum asc");
+				$statement->execute(array($fair->get('id')));
+				$result1 = $statement->fetchAll();
+
+				foreach($result1 as $art_cat) : 
+					$statement = $this->db->prepare("SELECT ArticleId, ArticleName, ArticlePrice, ArticleNum FROM article WHERE ArticleCategory = ?");
+					$statement->execute(array($art_cat['CategoryId']));
+					$result2 = $statement->fetchAll();
+					$articles[$art_cat['CategoryId']] = $result2;
+				endforeach;
+
+				$statement = $this->db->prepare("SELECT name, amount FROM fair_custom_fees WHERE fair = ?");
+				$statement->execute(array($fair->get('id')));
+				$result2 = $statement->fetchAll();
+
+				$this->setNoTranslate('custom_fees', $result2);
+				$this->setNoTranslate('article_categories', $result1);
+				$this->setNoTranslate('articles', $articles);
 				/*
 				if (userLevel() == 1) {1
 					$stmt = $this->db->prepare("SELECT * FROM user_ban WHERE user = ? AND organizer = ?");

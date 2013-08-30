@@ -10,7 +10,7 @@ class FairMapController extends Controller {
 	}
 
 	public function create($fair) {
-
+		$this->set('iframeView', true);
 		setAuthLevel(3);
 
 		if (userLevel() == 3) {
@@ -18,28 +18,24 @@ class FairMapController extends Controller {
 			$f->load($fair, 'id');
 			if (!$f->wasLoaded() || $f->get('created_by') != $_SESSION['user_id'])
 				toLogin();
-
 		}
+		
 
 		if (isset($_POST['create'])) {
+			$fair = $_POST['fairId'];
 			$this->FairMap->set('fair', $fair);
 			$this->FairMap->set('name', $_POST['name']);
 			$mId = $this->FairMap->save();
-
 			if (is_uploaded_file($_FILES['image']['tmp_name'])) {
-				
 				$im = new ImageMagick;
-				
 				$ext = end(explode('.', $_FILES['image']['name']));
 				if (strtolower($ext) == 'pdf') {
 					$now = time();
 					move_uploaded_file($_FILES['image']['tmp_name'], ROOT.'public/images/tmp/'.$now.'.pdf');
 					chmod(ROOT.'public/images/tmp/'.$now.'.pdf', 0775);
 					$im->pdf2img(ROOT.'public/images/tmp/'.$now.'.pdf', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg');
-					
 					$im->constrain(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 					unlink(ROOT.'public/images/tmp/'.$now.'.pdf');
-					
 				} else {
 					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 				}
@@ -48,9 +44,9 @@ class FairMapController extends Controller {
 				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 0775);
 				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'.jpg', 0775);
 			}
-
-			header("Location: ".BASE_URL."fair/maps/".$fair);
-			exit;
+			print_r($_FILES['image']['tmp_name']);
+			//header("Location: ".BASE_URL."fair/maps/".$fair);
+			//exit;
 		}
 
 		$this->set('headline', 'Create map');
@@ -61,7 +57,6 @@ class FairMapController extends Controller {
 		$this->set('f_hide_label', 'Hide fair for unauthorized accounts');
 		$this->set('f_show', 'Show');
 		$this->set('f_hide', 'Hide');
-
 	}
 	
 	public function edit($map_id, $fair_id) {
@@ -76,7 +71,6 @@ class FairMapController extends Controller {
 			if (!$f->wasLoaded() || $f->get('created_by') != $_SESSION['user_id']) {
 				toLogin();
 			}
-
 		}
 		
 		if (isset($_POST['save'])) {
@@ -86,9 +80,7 @@ class FairMapController extends Controller {
 			$mId = $map_id;
 			
 			if (is_uploaded_file($_FILES['image']['tmp_name'])) {
-				
 				$im = new ImageMagick;
-				
 				$ext = end(explode('.', $_FILES['image']['name']));
 				if (strtolower($ext) == 'pdf') {
 					$now = time();
@@ -101,14 +93,12 @@ class FairMapController extends Controller {
 					
 				} else {
 					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', 100000, 100000);
-				}
-				
+				}	
 				$im->constrain(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.jpg', 920, 1500);
 				chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'_large.jpg', 0775);
 				chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.jpg', 0775);
 				
 			}
-
 			header("Location: ".BASE_URL."fair/maps/".$fair_id);
 			exit;
 		}

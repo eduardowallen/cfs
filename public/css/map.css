@@ -181,6 +181,100 @@
 	box-shadow:0px 1px 2px #777;
 }
 
+#article_dialogue{
+	width:800px;
+	border:2px solid #000;
+	position:fixed;
+	top:20%;
+	left:50%;
+	margin-left:-400px;
+	z-index:99999;
+	display:none;
+	border-radius:10px;
+	background-color: #bebebe;
+}
+
+#article_dialogue h2{
+	text-align:left;
+	color:#fff;
+	width:40%;
+	font-size:20px;
+	margin-left:25px;
+	float:left;
+}
+
+#article_dialogue .search {
+	float:right;
+}
+#article_dialogue ul{
+	margin:0;
+	padding:0;
+	float:left;
+	width:100%;
+	max-height:400px;
+	overflow-y:scroll;
+}
+
+#article_dialogue ul li{
+	display:inline-block;
+	width:100%;
+	background-color:#bfdecc;
+	float:left;
+}
+
+#article_dialogue input{
+	border:none;
+	border-radius:0px;
+	padding:1px;
+	width:150px;
+}
+
+#article_dialogue ul li h3{
+	border-bottom:2px solid #a9a9a9;
+	text-align:left;
+	color:#1e8f4d;
+	height:30px;
+	padding-left:10px;
+	padding-top:10px;
+	font-weight:300;
+	background-color:#bfdecc;
+	font-size:16px;
+	cursor:pointer;
+}
+
+#article_dialogue ul li ul{
+	background-color:#fff;
+	color:#fff;
+	font-size:12px;
+	float:left;
+	display:none;
+	overflow-y:hidden;
+}
+
+#article_dialogue ul li ul li{
+	background-color:#fff;
+}
+
+#article_dialogue ul li ul li table{
+	border:0px;
+	width:100%;
+	border-collapse:collapse;
+}
+
+#article_dialogue table{
+	width:785px;
+	border-collapse:collapse;
+}
+
+#article_dialogue ul li ul li table tr{border-top:2px solid #a9a9a9;  height:40px;}
+#article_dialogue ul li ul li table tr:nth-child(1){border-top:0px solid #a9a9a9;  height:40px;}
+#article_dialogue table tr th{border-right:2px solid #dedede; color:#fff;}
+#article_dialogue table tr th:nth-child(5){border-right:0;}
+#article_dialogue ul li ul li table tr td{color:#000; border-right:2px solid #a9a9a9; text-align:center; }
+#article_dialogue ul li ul li table tr td:nth-child(5){border-right:0;}
+#article_dialogue ul li ul li table tr th:nth-child(5){border-right:0;}
+#article_dialogue ul li ul li table tr td p{float:left; margin-left:30px;}
+
 #hiddenExhibitorList ul{
 	padding:0; margin:0;
 }
@@ -204,7 +298,13 @@
 	float:left;
 	margin:0;
 }
+.total_price_row{width:100%; height:20px; float:left; text-align:left; font-size:12px;}
+.antalBox{height:40px; width:8px; background-image:url('../images/icons/gradient_antal.png'); float:right;}
+.antalBox .raknare{padding:4px; margin:0; float:left; cursor:pointer;}
+.antalBox .add{background-image:url('../images/icons/increment.png');}
+.antalBox .dec{background-image:url('../images/icons/decrement.png'); margin-top:24px;}
 
+.area input{width:40px !important; display:inline !important;}
 .marker {
 	position:absolute;
 	cursor:pointer;

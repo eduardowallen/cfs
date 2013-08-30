@@ -503,9 +503,9 @@ class AdministratorController extends Controller {
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$prelpos = $result;
 
-		$this->set('positions', $positions);
-		$this->set('rpositions', $rpositions);
-		$this->set('prelpos', $prelpos);
+		$this->setNoTranslate('positions', $positions);
+		$this->setNoTranslate('rpositions', $rpositions);
+		$this->setNoTranslate('prelpos', $prelpos);
 		$this->set('deletion_comment', 'Enter comment about deletion');
 		$this->set('booked_notfound', 'No booked booths was found.');
 		$this->set('reserv_notfound', 'No reservations was found.');

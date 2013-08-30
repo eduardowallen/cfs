@@ -31,6 +31,12 @@ a:hover {
 	overflow:hidden;
 }
 
+iframe{
+	border:none;
+	overflow:hidden;
+	height:220px;
+	width:430px;
+}
 #overlay {
 	display:none;
 	position:fixed;
