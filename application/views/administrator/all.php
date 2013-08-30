@@ -1,8 +1,5 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1><?php echo $headline; ?></h1>
-<?php
-	CurrencyCalculator::convertValues("SEK", "USD");
-?>
 <p><a class="button add" href="administrator/edit/new"><?php echo $create_link; ?></a></p>
 <p><a class="button add" href="mailto:<?php
 	$count=0;

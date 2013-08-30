@@ -19,21 +19,27 @@ class Template {
     function render() {
 		extract($this->variables);
 		global $translator;
-		
+
 		if (!isset($noView)) {
-			if (file_exists(ROOT.'application/views/'.$this->_controller.'/header.php')) {
+			if(isset($iframeView)){
 				include (ROOT.'application/views/'. $this->_controller.'/header.php');
+				if (file_exists(ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php'))
+				include (ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php');
 			} else {
-				include (ROOT.'application/views/header.php');
-			}
-			
-			if (file_exists(ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php'))
-	        	include (ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php');
-			
-			if (file_exists(ROOT.'application/views/'.$this->_controller.'/footer.php')) {
-				include (ROOT.'application/views/'.$this->_controller.'/footer.php');
-			} else {
-				include (ROOT.'application/views/footer.php');
+				if (file_exists(ROOT.'application/views/'.$this->_controller.'/header.php')) {
+					include (ROOT.'application/views/'. $this->_controller.'/header.php');
+				} else {
+					include (ROOT.'application/views/header.php');
+				}
+
+				if (file_exists(ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php'))
+				include (ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php');
+
+				if (file_exists(ROOT.'application/views/'.$this->_controller.'/footer.php')) {
+					include (ROOT.'application/views/'.$this->_controller.'/footer.php');
+				} else {
+					include (ROOT.'application/views/footer.php');
+				}
 			}
 		}
     }
