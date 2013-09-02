@@ -8,11 +8,13 @@ $(document).ready(function()  {
 
 function prepFormChecker() {
 	$("form #email").data('valid', true);
+  $("form #email").tooltip();
 	$("form #email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
 			input.data('valid', true);
+      input.tooltip();
 
 			if (!$(this).hasClass('nocheckdb')) {
 				if (input.val() != input.attr('value')) {
@@ -23,13 +25,13 @@ function prepFormChecker() {
 						success: function(response) {
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
-								$('.email_err').remove();
+                input.prop("title", lang.email_exists_label);
+                input.tooltip("open");
 								input.css('border', '1px solid #FF0000');
-								input.after("<p class=\"email_err\">asdasd</p>");
 								input.data('valid', false);
 							} else {
+                input.tooltip("disable");
 								input.css('border', '1px solid #00FF00');
-								$('#email_err').remove();
 								input.data('valid', true);
 							}
 						}
@@ -43,6 +45,7 @@ function prepFormChecker() {
 	});
 
 	$("form #invoice_email").data('valid', true);
+  $("form #invoice_email").tooltip();
 	$("form #invoice_email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
@@ -58,11 +61,12 @@ function prepFormChecker() {
 						success: function(response) {	
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
-								$('.email_err').remove();
+                input.prop("title", lang.email_exists_label);
+                input.tooltip("open");
 								input.css('border', '1px solid #FF0000');
-								input.after("<p class=\"email_err\">asdasd</p>");
 								input.data('valid', false);
 							} else {
+                input.tooltip("disable");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
@@ -149,7 +153,7 @@ function prepFormChecker() {
 					}
 					
 					//Textareas
-					if (input.is('textarea') && input.html() == '') {
+					if (input.is('textarea') && input.val() == '') {
 						//Mark empty
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));

@@ -17,8 +17,9 @@ class Mail extends Model {
     $this->to = $to;
     $this->from = $from;
     
-    // Fetch template
-    $stmt = $this->db->prepare("SELECT * FROM mail_content WHERE mail = ? AND language = ?");
+    // Attempts to get template according to currently selected language, if template exists for that language
+    //  otherwise gets template for the default language
+    $stmt = $this->db->prepare("SELECT * FROM mail_content LEFT JOIN language ON mail_content.language = language.id WHERE mail = ? AND (language = ? OR `default` = 1) ORDER BY `default` ASC LIMIT 1");
     $stmt->execute(array($mailtemplate, LANGUAGE));
     $mailContent = $stmt->fetch(PDO::FETCH_ASSOC);
     $this->subject = $mailContent['subject'];

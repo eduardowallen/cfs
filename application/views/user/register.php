@@ -1,3 +1,16 @@
+<?php
+  global $translator;
+  echo Form::Load("userdata",
+      array(
+          'headline'=>$translator->{'Register'},
+          'action'=>"user/register".(isset($fair_url)?'/'.$fair_url:''),
+          'error'=>$error,
+          'user'=>$user
+        )
+    );
+  return;
+  // Following code is the old code, if it remains, it means I have forgotten to remove it
+?>
 <?php $country_list = array(
 		"Afghanistan",
 		"Albania",
@@ -256,7 +269,7 @@
 		<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation')?> 
 			<textarea style="height:355px;"name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
 		</div>
-		</div>
+  </div>
 
 	<div class="form_column" style="margin-top:12px;">
 		<h3><?php echo $invoice_section; ?></h3>

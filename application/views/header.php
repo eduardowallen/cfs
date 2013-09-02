@@ -24,6 +24,7 @@
 <script type="text/javascript">
 	$(document).ready(function() {
 		$('.std_table').tablesorter();
+    $( document ).tooltip(); // Initialize jQueryUI tooltips
 	});
 	var lang = {};
 	lang.login_username = '<?php echo $translator->{"Username"} ?>';
@@ -63,6 +64,7 @@
 	lang.contact_section = '<?php echo $translator->{"Contact"}?>';
 	lang.contact_email = '<?php echo $translator->{"Contact Email"}?>';
 	lang.copy_label = '<?php echo $translator->{"Copy from company details"} ?>';
+	lang.email_exists_label = '<?php echo $translator->{"The email address already exists in our system"} ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">

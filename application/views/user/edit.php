@@ -1,4 +1,34 @@
-<?php $country_list = array(
+<?php
+  global $translator;
+ 
+  // Select an appropriate headline
+  if($edit_id == 'new') :
+    if(!empty($edit_level)) : 
+      switch($edit_level):
+        case 1: $headline='New Exhibitor'; break;
+        case 2: $headline='New Administrator'; break;
+        case 3: $headline='New Arranger'; break;
+        case 4: $headline='New Master'; break;
+      endswitch;
+    else :
+      $headline='New User';
+    endif;
+  else:
+    $headline='Edit user';
+  endif;
+  
+  // Load form
+  echo Form::Load("userdata",
+      array(
+          'headline'=>$translator->{$headline},
+          'action'=>"user/edit/".$edit_id.(isset($edit_level)?'/'.$edit_level:''),
+          'user'=>$user,
+          'error'=>@$user_message
+        )
+    );
+  return;
+  
+  $country_list = array(
 		"Afghanistan",
 		"Albania",
 		"Algeria",

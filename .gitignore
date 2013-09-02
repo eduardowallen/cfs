@@ -5,3 +5,10 @@ public/images/fairs/*
 # Ignore everything in tmp except empty placeholder.
 public/images/tmp/*
 !public/images/tmp/empty
+
+# Ignore all host-specific configuration files, but not the distributied versions of them
+config/*
+!config/*.dist
+
+# Ignore all local log files
+*.log

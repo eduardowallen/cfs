@@ -40,9 +40,11 @@ class Administrator extends User {
 			
 			$this->setPassword($str);
 			
-			$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$_SESSION['outside_fair_url']."\r\n\r\nUsername: ".$this->alias."\r\nPassword: ".$str;
-			
-			sendMail($this->email, 'Your password', $msg);
+      $mail = new Mail($_POST['email'], 'administrator_new_account');
+      $mail->setMailVar('url', BASE_URL.$_SESSION['outside_fair_url']);
+      $mail->setMailVar('alias', $this->alias);
+      $mail->setMailVar('password', $str);
+      $mail->send();
 		}
 
 		$id = parent::save();
@@ -70,8 +72,8 @@ class Administrator extends User {
 					$imploded = ( isset($_POST['maps']) AND count($_POST['maps']) > 0  ) ? implode( '|', $_POST['maps'] ) : array() ;
 					if( count($imploded) > 0){
 						echo 'that';
-						$dbh = $this->db->prepare("INSERT INTO fair_user_relation ('fair', 'user', 'map_access') VALUES(?, ?, ?)");
-						$dbh->execute( array($fair, $id, $imploded) );
+						$dbh = $this->db->prepare("INSERT INTO fair_user_relation ('fair', 'user', 'map_access', 'connected_time') VALUES(?, ?, ?, ?)");
+						$dbh->execute( array($fair, $id, $imploded, time()) );
 					}
 				}
 			}

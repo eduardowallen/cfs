@@ -13,6 +13,9 @@ class Translator {
 	
 	public function __get($val) {
 		// Om translate == true, så sparas strängar som kan översättas i databasen.
+    global $translate;
+    if( $translate )
+    {
 			global $globalDB;
 			$this->db = $globalDB;
 		
@@ -28,7 +31,7 @@ class Translator {
 				$stmt = $this->db->prepare("INSERT INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
 				$stmt->execute(array($val, 'en', $nextGroup));
 			}
-		
+		}
 		
 		if (isset($this->data->{$val})) {
 			return $this->data->{$val};
