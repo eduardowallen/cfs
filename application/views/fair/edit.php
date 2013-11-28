@@ -19,8 +19,6 @@
 					}
 				}
 			});
-
-			
 		});
 
 		// Bind contact_info så att info blir obligatorisk

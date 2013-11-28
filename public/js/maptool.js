@@ -521,6 +521,7 @@ maptool.pasteExhibitor = function(positionObject) {
 			maptool.reload();
 		}
 	});
+
 }
 
 //Create new position
@@ -763,7 +764,6 @@ maptool.bookPosition = function(positionObject) {
 			}
 		}
 	});
-
 	//var sBoxTop = $('#book_position_dialogue > #search_user_input').offset().top;
 	//var sBoxLeft = $('#book_position_dialogue > #search_user_input').offset().left;
 	//var sRes = $('#hiddenExhibitorList_d');
@@ -1108,6 +1108,7 @@ maptool.editBooking = function(positionObject) {
 	for(var i = 0; i < categories.length; i++){
 		$('#'+prefix+'_category_scrollbox > p').each(function(){
 			var value = $(this).children().val();
+			
 			if(value == categories[i].category_id){
 					$(this).children().prop('checked', true);
 			}
@@ -2155,6 +2156,7 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
+	
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
 		return;

@@ -230,9 +230,8 @@ function makeUserOptions3($sel=0, $fair) {
 
 </div>
 
-<div id="book_position_dialogue" class="dialogue" style="width:750px; margin-left:-375px;">
-	<div style="float:left;">
-	
+<div id="book_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'Book stand space'} ?></h3>
 
 	<div class="ssinfo"></div>
@@ -285,7 +284,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<h3></h3>
 	<p class="info"></p>
 	<h4 style="margin-bottom: 0px;"></h4>
-	<p class="presentation" style="margin-top:0px;"></p>
+	<p class="presentation" style="margin-top: 0px;"></p>
 	<p class="website_link"></p>
 </div>
 <?php
