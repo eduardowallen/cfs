@@ -15,29 +15,6 @@
 	/*
 		Skicka en POST-request och skicka med getKvm=1 för att köra denna funktion
 	*/
-error_reporting(E_ALL);
-ini_set('display_errors','true');
-	$parts = explode('/', dirname(dirname(__FILE__)));
-	$parts = array_slice($parts, 0, -1);
-	define('ROOT', implode('/', $parts).'/');
-
-	session_start();
-	require_once ROOT.'config/config.php';
-	require_once ROOT.'lib/functions.php';
-	require_once ROOT.'lib/classes/Translator.php';
-
-	$globalDB = new Database;
-	global $globalDB;
-
-	function __autoload($className) {
-		if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
-			require_once(ROOT.'lib/classes/'.$className.'.php');
-
-		} else if (file_exists(ROOT.'application/models/'.$className.'.php')) {
-			require_once(ROOT.'application/models/'.$className.'.php');
-		}
-	}
-
 	if(isset($_POST['getKvm'])):
 		/*
 			Skicka med X och Y i POST-requesten,
