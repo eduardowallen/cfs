@@ -42,63 +42,34 @@
 		}
 	});
 </script>
-<script type="text/javascript" src="public/js/eventfunctions.js"></script>
-<div class="add_custom_fee_dialogue" class="dialogue">
-	<h2><?php echo $add_custom_fee_title_label?></h2>
-	<p><?php echo $add_custom_fee_name_label?></p>
-	<p><input type="text" class="custom_fee_name" name="custom_fee_name"></input></p>
-	<button><?php echo $save_label; ?></button>
-</div>
+
 <h1><?php echo $edit_headline; ?></h1>
 <?php if ($edit_id != 'new'): ?>
 <p><a class="button settings" href="fair/maps/<?php echo $edit_id; ?>"><?php echo $map_button_label; ?></a></p>
-<p><a class="button settings" href="articlelist/lists/<?php echo $edit_id; ?>"><?php echo $lists_button_label; ?></a></p>
 <?php endif; ?>
+
 <form action="fair/edit/<?php echo $edit_id; ?>" method="post" enctype="multipart/form-data">
-<div style="padding:10px; float:right; position:relative; top:28px; right:350px; width:320px; border:1px solid #000; max-height:350px; overflow-y:scroll;">
-	<a class="button add addfees">Add other fees</a>
-	<div id="custom_fees">
-		<?php foreach($custom_fees as $cfee) :?>
-			<div style="float:left" class="<?php echo str_replace(' ', '', $cfee['id'].$cfee['name'])?>">
-			<p style="font-weight:bold; margin:3px 0 0 ;" class="name"><?php echo $cfee['name']?>:</p>
-			<input style="float:left;" class="inp<?php echo $cfee['id'].str_replace(' ', '', $cfee['name'])?>" name="custom_fee['<?php echo str_replace('%', ' ', $cfee['name'])?>']" value="<?php echo $cfee['amount']?>" type="text" />
-			<input class="id<?php echo $cfee['id'].str_replace(' ', '', $cfee['name'])?>" type="hidden" name="custom_fee_id['<?php echo str_replace('%', ' ', $cfee['name'])?>']" value="<?php echo $cfee['id']?>" type="text" />
-			<p style="float:left; margin:5px 0 0 5px;" class="value"><?php echo $fair->get('default_currency')?></p>
-			<p style="float:left; margin:0 5px; width:20px; font-size:9px;">edit<img class="edit" onclick="editPrice('add_custom_fee_dialogue', '<?php echo $cfee['id'].str_replace(' ', '', $cfee['name'])?>', '<?php echo $cfee['name']?>')" src="images/icons/pencil.png" alt="" /></p>
-			<p style="float:left; margin:0 5px; width:20px; font-size:9px;">delete<img class="delete" onclick="removePrice('<?php echo $cfee['id'].str_replace(' ', '', $cfee['name'])?>')" src="images/icons/delete.png" alt="" /></p>
-			</div>
-		<?php endforeach;?>
-	</div>
-</div>
-<div class="form_column">
 	<label for="name"><?php echo $name_label; ?><?php echo ($fair_id == 'new') ? ' *' : ''; ?></label>
 	<input <?php echo $disable; ?> autocomplete="off"<?php echo ($fair_id == 'new') ? '' : ' disabled="disabled"' ?> type="text" name="name" id="name" value="<?php echo $fair->get('name'); ?>"/>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'This is the name of the event, which is used to create a link to your event, as seen below the text box.'}; ?>" />
 	<label for="" style="font-style:italic; width:400px;" id="name_preview"><?php echo BASE_URL ?><span><?php echo $fair->get('url'); ?></span></label>
 	
 	<label for="max_positions"><?php echo $max_positions_label; ?><?php echo ($fair_id == 'new') ? ' *' : ''; ?></label>
 	<input <?php echo $disable; ?> autocomplete="off"<?php echo ($fair_id == 'new') ? '' : ' ' ?> type="text" name="max_positions" id="max_positions" value="<?php echo $fair->get('max_positions'); ?>"/>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'Enter the recommended number of stand spaces which should be available on the event.'}; ?>" />
 	
 	<label for="windowtitle"><?php echo $window_title_label; ?> *</label>
 	<input <?php echo $disable; ?> type="text" name="windowtitle" id="windowtitle" value="<?php echo $fair->get('windowtitle'); ?>"/>
-
-	<label for="currency"><?php echo $default_currency?> *</label>
-	<select name="currency" class="currency" id="currency">
-		<option val="SEK" <?php echo ($fair->get('default_currency') == 'SEK' ? 'selected' : '')?>>SEK</option>
-		<option val="USD" <?php echo ($fair->get('default_currency') == 'USD' ? 'selected' : '')?>>USD</option>
-		<option val="EUR" <?php echo ($fair->get('default_currency') == 'EUR' ? 'selected' : '')?>>EUR</option>
-		<option val="GBP" <?php echo ($fair->get('default_currency') == 'GBP' ? 'selected' : '')?>>GBP</option>
-		<option val="PEN" <?php echo ($fair->get('default_currency') == 'PEN' ? 'selected' : '')?>>PEN</option>
-	</select>
-
-	<label for="pricekvm"><?php echo $default_price?> *</label>
-	<input type="text" id="pricekvm" name="pricekvm" value="<?php echo $fair->get('price_per_m2')?>" />
-
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'This is the title which will be shown as the title of the website for your visitors and exhibitors.'}; ?>" />
+	
 	<?php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disabled="true"'; } ?>
 	<label for="auto_publish"><?php echo $auto_publish_label; ?> (dd-mm-yyyy) *</label>
 	<input class="date datepicker" <?php echo $da; ?> type="text" name="auto_publish" id="auto_publish" value="<?php if ($edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_publish')); } ?>"/>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'Enter a date for when the event should become available for booking.'}; ?>" />
 	
 	<label for="auto_close"><?php echo $auto_close_label; ?> (dd-mm-yyyy) *</label>
 	<input class="date datepicker" <?php echo $da; ?> type="text" name="auto_close" id="auto_close" value="<?php if ($edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_close')); } ?>"/>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'Enter a date for when the booking should no longer be available.'}; ?>" />
 	
 	<!--
 	<label for="logo"><?php echo $logo_label; ?></label>
@@ -106,7 +77,8 @@
 	-->
 
 	<?php (empty($disable)) ? tiny_mce() : ''; ?>
-	<label for="contact_info"><?php echo $contact_label; ?> *</label>
+	<div><label class="inline-block" for="contact_info"><?php echo $contact_label; ?> *</label>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'This is the information which will be shown to visitors and exhibitors when they press the "Contact Us" button from the navigation menu at the top.'}; ?>" /></div>
 	<textarea <?php echo $disable; ?> name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
 
 	<?php if (userLevel() == 4): ?>
@@ -114,6 +86,7 @@
 	<select name="arranger" id="arranger">
 		<?php echo makeUserOptions($fair->db, $fair->get('created_by')); ?>
 	</select> <?php if ($edit_id != 'new'): ?> <!--<a href="arranger/edit/<?php echo $fair->get('created_by'); ?>">View organizer</a>--> <?php endif; ?>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'Choose an organizer who will be treated as the creator of this event.'}; ?>" />
 	<?php endif; ?>
 
 	<?php if (userLevel() == 4): ?>
@@ -123,6 +96,7 @@
 		<option value="1"<?php echo $app_sel1; ?>><?php echo $app_opt1; ?></option>
 		<option value="2"<?php echo $app_sel2; ?>><?php echo $app_opt2; ?></option>
 	</select>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'Select the initial status of the event. You can immediately approve the new event or you can do it at a later time.'}; ?>" />
 	<?php endif; ?>
 
 	<label for="hidden"> Hide fair for unauthorized accounts </label>
@@ -130,7 +104,8 @@
 		<option value="0"> false </option>
 		<option value="1"> true </option>
 	</select>
+  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo $translator->{'Whether or not other users are able to access the event.'}; ?>" />
 
 	<p><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
-</div>
+
 </form>

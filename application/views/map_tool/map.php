@@ -119,8 +119,6 @@ function makeUserOptions3($sel=0, $fair) {
 </h1>-->
 
 <script type="text/javascript">
-	var defaultvalue='<?php echo $fair->get('default_currency');?>';
-	var currentvalue = '<?php echo $fair->get('default_currency');?>';
 
 	lang.bookStandSpace = '<?php echo $translator->{"Book stand space"} ?>';
 	lang.editStandSpace = '<?php echo $translator->{"Edit stand space"} ?>';
@@ -200,69 +198,7 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php if (isset($_SESSION['copied_exhibitor'])): ?>
 		copiedExhibitor = "<?php echo $_SESSION['copied_exhibitor'] ?>";
 		<?php endif; ?>
-
-		$('.valuta').change(function(value){
-			$('.values').val($('.valuta').val());
-			 convertAllPrices(currentvalue, $('.valuta').val());
-		});
-
-		$('.values').change(function(value){
-			$('.valuta').val($('.values').val());
-			 convertAllPrices(currentvalue, $('.values').val());
-		});
-
-		$('.valutaStand').change(function(){
-			changeValue(from, to, 'bokningsrutan');
-		});
-
-		$('.search').keyup(function(){
-			articleSearch($(this).val());
-		});
-
-		$('.add').bind('click', function(){
-			var num = $(this).parent().parent().children('.numberOfArticles').text();
-			num = parseFloat(num);
-			num = num + 1;
-			var price = parseFloat($(this).parent().parent().parent().children('.price').text());
-			calcProductPrice(num, price, $(this));
-			var totprice = 0;
-
-			$(this).parent().parent().children('.numberOfArticles').text(num);
-		});
-
-		$('.dec').bind('click', function(){
-			var num = $(this).parent().parent().children('.numberOfArticles').text();
-			num = parseFloat(num);
-			num-=1;
-			if(num == -1){
-				num = 0;
-			}
-			$(this).parent().parent().children('.numberOfArticles').text(num);
-			var price = parseFloat($(this).parent().parent().parent().children('.price').text());
-			var totprice = 0;
-			calcProductPrice(num, price, $(this));
-		});
 	});
-
-	function articleSearch(term){
-		var count = 0;
-		$('#article_dialogue ul li').each(function(){
-			$(this).children('ul').children('li').children('table').children('tbody').children('tr').each(function(){
-				var name = $(this).children('.name').text();
-				if(name.indexOf(term) == -1){
-					$(this).css('display', 'none');
-				} else {
-					$(this).css('display', 'table-row');
-					count++;
-				}
-			});
-			if(count < 1){
-				$(this).css('display', 'none');
-			} else {
-				$(this).css('display', 'block');
-			}
-		});
-	}
 </script>
 
 <!--<p id="zoomcontrols">
@@ -282,11 +218,9 @@ function makeUserOptions3($sel=0, $fair) {
 	<label for="position_name_input"><?php echo $translator->{'Name'} ?> *</label>
 	<input type="text"  class="dialogueInput"  name="position_name_input" id="position_name_input"/>
 
-	<label for="position_price_input"><?php echo $translator->{'Price'} ?> *</label>
-	<input type="text" class="dialogueInput"  name="position_price_input" id="position_price_input"/>
+	<label for="position_area_input"><?php echo $translator->{'Area'} ?> </label>
+	<input type="text"  class="dialogueInput"  name="position_area_input" id="position_area_input"/>
 
-	<p class="area"><input type="text" placeholder="x"  class="dialogueInput x"  name="position_area_x" id="position_area_x"/>x<input type="text" placeholder="y" class="dialogueInput y"  name="position_area_y" id="position_area_y"/>=<input type="text" class="dialogueInput ans"  name="position_area_input" id="position_area_input"/>m²</p>
-	
 	<label for="position_info_input"><?php echo $translator->{'Information'} ?></label>
 	<textarea name="position_info_input" id="position_info_input"></textarea>
 
@@ -343,118 +277,7 @@ function makeUserOptions3($sel=0, $fair) {
 	</select>
 
 	<p><input type="button" id="book_post" value="<?php echo $translator->{'Confirm booking'} ?>"/></p>
-	</div>
 
-	<div style="float:right;">
-		<img src="images/icons/close_dialogue.png" alt="" style="left:400px;" class="closeDialogue"/>
-		<div style="width:400px; margin-top:20px;">
-		
-		</div>
-		<div class="val"><p>
-			<?php echo $translator->{'Currency'}?>
-			<select class="values">
-				<option value="SEK">SEK</option>
-				<option value="USD">USD</option>
-				<option value="GBP">GBP</option>
-				<option value="EUR">EUR</option>
-				<option value="PEN">PEN</option>
-			</select>
-			<p>
-			<p style="font-weight:bold;">
-				<span style="margin-left:15px;">Art. nr.</span>
-				<span style="margin-left:10px;">Name</span>
-				<span style="margin-left:95px;">Price</span>
-				<span style="margin-left:20px;">Qty.</span>
-				<span style="margin-left:20px;">Cost</span>
-			</p>
-		</div>
-		
-		<div class="position_chosen_articles" style="width:400px; height:200px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-			<div class="categoryarticles">
-				<div class="title"></div>
-			</div>
-		</div>
-
-		<div class="positionmoney" style="width:400px; height:115px; margin-top:80px; padding:5px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden; ">
-		<div class="total_price_row forposition"><?php echo $articles_cost.': <span class="priceTag">0</span> <span class="value_">'.$fair->get('default_currency')?></span></div>
-		<div class="total_price_row"><?php echo $basic_cost_stand?>: <span class="standprice"></span> <span class="value_"><?php echo $fair->get('default_currency')?></span></div>
-			<div class="customs">
-			</div>
-		</div>
-		<div class="sum_for_position" style="padding:5px; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-			<h2 style="color:#000;">Summary: <span class="summaryPrice"><?php echo $tot.'</span> <span class="value_">'.$fair->get('default_currency')?></span></h2>
-		</div>
-		<p style="text-align:center;"><input type="button" id="article_list_book" value="<?php echo $translator->{'Article list'} ?>" /></p>
-	</div>
-</div>
-
-<div id="article_dialogue">
-	<div style="width:790px; float:left; height:30px; padding:5px; border-radius:10px 10px 0px 0px; background-color:#128945;">
-		<h2> <?php echo $translator->{'Article list'} ?> - <?php echo $name = (!empty($article_categories) == true) ?  $article_categories[0]['name'] : 'Empty list' ?></h2>
-		<img src="images/icons/close_dialogue.png" alt="" style="float:right;"class="close"/>
-		<input class="search" type="text" placeholder="<?php echo $translator->{'Search article'}?>" style="margin-top:8px; margin-right:10px;"></input>
-	</div>
-		<table>
-			<thead>
-				<tr style="height:50px; background-color:#bebebe;">
-					<th style="width:15%;">Art.nr</th>
-					<th style="width:50%;">Benämning</th>
-					<th style="width:15%;">Pris</th>
-					<th style="width:10%;">Antal</th>
-					<th style="width:10%;">Total</th>
-				</tr>
-			</thead>
-		</table>
-	<ul>
-		<?php foreach($article_categories as $articleCategory): ?>
-		<li><h3><?php echo $articleCategory['CategoryName']?></h3>
-			<ul>
-				<li>
-					<table style="overflow-x:hidden;">
-						<tbody>
-							<?php foreach($articles[$articleCategory['CategoryId']] as $article) : ?>
-								<tr>
-									<td class="artnr" style="width:15%;"><?php echo $article['ArticleNum']?></td>
-									<td class="name" style="width:50%;"><?php echo $article['ArticleName']?></td>
-									<td class="price" style="width:15%;"><?php echo $article['ArticlePrice']?></td>
-									<td class="id" style="display:none"><?php echo $article['ArticleId']?></td>
-									<td class="arts" style="width:10%;"><p class="numberOfArticles">0</p><div class="antalBox"><div class="raknare add"></div><div class="raknare dec"></div></div></td>
-									<td class="totprice" style="width:10%;">0</td>
-								</tr>
-							<?php endforeach;?>
-						</tbody>
-					</table>
-				</li>
-			</ul>
-		</li>
-		<?php endforeach;?>
-	</ul>
-	<div style="width:100%; float:left; background-color:#a9a9a9; border-radius:0px 0px 10px 10px; ">
-		<div style="float:left; width:117px; text-align:center; height:60px; text-align:center; border-right:2px solid #bebebe;">
-			<p><?php echo $translator->{'Currency'}?>
-			<br />
-			<select class="valuta">
-				<option value="SEK">SEK</option>
-				<option value="USD">USD</option>
-				<option value="GBP">GBP</option>
-				<option value="EUR">EUR</option>
-				<option value="PEN">PEN</option>
-			</select></p>
-			</div>
-		
-		<div style="float:left; width:50%; text-align:center;" class="totals">
-			<p style="float:left; width:140px; margin-left:30px; font-weight:bold;"><?php echo $translator->{'Amount of articles'}?>
-			<input  style="float:left;" type="text" class="totalamt" value="0" disabled></input></p>
-			<p style="float:left; width:180px; margin-left:40px; font-weight:bold;"><?php echo $translator->{'Total article cost'}?>
-			<input  style="float:left;" class="totalcost" type="text" value="0" disabled></input><span style="float:right; margin-top:2px;" class="selval"><?php echo $fair->get('default_currency')?></span></p>
-		</div>
-		<div style="float:left; width:25%; text-align:center;">
-			<p style="float:right; margin:25px 0px 0px 0px;">
-			<button class="cancel"> <?php echo $translator->{'Cancel'}?> </button>
-			<button class="save"> <?php echo $translator->{'Save'}?> </button>
-			</p>
-		</div>
-	</div>
 </div>
 
 <div id="more_info_dialogue" class="dialogue">
@@ -492,14 +315,9 @@ function makeUserOptions3($sel=0, $fair) {
 <div id="todayDt" td="<?php echo strtotime(date('d-m-Y'))?>"> </div>
 <div id="closeDt" td="<?php echo $fair->get('auto_close')?>"> </div>
 <div id="publishDt" td="<?php echo $fair->get('auto_publish')?>"> </div>
-<div id="m2price" style="display:none;"><?php echo $fair->get('price_per_m2')?></div>
-<div id="custom_prices" style="display:none;">
-	<?php foreach($custom_fees as $fee):?>
-		<div class="total_price_row"><span class="name"><?php echo $fee['name'];?></span>: <span class="amt"><?php echo $fee['amount'];?></span></span> <span class="value_"><?php echo $fair->get('default_currency')?></span></div>
-	<?php endforeach?>
-</div>
-<div id="reserve_position_dialogue" class="dialogue" style="width:750px; margin-left:-375px;">
-	<div style="float:left">
+
+<div id="reserve_position_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo $translator->{'Reserve stand space'} ?></h3>
 
 	<div class="ssinfo"></div>
@@ -545,49 +363,37 @@ function makeUserOptions3($sel=0, $fair) {
 	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
 	<input type="text" class="dialogueInput date datepicker" name="reserve_expires_input" id="reserve_expires_input" value="<?php if (@$edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_close')); } ?>"/>
 	<p><input type="button" id="reserve_post" value="<?php echo $translator->{'Confirm reservation'} ?>"/></p>
-	</div>
+</div>
 
-	<div style="float:right;">
-		<img src="images/icons/close_dialogue.png" alt="" style="left:400px;" class="closeDialogue"/>
-		<div style="width:400px; margin-top:20px;">
-		
-		</div>
-		<div class="val"><p>
-			<?php echo $translator->{'Currency'}?>
-			<select class="values">
-				<option value="SEK">SEK</option>
-				<option value="USD">USD</option>
-				<option value="GBP">GBP</option>
-				<option value="EUR">EUR</option>
-				<option value="PEN">PEN</option>
-			</select>
-			<p>
-			<p style="font-weight:bold;">
-				<span style="margin-left:15px;">Art. nr.</span>
-				<span style="margin-left:10px;">Name</span>
-				<span style="margin-left:95px;">Price</span>
-				<span style="margin-left:20px;">Qty.</span>
-				<span style="margin-left:20px;">Cost</span>
-			</p>
-		</div>
-		
-		<div class="position_chosen_articles" style="width:400px; height:200px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-			<div class="categoryarticles">
-				<div class="title"></div>
-			</div>
-		</div>
-
-		<div class="positionmoney" style="width:400px; height:115px; margin-top:80px; padding:5px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden; ">
-		<div class="total_price_row forposition"><?php echo $articles_cost.': <span class="priceTag">0</span> <span class="value_">'.$fair->get('default_currency')?></span></div>
-		<div class="total_price_row"><?php echo $basic_cost_stand?>: <span class="standprice"></span> <span class="value_"><?php echo $fair->get('default_currency')?></span></div>
-			<div class="customs">
-			</div>
-		</div>
-		<div class="sum_for_position" style="padding:5px; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-			<h2 style="color:#000;">Summary: <span class="summaryPrice"><?php echo $tot.'</span> <span class="value_">'.$fair->get('default_currency')?></span></h2>
-		</div>
-		<p style="text-align:center;"><input type="button" id="article_list_reserve" value="<?php echo $translator->{'Article list'} ?>" /></p>
+<div id="apply_mark_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
+	<h3><?php echo $translator->{'Apply for stand space'} ?></h3>
+	
+	<div class="ssinfo"></div>
+	
+	<label for="apply_category_scrollbox"><?php echo $translator->{'Category'} ?></label>
+	<div style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;" id="apply_category_scrollbox">
+		<?php foreach($fair->get('categories') as $cat): ?>
+		<p>
+			<input type="checkbox" value="<?php echo $cat->get('id') ?>"><?php echo $cat->get('name') ?></input>
+		</p>
+		<?php endforeach; ?>
 	</div>
+	
+	<label for="apply_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+	<?php if(isset($me)) : ?>
+		<input type="text" name="apply_commodity_input" id="apply_commodity_input" value="<?php echo $me->get('commodity')?>"/>
+	<?php else : ?>
+		<input type="text" name="apply_commodity_input" id="apply_commodity_input"/>
+	<?php endif; ?>
+
+
+	<label for="apply_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+	<textarea name="apply_message_input" id="apply_message_input"></textarea>
+	
+	<p>
+		<input type="button" id="apply_confirm" value="<?php echo $translator->{'Confirm'} ?>"/>
+	</p>
 </div>
 
 <div id="apply_position_dialogue" class="dialogue">

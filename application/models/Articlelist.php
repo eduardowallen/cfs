@@ -31,12 +31,12 @@ class Articlelist extends Model {
 	}
 
 	public function save(){
-		$stmt = $this->db->prepare("INSERT INTO article_category(CategoryNum, CategoryFair, CategoryName, CategoryList, CategoryOptional) VALUES (?, ?, ?, ?, ?)");
-		$stmt->execute(array($this->CategoryNum, $this->CategoryFair, $this->CategoryName, $this->CategoryList, $this->CategoryOptional));
+		$stmt = $this->db->prepare("INSERT INTO article (CategoryNum, CategoryParent, CategoryFair, CategoryName, CategoryOptional) VALUES (?, ?, ?, ?, ?)");
+		$stmt->execute(array($this->num, $this->parentId, $this->fair, $this->name, $this->optional));
 	}
 
 	public function update(){
-		$stmt = $this->db->prepare("UPDATE article_category SET CategoryNum=?, CategoryParent=?, CategoryName=?, CategoryOptional=? WHERE ArticleId=? AND ArticleCategory=?");
+		$stmt = $this->db->prepare("UPDATE article SET CategoryNum=?, CategoryParent=?, CategoryName=?, CategoryOptional=? WHERE ArticleId=? AND ArticleCategory=?");
 		$stmt->execute(array($this->num, $this->parentId, $this->fair, $this->name, $this->optional, $this->id));		
 	}
 

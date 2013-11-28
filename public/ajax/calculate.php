@@ -47,7 +47,7 @@ ini_set('display_errors','true');
 		if(isset($_POST['x']) && isset($_POST['y'])):
 			$x = floatval($_POST['x']);
 			$y = floatval($_POST['y']);
-			$calculator = new Calculator;
+			$calculator = new Calculator();
 			$kvm = $calculator->multi($x, $y);
 			echo $kvm;
 		else:	// Skriv ut felmeddelande om X och Y inte är satta.
@@ -70,7 +70,7 @@ ini_set('display_errors','true');
 			$x = floatval($_POST['x']);
 			$y = floatval($_POST['y']);
 			$price = floatval($_POST['price']);
-			$calculator = new Calculator;
+			$calculator = new Calculator();
 			$kvm = $calculator->m2price($x, $y, $price);
 			echo $kvm;
 		else:	// Skriv ut felmeddelande om X, Y Price inte är satta.
@@ -82,54 +82,19 @@ ini_set('display_errors','true');
 		Skicka en POST-request och skicka med getConverted=1 för att köra denna funktion
 	*/
 	if(isset($_POST['getConverted'])):
-		
 		/*
 			Skicka med from, to och amount i POST-requesten,
+			
 		*/
 		if(isset($_POST['from']) && isset($_POST['to']) && isset($_POST['amount'])):
 			$from = $_POST['from'];
 			$to = $_POST['to'];
 			$amount = floatval($_POST['amount']);
-			$calculator = new CurrencyCalculator;
+			$calculator = new CurrencyCalculator();
 			$converted = $calculator->convertValue($from, $to, $amount);
 			echo $converted;
 		else:	// Skriv ut felmeddelande om X, Y och amount inte är satta.
 			echo 'Err: Ange valutan du ska konvertera från, ange valutan du ska konvertera till, ange hur mycket du vill konvertera';
-		endif;
-	endif;
-
-	/*
-		Skicka en POST-request och skicka med multi=1 för att köra denna funktion!
-	*/
-	if(isset($_POST['multi'])):
-		/*
-			Skicka med antal & pris i POST-requesten,
-		*/
-		if(isset($_POST['antal']) && isset($_POST['pris'])):
-			$pris = $_POST['pris'];
-
-			$amount = floatval($_POST['antal'] * $_POST['pris']);
-			echo $amount;
-		else: // Skriv ut felmeddelande om X, Y och amount inte är satta.
-			echo 'Ange antal & pris!';
-		endif;
-	endif;
-
-	/*
-		Skicka en POST-request och skicka med sum = 1 för att köra denna funktion!
-	*/
-	if(isset($_POST['sum'])):
-		/*
-			Skicka med tal1 och tal2 i POST-requesten,
-		*/
-		if(isset($_POST['tal1']) && isset($_POST['tal2'])):
-			$tal1 = $_POST['tal1'];
-			$tal2 = $_POST['tal2'];
-	
-			$amount = floatval($_POST['antal'] + $_POST['pris']);
-			echo $amount;
-		else: // Skriv ut felmeddelande om X, Y och amount inte är satta.
-			echo 'Ange  tal1 och tal2!';
 		endif;
 	endif;
 ?>
