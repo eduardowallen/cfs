@@ -337,9 +337,9 @@ class UserController extends Controller {
 				$timediff = time() - $this->User->get('password_changed');
 				$days = $timediff/60/60/24;
 
-				if ($days > 72) {
-					header("Location: ".BASE_URL."user/changePassword/remind");
-				} else {
+				//if ($days > 72) {
+				//	header("Location: ".BASE_URL."user/changePassword/remind");
+				//} else {
 					$fair = new Fair;
 					$fair->load($_SESSION['user_fair'], 'id');
 					if ($fair->wasLoaded()) {
@@ -351,7 +351,7 @@ class UserController extends Controller {
 					} else {
 						header("Location: ".BASE_URL."page/loggedin");
 					}
-				}
+				//}
 				exit;
 			} else {
 				header("Location: ".BASE_URL."user/login");
