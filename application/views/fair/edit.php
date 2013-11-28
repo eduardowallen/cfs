@@ -1,9 +1,8 @@
-
+<?php
+  global $translator;
+?>
 <script type="text/javascript">
 	$(document).ready(function() {
-		defaultvalue = '<?php echo $fair->get('default_currency')?>';
-		error_custom_fee_name = '<?php echo $custom_fee_name_error?>';
-		update_values_msg = '<?php echo $default_value_update?>';
 		$("#name").keyup(function() {
 			var val = $(this).val();
 			$.ajax({

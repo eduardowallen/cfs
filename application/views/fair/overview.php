@@ -78,6 +78,7 @@
 							<?php if(/*$fair->get('approved') != 2 && */userLevel() == 4) : ?>
 							<span class="td_button"><a	href="fair/delete/<?php echo $fair->get('id'); ?>"><?php echo $th_delete ?></a></span>
 							<?php endif; ?>
+							<span class="td_button floatright<?php if ($fair->get('approved') == 2) echo ' td_button_disabled'; ?>"><a href="<?php echo ($fair->get('approved') == 2 ? '#' : 'fair/makeclone/' . $fair->get('id')); ?>" class="fair-clone-confirm"><?php echo $th_clone ?></a></span>
 						</td>
 					</tr>
 				</table>
@@ -88,9 +89,36 @@
 	</tbody>
 </table>
 <script>
-	$(document).ready(function(){
+	$(document).ready(function() {
 		$('.IsDisabled').click(function(e){
 			e.preventDefault();
 		});
+
+		$('.td_button_disabled .fair-clone-confirm').click(function(e) {
+			e.preventDefault();
+			$('#save_confirm').show().children('p').eq(0).css('font-size', '0.9em').text('<?php echo $dialog_clone_disabled; ?>');
+			$('#save_confirm input').click(function() {
+				$('#save_confirm').hide();
+			});
+		});
+
+		$('.td_button:not(.td_button_disabled) .fair-clone-confirm').click(function(e) {
+			var insert_ref = $('#confirmBox .dialog-buttons').eq(0);
+
+			confirmBox(e, '<?php echo $dialog_clone_question; ?>', $(this).attr('href'), 'YES_NO');
+			insert_ref.before('<a href="#" id="clone_info_link"><?php echo $dialog_clone_info_link; ?></a>');
+			$('#clone_info_link').click(function(e) {
+				e.preventDefault();
+				$(this).remove();
+				insert_ref.before('<p class="dialog-text"><?php echo $dialog_clone_info; ?></p>');
+			});
+		});
+
+<?php if (isset($msg_cloning_complete)): ?>
+		$('#save_confirm').show().children('p').eq(0).text('<?php echo $msg_cloning_complete; ?>');
+		$('#save_confirm input').click(function() {
+			$('#save_confirm').hide();
+		});
+<?php endif; ?>
 	});
 </script>

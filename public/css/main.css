@@ -126,6 +126,7 @@ img#logo {
 	/*padding-left:32px;
 	width:128px;*/
 }
+
 #print {
 	position:absolute;
 	left:50%;
@@ -169,6 +170,16 @@ img#logo {
 	font-size:1.3em;
 	text-align:center;
 	display:none;
+}
+.dialog-link {
+	position: absolute;
+	bottom: 10px;
+	left: 10px;
+}
+.dialog-text {
+	margin: 10px;
+	font-size: 0.8em;
+	color: #000;
 }
 #wrapper {
 	width:100%;

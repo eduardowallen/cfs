@@ -4,7 +4,7 @@ body {
 	font-family: 'Open Sans', sans-serif, Arial, Helvetica;
 	font-size:12px;
 	max-height:1200px;
-	background-attachment:fixed;*/
+	background-attachment:fixed;
 	background:#f8f8f8;
 }
 a img {
@@ -144,6 +144,9 @@ input[type=button], input[type=submit], .td_button {
 		color-stop(0.50, #FFFFFF)
 	);
 	color:#000000;
+}
+.td_button_disabled a {
+	color: #891212;
 }
 textarea {
 	width:300px;

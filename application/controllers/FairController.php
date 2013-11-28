@@ -33,9 +33,19 @@ class FairController extends Controller {
 		$this->set('th_exhibitors', 'Exhibitors');
 		$this->set('th_settings', 'Settings');
 		$this->set('th_delete', 'Delete');
+		$this->set('th_clone', 'Clone');
 		$this->set('app_yes', 'Yes');
 		$this->set('app_no', 'No');
 		$this->set('app_locked', 'Locked');
+		$this->set('dialog_clone_question', 'Are you sure that you want to clone this event?');
+		$this->set('dialog_clone_info_link', 'What does it mean to clone an event?');
+		$this->set('dialog_clone_info', 'When you clone an event, all its stand spaces, bookings and settings are cloned to a new one. Before the cloning is done you will be prompted to change some settings for the cloned event. This is to change the date of when the bookings open and close for the new, cloned event. You will also be prompted to change the name for the cloned event. This is to avoid the old event name to collide with the new, cloned event name.');
+		$this->set('dialog_clone_disabled', 'This event is locked and is therefore not available for cloning. Contact Chartbooker for more information.');
+
+		if ($param == 'cloning_complete') {
+			$this->set('msg_cloning_complete', 'Cloning of the event complete.');
+		}
+
 		switch(userLevel()) {
 
 			case 4:
@@ -159,7 +169,7 @@ class FairController extends Controller {
 	public function edit($id) {
 
 		setAuthLevel(3);
-
+		
 		if (!empty($id)) {
 			function makeUserOptions($db, $sel=0) {
 				global $id;
@@ -175,8 +185,6 @@ class FairController extends Controller {
 				return $opts;
 			}
 
-			
-
 			$this->setNoTranslate('fair_id', $id);
 
 			if ($id == 'new') {
@@ -190,11 +198,7 @@ class FairController extends Controller {
 					header('Location: '.BASE_URL.'locked');
 					exit;
 				}*/
-								
-				$statement = $this->Fair->db->prepare("SELECT name, amount, id FROM fair_custom_fees WHERE fair = ?");
-				$statement->execute(array($id));
-				$custom_fees = $statement->fetchAll();
-				$this->setNoTranslate('custom_fees', $custom_fees);
+				
 				
 				if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
 					toLogin();
@@ -206,22 +210,12 @@ class FairController extends Controller {
 						$this->Fair->set('name', $_POST['name']);
 					if (isset($_POST['max_positions']))
 						$this->Fair->set('max_positions', (int)$_POST['max_positions']);
-					if(isset($_POST['pricekvm'])){
-					$this->Fair->set('price_per_m2', $_POST['pricekvm']);
-					}
-				} else {
-					
-					$this->Fair->set('price_per_m2', $_POST['pricekvm']);
 				}
-
 				$this->Fair->set('windowtitle', $_POST['windowtitle']);
-				$this->Fair->set('default_currency', $_POST['currency']);
-
 				if (isset($_POST['auto_publish'])) {
 					$this->Fair->set('auto_publish', strtotime($_POST['auto_publish']));
 					$this->Fair->set('auto_close', strtotime($_POST['auto_close']));
 				}
-
 				$this->Fair->set('contact_info', $_POST['contact_info']);
 				if (userLevel() == 4)
 					$this->Fair->set('approved', $_POST['approved']);
@@ -231,37 +225,21 @@ class FairController extends Controller {
 					$this->Fair->set('created_by', $_SESSION['user_id']);
 					$this->Fair->set('approved', 1);
 				}
-
 				$this->Fair->set('hidden', $_POST['hidden']);
 				$fId = $this->Fair->save();
-
-				/* 
-					Om mässan har några custom fee's så ta bort dessa, de nya/ändrade värdena kommer ändå skickas med i en POST array
-					så värdena kommer bara sättas in igen
-				*/
-				$statement = $this->Fair->db->prepare("DELETE FROM  fair_custom_fees WHERE fair=?");
-				$statement->execute(array($fId));
-				$result = $statement->fetch();
-
-				foreach($_POST['custom_fee'] as $key=>$val):
-					$name = str_replace('%',' ',$key);
-					$name = substr($name, 1);
-					$name = substr($name, 0, -1);
-					$price = $val;
-
-					/* Sätt in custom fee's i databasen */
-					$stmt = $this->Fair->db->prepare('INSERT INTO fair_custom_fees(fair, name, amount) VALUES(?, ?, ?)');
-					$stmt->execute(array($fId, $name, $price));	
-
-				endforeach;
-
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
+					$user = new User;
+					$user->load($_SESSION['user_id'], 'id');
+
+					if((strlen($fairmail) > 1)):
+						Alias::addNew($fairmail, array('info'));
+					endif;
+
 					if (userLevel() == 3) {
 						
-						$user = new User;
-						$user->load($_SESSION['user_id'], 'id');
-						/* Alias */					
+						/* Alias */
+						/*					
 						$organizermail = $user->get('email');
 						$fairmail = $_POST['name'];
 						require('lib/classes/Alias.php');
@@ -269,19 +247,21 @@ class FairController extends Controller {
 						if((strlen($organizermail) > 1) && (strlen($fairmail) > 1)):
 							Alias::addNew($fairmail, $organizermail);
 						endif;
-				
-					     $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-					      $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
-					      $mail->setMailVar('company', $user->get('company'));
-					      $mail->send();
+						*/
+
+					    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
+					    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+					    $mail->setMailVar('company', $user->get('company'));
+					    $mail->send();
 					}
-					header("Location: ".BASE_URL."fair/maps/$fId");
+					header("Location: ".BASE_URL."fair/overview");
 					exit;
 				} else {
-					header("Location: ".BASE_URL."fair/maps/$fId");
+					header("Location: ".BASE_URL."fair/overview");
 					exit;
 				}
-			} 
+			}
+
 			$this->setNoTranslate('edit_id', $id);
 			$this->set('fair', $this->Fair);
 
@@ -308,7 +288,6 @@ class FairController extends Controller {
 					$this->setNoTranslate('disable', '');
 			}
 			$this->set('map_button_label', 'Handle maps');
-			$this->set('lists_button_label', 'Manage articlelists');
 			$this->set('approved_label', 'Status');
 			$this->set('arranger_label', 'Organizer');
 			$this->set('app_opt0', 'Not approved');
@@ -318,16 +297,181 @@ class FairController extends Controller {
 			$this->set('max_positions_label', 'Maximum stand spaces');
 			$this->set('window_title_label', 'Window title');
 			$this->set('email_label', 'E-mail address');
-			$this->set('add_custom_fee_title_label', 'Add custom fee');
-			$this->set('add_custom_fee_name_label', 'Name');
-			$this->set('default_currency', 'Default currency');
-			$this->set('default_price', 'Price per m²');
 			//$this->set('logo_label', 'Logotype');
 			$this->set('contact_label', 'Contact information');
 			$this->set('auto_publish_label', 'Publish date');
 			$this->set('auto_close_label', 'Closing date');
 			$this->set('save_label', 'Save');
-			$this->set('save_and_continue_label', 'Save and continue');
+
+		}
+	}
+
+	public function makeclone($id = '') {
+
+		setAuthLevel(3);
+
+		if (!empty($id)) {
+
+			$this->setNoTranslate('fair_id', $id);
+
+			$this->set('clone_headline', 'Clone fair');
+			$this->Fair->load($id, 'id');
+			
+			/*if ($this->Fair->get('approved') != 1) {
+				header('Location: '.BASE_URL.'locked');
+				exit;
+			}*/
+
+			if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
+				toLogin();
+
+			if (isset($_POST['name'])) {
+
+				$auto_close_reserved = date('Y-m-d', strtotime($_POST['auto_close_reserved']));
+
+				$fair_clone = new Fair();
+				$fair_clone->set('name', $_POST['name']);
+				$fair_clone->set('logotype', '');
+				$fair_clone->set('windowtitle', $_POST['windowtitle']);
+				$fair_clone->set('email', '');
+				$fair_clone->set('contact_info', $_POST['contact_info']);
+				$fair_clone->set('created_by', $this->Fair->get('created_by'));
+				$fair_clone->set('closing_time', $this->Fair->get('closing_time'));
+				$fair_clone->set('page_views', 0);
+				$fair_clone->set('approved', 1);
+				$fair_clone->set('auto_publish', strtotime($_POST['auto_publish']));
+				$fair_clone->set('auto_close', strtotime($_POST['auto_close']));
+				$fair_clone->set('max_positions', $this->Fair->get('max_positions'));
+				$fair_clone->set('hidden', $this->Fair->get('hidden'));
+				$fair_clone_id = $fair_clone->save();
+
+				/* Hämta alla kartor */
+				$statement = $this->db->prepare('SELECT * FROM fair_map WHERE fair = ?');
+				$statement->execute(array($this->Fair->get('id')));
+				$maps = $statement->fetchAll(PDO::FETCH_ASSOC);
+				$position_ids = array();
+
+				foreach ($maps as $map) {
+					/* Kopiera kartan */
+					$statement = $this->db->prepare("INSERT INTO fair_map (fair, name) VALUES (?, ?)");
+					$statement->execute(array($fair_clone_id, $map['name']));
+					$map_clone_id = $this->db->lastInsertId();
+
+					/* Kopiera även kartbilderna */
+					$image_path_old = ROOT.'public/images/fairs/'.$this->Fair->get('id').'/maps/';
+					$image_path_new = ROOT.'public/images/fairs/'.$fair_clone_id.'/maps/';
+					@copy($image_path_old . $map['id'] . '.jpg', $image_path_new . $map_clone_id . '.jpg');
+					@copy($image_path_old . $map['id'] . '_large.jpg', $image_path_new . $map_clone_id . '_large.jpg');
+					@chmod($image_path_new . $map_clone_id . '.jpg', 0775);
+					@chmod($image_path_new . $map_clone_id . '_large.jpg', 0775);
+
+					/* Hämta alla ståndspositioner */
+					$statement = $this->db->prepare('SELECT * FROM fair_map_position WHERE map = ?');
+					$statement->execute(array($map['id']));
+					$positions = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+					foreach ($positions as $position) {
+						/* Kopiera ståndet */
+						$statement = $this->db->prepare("INSERT INTO fair_map_position (map, x, y, area, name, information, status, expires, created_by, being_edited, edit_started) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+						$new_status = ($position['status'] == 2 ? 1 : 0);
+						$statement->execute(array($map_clone_id, $position['x'], $position['y'], $position['area'], $position['name'], $position['information'], $new_status, $auto_close_reserved, $position['created_by'], $position['being_edited'], $position['edit_started']));
+						$position_ids[$position['id']] = $this->db->lastInsertId();
+					}
+				}
+
+				/* Hämta alla kopplingar mellan användare och utställningar */
+				$statement = $this->db->prepare('SELECT * FROM fair_user_relation WHERE fair = ?');
+				$statement->execute(array($this->Fair->get('id')));
+				$user_relations = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+				foreach ($user_relations as $relation) {
+					/* Kopiera kopplingen */
+					$statement = $this->db->prepare("INSERT INTO fair_user_relation (fair, user, fair_presentation, map_access, connected_time) VALUES (?, ?, ?, ?, ?)");
+					$statement->execute(array($fair_clone_id, $relation['user'], $relation['fair_presentation'], $relation['map_access'], $relation['connected_time']));
+				}
+
+				/* Hämta alla preliminärbokningar */
+				$statement = $this->db->prepare('SELECT * FROM preliminary_booking WHERE fair = ?');
+				$statement->execute(array($this->Fair->get('id')));
+				$preliminary_booking = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+				foreach ($preliminary_booking as $booking) {
+					/* Kopiera bokningen */
+					$statement = $this->db->prepare("INSERT INTO preliminary_booking (user, fair, position, categories, commodity, arranger_message, booking_time) VALUES (?, ?, ?, ?, ?, ?, ?)");
+					$statement->execute(array($booking['user'], $fair_clone_id, $position_ids[$booking['position']], $booking['categories'], $booking['commodity'], $booking['arranger_message'], $booking['booking_time']));
+				}
+
+				/* Hämta alla utställarkategorier */
+				$statement = $this->db->prepare('SELECT * FROM exhibitor_category WHERE fair = ?');
+				$statement->execute(array($this->Fair->get('id')));
+				$exhibitor_categories = $statement->fetchAll(PDO::FETCH_ASSOC);
+				$ex_cat_ids = array();
+
+				foreach ($exhibitor_categories as $category) {
+					/* Kopiera utställarkatagorin */
+					$statement = $this->db->prepare("INSERT INTO exhibitor_category (name, fair) VALUES (?, ?)");
+					$statement->execute(array($category['name'], $fair_clone_id));
+					$ex_cat_ids[$category['id']] = $this->db->lastInsertId();
+				}
+
+				/* Hämta alla utställare */
+				$statement = $this->db->prepare('SELECT * FROM exhibitor WHERE fair = ?');
+				$statement->execute(array($this->Fair->get('id')));
+				$exhibitors = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+				foreach ($exhibitors as $exhibitor) {
+					/* Kopiera utställaren */
+					$statement = $this->db->prepare("INSERT INTO exhibitor (user, fair, position, category, presentation, commodity, arranger_message, approved, invoice_sent, invoice_message, booking_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+					$statement->execute(array($exhibitor['user'], $fair_clone_id, $position_ids[$exhibitor['position']],  $exhibitor['category'],  $exhibitor['presentation'],  $exhibitor['commodity'],  $exhibitor['arranger_message'],  $exhibitor['approved'],  $exhibitor['invoice_sent'],  $exhibitor['invoice_message'],  $exhibitor['booking_time']));
+					$exhibitor_clone_id = $this->db->lastInsertId();
+
+					/* Hämta alla kopplingar mellan utställare och kategorier */
+					$statement = $this->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ?');
+					$statement->execute(array($exhibitor['id']));
+					$ex_cat_relations = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+					foreach ($ex_cat_relations as $relation) {
+						/* Kopiera kopplingen */
+						if (isset($ex_cat_ids[$relation['category']])) {
+							$statement = $this->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+							$statement->execute(array($exhibitor_clone_id, $ex_cat_ids[$relation['category']]));
+						}
+					}
+				}
+
+				$_SESSION['user_fair'] = $fair_clone_id;
+				$user = new User;
+				$user->load($_SESSION['user_id'], 'id');
+
+				/* Alias */					
+				$fairmail = $_POST['name'];
+
+				if ((strlen($fairmail) > 1)) {
+					Alias::addNew($fairmail, array($user->get('email')));
+				}
+
+				if (userLevel() == 3) {
+				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
+				    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+				    $mail->setMailVar('company', $user->get('company'));
+				    $mail->send();
+				}
+
+				header("Location: ".BASE_URL."fair/overview/cloning_complete");
+				exit;
+			}
+
+			$this->setNoTranslate('edit_id', $id);
+			$this->set('fair', $this->Fair);
+
+			$this->set('name_label', 'Name');
+			$this->set('window_title_label', 'Window title');
+			$this->set('auto_publish_label', 'Publish date');
+			$this->set('auto_close_label', 'Closing date');
+			$this->set('auto_close_reserved_label', 'Reservation date for stand spaces');
+			$this->set('contact_label', 'Contact information');
+			$this->set('clone_label', 'Complete cloning');
+			$this->set('dialog_clone_complete_info', 'In connection with completing the cloning of your event, you will be billed according to the agreed contractual.');
 		}
 	}
 

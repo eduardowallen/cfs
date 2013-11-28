@@ -8,13 +8,13 @@ $(document).ready(function()  {
 
 function prepFormChecker() {
 	$("form #email").data('valid', true);
-  $("form #email").tooltip();
+	$("form #email").tooltip();
 	$("form #email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
 			input.data('valid', true);
-      input.tooltip();
+			input.tooltip();
 
 			if (!$(this).hasClass('nocheckdb')) {
 				if (input.val() != input.attr('value')) {
@@ -25,12 +25,12 @@ function prepFormChecker() {
 						success: function(response) {
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
-                input.prop("title", lang.email_exists_label);
-                input.tooltip("open");
+								input.prop("title", lang.email_exists_label);
+								input.tooltip("open");
 								input.css('border', '1px solid #FF0000');
 								input.data('valid', false);
 							} else {
-                input.tooltip("disable");
+								input.tooltip("disable");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
@@ -45,7 +45,7 @@ function prepFormChecker() {
 	});
 
 	$("form #invoice_email").data('valid', true);
-  $("form #invoice_email").tooltip();
+	$("form #invoice_email").tooltip();
 	$("form #invoice_email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
@@ -61,12 +61,12 @@ function prepFormChecker() {
 						success: function(response) {	
 							var ans = JSON.parse(response);
 							if (ans.emailExists) {
-                input.prop("title", lang.email_exists_label);
-                input.tooltip("open");
+								input.prop("title", lang.email_exists_label);
+								input.tooltip("open");
 								input.css('border', '1px solid #FF0000');
 								input.data('valid', false);
 							} else {
-                input.tooltip("disable");
+								input.tooltip("disable");
 								input.css('border', '1px solid #00FF00');
 								input.data('valid', true);
 							}
@@ -98,6 +98,7 @@ function prepFormChecker() {
 	$("form").submit(function() {
 		
 		var thisForm = $(this);
+		thisForm.data('valid', true);
 		var errors = new Array();		
 		
 		$("label", thisForm).each(function() {
@@ -173,6 +174,7 @@ function prepFormChecker() {
 		});
 		
 		if (errors.length > 0) {
+			thisForm.data('valid', false);
 			var str = "There are # errors in the form. You have to enter information in all the fields marked with a *";
 
 			$.ajax({
