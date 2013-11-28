@@ -1,16 +1,7 @@
 <h1><?php echo $headline; ?></h1>
-<script type="text/javascript" src="public/js/fairmap.js"></script>
-<script type="text/javascript">
-	$(document).ready(function() {
-		$('input[type="submit"]').click(function() {
-			$('#loading').show();
-		});
-	});
-</script>
-<div id="iframeholder">
 
-</div>
-<p><a class="button add" href="javascript:void(0);" onclick="newMap(<?php echo $fair->get('id')?>);"><?php echo $create_link; ?></a></p>
+<p><a class="button add" href="fairMap/create/<?php echo $fair->get('id'); ?>"><?php echo $create_link; ?></a></p>
+
 <table class="std_table">
 	<thead>
 		<tr>
@@ -31,5 +22,3 @@
 		<?php endforeach; ?>
 	</tbody>
 </table>
-
-<p id="loading" class="hidden"><img src="images/icons/loading.gif" alt="loading..." style="width:100px;"/></p>
