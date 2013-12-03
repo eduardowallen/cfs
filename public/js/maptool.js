@@ -408,7 +408,7 @@ maptool.showContextMenu = function(position, marker) {
 	}
 	
 	if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0){
-		contextMenu.append('<li id="cm_note"> Anteckningar </li>');
+		contextMenu.append('<li id="cm_note">' + lang.notes + '</li>');
 	}
 	contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
 

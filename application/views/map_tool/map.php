@@ -130,6 +130,7 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.editBooking = '<?php echo $translator->{"Edit booking"} ?>';
 	lang.cancelBooking = '<?php echo $translator->{"Cancel booking"} ?>';
 	lang.pasteExhibitor = '<?php echo $translator->{"Paste exhibitor"} ?>';
+	lang.notes = '<?php echo $translator->{"Notes"} ?>';
 	lang.moreInfo = '<?php echo $translator->{"More info"} ?>';
 	lang.space = '<?php echo $translator->{"Space"} ?>';
 	lang.status = '<?php echo $translator->{"Status"} ?>';
