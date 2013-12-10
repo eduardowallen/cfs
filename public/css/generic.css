@@ -94,6 +94,11 @@ label.inline-block {
 	width:auto;
 }
 
+.form-one-row label {
+	display: inline-block;
+	width: 100px;
+}
+
 .form_column input[type=text], .form_column input[type=password], .form_colum textarea {
 	border:1px solid #666666;
 	-moz-border-radius:4px;
