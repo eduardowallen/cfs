@@ -226,6 +226,10 @@ class FairController extends Controller {
 					$this->Fair->set('approved', 1);
 				}
 				$this->Fair->set('hidden', $_POST['hidden']);
+				for ($i = 1; $i <= 3; $i++) {
+					$this->Fair->set('reminder_day' . $i, $_POST['reminder_day' . $i]);
+					$this->Fair->set('reminder_note' . $i, $_POST['reminder_note' . $i]);
+				}
 				$fId = $this->Fair->save();
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
@@ -301,7 +305,17 @@ class FairController extends Controller {
 			$this->set('contact_label', 'Contact information');
 			$this->set('auto_publish_label', 'Publish date');
 			$this->set('auto_close_label', 'Closing date');
+			$this->set('interval_reminders_label', 'Interval for reminders');
+			$this->set('reminder_1_label', '1st reminder');
+			$this->set('reminder_2_label', '2nd reminder');
+			$this->set('reminder_3_label', '3rd reminder');
+			$this->set('no_reminder_label', 'No reminder');
+			$this->set('edit_label', 'Edit');
+			$this->set('edit_note_1_label', 'Edit message for 1st reminder');
+			$this->set('edit_note_2_label', 'Edit message for 2nd reminder');
+			$this->set('edit_note_3_label', 'Edit message for 3rd reminder');
 			$this->set('save_label', 'Save');
+			$this->set('cancel_label', 'Cancel');
 
 		}
 	}
