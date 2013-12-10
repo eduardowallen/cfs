@@ -93,6 +93,7 @@
 	function closeConfirmBox() {
 		$('#overlay').hide();
 		$('#confirmBox .msg').html('').parent().hide();
+		$('#confirmBox .dialog-text').remove();
 	}
 	
 	$(document).ready(function() {

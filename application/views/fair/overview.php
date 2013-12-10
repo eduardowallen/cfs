@@ -106,12 +106,16 @@
 			var insert_ref = $('#confirmBox .dialog-buttons').eq(0);
 
 			confirmBox(e, '<?php echo $dialog_clone_question; ?>', $(this).attr('href'), 'YES_NO');
-			insert_ref.before('<a href="#" id="clone_info_link"><?php echo $dialog_clone_info_link; ?></a>');
-			$('#clone_info_link').click(function(e) {
-				e.preventDefault();
-				$(this).remove();
-				insert_ref.before('<p class="dialog-text"><?php echo $dialog_clone_info; ?></p>');
-			});
+
+			if ($('#confirmBox').has('#clone_info_link').length === 0) {
+				insert_ref.before('<a href="#" id="clone_info_link"><?php echo $dialog_clone_info_link; ?></a>');
+
+				$('#clone_info_link').click(function(e) {
+					e.preventDefault();
+					$(this).remove();
+					insert_ref.before('<p class="dialog-text"><?php echo $dialog_clone_info; ?></p>');
+				});
+			}
 		});
 
 <?php if (isset($msg_cloning_complete)): ?>
