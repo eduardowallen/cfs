@@ -172,6 +172,7 @@ function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 			echo 'editor_selector : "'.$box.'",';
 		else :
 			echo 'mode : "textareas",';
+			echo 'editor_deselector : "no-editor",';
 		endif;
 		
 	        echo '
