@@ -296,7 +296,7 @@ img#logo {
 .IsDisabled{
 	cursor: default;
 }
-#popupform {
+#popupform, .dialog {
 	position:absolute;
 	z-index:99999;
 	background:#ffffff;
@@ -310,6 +310,14 @@ img#logo {
 	-moz-border-radius:8px;
 	-webkit-border-radius:8px;
 	border-radius:8px;
+}
+
+.dialog-content {
+	margin: 10px;
+}
+
+.dialog-content textarea {
+	width: 97%;
 }
 
 #popupformTwo {
