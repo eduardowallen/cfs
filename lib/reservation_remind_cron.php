@@ -79,7 +79,12 @@ foreach ($expiring_positions as $position) {
 	}
 
 	// Send mail
-	$mail = new Mail($position->email, 'stand_place_remind' . $number, $position->url . '@chartbooker.com');
+	$to = $position->email;
+	if (defined('TESTSERV')) {
+		$to = 'example@chartbooker.com';
+	}
+
+	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com');
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
 	$mail->setMailVar('name', $position->user_name);
 	$mail->setMailVar('stand_space_name', $position->position_name);
