@@ -40,7 +40,7 @@ class Mail extends Model {
       $this->content = str_replace('$'.$key, $value, $this->content);
     }
     
-    sendMailHTML($this->to, $this->subject, $this->content, array($this->from => EMAIL_FROM_NAME));
+    return sendMailHTML($this->to, $this->subject, $this->content, array($this->from => EMAIL_FROM_NAME));
   }
 	
 }
