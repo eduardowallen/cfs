@@ -59,10 +59,14 @@ function sendMail($to, $subject, $msg, $from='') {
 
 	require_once ROOT.'lib/Swift-4.1.7/swift_required.php';
 
-	$transport = Swift_SmtpTransport::newInstance(SMTP_SERVER, SMTP_PORT)
-		->setUsername(SMTP_USER)
-		->setPassword(SMTP_PASS)
-	;
+	if (MAIL_ENABLED) {
+		$transport = Swift_SmtpTransport::newInstance();
+	} else {
+		$transport = Swift_SmtpTransport::newInstance(SMTP_SERVER, SMTP_PORT)
+			->setUsername(SMTP_USER)
+			->setPassword(SMTP_PASS)
+		;
+	}
 
 	if (!is_array($from))
 		$from = array(EMAIL_FROM_ADDRESS => EMAIL_FROM_NAME);
