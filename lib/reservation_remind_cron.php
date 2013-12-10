@@ -37,11 +37,12 @@ if (!defined('LANGUAGE')) {
 	define('LANGUAGE', 'eng');
 }
 
-$db = new Database;
+$globalDB = new Database;
+global $globalDB;
 
 // Cron job logic starts here
 
-$statement = $db->prepare("SELECT fmp.id, 
+$statement = $globalDB->prepare("SELECT fmp.id, 
 								fmp.name AS position_name, 
 								e.id AS exhibitor, 
 								u.email, 
