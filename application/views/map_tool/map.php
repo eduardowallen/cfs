@@ -293,22 +293,22 @@ function makeUserOptions3($sel=0, $fair) {
 		<div id="note_dialogue" class="dialogue">
 		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />
 		<h2></h2>
-		<h3>Kommentarer för </h3>
+		<h3 data-text="<?php echo $translator->{'Notes on'}; ?>"></h3>
 		<div class="commentList" style="max-height:280px; margin-bottom:30px; overflow-y:scroll;">
 			<ul>
 				<li>
 					<div class="comment">
 						<ul>
-							<li>Skrivet av: </li>
-							<li>Datum: </li>
-							<li>Kommentar: </li>
+							<li><?php echo $translator->{'Written by'}; ?>: </li>
+							<li><?php echo $translator->{'Date'}; ?>: </li>
+							<li><?php echo $translator->{'Note'}; ?>: </li>
 						</ul>
 					</div>
 				</li>
 			</ul>
 		</div>
 		<textarea cols="30" rows="10" style="resize:none;"></textarea>
-		<button>Skicka kommentar</button> <select id="commentOnSpace"><option value="0">För enbart denna platsen</option><option value="1">För utställarens alla platser</option></select>
+		<button><?php echo $translator->{'Insert comment'}; ?></button> <select id="commentOnSpace"><option value="0"><?php echo $translator->{'For this stand space only'}; ?></option><option value="1"><?php echo $translator->{'For all the stand spaces of the exhibitor'}; ?></option></select>
 	<?php endif?>
 </div>
 
