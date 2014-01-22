@@ -140,7 +140,7 @@ input[type=text], input[type=password], textarea {
 	font-size:12px;
 }
 
-input[type=button], input[type=submit], .td_button {
+input[type=button], input[type=submit], .td_button, .link-button {
 	border:1px solid #666666;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
@@ -155,7 +155,14 @@ input[type=button], input[type=submit], .td_button {
 	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #E2E3E3), color-stop(0.50, #FFFFFF));
 	background-image: linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
 	color:#000000;
+	text-align: center;
 }
+
+.link-button {
+	display: inline-block;
+	text-decoration: none;
+}
+
 .td_button_disabled a {
 	color: #891212;
 }
