@@ -25,19 +25,12 @@
 	border:1px solid #868686;
 	border-radius:8px;
 	padding:10px;
-	background-image: linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
 	background-image: -o-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
 	background-image: -moz-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
 	background-image: -webkit-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
 	background-image: -ms-linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
-	
-	background-image: -webkit-gradient(
-		linear,
-		left bottom,
-		left top,
-		color-stop(0, #E2E3E3),
-		color-stop(0.50, #FFFFFF)
-	);
+	background-image: -webkit-gradient(linear, left bottom, left top, color-stop(0, #E2E3E3), color-stop(0.50, #FFFFFF));
+	background-image: linear-gradient(bottom, #E2E3E3 0%, #FFFFFF 50%);
 }
 
 #right_sidebar div.pre_list {
