@@ -22,6 +22,7 @@
 <script type="text/javascript" src="js/chartbooker.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/mobilecheck.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/maptool.js?u=<?php echo $unique?>"></script>
+<script src="js/jquery.placeholder.js"></script>
 <script language="javascript" type="text/javascript" src="js/tiny_mce/tiny_mce.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript">
 	$(document).ready(function() {

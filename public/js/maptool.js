@@ -92,6 +92,8 @@ maptool.openDialogue = function(id) {
 		});
 		$("#" + id).show();
 	});
+
+	$('input, textarea').placeholder();
 }
 
 //Close any open dialogues
