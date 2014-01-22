@@ -272,7 +272,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<input type="text"  class="dialogueInput"  name="position_area_input" id="position_area_input"/>
 
 	<label for="position_info_input"><?php echo $translator->{'Information'} ?></label>
-	<textarea name="position_info_input" id="position_info_input"></textarea>
+	<textarea name="position_info_input" id="position_info_input" placeholder="<?php echo htmlspecialchars($translator->{'Enter information about the stand space that would be interesting for the exhibitor to know, for example: This stand space is in the center of the IT-area and very well positioned for demonstration of your products.'}); ?>"></textarea>
 
 	<input type="hidden" name="position_id_input" id="position_id_input" value=""/>
 
