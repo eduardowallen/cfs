@@ -45,8 +45,9 @@ global $globalDB;
 $statement = $globalDB->prepare("SELECT fmp.id, 
 								fmp.name AS position_name, 
 								e.id AS exhibitor, 
-								u.email, 
+								u.email AS exhibitor_email, 
 								u.name AS user_name, 
+								uc.email AS organizer_email, 
 								f.url, 
 								DATEDIFF(fmp.expires, ?) AS diff, 
 								fmp.expires, 
@@ -61,6 +62,7 @@ $statement = $globalDB->prepare("SELECT fmp.id,
 							INNER JOIN fair AS f ON f.id = fm.fair 
 							INNER JOIN exhibitor AS e ON e.position = fmp.id 
 							INNER JOIN user AS u ON u.id = e.user 
+							INNER JOIN user AS uc ON uc.id = f.created_by 
 							HAVING diff > 0 
 								AND (diff = reminder_day1 OR 
 								diff = reminder_day2 OR 
@@ -79,13 +81,27 @@ foreach ($expiring_positions as $position) {
 		$number = 3;
 	}
 
-	// Send mail
-	$to = $position->email;
+	// Send mail to exhibitor
+	$to = $position->exhibitor_email;
 	if (defined('TESTSERV')) {
 		$to = 'example@chartbooker.com';
 	}
 #$to = "christoffer@trinax.se";
 	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com');
+	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
+	$mail->setMailVar('name', $position->user_name);
+	$mail->setMailVar('stand_space_name', $position->position_name);
+	$mail->setMailVar('date_expires', $position->expires);
+	$mail->setMailVar('days_until_expiration', $position->diff);
+	$mail->send();
+
+	// Send mail to organizer
+	$to = $position->organizer_email;
+	if (defined('TESTSERV')) {
+		$to = 'example@chartbooker.com';
+	}
+#$to = "christoffer@trinax.se";
+	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . '@chartbooker.com');
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
 	$mail->setMailVar('name', $position->user_name);
 	$mail->setMailVar('stand_space_name', $position->position_name);
