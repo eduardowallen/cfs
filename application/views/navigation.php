@@ -1,8 +1,8 @@
-<?// Main menu for Masters ?>
+<?php /* Main menu for Masters */ ?>
 			<ul>
 				<?php if (userLevel() == 4): ?>
 				
-	<?// The first button in the main menu ?>
+	<?php /* The first button in the main menu */ ?>
 				<li><a href="user/accountSettings"><img src="images/icons/icon_logga_in.png" alt=""/><?php echo $translator->{'My profile'} ?></a>
 					<ul>
 						<li><a href="user/changePassword"><?php echo $translator->{'Change password'} ?></a></li>
@@ -10,7 +10,7 @@
 					</ul>
 				</li>
 				
-	<?// The second button in the main menu ?>
+	<?php /* The second button in the main menu */ ?>
 				<li><span><img src="images/icons/icon_registrera.png" alt=""/><?php echo $translator->{'Users'} ?></span>
 					<ul>
 						<li><a href="user/overview/4"><?php echo $translator->{'Masters'} ?></a></li>
@@ -20,14 +20,14 @@
 					</ul>
 				</li>
 				
-	<?// The third button in the main menu ?>
+	<?php /* The third button in the main menu */ ?>
 				<li><a href="fair/overview"><img src="images/icons/icon_events.png" alt=""/><?php echo $translator->{'Fairs'} ?></a>
 					<ul>
 						<li><a href="fair/overview/new"><?php echo $translator->{'New fairs'} ?><?php echo $fairCount; ?></a></li>
 					</ul>
 				</li>
 				
-	<?// The fourth button in the main menu ?>
+	<?php /* The fourth button in the main menu */ ?>
 				<li><span><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{'Support'} ?></span>
 					<ul>
 						<li><a href="mail/edit"><?php echo $translator->{'Mails'} ?></a></li>
@@ -37,10 +37,10 @@
 				</li>
 				
 				
-	<?// Main menu for Organizers ?>
+	<?php /* Main menu for Organizers */ ?>
 				<?php elseif (userLevel() == 3): ?>
 	
-	<?// The first button in the main menu ?>
+	<?php /* The first button in the main menu */ ?>
 				<li><a href="user/accountSettings"><img src="images/icons/icon_logga_in.png" alt=""/><?php echo $translator->{'My profile'} ?></a>
 					<ul>
 						<li><a href="fair/overview"><?php echo $translator->{'My events'} ?></a></li>
@@ -52,17 +52,17 @@
 					</ul>
 				</li>
 				
-	<?// The second button in the main menu ?>
+	<?php /* The second button in the main menu */ ?>
 				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><img src="images/icons/icon_globe.png" alt=""/><?php echo $translator->{'Map tool'} ?></a></li>
 	
-	<?// The third button in the main menu ?>
+	<?php /* The third button in the main menu */ ?>
 				<li><span><img src="images/icons/icon_events.png" alt=""/><?php echo $translator->{'Fairs'} ?></span>
 					<ul>
 						<?php echo $opts ?>
 					</ul>
 				</li>
 				
-	<?// The fourth button in the main menu ?>
+	<?php /* The fourth button in the main menu */ ?>
 				<li><span><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{'Support'} ?></span>
 					<ul>
 						<li><a class="helpOrgLink"><?php echo $translator->{'Help'} ?></a></li>
@@ -70,10 +70,10 @@
 					</ul>
 				</li>
 	
-	<?// Main menu for Administrators ?>
+	<?php /* Main menu for Administrators */ ?>
 				<?php elseif (userLevel() == 2): ?>
 	
-	<?// The first button in the main menu ?>
+	<?php /* The first button in the main menu */ ?>
 				<li><a href="user/accountSettings"><img src="images/icons/icon_logga_in.png" alt=""/><?php echo $translator->{'My profile'} ?></a>
 					<ul>
 						<li><a href="administrator/newReservations"><?php echo $translator->{'New reservations'} ?><?php echo $bookCount; ?></a></li>
@@ -83,17 +83,17 @@
 					</ul>
 				</li>
 	
-	<?// The second button in the main menu ?>
+	<?php /* The second button in the main menu */ ?>
 				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><img src="images/icons/icon_globe.png" alt=""/><?php echo $translator->{'Map tool'} ?></a></li>
 				
-	<?// The third button in the main menu ?>
+	<?php /* The third button in the main menu */ ?>
 				<li><span><img src="images/icons/icon_events.png" alt=""/><?php echo $translator->{'Fairs'} ?></span>
 					<ul>
 						<?php echo $opts ?>
 					</ul>
 				</li>
 				
-	<?// The fourth button in the main menu ?>
+	<?php /* The fourth button in the main menu */ ?>
 				<li><span><img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{'Support'} ?></span>
 					<ul>
 						<li><a class="helpOrgLink"><?php echo $translator->{'Help'} ?></a></li>
@@ -102,10 +102,10 @@
 				</li>
 				
 
-	<?// Main menu for Exhibitors ?>
+	<?php /* Main menu for Exhibitors */ ?>
 				<?php elseif (userLevel() == 1): ?>
 				
-	<?// The first button in the main menu ?>
+	<?php /* The first button in the main menu */ ?>
 				<li><a href="user/accountSettings"><img src="images/icons/icon_logga_in.png" alt=""/><?php echo $translator->{'My profile'} ?></a>
 					<ul>
 						<li><a href="exhibitor/myBookings"><?php echo $translator->{'My bookings'} ?></a></li>
@@ -114,22 +114,22 @@
 					</ul>
 				</li>
 				
-	<?// The second button in the main menu ?>
+	<?php /* The second button in the main menu */ ?>
 				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><img src="images/icons/icon_globe.png" alt=""/><?php echo $translator->{'View map'} ?></a></li>
 				
-	<?// The third button in the main menu ?>
+	<?php /* The third button in the main menu */ ?>
 				<li><span><img src="images/icons/icon_events.png" alt=""/><?php echo $translator->{'Fairs'} ?></span>
 					<ul>
 						<?php echo $opts ?>
 					</ul>
 				</li>
 				
-	<?// The fourth button in the main menu ?>
+	<?php /* The fourth button in the main menu */ ?>
 				<li><a class="helpLink"> <img src="images/icons/icon_help.png" alt=""/><?php echo $translator->{"Here's how"} ?></a></li>
 
 				
 				
-	<?// Main menu for users who are not logged in ?>
+	<?php /* Main menu for users who are not logged in */ ?>
 				<?php else: ?>
 	
 					<?php if (isset($_SESSION['outside_fair_url'])): ?>
