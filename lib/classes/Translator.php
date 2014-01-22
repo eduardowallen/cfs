@@ -13,21 +13,25 @@ class Translator {
 	
 	public function __get($val) {
 		// Om translate == true, så sparas strängar som kan översättas i databasen.
-    global $translate;
-    if ($translate)
-    {
+		global $translate;
+		if ($translate) {
 			global $globalDB;
 			$this->db = $globalDB;
-		
-			$stmt = $this->db->prepare("SELECT `group` FROM language_string ORDER BY `group` DESC LIMIT 0,1");
-			$stmt->execute(array());
-			$res = $stmt->fetch(PDO::FETCH_ASSOC);
-			$nextGroup = $res['group'] + 1;
 
+			// Search for requested string value
 			$stmt = $this->db->prepare("SELECT * FROM language_string WHERE value = ?");
 			$stmt->execute(array($val));
 			$res = $stmt->fetch(PDO::FETCH_ASSOC);
+
+			// If string wasn't found
 			if (!$res) {
+				// Create a new string group by getting the highest current group number and increase
+				$stmt = $this->db->prepare("SELECT MAX(`group`) AS group_max FROM language_string");
+				$stmt->execute(array());
+				$res = $stmt->fetch(PDO::FETCH_ASSOC);
+				$nextGroup = $res['group_max'] + 1;
+
+				// Insert the new string value and group number
 				$stmt = $this->db->prepare("INSERT INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
 				$stmt->execute(array($val, 'en', $nextGroup));
 			}
