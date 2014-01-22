@@ -6,7 +6,12 @@ if( isset($_POST['query']) ){
     
     define('ROOT', implode('/', $parts).'/');
     
-    require_once '../../lib/classes/Translator.php';
+	require_once ROOT.'config/config.php';
+	require_once ROOT.'lib/classes/Database.php';
+    require_once ROOT.'lib/classes/Translator.php';
+
+	$globalDB = new Database;
+	global $globalDB;
     
     $lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
     $tran = new Translator($lang);
