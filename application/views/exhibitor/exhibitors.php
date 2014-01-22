@@ -273,19 +273,19 @@
 	<table class="std_table">
 		<?php if (userLevel() > 2): ?>
 		<tr class="special">
-			<th style="border:0px;"><input type="checkbox" id="expc_posstatus" value="1" checked></input></th>
-			<th><input type="checkbox" id="expc_posname" value="2" checked></input></th>
-			<th><input type="checkbox" id="expc_company" value="3" checked></input></th>
-			<th><input type="checkbox" id="expc_address" value="5" checked></input></th>
-			<th><input type="checkbox" id="expc_commodity" value="6" checked></input></th>
-			<th><input type="checkbox" id="expc_phone1" value="7" checked></input></th>
-			<th><input type="checkbox" id="expc_name" value="8" checked></input></th>
-			<th><input type="checkbox" id="expc_email" value="9" checked></input></th>
-			<th><input type="checkbox" id="expc_website" value="10" checked></input></th>
+			<th style="border:0px;"><input type="checkbox" id="expc_posstatus" value="1" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_posname" value="2" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_company" value="3" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_address" value="5" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_commodity" value="6" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_phone1" value="7" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_name" value="8" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_email" value="9" checked="checked" /></th>
+			<th><input type="checkbox" id="expc_website" value="10" checked="checked" /></th>
 			<th></th>
 			<?php if (userLevel() > 0): ?>
 			<th></th>
-			<th><input type="checkbox" id="markAll" checked></input></th>
+			<th><input type="checkbox" id="markAll" checked="checked" /></th>
 			<?php endif; ?>
 		</tr>
 		<?php endif; ?>
@@ -330,7 +330,7 @@
 				<?php if (userLevel() > 0): ?>
 				<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt=""/></a></td>
 			
-				<td><input type="checkbox" id="exp_row_<?php echo $pos['position']?>" checked></input></td>
+				<td><input type="checkbox" id="exp_row_<?php echo $pos['position']?>" checked="checked" /></td>
 				<?php endif; ?>
 			</tr>
 			<?php endforeach; ?>

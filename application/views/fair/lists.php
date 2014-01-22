@@ -8,9 +8,9 @@
 <p><a class="button" onclick="printExcel()" ><?php echo $print_link; ?></a></p>
 <p><a class="button" href="<?php echo BASE_URL."fair/exportPDF/".$fair->get('id');?>" ><?php echo $print_link; ?></a></p>
 <form>
-<input type="checkbox"> SEK </input>
-<input type="checkbox"> EUR </input>
-<input type="checkbox"> USD </input>
+<input type="checkbox" /> SEK
+<input type="checkbox" /> EUR
+<input type="checkbox" /> USD
 </form>
 <table class="std_table">
 	<thead>

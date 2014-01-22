@@ -227,13 +227,13 @@
 	<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
 			<p style="margin:0; width:100%; float:left;">
-				<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled><?php echo $cat->get('name') ?></input>
+				<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled="disabled" /><?php echo $cat->get('name') ?>
 			</p>
 		<?php endforeach; ?>
 	</div>
 	
 	<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input" disabled/>
+	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input" disabled="disabled" />
 
 	
 	<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
@@ -262,7 +262,7 @@
 	<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
 		<p style="margin:0; width:100%; float:left;">
-			<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled><?php echo $cat->get('name') ?></input>
+			<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled="disabled" /><?php echo $cat->get('name') ?>
 		</p>
 		<?php endforeach; ?>
 	</div>
@@ -290,15 +290,15 @@
 	<div class="tblHeader" id="hbooked">
 		<a onclick="prepareTable('booked')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
-			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked></input></li>
+			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('booked')" checked></input></li>
+			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('booked')" checked="checked" /></li>
 		</ul>
 	</div>
 	<div class="scrolltbl onlyfive">
@@ -337,7 +337,7 @@
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked></input></td>
+					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
@@ -357,16 +357,16 @@
 	<div class="tblHeader" id="hreserved">
 		<a onclick="prepareTable('reserved')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
-			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked></input></li>
+			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('reserved')" checked></input></li>
+			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('reserved')" checked="checked" /></li>
 		</ul>
 	</div>
 	<div class="scrolltbl onlyfive">
@@ -413,7 +413,7 @@
 						<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 					</a>
 				</td>
-				<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked></input></td>
+				<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 			</tr>
 		<?php endforeach; ?>
 		</tbody>
@@ -433,17 +433,17 @@
 	<div class="tblHeader" id="hprem">
 		<a onclick="prepareTable('prem')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
-			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked></input></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked></input></li>
+			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_reserve; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('prem')"  checked></input></li>
+			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('prem')"  checked="checked" /></li>
 		</ul>
 	</div>
 	<div class="scrolltbl onlyfive">
@@ -512,7 +512,7 @@
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked></input></td>
+					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 				</tr>
 				<?php endif?>
 			<?php endforeach;?>
