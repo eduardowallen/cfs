@@ -5,6 +5,7 @@ class Controller {
 	protected $_controller;
 	protected $_action;
 	protected $_template;
+	protected $is_ajax = false;
 
 	function __construct($model, $controller, $action) {
 		
@@ -23,6 +24,11 @@ class Controller {
 
 		global $translator;
 		$this->translate = $translator;
+
+		if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
+			$this->is_ajax = true;
+			$this->setNoTranslate('noView', true);
+		}
 
 	}
 
@@ -50,6 +56,10 @@ class Controller {
 		}
 		$this->_template->set($name, $value);
 
+	}
+
+	protected function createJsonResponse() {
+		$this->_template = new JsonResponse();
 	}
 
 	function __destruct() {
