@@ -344,18 +344,32 @@ class UserController extends Controller {
 					$fair->load($_SESSION['user_fair'], 'id');
 					if ($fair->wasLoaded()) {
 						if (userLevel() > 1) {
-							header("Location: ".BASE_URL.'mapTool/map/'.$fair->get('id'));
+							$redirect_url = BASE_URL.'mapTool/map/'.$fair->get('id');
 						} else {
-							header("Location: ".BASE_URL.$fair->get('url'));
+							$redirect_url = BASE_URL.$fair->get('url');
 						}
 					} else {
-						header("Location: ".BASE_URL."page/loggedin");
+						$redirect_url = BASE_URL."page/loggedin";
+					}
+
+					if ($this->is_ajax) {
+						$this->createJsonResponse();
+						$this->set('redirect', $redirect_url);
+						return;
+					} else {
+						header("Location: " . $redirect_url);
 					}
 				//}
 				exit;
 			} else {
-				header("Location: ".BASE_URL."user/login");
-				$_SESSION['error'] = true;
+				if ($this->is_ajax) {
+					$this->createJsonResponse();
+					$this->set('error', 'Log in failed.');
+					return;
+				} else {
+					header("Location: ".BASE_URL."user/login");
+					$_SESSION['error'] = true;
+				}
 			}
 
 		}

@@ -212,6 +212,7 @@ function makeUserOptions3($sel=0, $fair) {
 		<p class="right"><a href="user/login" id="open_loginform" class="link-button"><?php echo $translator->{'I already have an account'} ?></a></p>
 		<div id="user_login_dialogue">
 			<form action="user/login" method="post">
+				<p class="error"></p>
 				<div><label for="user"><?php echo $translator->{"Username"} ?></label>
 				<input type="text" name="user" id="user"/>
 				<label for="pass"><?php echo $translator->{"Password"} ?></label>
@@ -231,6 +232,8 @@ function makeUserOptions3($sel=0, $fair) {
 	$(document).ready(function() {
 		$('#overlay').show();
 		$('#nouser_dialogue').show();
+
+		ajaxLoginForm($('#user_login_dialogue form'));
 
 		$('#open_loginform').click(function(e) {
 			e.preventDefault();
