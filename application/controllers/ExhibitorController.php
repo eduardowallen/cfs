@@ -221,7 +221,24 @@ class ExhibitorController extends Controller {
 	
 	public function exhibitors($fairId=0) {
 
-		setAuthLevel(0);
+		setAuthLevel(2);
+
+		if (userLevel() == 3) {
+			$fair = new Fair;
+			$fair->load($fairId, 'id');
+			if ($fair->wasLoaded() && $fair->get('created_by') != $_SESSION['user_id']) {
+				toLogin();
+			}
+		}
+
+		if (userLevel() == 2) {
+			$stmt = $this->db->prepare('SELECT * FROM fair_user_relation WHERE user=? AND fair=?');
+			$stmt->execute(array($_SESSION['user_id'], $fairId));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (!$result) {
+				toLogin();
+			}
+		}
 
 		$this->set('headline', 'Exhibitor overview');
 		$this->set('create_link', 'Create new exhibitor');
