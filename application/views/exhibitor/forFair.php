@@ -163,7 +163,7 @@
 						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
 						<td class="center"><?php echo $user->get('fair_count');?></td>
 						<td class="center"><?php echo $user->get('ex_count');?></td>
-						<td><?php echo date('d/m/y', $user->get('last_login'));?></td>
+						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login'));?></td>
 						<td><input type="checkbox" id="<?php echo $user->get('id'); ?>" checked></input></td>
 						<!--<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $translator->{'Edit'} ?>"/></a></td>
 						<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really delete?'} ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>-->
@@ -216,8 +216,8 @@
 				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
 				<td class="center"><?php echo $user->get('fair_count'); ?></td>
 				<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
-				<td><?php echo date('d/m/y', $user->get('last_login')); ?></td>
-				<td><?php if($user->get('connected_time')) echo date('d/m/y', $user->get('connected_time')); else echo 'n/a'; ?></td>
+				<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
+				<td><?php if($user->get('connected_time')) echo date('d-m-Y H:i:s', $user->get('connected_time')); else echo 'n/a'; ?></td>
 				<td class="center"><a href="exhibitor/forFair/copy/<?php echo $user->get('id'); ?>"><img src="images/icons/user_go.png" alt=""/></a></td>
 				<td><input type="checkbox" id="<?php echo $user->get('id'); ?>" checked></input></td>
 			</tr>

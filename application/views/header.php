@@ -202,6 +202,10 @@
 					$stmt = $db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
 					$stmt->execute(array($_SESSION['user_id']));
 					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					$opts = '';
+					foreach ($result as $res) {
+						$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['name'].'</a></li>';
+					}
 				} else if (userLevel() == 4) {
 					echo '<style>
 						#header ul li{background-color:#c7c7c7;}

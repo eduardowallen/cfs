@@ -26,7 +26,7 @@
 			<td class="center"><?php echo $admin['position_count']; ?></td>
 			<td class="center"><?php echo $admin['log_count']; ?></td>
 			<td class="center"><?php echo $admin['fair_count']; ?></td>
-			<td class="center"><?php if ($admin['last_login']) { echo date('d-m-Y', $admin['last_login']); } ?></td>
+			<td class="center"><?php if ($admin['last_login']) { echo date('d-m-Y H:i:s', $admin['last_login']); } ?></td>
 			<td class="center"><?php echo ($admin['locked']) ? $locked_yes : $locked_no; ?></td>
 			<td class="center"><a href="administrator/edit/<?php echo $admin['id']; ?>"><img src="images/icons/pencil.png" alt=""/></a></td>
 			<td class="center"><a href="administrator/delete/<?php echo $admin['id']; ?>/no/mine"><img src="images/icons/delete.png" alt=""/></a></td>

@@ -1713,7 +1713,7 @@ maptool.positionInfo = function(positionObject) {
 maptool.getNotes = function(positionObject){
 	$('#note_dialogue > textarea').text ="";
 	var lblTitle = $('#note_dialogue h3');
-	lblTitle.text('Notes on '+positionObject.name);
+	lblTitle.text(lblTitle.data('text') + positionObject.name);
 	var fairId = maptool.map.fair;
 	var exhibitorId = positionObject.exhibitor.user;
 	var positionId = positionObject.id;
@@ -1732,7 +1732,7 @@ maptool.getNotes = function(positionObject){
 maptool.makeNote = function(positionObject){
 	$('#note_dialogue > button').off('click');
 	var lblTitle = $('#note_dialogue h3');
-	lblTitle.text('Notes on '+positionObject.name);
+	lblTitle.text(lblTitle.data('text') + positionObject.name);
 	$('#note_dialogue > textarea').val = "";
 	var fairId = maptool.map.fair;
 	var exhibitorId = positionObject.exhibitor.user;

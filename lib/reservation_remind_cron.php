@@ -84,7 +84,7 @@ foreach ($expiring_positions as $position) {
 	if (defined('TESTSERV')) {
 		$to = 'example@chartbooker.com';
 	}
-
+#$to = "christoffer@trinax.se";
 	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com');
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
 	$mail->setMailVar('name', $position->user_name);
@@ -92,5 +92,6 @@ foreach ($expiring_positions as $position) {
 	$mail->setMailVar('date_expires', $position->expires);
 	$mail->setMailVar('days_until_expiration', $position->diff);
 	$mail->send();
+#echo "Skickade ett meddelande\n";
 }
 ?>

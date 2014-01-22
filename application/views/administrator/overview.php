@@ -33,9 +33,9 @@
 					<td class="center"><?php echo ($user->get('locked') == 1) ? $status_locked : $status_active; ?></td>
 					<td><?php echo $user->get('name'); ?></td>
 					<td class="center"><?php echo $user->get('spots_created'); ?></td>
-					<td class="center"><?php if ($user->get('last_login')) { echo date('d-m-Y', $user->get('last_login')); } ?></td>
+					<td class="center"><?php if ($user->get('last_login')) { echo date('d-m-Y H:i:s', $user->get('last_login')); } ?></td>
 					<td class="center"><?php echo $user->get('total_logins'); ?></td>
-					<td class="center"><?php echo date('d-m-Y H:i', $user->get('created')); ?></td>
+					<td class="center"><?php echo date('d-m-Y H:i:s', $user->get('created')); ?></td>
 					<td class="center"><a href="administrator/edit/<?php echo $user->get('id').'/'.$thisFair;?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
 					<td class="center"><a href="administrator/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="Delete"/></a></td>
 				</tr>

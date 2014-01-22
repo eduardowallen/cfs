@@ -105,8 +105,8 @@ class PageController extends Controller {
 			$f = new Fair;
 			$f->load($_SESSION['user_fair'], 'id');
 			$_SESSION['fair_windowtitle'] = $f->get('windowtitle');
-			
-			header("Location: ".BASE_URL."page/loggedin");
+			// This decides the link for the event buttons 'opts'
+			header("Location: ".BASE_URL."mapTool/map/" . $f->get('id'));
 			exit;
 		}
 		
