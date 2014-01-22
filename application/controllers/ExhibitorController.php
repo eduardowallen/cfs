@@ -29,7 +29,7 @@ class ExhibitorController extends Controller {
 					$u->set('fair_name', $result['name']);
 					$users[] = $u;
 				}
-				$this->set('users', $users);
+				$this->setNoTranslate('users', $users);
 			}
 		}
 
@@ -91,9 +91,9 @@ class ExhibitorController extends Controller {
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
 		$this->set('th_resend', 'Reset');
-		$this->set('fairs', $fairs);
-		$this->set('', $fairs);
-		$this->set('users', $unique);		
+		$this->setNoTranslate('fairs', $fairs);
+		//$this->set('', $fairs);
+		$this->setNoTranslate('users', $unique);		
 	}
 	
 	public function forFair($param='', $value='') {
@@ -113,11 +113,11 @@ class ExhibitorController extends Controller {
 			$stmt->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			if (!$result) {
-				$this->set('hasRights', false);
+				$this->setNoTranslate('hasRights', false);
 				return;
 			}
 		}
-    $this->set('hasRights', true);
+    $this->setNoTranslate('hasRights', true);
 		
 		if ($param == 'copy') {
 
@@ -210,11 +210,11 @@ class ExhibitorController extends Controller {
 		$this->set('th_connect_time', 'Connected to fair on');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
-		$this->set('fairs', $fairs);
-		$this->set('', $fairs);
-		$this->set('users', $exhibitors);
-		$this->set('connected', $connected);
-		$this->set('canceled', $canceled);
+		$this->setNoTranslate('fairs', $fairs);
+		//$this->set('', $fairs);
+		$this->setNoTranslate('users', $exhibitors);
+		$this->setNoTranslate('connected', $connected);
+		$this->setNoTranslate('canceled', $canceled);
 		$this->set('th_copy', 'Copy to map');
 		$this->set('export', 'Export to Excel');
 	}
@@ -254,21 +254,21 @@ class ExhibitorController extends Controller {
 		$this->set('th_view', 'View');
 		$this->set('th_profile', 'Details');
 		$this->set('export_button', 'Export as excel');
-		$this->set('fairId', $fairId);
+		$this->setNoTranslate('fairId', $fairId);
 		$this->set('col_export_err', 'Select at least one column in order to export!');
 		$this->set('row_export_err', 'Select at least one row in order to export!');
 		$sql = 'SELECT user.*, exhibitor.position AS position, exhibitor.fair AS fair, exhibitor.commodity AS excommodity, pos.name AS posname, pos.status AS posstatus, pos.map AS posmap FROM exhibitor, user, fair_map_position AS pos WHERE exhibitor.fair = ? AND exhibitor.position = pos.id AND exhibitor.user = user.id';
 		$stmt = $this->db->prepare($sql);
 		$stmt->execute(array($fairId));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$this->set('exhibitors', $result);
+		$this->setNoTranslate('exhibitors', $result);
 
 	}
 	
 	public function exportForFair($tbl, $cols, $rows){
 		setAuthLevel(2);
 
-		$this->set('noView', true);
+		$this->setNoTranslate('noView', true);
 
 		$cols = explode('|', $cols);
 		$rows = explode('|', $rows);
@@ -434,7 +434,7 @@ class ExhibitorController extends Controller {
 		$rows = explode(";", $selectedRows);
 		
 		setAuthLevel(3);
-		$this->set('noView', true);
+		$this->setNoTranslate('noView', true);
 		
 		$fair = new Fair;
 		
@@ -566,7 +566,7 @@ class ExhibitorController extends Controller {
 		$rows = explode(";", $_POST['rows']);
 		
 		setAuthLevel(3);
-		$this->set('noView', true);
+		$this->setNoTranslate('noView', true);
 		
 		$fair = new Fair;
 		
@@ -773,10 +773,10 @@ class ExhibitorController extends Controller {
 
 		$this->set('error', $error);
 		$this->setNoTranslate('fair_url', $fairUrl);
-		$this->set('user', $this->User);
+		$this->setNoTranslate('user', $this->User);
 		$fair = new Fair($this->User->db);
 		$fair->load($_SESSION['outside_fair_url'], 'url');
-		$this->set('fair', $fair);
+		$this->setNoTranslate('fair', $fair);
 		
 		$this->set('alias_label', 'Username');
 		$this->set('company_section', 'Company');
@@ -870,8 +870,8 @@ class ExhibitorController extends Controller {
 		}
 		*/
     
-		$this->set('user', $u);
-		$this->set('positions', $positions);
+		$this->setNoTranslate('user', $u);
+		$this->setNoTranslate('positions', $positions);
 		$this->set('headline', 'Exhibitor profile');
 
 		$this->set('company_section', 'Company');
@@ -971,9 +971,9 @@ class ExhibitorController extends Controller {
 			$prelpos[] = $pos;
 		}
 
-		$this->set('positions', $positions);
-		$this->set('rpositions', $rpositions);
-		$this->set('prelpos', $prelpos);
+		$this->setNoTranslate('positions', $positions);
+		$this->setNoTranslate('rpositions', $rpositions);
+		$this->setNoTranslate('prelpos', $prelpos);
 
 		$this->set('prel_table', 'Preliminary bookings');
 		$this->set('tr_fair', 'Fair');
@@ -994,8 +994,8 @@ class ExhibitorController extends Controller {
 		$this->set('headline', 'Edit exhibitor');
 		$this->set('cat_label', 'Category');
 		$this->set('save_label', 'Save');
-		$this->set('fairId', $fair);
-		$this->set('userId', $id);
+		$this->setNoTranslate('fairId', $fair);
+		$this->setNoTranslate('userId', $id);
 
 		if (isset($_POST['save'])) {
 			$stmt = $this->Exhibitor->db->prepare("UPDATE exhibitor SET category = ? WHERE id = ?");
@@ -1006,7 +1006,7 @@ class ExhibitorController extends Controller {
 		$u->load($id, 'id');
 
 		$opts = makeOptions($this->Exhibitor->db, 'exhibitor_category', $u->get('category'), 'fair='.$fair);
-		$this->set('cat_options', $opts);
+		$this->setNoTranslate('cat_options', $opts);
 
 
 	}
@@ -1058,7 +1058,7 @@ class ExhibitorController extends Controller {
 
 	function saveCustomerId($id, $customerId){
 		setAuthLevel(3);
-		$this->set('noView', true);
+		$this->setNoTranslate('noView', true);
 		$user = new User;
 		$user->load($id, 'id');
 

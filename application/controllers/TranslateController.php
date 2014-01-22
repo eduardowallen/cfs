@@ -53,8 +53,8 @@ class TranslateController extends Controller {
 			$strings[$str['group']][$str['lang']] = $str['value'];
 		}
 		
-		$this->set('langs', $langs);
-		$this->set('strings', $strings);
+		$this->setNoTranslate('langs', $langs);
+		$this->setNoTranslate('strings', $strings);
 		$this->set('save_label', 'Save');
 		
 	}

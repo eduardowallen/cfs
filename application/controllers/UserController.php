@@ -52,7 +52,7 @@ class UserController extends Controller {
 				$u->load($result['id'], 'id');
 				$users[] = $u;
 			}
-			$this->set('users', $users);
+			$this->setNoTranslate('users', $users);
 			$this->setNoTranslate('createLinkType', $createLinkType);
 		}
 
@@ -91,7 +91,7 @@ class UserController extends Controller {
       
 				$this->set('user_message', 'The user does not exist.');
 				$halt = true;
-				$this->set('error', true);
+				$this->setNoTranslate('error', true);
 			}
 		}
     
@@ -110,14 +110,14 @@ class UserController extends Controller {
         
           $this->set('user_message', 'The email address already exists in our system. Please choose another one.');
           $halt = true;
-          $this->set('error', true);
+          $this->setNoTranslate('error', true);
         }
           
         if ($this->User->aliasExists()) {
         
           $this->set('user_message', 'The alias already exists in our system. Please choose another one.');
           $halt = true;
-          $this->set('error', true);
+          $this->setNoTranslate('error', true);
         }
       
       } else if ($this->User->wasLoaded()) {
@@ -129,7 +129,7 @@ class UserController extends Controller {
           
             $this->set('user_message', 'The email address already exists in our system. Please choose another one.');
             $halt = true;
-            $this->set('error', true);
+            $this->setNoTranslate('error', true);
           }
         }
       }
@@ -205,7 +205,7 @@ class UserController extends Controller {
         
           // Succsess
           $this->setNoTranslate('js_confirm', true);
-          $this->set('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
+          $this->setNoTranslate('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
           
         }else{
         
@@ -226,7 +226,7 @@ class UserController extends Controller {
 
     $this->setNoTranslate('edit_id', $id);
     $this->setNoTranslate('edit_level', $level);
-    $this->set('user', $this->User);
+    $this->setNoTranslate('user', $this->User);
 	}
 
 	function logout() {
@@ -261,27 +261,27 @@ class UserController extends Controller {
 			 header("Location: ".BASE_URL."page/loggedin"); 
 		endif;
 
-		$this->set('error', '');
+		$this->setNoTranslate('error', '');
 		$this->setNoTranslate('fair_url', $fUrl);
     
 		if( $status !== null){
-			$this->set('first_time_msg', $translator->{'An email has been sent to the specified email addresses that were entered into during the registration prossesen'});
+			$this->setNoTranslate('first_time_msg', $translator->{'An email has been sent to the specified email addresses that were entered into during the registration prossesen'});
 		}
 		
 		if( $fUrl == 'confirmed'){
-			$this->set('confirmed_msg', $translator->{'Your account has been activated. Please log in to proceed.'});
+			$this->setNoTranslate('confirmed_msg', $translator->{'Your account has been activated. Please log in to proceed.'});
 		}
     elseif( $fUrl == 'alreadyactivated' ) {
-      $this->set('confirmed_msg', $translator->{'Your account has already been activated.'});
+      $this->setNoTranslate('confirmed_msg', $translator->{'Your account has already been activated.'});
     }
 
 		if( $fUrl == 'ok') :
 			$this->set('good', 'yes');
-			$this->set('res_msg', $translator->{'A new password has been sent to '}.$_SESSION['m']);
+			$this->setNoTranslate('res_msg', $translator->{'A new password has been sent to '}.$_SESSION['m']);
 			$_SESSION['m'] = "";
 		elseif($fUrl == 'err') :
 			$this->set('good', 'no');
-			$this->set('res_msg', $translator->{'E-mail address or Username not found.'});
+			$this->setNoTranslate('res_msg', $translator->{'E-mail address or Username not found.'});
 		endif;
 		
 		if(!empty($_SESSION['error'])) :
@@ -376,12 +376,12 @@ class UserController extends Controller {
 
 
 
-		$this->set('headline', $translator->{'Log in'});
-		$this->set('user_name', $translator->{'Username'});
+		$this->setNoTranslate('headline', $translator->{'Log in'});
+		$this->setNoTranslate('user_name', $translator->{'Username'});
 		
-		$this->set('password', $translator->{'Password'});
-		$this->set('button', $translator->{'Log in'});
-		$this->set('forgotlink', $translator->{'Forgot your password or Username?'});
+		$this->setNoTranslate('password', $translator->{'Password'});
+		$this->setNoTranslate('button', $translator->{'Log in'});
+		$this->setNoTranslate('forgotlink', $translator->{'Forgot your password or Username?'});
 
 	}
 
@@ -397,8 +397,8 @@ class UserController extends Controller {
 		require_once ROOT.'application/models/ExhibitorCategory.php';
 
 		$this->set('headline', 'Change your password');
-		$this->set('error', '');
-		$this->set('ok', '');
+		$this->setNoTranslate('error', '');
+		$this->setNoTranslate('ok', '');
 		$this->set('password_label', 'New password');
 		$this->set('password_repeat_label', 'Confirm new password');
 		$this->set('password_old_label', 'Current password');
@@ -440,8 +440,8 @@ class UserController extends Controller {
 
 	function resetPassword($action='', $param1='', $param2='', $param3='') {
 
-		$this->set('error', '');
-		$this->set('ok', '');
+		$this->setNoTranslate('error', '');
+		$this->setNoTranslate('ok', '');
 		if ($action == 'confirm') {
 			$this->User->load($param1, 'id');
 			if ($this->User->wasLoaded()) {
@@ -524,7 +524,7 @@ class UserController extends Controller {
         $mail->send();
 				$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
 			} else {
-				$this->set('error', true);
+				$this->setNoTranslate('error', true);
 				$this->set('usermessage', 'Sorry, we do not recognize that e-mail address.');
 			}
 		}
@@ -590,7 +590,7 @@ class UserController extends Controller {
 		$this->setNoTranslate('locked0sel', '');
 
 		$this->setNoTranslate('edit_id', $_SESSION['user_id']);
-		$this->set('user', $this->User);
+		$this->setNoTranslate('user', $this->User);
 	}
 
 	function register($fairUrl='') {
@@ -679,7 +679,7 @@ class UserController extends Controller {
 							}
 						}
             
-            $this->set('noView', true);
+            $this->setNoTranslate('noView', true);
 						header('Location: '.BASE_URL.'user/login/'.$fairUrl.'/new');
             exit;
             
@@ -697,10 +697,10 @@ class UserController extends Controller {
 
 		$this->set('error', $error);
 		$this->setNoTranslate('fair_url', $fairUrl);
-		$this->set('user', $this->User);
+		$this->setNoTranslate('user', $this->User);
 		$fair = new Fair($this->User->db);
 		$fair->load($_SESSION['outside_fair_url'], 'url');
-		$this->set('fair', $fair);
+		$this->setNoTranslate('fair', $fair);
 	}
 
 	function confirm($user, $hash) {
@@ -735,20 +735,20 @@ class UserController extends Controller {
         $_SESSION['user_fair'] = $result['fair'];
         $_SESSION['fair_windowtitle'] = $result['windowtitle'];
         
-        $this->set('noView', true);
+        $this->setNoTranslate('noView', true);
         
         header("Location: ".BASE_URL."page/loggedin");
 				exit;
         
 			} else if( $hash == $userHash ) {
       
-        $this->set('noView', true);
+        $this->setNoTranslate('noView', true);
 				header('Location: '.BASE_URL.'user/login/alreadyactivated');
 				exit;
 				//echo $hash.'<br/>'.$userHash;
 			}
       
-      $this->set('noView', true);
+      $this->setNoTranslate('noView', true);
       header('Location: '.BASE_URL.'user/login/');
       exit;
 

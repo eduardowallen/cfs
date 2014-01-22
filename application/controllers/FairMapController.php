@@ -54,7 +54,7 @@ class FairMapController extends Controller {
 		}
 
 		$this->set('headline', 'Create map');
-		$this->set('fair', $fair);
+		$this->setNoTranslate('fair', $fair);
 		$this->set('name_label', 'Name');
 		$this->set('save_label', 'Save');
 		$this->set('image_label', 'Image');
@@ -118,9 +118,9 @@ class FairMapController extends Controller {
 		$this->FairMap->load($map_id, 'id');
 		
 		$this->set('headline', 'Edit map');
-		$this->set('map_id', $map_id);
-		$this->set('mo', $this->FairMap);
-		$this->set('fair_id', $fair_id);
+		$this->setNoTranslate('map_id', $map_id);
+		$this->setNoTranslate('mo', $this->FairMap);
+		$this->setNoTranslate('fair_id', $fair_id);
 		$this->set('name_label', 'Name');
 		$this->set('save_label', 'Save');
 		$this->set('image_label', 'Image');

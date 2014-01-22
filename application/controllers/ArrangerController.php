@@ -55,8 +55,8 @@ class ArrangerController extends Controller {
 
 				$users[] = $u;
 			}
-			$this->set('spots', $spots);
-			$this->set('users', $users);
+			$this->setNoTranslate('spots', $spots);
+			$this->setNoTranslate('users', $users);
 		}
 
 	}
@@ -64,9 +64,9 @@ class ArrangerController extends Controller {
 	function info($id) {
 		setAuthLevel(4);
 
-		$this->set('user_id', $id);
+		$this->setNoTranslate('user_id', $id);
 		$this->Arranger->load($id, 'id');
-		$this->set('user', $this->Arranger);
+		$this->setNoTranslate('user', $this->Arranger);
 
 		$sql = "SELECT fair.id, fair.name, fair.approved, fair.url, fair.page_views, fair.creation_time, fair.closing_time,fair.auto_publish, fair.auto_close,
 SUM(IF(fmp.status=0, 1, 0)) AS free_spaces, SUM(IF(fmp.status>0, 1, 0)) AS occupied_spaces
@@ -94,10 +94,10 @@ ORDER BY creation_time DESC";
 				$num_events++;
 			}
 		}
-		$this->set('fairs', $fairs);
-		$this->set('total_booked', $sum_booked);
-		$this->set('total_free', $sum_free);
-		$this->set('num_events', $num_events);
+		$this->setNoTranslate('fairs', $fairs);
+		$this->setNoTranslate('total_booked', $sum_booked);
+		$this->setNoTranslate('total_free', $sum_free);
+		$this->setNoTranslate('num_events', $num_events);
 
 		$labels = array('header' => 'Profile for', 'customer_nr' => 'Customer no.', 'company' => 'Company', 'num_events' => 'Number of events', 'total_booked' => 'Total booked places',
 			'last_login' => 'Last login', 'name' => 'Contact person', 'orgnr' => 'Organization number', 'zipcode' => 'Zip/Postal Code', 'city' => 'City', 'country' => 'Country', 'phone1' => 'Phone 1',
@@ -106,9 +106,9 @@ ORDER BY creation_time DESC";
 			'fair_creation_time' => 'Creation time', 'fair_closing_time' => 'Lock time',
 			'total_free' => 'Total free places', 'alias'=>'Username');
 		foreach ($labels as $key => $value) {
-			$this->set('label_' . $key, $value);// do this to make it add a field to the translation list, adding only the array does not make it show up in translation.
+			$this->setNoTranslate('label_' . $key, $value);// do this to make it add a field to the translation list, adding only the array does not make it show up in translation.
 		}
-		$this->set('labels', $labels);
+		$this->setNoTranslate('labels', $labels);
 		$this->set('approved_active', 'Active');
 		$this->set('approved_inactive', 'Inactive');
 		$this->set('approved_locked', 'Locked');
@@ -141,7 +141,7 @@ ORDER BY creation_time DESC";
 
 			if ($this->Arranger->emailExists()) {
 				$this->set('user_message', 'The email address already exists in our system.');
-				$this->set('error', true);
+				$this->setNoTranslate('error', true);
 			} else {
 				$iid = $this->Arranger->save();
 			}
@@ -150,7 +150,7 @@ ORDER BY creation_time DESC";
 		$this->setNoTranslate('locked0sel', '');
 
 		$this->setNoTranslate('edit_id', $_SESSION['user_id']);
-		$this->set('user', $this->Arranger);
+		$this->setNoTranslate('user', $this->Arranger);
 
 		$this->set('alias_label', 'Username');
 		$this->set('company_label', 'Company');
@@ -195,7 +195,7 @@ ORDER BY creation_time DESC";
     $this->setNoTranslate('locked0sel', '');
 
     $this->setNoTranslate('edit_id', $id);
-    $this->set('user', $this->Arranger);
+    $this->setNoTranslate('user', $this->Arranger);
     
     $sql = "SELECT fair.id, fair.name, fair.max_positions, fair.approved, fair.url, fair.page_views, fair.creation_time, fair.closing_time,fair.auto_publish, fair.auto_close,
 SUM(IF(fmp.status=0, 1, 0)) AS free_spaces, SUM(IF(fmp.status>0, 1, 0)) AS occupied_spaces
@@ -223,10 +223,10 @@ ORDER BY creation_time DESC";
         $num_events++;
       }
     }
-    $this->set('fairs', $fairs);
-    $this->set('total_booked', $sum_booked);
-    $this->set('total_free', $sum_free);
-    $this->set('num_events', $num_events);
+    $this->setNoTranslate('fairs', $fairs);
+    $this->setNoTranslate('total_booked', $sum_booked);
+    $this->setNoTranslate('total_free', $sum_free);
+    $this->setNoTranslate('num_events', $num_events);
 
     if (isset($_POST['save'])) {
       
@@ -272,13 +272,13 @@ ORDER BY creation_time DESC";
         
         if ($this->Arranger->aliasExists()) {
           $this->set('user_message', 'The username already exists in our system.');
-          $this->set('error', true);
+          $this->setNoTranslate('error', true);
           return;
         }
 
         if ($this->Arranger->emailExists()) {
           $this->set('user_message', 'The email address already exists in our system.');
-          $this->set('error', true);
+          $this->setNoTranslate('error', true);
           return;
         }
 
@@ -305,7 +305,7 @@ ORDER BY creation_time DESC";
       } else {
         if ($this->Arranger->get('email') != $_POST['email'] && $this->Arranger->emailExists($_POST['email'])) {
           $this->set('user_message', 'The email address already exists in our system.');
-          $this->set('error', true);
+          $this->setNoTranslate('error', true);
           return;
         }
       }

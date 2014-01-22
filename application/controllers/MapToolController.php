@@ -15,28 +15,28 @@ class MapToolController extends Controller {
 		}
 		//contextmenu
 		
-		$this->set('accessible_maps', array());
+		$this->setNoTranslate('accessible_maps', array());
 		if( userLevel() == 2 ){
 			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
 			$prep = $this->db->prepare($sql);
 			$prep->execute(array($_SESSION['user_id'], $fairId));
 			$result = $prep->fetch();
-			$this->set('accessible_maps', explode('|', $result['map_access']));
+			$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
 			if(!$result)
-				$this->set('hasRights', false);
+				$this->setNoTranslate('hasRights', false);
 			else
-				$this->set('hasRights', true);
+				$this->setNoTranslate('hasRights', true);
 		}elseif( userLevel()  == 3 ){
 			$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
 			$prep = $this->db->prepare($sql);
 			$prep->execute(array($_SESSION['user_id'], $fairId));
 			$result = $prep->fetchAll();
 			if(!$result)
-				$this->set('hasRights', false);
+				$this->setNoTranslate('hasRights', false);
 			else
-				$this->set('hasRights', true);
+				$this->setNoTranslate('hasRights', true);
 		} else {
-			$this->set('hasRights', true);
+			$this->setNoTranslate('hasRights', true);
 		}
 
 		$fair = new Fair;
@@ -54,13 +54,13 @@ class MapToolController extends Controller {
 				$_SESSION['user_fair'] = $fair->get('id');
 				$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
 				
-				$this->set('fair', $fair);
+				$this->setNoTranslate('fair', $fair);
 				$this->set('connect', 'Connect to fair');
 				$this->set('create_position', 'New stand space');
 				$this->set('opening_time', 'Opening time');
 				$this->set('closing_time', 'Closing time');
-				$this->set('notfound', false);
-				$this->set('fair_url', $fair->get('url'));
+				$this->setNoTranslate('notfound', false);
+				$this->setNoTranslate('fair_url', $fair->get('url'));
 				($position === null || $position == 'none') ?  $this->set('position', '\'false\'') : $this->set('position', $position) ;
 				($map === null ) ?  $this->set('myMap', '\'false\'') : $this->set('myMap', (int)$map) ;
 				
@@ -81,10 +81,10 @@ class MapToolController extends Controller {
 				}*/
 				
 			} else {
-				$this->set('notfound', true);
+				$this->setNoTranslate('notfound', true);
 			}
 		} else {
-			$this->set('notfound', true);
+			$this->setNoTranslate('notfound', true);
 		}
 
 

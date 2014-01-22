@@ -19,7 +19,7 @@ class FairController extends Controller {
 		$this->set('th_created', 'Created');
 		$this->set('th_total', 'Stand spaces');
 		$this->set('th_booked', 'Booked spots');
-		$this->set('th_reserved', 'reserved');
+		$this->set('th_reserved', 'Reserved');
 		$this->set('th_available', 'Available spots');
 		$this->set('th_arranger_name', 'Organizer');
 		$this->set('th_arranger_cnr', 'Customer nr');
@@ -105,7 +105,7 @@ class FairController extends Controller {
 				$f->set('arranger_cnr', $arr->get('customer_nr'));
 				$fairs[] = $f;
 			}
-			$this->set('fairs', $fairs);
+			$this->setNoTranslate('fairs', $fairs);
 		}
 
 	}
@@ -135,7 +135,7 @@ class FairController extends Controller {
 				$this->set('form_headline', 'New category');
 			
 			$this->set('headline', 'Exhibitor categories');
-			$this->set('fair_id', $this->Fair->get('id'));
+			$this->setNoTranslate('fair_id', $this->Fair->get('id'));
 			$this->set('name_label', 'Name');
 			$this->set('save_label', 'Save');
 
@@ -160,7 +160,7 @@ class FairController extends Controller {
 				
 			}
 			$this->Fair->load($fairId, 'id');
-			$this->set('categories', $this->Fair->get('categories'));
+			$this->setNoTranslate('categories', $this->Fair->get('categories'));
 
 		}
 
@@ -267,7 +267,7 @@ class FairController extends Controller {
 			}
 
 			$this->setNoTranslate('edit_id', $id);
-			$this->set('fair', $this->Fair);
+			$this->setNoTranslate('fair', $this->Fair);
 
 			if ($this->Fair->get('approved') == 0) {
 				$this->setNoTranslate('app_sel0', ' selected="selected"');
@@ -476,7 +476,7 @@ class FairController extends Controller {
 			}
 
 			$this->setNoTranslate('edit_id', $id);
-			$this->set('fair', $this->Fair);
+			$this->setNoTranslate('fair', $this->Fair);
 
 			$this->set('name_label', 'Name');
 			$this->set('window_title_label', 'Window title');
@@ -492,7 +492,7 @@ class FairController extends Controller {
 	public function publicView($url) {
 
 		$this->Fair->load($url, 'url');
-		$this->set('fair', $this->Fair);
+		$this->setNoTranslate('fair', $this->Fair);
 
 	}
 
@@ -516,7 +516,7 @@ class FairController extends Controller {
 			$this->set('th_view', 'View');
 			$this->set('th_edit', 'Edit');
 			$this->set('th_delete', 'Delete');
-			$this->set('fair', $this->Fair);
+			$this->setNoTranslate('fair', $this->Fair);
 
 		}
 	}

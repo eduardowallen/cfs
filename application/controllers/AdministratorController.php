@@ -26,7 +26,7 @@ class AdministratorController extends Controller {
 
 		$this->set('headline', 'Administrator overview');
 		$this->set('create_link', 'Create new administrator');
-		$this->set('fair', $fair);
+		$this->setNoTranslate('fair', $fair);
 
 		$this->set('th_user', 'User');
 		$this->set('status_locked', 'Locked');
@@ -61,7 +61,7 @@ class AdministratorController extends Controller {
 					}
 				}
 			}
-			$this->set('users', $users);
+			$this->setNoTranslate('users', $users);
 		}
 
 	}
@@ -96,7 +96,7 @@ class AdministratorController extends Controller {
 
 		$fair = new Fair;
 		$fair->load($_SESSION['user_fair'], 'id');
-		$this->set('fair', $fair);
+		$this->setNoTranslate('fair', $fair);
 
 	}
 
@@ -148,7 +148,7 @@ class AdministratorController extends Controller {
 				$str = substr(implode('', $arr), 0, 10);
 				$fair = new Fair;
 				$fair->load($_POST['fair'], 'id');
-				$this->set('d', $fair->get('url'));
+				$this->setNoTranslate('d', $fair->get('url'));
 				//$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$fair->get('url')."\r\n\r\nUsername: ".$_POST['username']."\r\nPassword: ".$str;
 				$user->setPassword($str);
 				$userId = $user->save();
@@ -180,10 +180,10 @@ class AdministratorController extends Controller {
 			$fair->load($fId, 'id');
 			$fairs[] = $fair;
 		}
-		$this->set('fairs', $fairs);
+		$this->setNoTranslate('fairs', $fairs);
 
-		$this->set('error', $error);
-		$this->set('user', $user);
+		$this->setNoTranslate('error', $error);
+		$this->setNoTranslate('user', $user);
 		
 		//$this->set('category_label', 'Category');
 		//$this->set('customer_nr_label', 'Customer number');
@@ -230,7 +230,7 @@ class AdministratorController extends Controller {
 	public function exportNewReservations($tbl, $cols, $rows){
 		setAuthLevel(2);
 
-		$this->set('noView', true);
+		$this->setNoTranslate('noView', true);
 		$cols = explode('|', $cols);
 		$rows = explode('|', $rows);
 		
@@ -362,7 +362,7 @@ class AdministratorController extends Controller {
   public function reservationsChangeFair($fairId=0)
   {
     $_SESSION['user_fair'] = $fairId;
-		$this->set('noView', true);
+		$this->setNoTranslate('noView', true);
     header("Location: ".BASE_URL."administrator/newReservations");
   }
 
@@ -373,26 +373,26 @@ class AdministratorController extends Controller {
 		$fair = new Fair;
 		$fair->load($_SESSION['user_fair'], 'id');
 
-		$this->set('fair', $fair);
+		$this->setNoTranslate('fair', $fair);
 		
 		if( userLevel() == 2 ){
 			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
 			$prep = $this->db->prepare($sql);
 			$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
 			$result = $prep->fetch(PDO::FETCH_ASSOC);
-			$this->set('accessible_maps', explode('|', $result['map_access']));
+			$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
 			if(!$result) {
-				$this->set('hasRights', false);
+				$this->setNoTranslate('hasRights', false);
         $hasRights = false;
 			} else {
-				$this->set('hasRights', true);
+				$this->setNoTranslate('hasRights', true);
         $hasRights = true;
 			}
       
       // Get all available fairs
 			$stmt = $this->db->prepare("SELECT id, name FROM fair_user_relation AS fur LEFT JOIN fair ON fur.fair = fair.id WHERE user = ?");
       $stmt->execute(array($_SESSION['user_id']));
-			$this->set('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
+			$this->setNoTranslate('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
       
 		} elseif( userLevel()  == 3 ) {
     
@@ -401,23 +401,23 @@ class AdministratorController extends Controller {
 			$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
 			$result = $prep->fetchAll();
 			if(!$result) {
-				$this->set('hasRights', false);
+				$this->setNoTranslate('hasRights', false);
         $hasRights = false;
 			} else {
-				$this->set('hasRights', true);
+				$this->setNoTranslate('hasRights', true);
         $hasRights = true;
       }
       
       // Get all available fairs
 			$stmt = $this->db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
       $stmt->execute(array($_SESSION['user_id']));
-			$this->set('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
+			$this->setNoTranslate('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
       
 		} else {
     
-			$this->set('hasRights', true);
+			$this->setNoTranslate('hasRights', true);
       $hasRights = true;
-			$this->set('accessible_maps', array());
+			$this->setNoTranslate('accessible_maps', array());
 		}
     if(!$hasRights)
       return;
@@ -725,8 +725,8 @@ WHERE user.owner = ? AND user.level = ?");
     
       $arr = new Arranger;
       $arr->load($_SESSION['user_id'], 'id');
-      $this->set('arranger', $arr);
-      $this->set('fairs', $arr->get('fairs'));
+      $this->setNoTranslate('arranger', $arr);
+      $this->setNoTranslate('fairs', $arr->get('fairs'));
       
     } else {
     
@@ -742,7 +742,7 @@ WHERE user.owner = ? AND user.level = ?");
         $fairs[] = $f;
       }
       
-      $this->set('fairs', $fairs);
+      $this->setNoTranslate('fairs', $fairs);
     }
 
     if ($id != 'new') {
@@ -826,7 +826,7 @@ WHERE user.owner = ? AND user.level = ?");
             $this->set('user_message', 'The alias already exists in our system. Please choose another one.');
           }
           
-          $this->set('error', true);
+          $this->setNoTranslate('error', true);
         }
         
         //if ($id == 'new') {
@@ -841,7 +841,7 @@ WHERE user.owner = ? AND user.level = ?");
         //header("Location: ".BASE_URL."administrator/mine");
         
         $this->set('user_message', 'The email address already exists in our system. Please choose another one.');
-        $this->set('error', true);
+        $this->setNoTranslate('error', true);
 
       }
       
@@ -852,9 +852,9 @@ WHERE user.owner = ? AND user.level = ?");
     $this->setNoTranslate('locked0sel', '');
     
     $this->setNoTranslate('edit_id', $id);
-    $this->set('user', $this->Administrator);
-    $this->set('user_maps', $this->Administrator->get('maps'));
-    $this->set('user_fairs', $this->Administrator->get('fairs'));
+    $this->setNoTranslate('user', $this->Administrator);
+    $this->setNoTranslate('user_maps', $this->Administrator->get('maps'));
+    $this->setNoTranslate('user_fairs', $this->Administrator->get('fairs'));
 	}
 
 	public function deleteBooking($id = 0, $posId = 0) {

@@ -41,8 +41,8 @@ class PageController extends Controller {
 			$stmt->execute(array());
 			$pages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
-			$this->set('langs', $langs);
-			$this->set('pages', $pages);
+			$this->setNoTranslate('langs', $langs);
+			$this->setNoTranslate('pages', $pages);
 			
 		}
 		
