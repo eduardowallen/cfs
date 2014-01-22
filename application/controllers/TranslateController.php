@@ -17,17 +17,17 @@ class TranslateController extends Controller {
 		if (isset($_POST['save'])) {
 			
 			$json = array();
+			$delete_stmt = $this->db->prepare("DELETE FROM language_string WHERE `group` = ? AND lang != 'en'");
 			
 			foreach ($_POST['string'] as $group=>$lang) {
 				
-				$stmt = $this->db->prepare("DELETE FROM language_string WHERE `group` = ? AND lang != ?");
-				$stmt->execute(array($group, 'en'));
-
+				$delete_stmt->execute(array($group));
+				
+				$insert_stmt = $this->db->prepare("INSERT INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
 				foreach ($lang as $langId=>$str) {
-					if ($str != '') {
+					if ($str != '' && $langId != 'en') {
 						$json[$langId][$_POST['string'][$group]['en']] = $str;
-						$stmt = $this->db->prepare("INSERT INTO language_string (`value`, `lang`, `group`) VALUES (?, ?, ?)");
-						$stmt->execute(array($str, $langId, $group));
+						$insert_stmt->execute(array($str, $langId, $group));
 					}
 				}
 			}
