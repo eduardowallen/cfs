@@ -14,7 +14,7 @@ class Translator {
 	public function __get($val) {
 		// Om translate == true, så sparas strängar som kan översättas i databasen.
     global $translate;
-    if( $translate == false)
+    if ($translate)
     {
 			global $globalDB;
 			$this->db = $globalDB;
