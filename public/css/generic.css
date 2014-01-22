@@ -58,6 +58,25 @@ a:hover {
 	cursor:pointer;
 }
 
+#nouser_dialogue {
+	margin-left: -380px;
+	width: 760px;
+	min-height: 210px;
+}
+
+#nouser_dialogue .panel {
+	width: 49%;
+}
+
+#nouser_dialogue .link-button {
+	padding: 50px 0;
+	width: 370px;
+	font-size: 16px;
+}
+
+#user_login_dialogue {
+	display: none;
+}
 
 .ui-icon-circle-triangle-e{
 	background-image:url('../images/icons/pan_right.png') !important;

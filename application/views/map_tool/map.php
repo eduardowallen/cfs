@@ -204,6 +204,50 @@ function makeUserOptions3($sel=0, $fair) {
 	});
 </script>
 
+<?php if (!isset($_SESSION['user_level']) && (!isset($_SESSION['visitor']) || !$_SESSION['visitor'])): ?>
+<div id="nouser_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>
+
+	<div class="clear floatleft panel">
+		<p class="right"><a href="user/login" id="open_loginform" class="link-button"><?php echo $translator->{'I already have an account'} ?></a></p>
+		<div id="user_login_dialogue">
+			<form action="user/login" method="post">
+				<div><label for="user"><?php echo $translator->{"Username"} ?></label>
+				<input type="text" name="user" id="user"/>
+				<label for="pass"><?php echo $translator->{"Password"} ?></label>
+				<input type="password" name="pass" id="pass"/>
+				<p><a href="user/resetPassword"><?php echo $translator->{"Forgot your password?"} ?></a></p>
+				<p><input type="submit" name="login" value="<?php echo $translator->{"Log in"} ?>"/></p></div>
+			</form>
+		</div>
+	</div>
+	<div class="floatright panel">
+		<p><a href="user/register" class="link-button registerlink"><?php echo $translator->{'Register new account'} ?></a></p>
+		<p></p>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function() {
+		$('#overlay').show();
+		$('#nouser_dialogue').show();
+
+		$('#open_loginform').click(function(e) {
+			e.preventDefault();
+			$('#user_login_dialogue').show();
+		});
+
+		$('.registerlink').click(function(e) {
+			$(".closeDialogue").click(function() {
+				if ($('#nouser_dialogue:visible').length) {
+					$("#overlay").show();
+				}
+			});
+		});
+	});
+</script>
+<?php endif; ?>
+
 <!--<p id="zoomcontrols">
 	<a href="javascript:void(0)" class="button fullscreen" id="full"><?php echo $translator->{'View full screen'} ?></a>
 	<a href="javascript:void(0)" class="button zoomin" id="in"><?php echo $translator->{'Zoom in'} ?></a>
