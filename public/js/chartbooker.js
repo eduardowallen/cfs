@@ -162,7 +162,7 @@ $(document).ready(function() {
 				 + 		'<input type="text" name="user" id="user"/>'
 				 + 		'<label for="pass">' + lang.login_password + '</label>'
 				 + 		'<input type="password" name="pass" id="pass"/>'
-				 +		'<p style="width:101% !important;"><a href="user/resetPassword/backref/' + fair_url + '">' + lang.forgot_pass + '</a></p>'
+				 +		'<p style="width:101% !important;"><a href="user/resetPassword' + (typeof fair_url === 'string' ? '/backref/' + fair_url : '') + '">' + lang.forgot_pass + '</a></p>'
 				 + 		'<p><input type="submit" name="login" value="Sign in"/></p></div>'
 				 + 	'</form>';
 		
