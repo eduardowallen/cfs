@@ -179,6 +179,7 @@ function makeUserOptions3($sel=0, $fair) {
 	var hasRights = false;
 	<?php endif; ?>
 
+	var fair_url = '<?php echo $fair->get('url')?>';
 	var accessibleMaps = new Array;
 	<?php foreach($accessible_maps as $map): ?>
 		accessibleMaps.push(<?php echo $map ?>);
@@ -217,7 +218,7 @@ function makeUserOptions3($sel=0, $fair) {
 				<input type="text" name="user" id="user"/>
 				<label for="pass"><?php echo $translator->{"Password"} ?></label>
 				<input type="password" name="pass" id="pass"/>
-				<p><a href="user/resetPassword"><?php echo $translator->{"Forgot your password?"} ?></a></p>
+				<p><a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>"><?php echo $translator->{"Forgot your password?"} ?></a></p>
 				<p><input type="submit" name="login" value="<?php echo $translator->{"Log in"} ?>"/></p></div>
 			</form>
 		</div>

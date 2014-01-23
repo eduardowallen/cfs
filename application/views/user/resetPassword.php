@@ -1,6 +1,6 @@
 <h1><?php echo $headline; ?></h1>
 <p> <?php echo $line1?> <br />  <?php echo $line2?> </p>
-<form action="user/resetPassword" method="post">
+<form action="user/resetPassword/backref/<?php echo $go_back_url; ?>" method="post">
 	<?php if (isset($new_pass)): ?>
 	
 	<p><?php echo $translator->{'Your new password is '}; ?>
@@ -16,4 +16,4 @@
 
 	<?php endif; ?>
 </form>
-<p><a href="<?php echo BASE_URL.'user/login'?>"><button onclick="goBack()"><?php echo $goback; ?></button></a></p>
+<p><a href="<?php echo $go_back_url; ?>" class="link-button"><?php echo $goback; ?></a></p>

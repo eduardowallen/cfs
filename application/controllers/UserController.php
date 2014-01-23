@@ -471,6 +471,7 @@ class UserController extends Controller {
 			//$2a$12$aXQFm.9gR/JCe.HQe2285uSSep4cd0Gufg12tcEQcbs1Xwxn273tS
 			//$2a$12$aXQFm.9gR/JCe.HQe2285uc/jnlCu9Lw.hRK8dbkgtgo6Azi1TAIe
 		}
+
 		if (isset($_POST['send'])) {
 			$this->User->load($_POST['user'], 'alias');
 			if ($this->User->wasLoaded()) {
@@ -501,6 +502,13 @@ class UserController extends Controller {
 					header('Location: '.BASE_URL.'user/login/err');
 				}
 			}
+		}
+
+		// If referring page sets "backref" action, the "Go back" button will refer back to all $param#
+		if ($action == 'backref') {
+			$this->setNoTranslate('go_back_url', $param1 . ($param2 != '' ? '/' . $param2 : '') . ($param3 != '' ? '/' . $param3 : ''));
+		} else {
+			$this->setNoTranslate('go_back_url', 'user/login');
 		}
 
 		$this->set('headline', 'Request Username and Password');
