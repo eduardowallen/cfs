@@ -90,6 +90,58 @@ class MapToolController extends Controller {
 
 	}
 
+	function print_position($map_id = null, $position_id = null) {
+
+		if (is_numeric($map_id) && is_numeric($position_id)) {
+
+			$map = new FairMap();
+			$map->load($map_id, 'id');
+
+			if ($map->wasLoaded()) {
+				$map_position = null;
+
+				foreach ($map->get('positions') as $position) {
+					if ($position->get('id') == $position_id) {
+						$map_position = $position;
+						break;
+					}
+				}
+
+				if ($map_position) {
+
+					$category_names = array();
+					foreach ($map_position->get('exhibitor')->get('exhibitor_categories') as $category) {
+						$category_obj = new ExhibitorCategory();
+						$category_obj->load($category, 'id');
+						$category_names[] = $category_obj->get('name');
+					}
+
+					$this->setNoTranslate('map', $map);
+					$this->setNoTranslate('position', $map_position);
+					$this->setNoTranslate('exhibitor', $map_position->get('exhibitor'));
+					$this->setNoTranslate('category_names', implode(', ', $category_names));
+					$this->set('label_status', 'Status');
+					$this->set('label_area', 'Area');
+					$this->set('label_by', 'by');
+					$this->set('label_reserved_until', 'Reserved until');
+					$this->set('label_presentation', 'Presentation');
+					$this->set('label_commodity', 'Commodity');
+					$this->set('label_categories', 'Categories');
+					$this->set('label_no_presentation_text', 'The company has not specified any information.');
+					$this->set('label_website', 'Website');
+				} else {
+					$this->set('error', 'The map position could not be found.');
+				}
+
+			} else {
+				$this->set('error', 'The map could not be found.');
+			}
+
+			$this->setNoTranslate('noView', true);
+			$this->setNoTranslate('onlyContent', true);
+		}
+	}
+
 }
 
 ?>

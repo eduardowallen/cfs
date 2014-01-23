@@ -1665,13 +1665,13 @@ maptool.positionInfo = function(positionObject) {
 		
 		$('#more_info_dialogue h4').text(lang.presentation + ":");
 		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
-		$("#more_info_dialogue p.presentation").empty();
-		$('#more_info_dialogue p.presentation').css('display', 'block');
+		$("#more_info_dialogue .presentation").empty();
+		$('#more_info_dialogue .presentation').css('display', 'block');
 		if(positionObject.exhibitor.presentation.length < 1){
 			
-			$("#more_info_dialogue p.presentation").append(lang.noPresentationText);
+			$("#more_info_dialogue .presentation").append(lang.noPresentationText);
 		}else{
-			$("#more_info_dialogue p.presentation").append(positionObject.exhibitor.presentation);
+			$("#more_info_dialogue .presentation").append(positionObject.exhibitor.presentation);
 		}
 		
 		if (positionObject.exhibitor.website != '') {
@@ -1685,28 +1685,18 @@ maptool.positionInfo = function(positionObject) {
 		
 	} else {
 		if(positionObject.information.length < 1){
-			$('#more_info_dialogue p.presentation').css('display', 'none');
+			$('#more_info_dialogue .presentation').css('display', 'none');
 		} else {
-			$('#more_info_dialogue p.presentation').css('display', 'block');
-			$("#more_info_dialogue p.presentation").html(positionObject.information.replace(/\n/g, '<br/>')); //replace(/ /g, '&nbsp;')
+			$('#more_info_dialogue .presentation').css('display', 'block');
+			$("#more_info_dialogue .presentation").html(positionObject.information.replace(/\n/g, '<br/>')); //replace(/ /g, '&nbsp;')
 		}
 	}
 
 	if (positionObject.exhibitor) {
 		$('#printLink').parent().remove();
-		info.parent().append('<span class="td_button"><a id="printLink" style="cursor: pointer;">' + lang.print + '</a></span>');
+console.log(positionObject);
+		info.parent().append('<a href="/mapTool/print_position/' + maptool.map.id + '/' + positionObject.id + '" target="_blank" class="link-button" id="printLink">' + lang.print + '</a>');
 	}
-
-	$('#printLink').click(function() {
-		w = window.open('', positionObject.name);
-		w.document.write('<link rel="stylesheet" type="text/css" href="css/generic.css" /><link rel="stylesheet" type="text/css" href="css/main.css" /><link rel="stylesheet" type="text/css" href="css/map.css" />');
-		w.document.write($('#more_info_dialogue')[0].outerHTML);
-		$('#more_info_dialogue', w.parent.document).css({overflow: "visible"});
-		$('img', w.parent.document).hide();
-		w.document.close();
-		w.focus();
-		w.print();
-	});
 
 	maptool.openDialogue('more_info_dialogue');
 

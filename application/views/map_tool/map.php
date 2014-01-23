@@ -333,9 +333,9 @@ function makeUserOptions3($sel=0, $fair) {
 <div id="more_info_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3></h3>
-	<p class="info"></p>
+	<div class="info"></div>
 	<h4 style="margin-bottom: 0px;"></h4>
-	<p class="presentation" style="margin-top: 0px;"></p>
+	<div class="presentation" style="margin-top: 0px;"></div>
 	<p class="website_link"></p>
 </div>
 <?php
