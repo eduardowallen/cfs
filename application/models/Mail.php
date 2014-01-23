@@ -39,7 +39,11 @@ class Mail extends Model {
       $this->subject = str_replace('$'.$key, $value, $this->subject);
       $this->content = str_replace('$'.$key, $value, $this->content);
     }
-    
+
+	if ($this->from == '') {
+		$this->from = EMAIL_FROM_ADDRESS;
+	}
+
     return sendMailHTML($this->to, $this->subject, $this->content, array($this->from => EMAIL_FROM_NAME));
   }
 	
