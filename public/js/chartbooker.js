@@ -191,12 +191,11 @@ $(document).ready(function() {
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupformTwo" style="height:auto; min-width:400px; width:auto; padding:20px; top:50px;"></div>';
-			var filteredResponse = $(reqResp).find('#content').html();
 
 			$('body').append(html);
 			var popupform = $('#popupformTwo');
-			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
-var closeButton = $('.closeDialogue');
+			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
+			var closeButton = $('.closeDialogue');
 			popupform.css('text-align', 'left');
 			$('#popupformTwo > table > tbody > tr > td > p').css('text-align', 'left');
 			
@@ -225,11 +224,10 @@ var closeButton = $('.closeDialogue');
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupformTwo" style="padding:20px; margin:0 auto; top:30px;"></div>';
-			var filteredResponse = $(reqResp).find('#content').html();
 			$('body').append(html);
 			var popupform = $('#popupformTwo');	
 			
-			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
+			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
 			var closeButton = $('.closeDialogue');
 			$('#popupform > p').css('text-align', 'left');
 			$('.closeDialogue').click(function(){
@@ -256,9 +254,8 @@ var closeButton = $('.closeDialogue');
 			method : 'GET',
 		}).done(function(reqResp){
 			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
-			var filteredResponse = $(reqResp).find('#content').html();
 			$('body').append(html);
-			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + filteredResponse);
+			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
 			$('#popupform > p').css('text-align', 'left');
 			$('.closeDialogue').click(function(){
 				$(this).off('click');

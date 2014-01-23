@@ -49,7 +49,11 @@ class PageController extends Controller {
 	}
 	
 	function contact($fairUrl='') {
-		
+
+		if ($this->is_ajax) {
+			$this->setNoTranslate('onlyContent', true);
+		}
+
 		$this->set('headline', 'Contact us');
 		
 		if ($fairUrl != '' && (int)$fairUrl == 0) {
@@ -73,7 +77,11 @@ class PageController extends Controller {
 	}
 	
 	function help() {
-		
+
+		if ($this->is_ajax) {
+			$this->setNoTranslate('onlyContent', true);
+		}
+
 		$this->set('headline', 'Help');
 		
 		$stmt = $this->Page->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = ?");
@@ -85,7 +93,11 @@ class PageController extends Controller {
 	}
 	
 	function help_organizer() {
-		
+
+		if ($this->is_ajax) {
+			$this->setNoTranslate('onlyContent', true);
+		}
+
 		$this->set('headline', 'Help for organizers');
 		
 		$stmt = $this->Page->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = ?");
