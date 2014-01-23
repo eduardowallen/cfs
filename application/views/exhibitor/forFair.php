@@ -95,7 +95,7 @@
 				}
 			});
 		} else {
-			alert('<?php echo $col_export_err?>');
+			alert('<?php echo (isset($col_export_err) ? $col_export_err : ''); ?>');
 			return 0;
 		}
 
@@ -108,7 +108,7 @@
 				}
 			});
 		} else {
-			alert('<?php echo $row_export_err?>');
+			alert('<?php echo (isset($row_export_err) ? $row_export_err : ''); ?>');
 			return 0;
 		}
 		var finishedUrl = '/' + tbl  + urlForColumns + urlForRows;

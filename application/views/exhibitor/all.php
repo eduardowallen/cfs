@@ -54,7 +54,7 @@
 			echo "&bcc=".$user->get('email');
 		endif;
 		$count++;
-	endforeach;?>"><?php echo $mail_link;?><?php echo $translator->{'Send mail'}?></a></p>
+	endforeach;?>"><?php echo $translator->{'Send mail'}?></a></p>
 <div class="tbld">
 	<table class="std_table">
 		<thead>

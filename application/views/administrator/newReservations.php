@@ -480,7 +480,7 @@
 					endforeach;
 				?>
 				<?php if($hidden == 0) : ?>
-				<tr id="prem" <?php if($page>1){echo 'style="display:none;"';}?>>
+				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?>>
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
