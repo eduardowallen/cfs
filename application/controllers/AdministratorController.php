@@ -612,19 +612,15 @@ class AdministratorController extends Controller {
 		setAuthLevel(3);
 		
 		$stmt = $this->Administrator->db->prepare("SELECT user.id, user.name, user.email, user.phone1, user.locked, user.last_login, COUNT(fair_map_position.id) AS position_count
-FROM user 
-LEFT JOIN fair_map_position ON user.id = fair_map_position.created_by
-WHERE user.owner = ? AND user.level = ?");
+			FROM user 
+			LEFT JOIN fair_map_position ON user.id = fair_map_position.created_by
+			WHERE user.owner = ? AND user.level = ?
+			GROUP BY user.id");
 		$stmt->execute(array($_SESSION['user_id'], 2));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$as = array();
 	
 		foreach ($result as $res) {
-			// Temporary work around
-			// If there are no admins we will get a row of null values.
-			if (is_null($res['id'])) {
-				continue;
-			}
 
 			$stmt2 = $this->Administrator->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 			$stmt2->execute(array($res['id']));
@@ -660,7 +656,7 @@ WHERE user.owner = ? AND user.level = ?");
 		$this->set('th_user', 'User');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
-		$this->set('admins', $as);
+		$this->setNoTranslate('admins', $as);
 	}
 
 	public function all() {
