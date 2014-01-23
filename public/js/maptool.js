@@ -1693,7 +1693,7 @@ maptool.positionInfo = function(positionObject) {
 	}
 
 	if (positionObject.exhibitor) {
-		$('#printLink').parent().remove();
+		$('#printLink').remove();
 		info.parent().append('<a href="/mapTool/print_position/' + maptool.map.id + '/' + positionObject.id + '" target="_blank" class="link-button" id="printLink">' + lang.print + '</a>');
 	}
 
