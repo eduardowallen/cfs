@@ -197,8 +197,8 @@
 <div class="scrolltbl">
 <table class="std_table"id="connected">
 
-	<thead style="height:22px;">
-		<tr>
+	<thead>
+		<tr style="height: 32px;">
 			<th><?php echo $th_company ?></th>
 			<th><?php echo $th_name ?></th>
 			<th><?php echo $th_fairs ?></th>
