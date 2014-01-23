@@ -17,15 +17,9 @@ function showPopup(type, activator){
 
 function reservePopup(row, link){
 	$('#reserve_position_dialogue').css('display', 'block');
-	var infoArray = new Array(7);
 
-	row.children().each(function(i){
-		if(i < 7){
-			infoArray[i] = $(this).text();
-		}
-	});
-	var categories = infoArray[6];
-	var catArr = categories.split("|");
+	var data = row.children(), 
+		catArr = data.eq(6).text().split("|");
 
 	$('#reserve_category_scrollbox > p').each(function(){
 		var categoryValue = $(this).children().val();
@@ -36,27 +30,18 @@ function reservePopup(row, link){
 		}
 	});
 
-	$('#reserve_user').text(infoArray[2]);
-	$('#reserve_commodity_input').val(infoArray[3]);
-	$('#reserve_message_input').val(infoArray[5]);
-
-	$('#reserve_post').attr('href', link);	
+	$('#reserve_position_dialogue form').prop('action', link);
+	$('#reserve_id').val(row.data('id'));
+	$('#reserve_user').text(data.eq(2).text());
+	$('#reserve_commodity_input').val(data.eq(3).text());
+	$('#reserve_message_input').val(data.eq(5).prop('title'));
 }
 
 function bookPopup(row, link){
 	$('#book_position_dialogue').css('display', 'block');
 	
-	var infoArray = new Array(8);
-
-	row.children().each(function(i){
-		if(i < 8){
-			infoArray[i] = $(this).text();
-		}
-	});
-
-	var categories = infoArray[6];
-	
-	var catArr = categories.split("|");
+	var data = row.children(), 
+		catArr = data.eq(6).text().split("|");
 
 	$('#book_category_scrollbox > p').each(function(){
 		var categoryValue = $(this).children().val();
@@ -67,11 +52,11 @@ function bookPopup(row, link){
 		}
 	});
 
-	$('#book_user').text(infoArray[2]);
-	$('#book_commodity_input').val(infoArray[3]);
-	$('#book_message_input').val(infoArray[5]);	
-
-	$('#book_post').attr('href', link);
+	$('#book_position_dialogue form').prop('action', link);
+	$('#book_id').val(row.data('id'));
+	$('#book_user').text(data.eq(2).text());
+	$('#book_commodity_input').val(data.eq(3).text());
+	$('#book_message_input').val(data.eq(5).prop('title'));	
 }
 
 function closeDialogue(pref){

@@ -218,67 +218,74 @@
 <?php if ($hasRights): ?>
 
 <div id="reserve_position_dialogue" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('reserve')" class="closeDialogue"/>
-	<h3><?php echo $translator->{'Reserve stand space'} ?></h3>
+	<form action="" method="post">
+		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('reserve')" class="closeDialogue"/>
+		<h3><?php echo $translator->{'Reserve stand space'} ?></h3>
 
-	<div class="ssinfo"></div>
-	
-	<label for="reserve_category_input"><?php echo $translator->{'Category'} ?></label>
-	<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-		<?php foreach($fair->get('categories') as $cat): ?>
-			<p style="margin:0; width:100%; float:left;">
-				<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled="disabled" /><?php echo $cat->get('name') ?>
-			</p>
-		<?php endforeach; ?>
-	</div>
-	
-	<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input" disabled="disabled" />
+		<div class="ssinfo"></div>
+		
+		<label for="reserve_category_input"><?php echo $translator->{'Category'} ?></label>
+		<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+			<?php foreach($fair->get('categories') as $cat): ?>
+				<p style="margin:0; width:100%; float:left;">
+					<input type="checkbox" name="categories[]" value="<?php echo $cat->get('id') ?>" /><?php echo $cat->get('name') ?>
+				</p>
+			<?php endforeach; ?>
+		</div>
+		
+		<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+		<input type="text" class="dialogueInput" name="commodity" id="reserve_commodity_input" />
+		
+		<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+		<textarea name="arranger_message" id="reserve_message_input"></textarea>
 
-	
-	<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
-	<textarea name="reserve_message_input" id="reserve_message_input" disabled></textarea>
+		<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
+		<select style="width:300px;" id="reserve_user_input" disabled="disabled">
+			<option id="reserve_user"></option>
+		</select>
 
+		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
+		<input type="text" class="dialogueInput date datepicker" name="expires" id="reserve_expires_input" value="<?php echo date('d-m-Y', (isset($fairCloses) && $fairCloses > 0 ? $fairCloses : time()));  ?>"/>
 
-	<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
-	<select style="width:300px;" name="reserve_user_input" id="reserve_user_input" disabled>
-		<option id="reserve_user"></option>
-	</select>
-
-	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
-	<input type="text" class="dialogueInput date datepicker" name="reserve_expires_input" id="reserve_expires_input" value="<?php echo date('d-m-Y', ($fairCloses>0?$fairCloses:time()));  ?>"/>
-
-	<p><a id="reserve_post"><input type="button" value="<?php echo $translator->{'Confirm reservation'} ?>"/></a></p>
-
+		<p>
+			<input type="hidden" name="id" id="reserve_id" />
+			<input type="submit" name="reserve" value="<?php echo $translator->{'Confirm reservation'} ?>" />
+		</p>
+	</form>
 </div>
 
 <div id="book_position_dialogue" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('book')" class="closeDialogue"/>
-	<h3><?php echo $translator->{'Book stand space'} ?></h3>
+	<form action="" method="post">
+		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('book')" class="closeDialogue"/>
+		<h3><?php echo $translator->{'Book stand space'} ?></h3>
 
-	<div class="ssinfo"></div>
-	
-	<label for="book_category_input"><?php echo $translator->{'Category'} ?></label>
-	<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-		<?php foreach($fair->get('categories') as $cat): ?>
-		<p style="margin:0; width:100%; float:left;">
-			<input type="checkbox" value="<?php echo $cat->get('id') ?>" disabled="disabled" /><?php echo $cat->get('name') ?>
+		<div class="ssinfo"></div>
+		
+		<label for="book_category_input"><?php echo $translator->{'Category'} ?></label>
+		<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+			<?php foreach($fair->get('categories') as $cat): ?>
+			<p style="margin:0; width:100%; float:left;">
+				<input type="checkbox" name="categories[]" value="<?php echo $cat->get('id') ?>" /><?php echo $cat->get('name') ?>
+			</p>
+			<?php endforeach; ?>
+		</div>
+		
+		<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+		<input type="text" class="dialogueInput" name="commodity" id="book_commodity_input" />
+
+		<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+		<textarea name="arranger_message" id="book_message_input"></textarea>
+
+		<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
+		<select style="width:300px;" id="book_user_input" disabled="disabled">
+			<option id="book_user"></option>
+		</select>
+
+		<p>
+			<input type="hidden" name="id" id="book_id" />
+			<input type="submit" name="approve" value="<?php echo $translator->{'Confirm booking'} ?>" />
 		</p>
-		<?php endforeach; ?>
-	</div>
-	
-	<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
-	<input type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input" disabled/>
-
-	<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
-	<textarea name="book_message_input" id="book_message_input" disabled></textarea>
-
-	<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
-	<select  style="width:300px;" name="book_user_input" id="book_user_input" disabled>
-		<option id="book_user">asd</ul>
-	</select>
-
-	<p><a id="book_post"><input type="button" value="<?php echo $translator->{'Confirm booking'} ?>"/></a></p>
+	</form>
 </div>
 
 
@@ -387,7 +394,7 @@
 		</thead>
 		<tbody>
 		<?php foreach($rpositions as $pos): ?>
-			<tr>
+			<tr data-id="<?php echo $pos['id']; ?>">
 				<td><?php echo $pos['name']; ?></td>
 				<td class="center"><?php echo $pos['area']; ?></td>
 				<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
@@ -395,7 +402,7 @@
 				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 				<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
 				<td style="display:none;"><?php echo $pos['categories']?></td>
-				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'.$pos['position']?></td>
+				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
 				<td class="center">
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
 						<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -480,16 +487,16 @@
 					endforeach;
 				?>
 				<?php if($hidden == 0) : ?>
-				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?>>
+				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?> data-id="<?php echo $pos['id']; ?>">
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
-					<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+					<td title="<?php echo htmlspecialchars($pos['arranger_message']); ?>"><?php echo htmlspecialchars(substr($pos['arranger_message'], 0, 50)); ?></td>
 					<td style="display:none;"><?php echo $pos['categories']?></td>
-					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'.$pos['id']?></td>
-					<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id']?></td>
+					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'; ?></td>
+					<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'; ?></td>
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />

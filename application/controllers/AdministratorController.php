@@ -383,44 +383,45 @@ class AdministratorController extends Controller {
 			$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
 			if(!$result) {
 				$this->setNoTranslate('hasRights', false);
-        $hasRights = false;
+				$hasRights = false;
 			} else {
 				$this->setNoTranslate('hasRights', true);
-        $hasRights = true;
+				$hasRights = true;
 			}
-      
-      // Get all available fairs
+
+			// Get all available fairs
 			$stmt = $this->db->prepare("SELECT id, name FROM fair_user_relation AS fur LEFT JOIN fair ON fur.fair = fair.id WHERE user = ?");
-      $stmt->execute(array($_SESSION['user_id']));
+			$stmt->execute(array($_SESSION['user_id']));
 			$this->setNoTranslate('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
-      
+
 		} elseif( userLevel()  == 3 ) {
-    
+
 			$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
 			$prep = $this->db->prepare($sql);
 			$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
 			$result = $prep->fetchAll();
 			if(!$result) {
 				$this->setNoTranslate('hasRights', false);
-        $hasRights = false;
+				$hasRights = false;
 			} else {
 				$this->setNoTranslate('hasRights', true);
-        $hasRights = true;
-      }
-      
-      // Get all available fairs
+				$hasRights = true;
+			}
+
+			// Get all available fairs
 			$stmt = $this->db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
-      $stmt->execute(array($_SESSION['user_id']));
+			$stmt->execute(array($_SESSION['user_id']));
 			$this->setNoTranslate('fairs_admin', $stmt->fetchAll(PDO::FETCH_ASSOC));
-      
+
 		} else {
-    
+
 			$this->setNoTranslate('hasRights', true);
-      $hasRights = true;
+			$hasRights = true;
 			$this->setNoTranslate('accessible_maps', array());
 		}
-    if(!$hasRights)
-      return;
+
+		if (!$hasRights)
+			return;
 
 		if ($action == 'deny') {
 			$pb = new PreliminaryBooking;
@@ -429,16 +430,16 @@ class AdministratorController extends Controller {
 			$u = new User;
 			$u->load($pb->get('user'), 'id');
 			
-      $mail = new Mail($u->get('email'), 'reservation_cancelled');
-      $mail->send();
+			$mail = new Mail($u->get('email'), 'reservation_cancelled');
+			$mail->send();
 			
 			$pb->delete();
 			header("Location: ".BASE_URL."administrator/newReservations");
 			exit;
-		} else if ($action == 'approve') {
+		} else if ($action == 'approve' && isset($_POST['id'])) {
 
 			$pb = new PreliminaryBooking;
-			$pb->load($param, 'id');
+			$pb->load($_POST['id'], 'id');
 
 			$pos = new FairMapPosition;
 			$pos->load($pb->get('position'), 'id');
@@ -450,8 +451,8 @@ class AdministratorController extends Controller {
 			$ex->set('position', $pb->get('position'));
 			$ex->set('category', 0);
 			$ex->set('presentation', '');
-			$ex->set('commodity', $pb->get('commodity'));
-			$ex->set('arranger_message', $pb->get('arranger_message'));
+			$ex->set('commodity', $_POST['commodity']);
+			$ex->set('arranger_message', $_POST['arranger_message']);
 			$ex->set('approved', 1);
 			
 			$exId = $ex->save();
@@ -461,9 +462,11 @@ class AdministratorController extends Controller {
 			$stmt = $pb->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
 			$stmt->execute(array($pos->get('id')));
 			
-			$stmt = $pb->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
-			foreach (explode('|', $pb->get('categories')) as $cat) {
-				$stmt->execute(array($exId, $cat));
+			if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+				$stmt = $pb->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+				foreach ($_POST['categories'] as $cat) {
+					$stmt->execute(array($exId, $cat));
+				}
 			}
 			
 			header("Location: ".BASE_URL."administrator/newReservations");
@@ -891,55 +894,71 @@ class AdministratorController extends Controller {
 		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
 
-	public function approveReservation($posId = 0) {
+	public function approveReservation() {
 		setAuthLevel(2);
 
-		$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=2 WHERE `id`=?");
-		$stmt->execute(array($posId));
+		if (isset($_POST['id'])) {
+
+			$exhib = new Exhibitor();
+			$exhib->load($_POST['id'], 'id');
+			$exhib->set('commodity', $_POST['commodity']);
+			$exhib->set('arranger_message', $_POST['arranger_message']);
+			$exhib->save();
+
+			$pos = new FairMapPosition();
+			$pos->load($exhib->get('position'), 'id');
+			$pos->set('status', 2);
+			$pos->save();
+		}
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
 
-	public function reservePrelBooking($prelId) {
+	public function reservePrelBooking() {
 		setAuthLevel(2);
 
-		$prel = new PreliminaryBooking;
-		$prel->load($prelId, 'id');
+		if (isset($_POST['id'])) {
 
-		$pos = new FairMapPosition;
-		$pos->load($prel->get('position'), 'id');
+			$prel = new PreliminaryBooking;
+			$prel->load($_POST['id'], 'id');
 
-		// Delete existing exhibitor if position is booked
-		if ($pos->get('status') > 0) {
-			$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
+			$pos = new FairMapPosition;
+			$pos->load($prel->get('position'), 'id');
+
+			// Delete existing exhibitor if position is booked
+			if ($pos->get('status') > 0) {
+				$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
+				$stmt->execute(array($pos->get('id')));
+			}
+
+			$pos->set('status', 1);
+			$pos->set('expires', date('Y-m-d', strtotime($_POST['expires'])));
+
+			$exhib = new Exhibitor;
+			$exhib->set('user', $prel->get('user'));
+			$exhib->set('fair', $prel->get('fair'));
+			$exhib->set('position', $prel->get('position'));
+			$exhib->set('category', 0);
+			$exhib->set('presentation', '');
+			$exhib->set('commodity', $_POST['commodity']);
+			$exhib->set('arranger_message', $_POST['arranger_message']);
+			$exhib->set('booking_time', $prel->get('booking_time'));
+			$exhib->set('approved', 1);
+			$exId = $exhib->save();
+			$pos->save();
+
+			if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+				$stmt = $exhib->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+				foreach ($_POST['categories'] as $cat) {
+					$stmt->execute(array($exId, $cat));
+				}
+			}
+
+			// Clean up preliminaries.
+			$prel->delete();
+			$stmt = $prel->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
 			$stmt->execute(array($pos->get('id')));
 		}
-
-		$pos->set('status', 1);
-		$pos->set('expires', date('Y-m-d', time() + 3600 * 24 * 14)); // Set expirytime to 14 days from now.
-
-		$exhib = new Exhibitor;
-		$exhib->set('user', $prel->get('user'));
-		$exhib->set('fair', $prel->get('fair'));
-		$exhib->set('position', $prel->get('position'));
-		$exhib->set('category', 0);
-		$exhib->set('presentation', '');
-		$exhib->set('commodity', $prel->get('commodity'));
-		$exhib->set('arranger_message', $prel->get('arranger_message'));
-		$exhib->set('booking_time', $prel->get('booking_time'));
-		$exhib->set('approved', 1);
-		$exId = $exhib->save();
-		$pos->save();
-
-		$stmt = $prel->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
-		foreach (explode('|', $prel->get('categories')) as $cat) {
-			$stmt->execute(array($exId, $cat));
-		}
-
-		// Clean up preliminaries.
-		$prel->delete();
-		$stmt = $prel->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
-		$stmt->execute(array($pos->get('id')));
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 		exit;
