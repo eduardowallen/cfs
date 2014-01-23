@@ -35,6 +35,10 @@ class Template {
 			} else {
 				include (ROOT.'application/views/footer.php');
 			}
+
+		} else if (isset($onlyContent)) {
+			if (file_exists(ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php'))
+	        	include (ROOT.'application/views/'.$this->_controller.'/'.$this->_action.'.php');
 		}
     }
 	
