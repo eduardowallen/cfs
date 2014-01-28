@@ -612,9 +612,6 @@
 		renderUI : function(o) {
 			var n, ic, tb, t = this, ed = t.editor, s = t.settings, sc, p, nl;
 
-			if (ed.settings) {
-				ed.settings.aria_label = s.aria_label + ed.getLang('advanced.help_shortcut');
-			}
 
 			// TODO: ACC Should have an aria-describedby attribute which is user-configurable to describe what this field is actually for.
 			// Maybe actually inherit it from the original textara?

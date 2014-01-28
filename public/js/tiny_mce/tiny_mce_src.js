@@ -11739,7 +11739,7 @@ tinymce.create('tinymce.ui.Toolbar:tinymce.ui.Container', {
 
 			tinymce.add(t);
 
-			s.aria_label = s.aria_label || DOM.getAttrib(e, 'aria-label', t.getLang('aria.rich_text_area'));
+			s.aria_label = s.aria_label || DOM.getAttrib(e, 'aria-label');
 
 			if (s.theme) {
 				s.theme = s.theme.replace(/-/, '');
