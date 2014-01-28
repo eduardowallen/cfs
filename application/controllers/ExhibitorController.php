@@ -723,10 +723,10 @@ class ExhibitorController extends Controller {
 				$error.= 'The email address already exists in our system.';
 			} else {
 
-				$pw_arr = array_merge(range(0, 9), range('a', 'z'));
+				$pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
 				shuffle($pw_arr);
-				$password = substr(implode('', $pw_arr), 0, 10);
-
+				$password = substr(implode('', $pw_arr), 0, 13);
+				
 				$this->User->setPassword($password);
 				$userId = $this->User->save();
 

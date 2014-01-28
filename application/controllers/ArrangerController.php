@@ -282,9 +282,9 @@ ORDER BY creation_time DESC";
           return;
         }
 
-        $pw_arr = array_merge(range(0, 9), range('a', 'z'));
+        $pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
         shuffle($pw_arr);
-        $password = substr(implode('', $pw_arr), 0, 10);
+        $password = substr(implode('', $pw_arr), 0, 13);
 
         $this->Arranger->setPassword($password);
         $id = $this->Arranger->save();
