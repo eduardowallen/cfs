@@ -111,7 +111,7 @@ function filterTableTable(table, str, results) {
 		}
 	}
 	$(document).ready(function() {
-	var html = '<div style="width:300px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
+	var html = '<div style="width:400px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
 			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';	
 		$('.std_table').each(function() {
 			var parstd_table = $(this);
