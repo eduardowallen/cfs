@@ -259,7 +259,10 @@ textarea {
 
 }
 
-.scrolltbl .std_table thead{visibility:hidden;}
+.scrolltbl .std_table thead {
+	visibility: hidden;
+	height: 32px;
+}
 
 .onlyfive{max-height:177px;}
 

@@ -198,7 +198,7 @@
 <table class="std_table"id="connected">
 
 	<thead>
-		<tr style="height: 32px;">
+		<tr>
 			<th><?php echo $th_company ?></th>
 			<th><?php echo $th_name ?></th>
 			<th><?php echo $th_fairs ?></th>
