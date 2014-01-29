@@ -57,6 +57,11 @@ function sendMail($to, $subject, $msg, $from='') {
 	/*mail($to, $subject, $msg, 'From:Chartbooker<no-reply@chartbooker.com>');
 	return;*/
 
+	// If the code runs on testserver, send ALL emails to example@chartbooker.com!
+	if (defined('TESTSERV') && TESTSERV) {
+		$to = 'example@chartbooker.com';
+	}
+
 	require_once ROOT.'lib/Swift-4.1.7/swift_required.php';
 
 	if (MAIL_ENABLED) {
@@ -84,6 +89,11 @@ function sendMail($to, $subject, $msg, $from='') {
 // Sends mail in HTML format. Sets the content type and parses the message content to embed and
 //  send images as part of the mail.
 function sendMailHTML($to, $subject, $msg, $from='') {
+
+	// If the code runs on testserver, send ALL emails to example@chartbooker.com!
+	if (defined('TESTSERV') && TESTSERV) {
+		$to = 'example@chartbooker.com';
+	}
 
 	require_once ROOT.'lib/Swift-4.1.7/swift_required.php';
 
