@@ -940,8 +940,8 @@ class ExhibitorController extends Controller {
 		$u = new User;
 		$u->load($_SESSION['user_id'], 'id');
 
-		$stmt = $u->db->prepare("SELECT exhibitor.position FROM exhibitor LEFT JOIN fair_map_position AS pos ON exhibitor.position = pos.id WHERE exhibitor.user = ? AND exhibitor.fair = ? AND pos.status = ?");
-		$stmt->execute(array($_SESSION['user_id'], $_SESSION['user_fair'], 2));
+		$stmt = $u->db->prepare("SELECT exhibitor.position FROM exhibitor LEFT JOIN fair_map_position AS pos ON exhibitor.position = pos.id WHERE exhibitor.user = ? AND pos.status = ?");
+		$stmt->execute(array($_SESSION['user_id'], 2));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$positions = array();
 
@@ -951,8 +951,8 @@ class ExhibitorController extends Controller {
 			$positions[] = $pos;
 		}
 		
-		$stmt = $u->db->prepare("SELECT exhibitor.position FROM exhibitor LEFT JOIN fair_map_position AS pos ON exhibitor.position = pos.id WHERE exhibitor.user = ? AND exhibitor.fair = ? AND pos.status = ?");
-		$stmt->execute(array($_SESSION['user_id'], $_SESSION['user_fair'], 1));
+		$stmt = $u->db->prepare("SELECT exhibitor.position FROM exhibitor LEFT JOIN fair_map_position AS pos ON exhibitor.position = pos.id WHERE exhibitor.user = ? AND pos.status = ?");
+		$stmt->execute(array($_SESSION['user_id'], 1));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$rpositions = array();
 
