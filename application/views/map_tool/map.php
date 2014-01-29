@@ -291,7 +291,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
 		<p>
-			<input type="checkbox" value="<?php echo $cat->get('id') ?>" /s><?php echo $cat->get('name') ?>
+			<input type="checkbox" value="<?php echo $cat->get('id') ?>" /><?php echo $cat->get('name') ?>
 		</p>
 		<?php endforeach; ?>
 	</div>
