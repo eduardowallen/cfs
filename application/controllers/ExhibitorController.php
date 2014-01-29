@@ -986,6 +986,7 @@ class ExhibitorController extends Controller {
 		$this->set('tr_booker', 'Booked by');
 		$this->set('tr_field', 'Trade');
 		$this->set('tr_time', 'Time of booking');
+		$this->set('tr_reserved_until', 'Reserved until');
 		$this->set('tr_message', 'Message to organizer');
 		$this->set('tr_view', 'View');
 		$this->set('tr_delete', 'Delete');

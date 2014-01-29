@@ -523,7 +523,7 @@ class AdministratorController extends Controller {
 		
 
 
-		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.map, ex.id AS posid FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.map, ex.id AS posid, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 1));
 		
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -577,6 +577,7 @@ class AdministratorController extends Controller {
 		$this->set('tr_booker', 'Booked by');
 		$this->set('tr_field', 'Trade');
 		$this->set('tr_time', 'Time of booking');
+		$this->set('tr_reserved_until', 'Reserved until');
 		$this->set('tr_message', 'Message to organizer');
 		$this->set('tr_view', 'View');
 		$this->set('tr_delete', 'Delete');

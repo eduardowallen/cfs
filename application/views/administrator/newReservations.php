@@ -369,7 +369,8 @@
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="7" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_reserved_until; ?></div><input type="checkbox" value="6" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
@@ -386,6 +387,7 @@
 				<th><?php echo $tr_field; ?></th>
 				<th><?php echo $tr_time; ?></th>
 				<th><?php echo $tr_message; ?></th>
+				<th><?php echo $tr_reserved_until; ?></th>
 				<th><?php echo $tr_view; ?></th>
 				<th><?php echo $tr_deny; ?></th>
 				<th><?php echo $tr_approve; ?></th>
@@ -402,6 +404,7 @@
 				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 				<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
 				<td style="display:none;"><?php echo $pos['categories']?></td>
+				<td><?php echo date('d-m-Y', strtotime($pos['expires'])); ?></td>
 				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
 				<td class="center">
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">

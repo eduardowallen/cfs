@@ -83,6 +83,7 @@ $maps = $maps[0]->get('positions');
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div></li>
+			<li><div class="tblrow1"><?php echo $tr_reserved_until; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_message; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div></li>
 		</ul>
@@ -97,6 +98,7 @@ $maps = $maps[0]->get('positions');
 					<th><?php echo $tr_booker; ?></th>
 					<th><?php echo $tr_field; ?></th>
 					<th><?php echo $tr_time; ?></th>
+					<th><?php echo $tr_reserved_until; ?></th>
 					<th><?php echo $tr_message; ?></th>
 					<th><?php echo $tr_view; ?></th>
 				</tr>
@@ -117,6 +119,7 @@ $maps = $maps[0]->get('positions');
 					<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
+					<td><?php echo date('d-m-Y', strtotime($pos->get('expires'))); ?></td>
 					<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
