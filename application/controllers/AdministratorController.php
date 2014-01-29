@@ -152,11 +152,17 @@ class AdministratorController extends Controller {
 				//$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$fair->get('url')."\r\n\r\nUsername: ".$_POST['username']."\r\nPassword: ".$str;
 				$user->setPassword($str);
 				$userId = $user->save();
-        $mail = new Mail($user->email, 'event_account');
-        $mail->setMailVar('url', BASE_URL.$fair->get('url'));
-        $mail->setMailVar('alias', $_POST['alias']);
-        $mail->setMailVar('password', $str);
-        $mail->send();
+
+				$me = new User;
+				$me->load($_SESSION['user_id'], 'id');
+
+				$mail = new Mail($user->email, 'event_account');
+				$mail->setMailVar('url', BASE_URL.$fair->get('url'));
+				$mail->setMailVar('alias', $_POST['alias']);
+				$mail->setMailVar('password', $str);
+				$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+				$mail->setMailVar('creator_name', $me->get('name'));
+				$mail->send();
 
 				//require_once ROOT.'application/models/FairUserRelation.php';
 				$stmt = $this->Administrator->db->prepare("INSERT INTO fair_user_relation (fair, user, connected_time) VALUES (?, ?, ?)");

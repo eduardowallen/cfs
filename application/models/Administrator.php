@@ -39,12 +39,17 @@ class Administrator extends User {
 			$str = substr(implode('', $arr), 0, 10);
 			
 			$this->setPassword($str);
+
+			$me = new User;
+			$me->load($_SESSION['user_id'], 'id');
 			
-      $mail = new Mail($_POST['email'], 'administrator_new_account');
-      $mail->setMailVar('url', BASE_URL.$_SESSION['outside_fair_url']);
-      $mail->setMailVar('alias', $this->alias);
-      $mail->setMailVar('password', $str);
-      $mail->send();
+			$mail = new Mail($_POST['email'], 'administrator_new_account');
+			$mail->setMailVar('url', BASE_URL.$_SESSION['outside_fair_url']);
+			$mail->setMailVar('alias', $this->alias);
+			$mail->setMailVar('password', $str);
+			$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+			$mail->setMailVar('creator_name', $me->get('name'));
+			$mail->send();
 		}
 
 		$id = parent::save();

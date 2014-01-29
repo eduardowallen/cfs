@@ -292,10 +292,15 @@ ORDER BY creation_time DESC";
         // For some reason the autoload won't even attempt to load Mail
         require_once(ROOT.'application/models/Mail.php');
 
+		$me = new User;
+		$me->load($_SESSION['user_id'], 'id');
+
         $mail = new Mail($_POST['email'], 'new_account');
         $mail->setMailVar('alias', $_POST['alias']);
         $mail->setMailVar('password', $password);
-        $mail->setMailVar('accesslevel', 'Organizer');
+        $mail->setMailVar('accesslevel', $this->translate->{'Organizer'});
+		$mail->setMailVar('creator_accesslevel', $this->translate->{'Master'});
+		$mail->setMailVar('creator_name', $me->get('name'));
         $mail->send();
         
         // Redirect to organizer's new profile

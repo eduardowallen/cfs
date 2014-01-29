@@ -733,16 +733,20 @@ class ExhibitorController extends Controller {
 				$hash = md5($this->User->get('email').BASE_URL.$userId);
 				$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
 
-
 				if ($fairUrl != '') {
 					$fair = new Fair($this->Exhibitor->db);
 					$fair->load($fairUrl, 'url');
-          
-          $mail = new Mail($_POST['email'], 'new_account');
-          $mail->setMailVar('alias', $_POST['alias']);
-          $mail->setMailVar('password', $password);
-          $mail->setMailVar('accesslevel', 'Participant');
-          $mail->send();
+
+					$me = new User;
+					$me->load($_SESSION['user_id'], 'id');
+
+					$mail = new Mail($_POST['email'], 'new_account');
+					$mail->setMailVar('alias', $_POST['alias']);
+					$mail->setMailVar('password', $password);
+					$mail->setMailVar('accesslevel', $this->translate->{'Exhibitor'});
+					$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail->setMailVar('creator_name', $me->get('name'));
+					$mail->send();
 
 					require_once ROOT.'application/models/Exhibitor.php';
 					require_once ROOT.'application/models/ExhibitorCategory.php';
@@ -759,11 +763,11 @@ class ExhibitorController extends Controller {
 						$ful->save();
 					}
 				} else {
-          $mail = new Mail($_POST['email'], 'welcome');
-          $mail->setMailVar('alias', $_POST['alias']);
-          $mail->setMailVar('password', $password);
-          $mail->setMailVar('accesslevel', 'Participant');
-          $mail->send();
+					$mail = new Mail($_POST['email'], 'welcome');
+					$mail->setMailVar('alias', $_POST['alias']);
+					$mail->setMailVar('password', $password);
+					$mail->setMailVar('accesslevel', $this->translate->{'Exhibitor'});
+					$mail->send();
 				}
 				$this->set('js_confirm_text', 'The user was created successfully.');
 

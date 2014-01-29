@@ -191,11 +191,25 @@ class UserController extends Controller {
             case 2: $lvl = 'Administrator'; break;
             default: $lvl = 'Exhibitor'; break;
           endswitch;
-            
-          $mail = new Mail($_POST['email'], 'welcome');
-          $mail->setMailVar('alias', $_POST['alias']);
-          $mail->setMailVar('password', $password);
-          $mail->setMailVar('accesslevel', $lvl);
+
+			if (userLevel() > 1 && $level != 0) {
+				$me = new User;
+				$me->load($_SESSION['user_id'], 'id');
+
+				$mail = new Mail($_POST['email'], 'new_account');
+				$mail->setMailVar('alias', $_POST['alias']);
+				$mail->setMailVar('password', $password);
+				$mail->setMailVar('accesslevel', $this->translate->{'Exhibitor'});
+				$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+				$mail->setMailVar('creator_name', $me->get('name'));
+				$mail->send();
+			} else {
+				$mail = new Mail($_POST['email'], 'welcome');
+				$mail->setMailVar('alias', $_POST['alias']);
+				$mail->setMailVar('password', $password);
+				$mail->setMailVar('accesslevel', $lvl);
+			}
+
           $mail->send();
         }
 
