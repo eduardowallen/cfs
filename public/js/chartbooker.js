@@ -142,8 +142,8 @@ $(document).ready(function() {
 		var url = $(this).attr('href');
 		var html = '<form action="' + url + '" method="post" id="popupform">'
 				 + 		'<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>'
-				 +		'<p class="error"></p>'
-				 + 		'<div><label for="user">' + lang.login_username + '</label>'
+				 +		'<div><p class="error"></p>'
+				 + 		'<label for="user">' + lang.login_username + '</label>'
 				 + 		'<input type="text" name="user" id="user"/>'
 				 + 		'<label for="pass">' + lang.login_password + '</label>'
 				 + 		'<input type="password" name="pass" id="pass"/>'

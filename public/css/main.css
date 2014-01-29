@@ -342,6 +342,11 @@ img#logo {
 	text-align:center;
 }
 
+#popupform .error {
+    margin-top: -17px;
+	min-height: 17px;
+}
+
 #popupform_register {
 	position:absolute;
 	z-index:99999;
