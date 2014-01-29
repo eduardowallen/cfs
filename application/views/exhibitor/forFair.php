@@ -130,8 +130,8 @@
 <h2 class="tblsite"><?php echo $table_exhibitors ?></h2>
 <?php if(count($users) > 0) : ?>
 <div class="tbld tbl1">
-	<a onclick="prepareTable('booked')"><button style="float:left; margin-top:17px;"><?php echo $export?></button></a>
 	<div class="tblHeader" id="hbooked">
+		<a onclick="prepareTable('booked')"><button style="width: 97%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $th_company;?></div><input type="checkbox" value="1" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $th_name; ?></div><input type="checkbox" value="2" checked="checked" /></li>
@@ -182,8 +182,8 @@
 <h2 class="tblsite"><?php echo $table_connected ?></h2>
 <?php if(count($connected) > 0 ) : ?>
 <div class="tbld tbl2">
-<a onclick="prepareTable('connected')"><button style="float:left; margin-top:17px;"><?php echo $export?></button></a>
 <div class="tblHeader" id="hconnected">
+	<a onclick="prepareTable('connected')"><button style="width: 97%;"><?php echo $export?></button></a>
 	<ul>
 		<li><div class="tblrow1"><?php echo $th_company; ?></div><input type="checkbox" value="1" checked="checked" /></li>
 		<li><div class="tblrow1"><?php echo $th_name; ?></div><input type="checkbox" value="2" checked="checked" /></li>
