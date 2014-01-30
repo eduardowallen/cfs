@@ -205,7 +205,7 @@
 			<option id="reserve_user"></option>
 		</select>
 
-		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy hh:mm)</label>
+		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (DD-MM-YYYY HH:MM UTC)</label>
 		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" value="<?php echo date('d-m-Y H:m', (isset($fairCloses) && $fairCloses > 0 ? $fairCloses : time()));  ?>"/>
 
 		<p>
@@ -303,7 +303,7 @@
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
-					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
+					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -380,7 +380,7 @@
 				<td class="center"><?php echo $pos['area']; ?></td>
 				<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 				<td class="center"><?php echo $pos['commodity']; ?></td>
-				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
+				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
 				<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -389,7 +389,7 @@
 <?php endif; ?>
 				</td>
 				<td style="display:none;"><?php echo $pos['categories']?></td>
-				<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>
+				<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> UTC</td>
 				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
 				<td class="center">
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
@@ -480,7 +480,7 @@
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
-					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
+					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">

@@ -36,7 +36,7 @@
 			timeFormat: 'HH:mm',
 			timeSuffix: '',
 			timeOnlyTitle: 'Choose Time',
-			timeText: 'Time',
+			timeText: 'Time (UTC)',
 			hourText: 'Hour',
 			minuteText: 'Minute',
 			secondText: 'Second',

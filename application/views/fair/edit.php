@@ -100,11 +100,11 @@
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'This is the title which will be shown as the title of the website for your visitors and exhibitors.'}); ?>" />
 		
 		<?php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disabled="true"'; } ?>
-		<label for="auto_publish"><?php echo $auto_publish_label; ?> (dd-mm-yyyy) *</label>
+		<label for="auto_publish"><?php echo $auto_publish_label; ?> (DD-MM-YYYY HH:MM UTC) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_publish" id="auto_publish" value="<?php if ($edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_publish')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Enter a date for when the event should become available for booking.'}); ?>" />
 		
-		<label for="auto_close"><?php echo $auto_close_label; ?> (dd-mm-yyyy) *</label>
+		<label for="auto_close"><?php echo $auto_close_label; ?> (DD-MM-YYYY HH:MM UTC) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_close" id="auto_close" value="<?php if ($edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_close')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Enter a date for when the booking should no longer be available.'}); ?>" />
 		
