@@ -70,11 +70,11 @@
 <?php endif; ?>
 
 <script type="text/javascript">
-	var confirmDialogue = "<?php echo $confirm_delete?>";
+	var confirmDialogue = "<?php echo $confirm_delete?> %s?";
 	var deletion = "<?php echo $deletion_comment?>";
 
 	function denyPrepPosition(link, position, status){
-		if(confirm(confirmDialogue)){
+		if(confirm(confirmDialogue.replace('%s', position))){
 			var message = prompt(deletion, "");
 			denyPosition(link, message, position, status);
 		}
