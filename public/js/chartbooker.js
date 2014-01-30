@@ -128,8 +128,10 @@ function ajaxLoginForm(form) {
 }
 
 $(document).ready(function() {
-	$('.datepicker').datepicker();
-	$('.datepicker').datepicker('option', 'dateFormat', 'dd-mm-yy');
+	$('.datepicker.date').datepicker();
+	$('.datepicker.date').datepicker('option', 'dateFormat', 'dd-mm-yy');
+	$('.datepicker.datetime').datetimepicker();
+	$('.datepicker.datetime').datetimepicker({timeFormat: 'hh:mm'});
 	$('.datepicker').each(function() {
 		$(this).datepicker('setDate', $(this).attr('value'));
 	});

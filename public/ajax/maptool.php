@@ -120,7 +120,7 @@ if (isset($_POST['init'])) {
 			'status' => $pos->get('status'),
 			'statusText' => $pos->getStatusText(),
 			'exhibitor' => $ex,
-			'expires' => date('d-m-Y', strtotime($pos->get('expires'))),
+			'expires' => date('d-m-Y H:i', strtotime($pos->get('expires'))),
 			'applied' => $applied,
 			'being_edited' => $pos->get('being_edited'),
 			'edit_started' => $pos->get('edit_started')
@@ -260,7 +260,7 @@ if (isset($_POST['reservePosition'])) {
 	}
 	
 	$pos->set('status', 1);
-	$pos->set('expires', date('Y-m-d', strtotime($_POST['expires'])));
+	$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 	$pos->save();
 
 	exit;
@@ -306,7 +306,7 @@ if (isset($_POST['editBooking'])) {
 	
 	//$pos->set('status', 1);
 	if (isset($_POST['expires'])) {
-		$pos->set('expires', date('Y-m-d', strtotime($_POST['expires'])));
+		$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 		$pos->save();
 	}
 

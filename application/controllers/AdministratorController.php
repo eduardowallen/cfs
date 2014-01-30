@@ -966,7 +966,7 @@ class AdministratorController extends Controller {
 			}
 
 			$pos->set('status', 1);
-			$pos->set('expires', date('Y-m-d', strtotime($_POST['expires'])));
+			$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 
 			$exhib = new Exhibitor;
 			$exhib->set('user', $prel->get('user'));

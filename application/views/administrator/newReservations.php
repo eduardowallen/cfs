@@ -205,8 +205,8 @@
 			<option id="reserve_user"></option>
 		</select>
 
-		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy)</label>
-		<input type="text" class="dialogueInput date datepicker" name="expires" id="reserve_expires_input" value="<?php echo date('d-m-Y', (isset($fairCloses) && $fairCloses > 0 ? $fairCloses : time()));  ?>"/>
+		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (dd-mm-yyyy hh:mm)</label>
+		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" value="<?php echo date('d-m-Y H:m', (isset($fairCloses) && $fairCloses > 0 ? $fairCloses : time()));  ?>"/>
 
 		<p>
 			<input type="hidden" name="id" id="reserve_id" />
@@ -389,7 +389,7 @@
 <?php endif; ?>
 				</td>
 				<td style="display:none;"><?php echo $pos['categories']?></td>
-				<td><?php echo date('d-m-Y', strtotime($pos['expires'])); ?></td>
+				<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>
 				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
 				<td class="center">
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">

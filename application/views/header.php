@@ -15,6 +15,7 @@
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
 <script type="text/javascript" src="js/jquery-1.9.1.min.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/jquery-ui-1.10.1.min.js?u=<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/formchecker.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/passwd_meter.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js?u=<?php echo $unique?>"></script>
