@@ -15,6 +15,18 @@
 	});
 </script>
 
+<div id="arranger_message_popup" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
+
+	<h3><?php echo $tr_message; ?></h3>
+
+	<p id="arranger_message_text"></p>
+
+	<p class="center">
+		<a href="#" class="link-button close-popup"><?php echo $ok_label; ?></a>
+	</p>
+</div>
+
 <h1><?php echo $headline; ?></h1>
 
 <?php if (count($positions) > 0): ?>
@@ -60,7 +72,13 @@ $maps = $maps[0]->get('positions');
 					<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
-					<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
+					<td class="center" title="<?php echo htmlspecialchars($pos->get('exhibitor')->get('arranger_message')); ?>">
+<?php if (strlen($pos->get('exhibitor')->get('arranger_message')) > 0): ?>
+						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos->get('exhibitor')->get('exhibitor_id'); ?>" class="open-arranger-message">
+							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+						</a>
+<?php endif; ?>
+					</td>
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -125,7 +143,13 @@ $maps = $maps[0]->get('positions');
 					<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
 					<td><?php echo date('d-m-Y', strtotime($pos->get('expires'))); ?></td>
-					<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
+					<td class="center" title="<?php echo htmlspecialchars($pos->get('exhibitor')->get('arranger_message')); ?>">
+<?php if (strlen($pos->get('exhibitor')->get('arranger_message')) > 0): ?>
+						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos->get('exhibitor')->get('exhibitor_id'); ?>" class="open-arranger-message">
+							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+						</a>
+<?php endif; ?>
+					</td>
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos->get('exhibitor')->get('fair').'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -197,7 +221,13 @@ $maps = $maps[0]->get('positions');
 					<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $booking_time[$count]['booking_time']); ?></td>
-					<td><?php echo substr($pos->get('exhibitor')->get('arranger_message'), 0, 50); ?></td>
+					<td class="center" title="<?php echo htmlspecialchars($pos->get('exhibitor')->get('arranger_message')); ?>">
+<?php if (strlen($pos->get('exhibitor')->get('arranger_message')) > 0): ?>
+						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos->get('preliminary_id'); ?>" class="open-arranger-message">
+							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+						</a>
+<?php endif; ?>
+					</td>
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$booking_time[$count]['fair'].'/'.$pos->get('id').'/'.$maps[0]->map; ?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />

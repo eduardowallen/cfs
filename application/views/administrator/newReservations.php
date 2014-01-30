@@ -249,6 +249,18 @@
 	</form>
 </div>
 
+<div id="arranger_message_popup" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
+
+	<h3><?php echo $tr_message; ?></h3>
+
+	<p id="arranger_message_text"></p>
+
+	<p class="center">
+		<a href="#" class="link-button close-popup"><?php echo $ok_label; ?></a>
+	</p>
+</div>
+
 
 
 <h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
@@ -291,8 +303,14 @@
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
-					<td ><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
-					<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
+					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+<?php if (strlen($pos['arranger_message']) > 0): ?>
+						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
+							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+						</a>
+<?php endif; ?>
+					</td>
 					<td style="display:none;"><?php echo $pos['categories']?> </td>
 					<td>
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
@@ -363,7 +381,13 @@
 				<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 				<td class="center"><?php echo $pos['commodity']; ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
-				<td title="<?php echo $pos['arranger_message']; ?>"><?php echo substr($pos['arranger_message'], 0, 50); ?></td>
+				<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+<?php if (strlen($pos['arranger_message']) > 0): ?>
+						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
+							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+						</a>
+<?php endif; ?>
+				</td>
 				<td style="display:none;"><?php echo $pos['categories']?></td>
 				<td><?php echo date('d-m-Y', strtotime($pos['expires'])); ?></td>
 				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
@@ -457,7 +481,13 @@
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
-					<td title="<?php echo htmlspecialchars($pos['arranger_message']); ?>"><?php echo htmlspecialchars(substr($pos['arranger_message'], 0, 50)); ?></td>
+					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+<?php if (strlen($pos['arranger_message']) > 0): ?>
+						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
+							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+						</a>
+<?php endif; ?>
+					</td>
 					<td style="display:none;"><?php echo $pos['categories']?></td>
 					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'; ?></td>
 					<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'; ?></td>

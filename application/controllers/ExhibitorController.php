@@ -972,6 +972,7 @@ class ExhibitorController extends Controller {
 			$ex->set('arranger_message', $prel['arranger_message']);
 			$pos->set('exhibitor', $ex);
 			$pos->get('exhibitor')->set('company', 'Myself');
+			$pos->set('preliminary_id', $prel['id']);
 			$prelpos[] = $pos;
 		}
 
@@ -995,6 +996,7 @@ class ExhibitorController extends Controller {
 		$this->set('tr_delete', 'Delete');
 
 		$this->set('confirm_delete', 'Are you sure?');
+		$this->set('ok_label', 'OK');
 	}
 
 	function edit($fair, $id) {

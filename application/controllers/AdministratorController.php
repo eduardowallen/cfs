@@ -588,6 +588,33 @@ class AdministratorController extends Controller {
 		$this->set('export', 'Export to Excel');
 		$this->set('col_export_err', 'Select at least one column in order to export!');
 		$this->set('row_export_err', 'Select at least one row in order to export!');
+		$this->set('ok_label', 'OK');
+	}
+
+	public function arrangerMessage($type = '', $id = 0) {
+
+		setAuthLevel(1);
+
+		if ($type !== '' && $id > 0) {
+
+			$message = '';
+
+			if ($type == 'preliminary') {
+				$prel_booking = new PreliminaryBooking();
+				$prel_booking->load($id, 'id');
+				$message = $prel_booking->get('arranger_message');
+			} else {
+				$exhibitor = new Exhibitor();
+				$exhibitor->load($id, 'id');
+				$message = $exhibitor->get('arranger_message');
+			}
+
+			if ($this->is_ajax) {
+				$this->createJsonResponse();
+			}
+
+			$this->setNoTranslate('message', $message);
+		}
 	}
 
 	public function delete($id, $confirmed='', $from='') {

@@ -372,6 +372,40 @@ $(document).ready(function() {
 		}
 		
 	});
+
+	if ($('#arranger_message_popup').length) {
+
+		function closeArrangerMsgPopup(e) {
+			if (e) {
+				e.preventDefault();
+			}
+
+			arranger_message_popup.hide();
+		}
+
+		var arranger_message_popup = $('#arranger_message_popup');
+		$('.close-popup', arranger_message_popup).click(closeArrangerMsgPopup);
+
+		$('.open-arranger-message').click(function(e) {
+			e.preventDefault();
+			var link = $(this);
+
+			$.ajax({
+				url: link.attr('href'),
+				method: 'get',
+				success: function(response) {
+					$('#arranger_message_text').text(response.message);
+					arranger_message_popup.show();
+				}
+			});
+		});
+
+		$(window).on('keyup', function(e) {
+			if (e.keyCode == 27) {
+				closeArrangerMsgPopup();
+			}
+		});
+	}
 	
 	$(document).ready(function() {
 	$("#copy").change(function() {
