@@ -1,46 +1,7 @@
 <?php global $translator; ?>
 <style>
-	.dialogue {
-	display:none;
-	position:absolute;
-	z-index:10000;
-	width:400px;
-	/*height:420px;*/
-	top:50%;
-	left:50%;
-	margin-left:-222px;
-	margin-top:-200px;
-	padding:20px;
-	background:#ffffff;
-	border:4px solid #333333;
-	-moz-border-radius:8px;
-	-webkit-border-radius:8px;
-	border-radius:8px;
-	overflow:auto;
-	}
-
-	.dialogue h3 {
-		width:90%;
-
-		word-wrap:break-word;
-		overflow:hidden;
-	}
-
-	.closeDialogue label {
-		display:block;
-		width:100%;
-		word-wrap:break-word;
-		overflow:hidden;
-	}
-
-	.closeDialogue {
-		float:right;
-		cursor:pointer;
-	}
-
 	button{position:relative; top:-5px;}
 	#content{max-width:1280px;}
-	
 </style>
 
 <script type="text/javascript" src="js/tablesearch.js"></script>
