@@ -17,6 +17,7 @@
 
 <h1><?php echo $headline; ?></h1>
 
+<?php if (count($positions) > 0): ?>
 <div class="table_set">
 	<div class="tblHeader">
 		<ul class="special">
@@ -71,9 +72,13 @@ $maps = $maps[0]->get('positions');
 		</table>
 	</div>
 </div>
+<?php else: ?>
+<p><?php echo $booked_notfound; ?></p>
+<?php endif; ?>
 
 <h2 class="clear"><?php echo $rheadline; ?></h2>
 
+<?php if (count($rpositions) > 0): ?>
 <div class="table_set">
 	<div class="tblHeader">
 		<ul class="special">
@@ -132,9 +137,13 @@ $maps = $maps[0]->get('positions');
 		</table>
 	</div>
 </div>
+<?php else: ?>
+<p><?php echo $reserv_notfound; ?></p>
+<?php endif; ?>
 
 <h2 class="clear"><?php echo $prel_table; ?></h2>
 
+<?php if (count($prelpos) > 0): ?>
 <div class="table_set">
 	<div class="tblHeader">
 		<ul class="special">
@@ -207,3 +216,6 @@ $maps = $maps[0]->get('positions');
 		</table>
 	</div>
 </div>
+<?php else: ?>
+<p><?php echo $prel_notfound; ?></p>
+<?php endif; ?>

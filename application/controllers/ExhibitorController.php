@@ -979,6 +979,9 @@ class ExhibitorController extends Controller {
 		$this->setNoTranslate('rpositions', $rpositions);
 		$this->setNoTranslate('prelpos', $prelpos);
 
+		$this->set('booked_notfound', 'No booked booths was found.');
+		$this->set('reserv_notfound', 'No reservations was found.');
+		$this->set('prel_notfound', 'No preliminary bookings was found.');
 		$this->set('prel_table', 'Preliminary bookings');
 		$this->set('tr_fair', 'Fair');
 		$this->set('tr_pos', 'Stand space');
