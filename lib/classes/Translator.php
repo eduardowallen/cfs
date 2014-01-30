@@ -1,20 +1,41 @@
 <?php
 class Translator {
+
+	private static $translation_config_path = 'config/translation_config.json';
+	private $translation_config = null;
 	private $lang_file_path = 'application/lang/';
 	private $lang;
 	private $data;
+
 	public function __construct($lang) {
+
 		$this->lang = $lang;
 		if (file_exists(ROOT.$this->lang_file_path.$this->lang.'.json')) {
 			$this->data = json_decode(file_get_contents(ROOT.$this->lang_file_path.$this->lang.'.json'));
 		}
-		
+
+		// Create the config file if not exists
+		if (!file_exists(ROOT . self::$translation_config_path)) {
+			file_put_contents(ROOT . self::$translation_config_path, json_encode(array('translator_db' => false)));
+		}
+
+		// Read translation configuration
+		$this->translation_config = json_decode(file_get_contents(ROOT . self::$translation_config_path));
+	}
+
+	public function getTranslatorConfig($key) {
+		return $this->translation_config->{$key};
+	}
+
+	public function setTranslatorConfig($key, $value) {
+		$this->translation_config->{$key} = $value;
+		file_put_contents(ROOT . self::$translation_config_path, json_encode($this->translation_config));
 	}
 	
 	public function __get($val) {
-		// Om translate == true, så sparas strängar som kan översättas i databasen.
-		global $translate;
-		if ($translate) {
+
+		// Check if translations are configured to be saved in database
+		if ($this->translation_config->translator_db) {
 			global $globalDB;
 			$this->db = $globalDB;
 

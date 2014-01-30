@@ -9,6 +9,12 @@ class TranslateController extends Controller {
 		exit;
 		
 	}
+
+	function toggle() {
+		global $translator;
+		$translator->setTranslatorConfig('translator_db', !$translator->getTranslatorConfig('translator_db'));
+		header('Location: ' . BASE_URL . 'translate/all');
+	}
 	
 	function all() {
 		
@@ -52,10 +58,16 @@ class TranslateController extends Controller {
 		foreach ($res as $str) {
 			$strings[$str['group']][$str['lang']] = $str['value'];
 		}
+
+		global $translator;
 		
 		$this->setNoTranslate('langs', $langs);
 		$this->setNoTranslate('strings', $strings);
+		$this->setNoTranslate('translation_on', $translator->getTranslatorConfig('translator_db'));
 		$this->set('save_label', 'Save');
+		$this->set('translation_on_label', 'Turn translation ON');
+		$this->set('translation_off_label', 'Turn translation OFF');
+		$this->set('translation_toggle_question_label', 'Are you sure you want to change the state of translation functions?');
 		
 	}
 	

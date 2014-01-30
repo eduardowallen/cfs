@@ -95,11 +95,6 @@ $lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
 define('LANGUAGE', $lang);
 $translator = new Translator($lang);
 
-// Sätt till true om scriptet skall översätta text, false om den inte skall översätta text.
-// Detta är för att undvika dubletter & att scriptet skall bli slött.
-$translate = false;
-global $translate;
-
 $globalDB = new Database;
 global $globalDB;
 

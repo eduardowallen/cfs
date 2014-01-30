@@ -1,4 +1,17 @@
+<script>
+	$(document).ready(function() {
+		$('.toggle-translate-button').click(function(e) {
+			confirmBox(e, '<?php echo $translation_toggle_question_label; ?>', $(this).attr('href'));
+		});
+	});
+</script>
+
 <h1><?php echo $headline; ?></h1>
+
+<p>
+	<input type="submit" name="save" value="<?php echo $save_label; ?>" />
+	<a href="translate/toggle" class="link-button toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
+</p>
 
 <form action="translate/all" method="post">
 <table class="std_table">
@@ -29,5 +42,10 @@
 	</tbody>
 	
 </table>
-<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+
+<p>
+	<input type="submit" name="save" value="<?php echo $save_label; ?>" />
+	<a href="translate/toggle" class="link-button toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
+</p>
+
 </form>
