@@ -151,7 +151,7 @@
 			<label for="reminder_day<?php echo $i; ?>"><?php echo ${'reminder_' . $i . '_label'}; ?></label>
 			<select name="reminder_day<?php echo $i; ?>" id="reminder_day<?php echo $i; ?>">
 				<option value="0"><?php echo $no_reminder_label; ?></option>
-<?php	for ($j = 1; $j <= 30; $j++): ?>
+<?php	for ($j = 1; $j <= 365; $j++): ?>
 				<option value="<?php echo $j; ?>"<?php if ($j == $fair->get('reminder_day' . $i)) echo ' selected="selected"'; ?>><?php echo $j; ?></option>
 <?php	endfor; ?>
 			</select>
