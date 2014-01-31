@@ -8,8 +8,8 @@ function userIsConnectedTo($fairId) {
 
 	global $globalDB;
 
-	$stmt = $globalDB->prepare("SELECT * FROM fair_user_relation WHERE fair_user_relation.user=? AND fair_user_relation.fair=$fairId");
-	$stmt->execute(array($_SESSION['user_id']));
+	$stmt = $globalDB->prepare("SELECT * FROM fair_user_relation WHERE fair_user_relation.user = ? AND fair_user_relation.fair = ?");
+	$stmt->execute(array($_SESSION['user_id'], $fairId));
 	$result = $stmt->fetch();
 
 	if ($result) {
