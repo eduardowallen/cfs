@@ -251,7 +251,7 @@ class AdministratorController extends Controller {
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$arr = $result;
 		elseif($tbl == 2) : 
-			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
+			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 			$stmt->execute(array($_SESSION['user_fair'], 1));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$arr = $result;
@@ -291,7 +291,7 @@ class AdministratorController extends Controller {
 		$alpha = range('A', 'Z');
 		$numcols = 0;
 		
-		$arr2 = array('d', $this->translate->{'Stand'}, $this->translate->{'Area'}, $this->translate->{'Booked by'}, $this->translate->{'Trade'}, $this->translate->{'Time of booking'}, $this->translate->{'Message to organizer'});
+		$arr2 = array('d', $this->translate->{'Stand'}, $this->translate->{'Area'}, $this->translate->{'Booked by'}, $this->translate->{'Trade'}, $this->translate->{'Time of booking'}, $this->translate->{'Message to organizer'}, $this->translate->{'Reserved until'});
 		
 
 		if(!empty($cols[1])) : 
@@ -318,6 +318,10 @@ class AdministratorController extends Controller {
 			$xls->getActiveSheet()->SetCellValue('F1', $arr2[$cols[6]]);
 		endif;
 
+		if(!empty($cols[7])) :
+			$xls->getActiveSheet()->SetCellValue('G1', $arr2[$cols[7]]);
+		endif;
+
 		$row = 2;
 
 		foreach($arr as $arrChild) :
@@ -325,7 +329,7 @@ class AdministratorController extends Controller {
 				
 				
 				
-				$arr = array('d', $arrChild['name'], $arrChild['area'], $arrChild['company'], $arrChild['commodity'], date('d-m-Y H:i:s', $arrChild['booking_time']), $arrChild['arranger_message']);
+				$arr = array('d', $arrChild['name'], $arrChild['area'], $arrChild['company'], $arrChild['commodity'], date('d-m-Y H:i:s', $arrChild['booking_time']), $arrChild['arranger_message'], $arrChild['expires']);
 				
 				if(!empty($cols[1])) : 	
 					$xls->getActiveSheet()->SetCellValue('A'.$row, $arr[$cols[1]]); 
@@ -349,6 +353,10 @@ class AdministratorController extends Controller {
 	
 				if(!empty($cols[6])) : 
 					$xls->getActiveSheet()->SetCellValue('F'.$row, $arr[$cols[6]]);
+				endif;
+
+				if(!empty($cols[7])) : 
+					$xls->getActiveSheet()->SetCellValue('G'.$row, $arr[$cols[7]]);
 				endif;
 				$row++; 
 			endif;
