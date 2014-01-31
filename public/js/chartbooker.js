@@ -129,12 +129,15 @@ function ajaxLoginForm(form) {
 
 $(document).ready(function() {
 	$('.datepicker.date').datepicker();
-	$('.datepicker').datepicker('option', 'dateFormat', 'dd-mm-yy');
-	$('.datepicker').each(function() {
+	$('.datepicker.date').datepicker('option', 'dateFormat', 'dd-mm-yy');
+	$('.datepicker.datetime').datetimepicker({timeFormat: 'HH:mm'});
+	$('.datepicker.datetime').datetimepicker('option', 'dateFormat', 'dd-mm-yy');
+	$('.datepicker.date').each(function() {
 		$(this).datepicker('setDate', $(this).attr('value'));
 	});
-	$('.datepicker.datetime').datetimepicker();
-	$('.datepicker.datetime').datetimepicker({timeFormat: 'dd-mm-yy HH:mm'});
+	$('.datepicker.datetime').each(function() {
+		$(this).datetimepicker('setDate', $.datepicker.parseDateTime("dd-mm-yy", "HH:mm", $(this).attr('value')));
+	});
 
 	$('#languages a.selected').attr('href', 'javascript:void(0)').append('&nbsp;&nbsp;<img src="images/arrow_down.png" alt=""/>').prependTo('#languages');	
 	$('.loginlink').click(function(e) {
