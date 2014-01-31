@@ -585,13 +585,16 @@ class AdministratorController extends Controller {
 		$this->set('tr_booker', 'Booked by');
 		$this->set('tr_field', 'Trade');
 		$this->set('tr_time', 'Time of booking');
+		$this->set('tr_last_edited', 'Last edited');
 		$this->set('tr_reserved_until', 'Reserved until');
 		$this->set('tr_message', 'Message to organizer');
 		$this->set('tr_view', 'View');
+		$this->set('tr_edit', 'Edit');
 		$this->set('tr_delete', 'Delete');
 		$this->set('tr_approve', 'Approve');
 		$this->set('tr_deny', 'Deny');
 		$this->set('tr_reserve', 'Reserve stand space');
+		$this->set('never_edited_label', 'Never edited');
 		$this->set('confirm_delete', 'Are you sure that you want to remove stand space');
 		$this->set('export', 'Export to Excel');
 		$this->set('col_export_err', 'Select at least one column in order to export!');
@@ -954,6 +957,46 @@ class AdministratorController extends Controller {
 		}
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
+	}
+
+	public function editBooking($exhibitor_id = 0) {
+		setAuthLevel(2);
+
+		if ($exhibitor_id > 0) {
+
+			$exhibitor = new Exhibitor();
+			$exhibitor->load($exhibitor_id, 'id');
+
+			if ($exhibitor->wasLoaded()) {
+				$exhibitor->set('commodity', $_POST['commodity']);
+				$exhibitor->set('arranger_message', $_POST['arranger_message']);
+				$exhibitor->save();
+
+				// Remove old categories for this booking
+				$stmt = $this->db->prepare("DELETE FROM exhibitor_category_rel WHERE exhibitor = ?");
+				$stmt->execute(array($exhibitor->get('id')));
+
+				// Set new categories for this booking
+				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+					$stmt = $this->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+
+					foreach ($_POST['categories'] as $cat) {
+						$stmt->execute(array($exhibitor->get('id'), $cat));
+					}
+				}
+
+				$pos = new FairMapPosition();
+				$pos->load($exhibitor->get('position'), 'id');
+
+				// If this is a reservation (status is 1), then also set the expiry date
+				if ($pos->wasLoaded() && $pos->get('status') == 1) {
+					$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+					$pos->save();
+				}
+			}
+		}
+
+		header('Location: ' . BASE_URL . 'administrator/newReservations');
 	}
 
 	public function reservePrelBooking() {

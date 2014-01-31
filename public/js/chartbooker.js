@@ -5,58 +5,65 @@ function showPopup(type, activator){
 
 	if(type == "reserve"){
 		var link = row.find('.reserve').text();
-		reservePopup(row, link);
+		reservePopup(row, link, 'confirm');
 	}
 
 	if(type == "book"){
 		var link = row.find('.approve').text();
-		bookPopup(row, link);
+		bookPopup(row, link, 'confirm');
 		
 	}
 }
 
-function reservePopup(row, link){
-	$('#reserve_position_dialogue').css('display', 'block');
+function reservePopup(row, link, action) {
+
+	var dialogue = $('#reserve_position_dialogue');
+
+	$('.confirm, .edit', dialogue).hide();
+	$('.' + action, dialogue).show();
+	dialogue.css('display', 'block');
 
 	var data = row.children(), 
-		catArr = data.eq(6).text().split("|");
+		catArr = data.eq(7).text().split("|");
 
 	$('#reserve_category_scrollbox > p').each(function(){
 		var categoryValue = $(this).children().val();
-		for(var i = 0; i < catArr.length; i++){
-			if(categoryValue == catArr[i]){
-				$(this).children().attr('checked', 'checked');
-			}
+		for (var i = 0; i < catArr.length; i++) {
+			$(this).children().prop('checked', categoryValue == catArr[i]);
 		}
 	});
 
-	$('#reserve_position_dialogue form').prop('action', link);
+	$('form', dialogue).prop('action', link);
 	$('#reserve_id').val(row.data('id'));
 	$('#reserve_user').text(data.eq(2).text());
 	$('#reserve_commodity_input').val(data.eq(3).text());
-	$('#reserve_message_input').val(data.eq(5).prop('title'));
+	$('#reserve_message_input').val(data.eq(6).prop('title'));
+	$('#reserve_expires_input').val(data.eq(8).text().replace(' UTC', ''));
 }
 
-function bookPopup(row, link){
-	$('#book_position_dialogue').css('display', 'block');
+function bookPopup(row, link, action) {
+
+	var dialogue = $('#book_position_dialogue');
+
+	$('.confirm, .edit', dialogue).hide();
+	$('.' + action, dialogue).show();
+	dialogue.css('display', 'block');
 	
 	var data = row.children(), 
-		catArr = data.eq(6).text().split("|");
+		catArr = data.eq(7).text().split("|");
 
 	$('#book_category_scrollbox > p').each(function(){
 		var categoryValue = $(this).children().val();
-		for(var i = 0; i < catArr.length; i++){
-			if(categoryValue == catArr[i]){
-				$(this).children().attr('checked', 'checked');
-			}
+		for (var i = 0; i < catArr.length; i++) {
+			$(this).children().prop('checked', categoryValue == catArr[i]);
 		}
 	});
 
-	$('#book_position_dialogue form').prop('action', link);
+	$('form', dialogue).prop('action', link);
 	$('#book_id').val(row.data('id'));
 	$('#book_user').text(data.eq(2).text());
 	$('#book_commodity_input').val(data.eq(3).text());
-	$('#book_message_input').val(data.eq(5).prop('title'));	
+	$('#book_message_input').val(data.eq(6).prop('title'));	
 }
 
 function closeDialogue(pref){
@@ -412,6 +419,17 @@ $(document).ready(function() {
 			}
 		});
 	}
+
+	$(document.body).on('click', '.open-edit-booking', function(e) {
+		var link = $(this);
+		e.preventDefault();
+		bookPopup(link.parent().parent(), link.attr('href'), 'edit');
+
+	}).on('click', '.open-edit-reservation', function(e) {
+		var link = $(this);
+		e.preventDefault();
+		reservePopup(link.parent().parent(), link.attr('href'), 'edit');
+	});
 	
 	$(document).ready(function() {
 	$("#copy").change(function() {

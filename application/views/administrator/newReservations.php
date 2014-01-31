@@ -181,7 +181,8 @@
 <div id="reserve_position_dialogue" class="dialogue">
 	<form action="" method="post">
 		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('reserve')" class="closeDialogue"/>
-		<h3><?php echo $translator->{'Reserve stand space'} ?></h3>
+		<h3 class="confirm"><?php echo $translator->{'Reserve stand space'} ?></h3>
+		<h3 class="edit"><?php echo $translator->{'Edit reservation'} ?></h3>
 
 		<div class="ssinfo"></div>
 		
@@ -210,7 +211,8 @@
 
 		<p>
 			<input type="hidden" name="id" id="reserve_id" />
-			<input type="submit" name="reserve" value="<?php echo $translator->{'Confirm reservation'} ?>" />
+			<input type="submit" name="reserve" class="confirm" value="<?php echo $translator->{'Confirm reservation'} ?>" />
+			<input type="submit" name="reserve" class="edit" value="<?php echo $translator->{'Save'} ?>" />
 		</p>
 	</form>
 </div>
@@ -218,7 +220,8 @@
 <div id="book_position_dialogue" class="dialogue">
 	<form action="" method="post">
 		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('book')" class="closeDialogue"/>
-		<h3><?php echo $translator->{'Book stand space'} ?></h3>
+		<h3 class="confirm"><?php echo $translator->{'Book stand space'} ?></h3>
+		<h3 class="edit"><?php echo $translator->{'Edit booking'} ?></h3>
 
 		<div class="ssinfo"></div>
 		
@@ -244,7 +247,8 @@
 
 		<p>
 			<input type="hidden" name="id" id="book_id" />
-			<input type="submit" name="approve" value="<?php echo $translator->{'Confirm booking'} ?>" />
+			<input type="submit" name="approve" class="confirm" value="<?php echo $translator->{'Confirm booking'} ?>" />
+			<input type="submit" name="approve" class="edit" value="<?php echo $translator->{'Save'} ?>" />
 		</p>
 	</form>
 </div>
@@ -275,8 +279,10 @@
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_last_edited; ?></div><input type="checkbox" value="8" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
+			<li><div class="tblrow1"><?php echo $tr_edit; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('booked')" checked="checked" /></li>
 		</ul>
@@ -290,8 +296,10 @@
 					<th><?php echo $tr_booker; ?></th>
 					<th><?php echo $tr_field; ?></th>
 					<th><?php echo $tr_time; ?></th>
+					<th><?php echo $tr_last_edited; ?></th>
 					<th><?php echo $tr_message; ?></th>
 					<th><?php echo $tr_view; ?></th>
+					<th><?php echo $tr_edit; ?></th>
 					<th><?php echo $tr_delete; ?></th>
 					<th></th>
 				</tr>
@@ -304,6 +312,7 @@
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
+					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' UTC' : $never_edited_label); ?></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -311,10 +320,15 @@
 						</a>
 <?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']?> </td>
+					<td style="display:none;"><?php echo $pos['categories']?></td>
 					<td>
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
+						</a>
+					</td>
+					<td class="center">
+						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-booking">
+							<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" alt="<?php echo $tr_edit; ?>" />
 						</a>
 					</td>
 					<td class="center">
@@ -348,9 +362,11 @@
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_last_edited; ?></div><input type="checkbox" value="8" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_reserved_until; ?></div><input type="checkbox" value="7" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
+			<li><div class="tblrow1"><?php echo $tr_edit; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('reserved')" checked="checked" /></li>
@@ -365,9 +381,11 @@
 				<th><?php echo $tr_booker; ?></th>
 				<th><?php echo $tr_field; ?></th>
 				<th><?php echo $tr_time; ?></th>
+				<th><?php echo $tr_last_edited; ?></th>
 				<th><?php echo $tr_message; ?></th>
 				<th><?php echo $tr_reserved_until; ?></th>
 				<th><?php echo $tr_view; ?></th>
+				<th><?php echo $tr_edit; ?></th>
 				<th><?php echo $tr_deny; ?></th>
 				<th><?php echo $tr_approve; ?></th>
 				<th></th>
@@ -381,6 +399,7 @@
 				<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 				<td class="center"><?php echo $pos['commodity']; ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
+				<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' UTC' : $never_edited_label); ?></td>
 				<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -396,7 +415,12 @@
 						<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 					</a>
 				</td>
-				
+
+				<td class="center">
+					<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-reservation">
+						<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" alt="<?php echo $tr_edit; ?>" />
+					</a>
+				</td>
 				<td class="center">
 					<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Reservation')">
 						<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
@@ -481,6 +505,7 @@
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
+					<td style="display:none;"></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">

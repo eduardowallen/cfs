@@ -60,11 +60,11 @@ class Exhibitor extends User {
 	public function save() {
 		
 		if ($this->wasLoaded()) {
-			$sql = "UPDATE exhibitor SET user = ?, fair = ?, position = ?, category = ?, presentation = ?, commodity = ?, arranger_message = ?, booking_time = ? WHERE id = ?";
+			$sql = "UPDATE exhibitor SET user = ?, fair = ?, position = ?, category = ?, presentation = ?, commodity = ?, arranger_message = ?, edit_time = ? WHERE id = ?";
 			$params = array($this->user, $this->fair, $this->position, $this->category, $this->presentation, $this->commodity, $this->arranger_message, time(), $this->exhibitor_id);
 		} else {
-			$sql = "INSERT INTO exhibitor (user, fair, position, category, presentation, commodity, arranger_message, booking_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-			$params = array($this->user, $this->fair, $this->position, $this->category, $this->presentation, $this->commodity, $this->arranger_message, time());
+			$sql = "INSERT INTO exhibitor (user, fair, position, category, presentation, commodity, arranger_message, booking_time, edit_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			$params = array($this->user, $this->fair, $this->position, $this->category, $this->presentation, $this->commodity, $this->arranger_message, time(), 0);
 		}
 		
 		$stmt = $this->db->prepare($sql);
