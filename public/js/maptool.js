@@ -1520,7 +1520,7 @@ maptool.reservePosition = function(positionObject) {
 			$('#reserve_category_scrollbox').css('border-color', '#000000');
 		}*/
 
-		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d$/)) {
+		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
 			var dateParts = $("#reserve_expires_input").val().split('-');
 			dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
 			// Add one day, since it should be up to and including.
