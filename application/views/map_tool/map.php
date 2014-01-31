@@ -362,7 +362,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<?php endif?>
 </div>
 
-<div id="todayDt" td="<?php echo strtotime(date('d-m-Y'))?>"> </div>
+<div id="todayDt" td="<?php echo time(); ?>"> </div>
 <div id="closeDt" td="<?php echo $fair->get('auto_close')?>"> </div>
 <div id="publishDt" td="<?php echo $fair->get('auto_publish')?>"> </div>
 
