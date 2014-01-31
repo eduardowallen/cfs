@@ -348,8 +348,8 @@
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="7" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_reserved_until; ?></div><input type="checkbox" value="6" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_reserved_until; ?></div><input type="checkbox" value="7" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
