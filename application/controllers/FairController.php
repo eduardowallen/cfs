@@ -179,7 +179,6 @@ class FairController extends Controller {
 				$opts = '';
 				foreach ($result as $res) {
 					$s = ($sel == $res['id']) ? ' selected="selected"' : '';
-					echo $sel.' - '.$res['id'].'<br/>';
 					$opts.= '<option'.$s.' value="'.$res['id'].'">'.$res['company'].', '.$res['name'].'</option>';
 				}
 				return $opts;
@@ -276,14 +275,14 @@ class FairController extends Controller {
 				$this->setNoTranslate('disable', '');
 			} elseif($this->Fair->get('approved') == 1) {
 				$this->setNoTranslate('app_sel0', '');
-				$this->setNoTranslate('app_sel1', 'selected="selected"');
+				$this->setNoTranslate('app_sel1', ' selected="selected"');
 				$this->setNoTranslate('app_sel2', '');
 				$this->setNoTranslate('disable', '');
 
 			} elseif($this->Fair->get('approved') == 2){
 				$this->setNoTranslate('app_sel0', '');
 				$this->setNoTranslate('app_sel1', '');
-				$this->setNoTranslate('app_sel2', 'selected="selected"');
+				$this->setNoTranslate('app_sel2', ' selected="selected"');
 			}
 
 			if(userLevel() < 3){
