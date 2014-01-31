@@ -7,7 +7,7 @@
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <h1 style="float: left; margin-right: 60px;"><?php echo $fair->get('name'); ?></h1>
 
-<?php if($fairs_admin): // If a list of accessible fairs is found, display a drop-down list to choose from ?>
+<?php if (isset($fairs_admin)): // If a list of accessible fairs is found, display a drop-down list to choose from ?>
   <label class="inline-block"><?php echo $translator->{'Switch to event: '}; ?></label>
   <select onchange="if(this.value) document.location.href=this.value;">
   <?php
