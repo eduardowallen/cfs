@@ -239,38 +239,38 @@ class AdministratorController extends Controller {
 		$this->setNoTranslate('noView', true);
 		$cols = explode('|', $cols);
 		$rows = explode('|', $rows);
-		
+		unset($cols[0]);
+
 		/* Samla relevant information till en array
 		beroende på vilken tabell som är vald */
 		$u = new User;
 		$u->load($_SESSION['user_id'], 'id');
 
-		if($tbl == 1) :
+		if ($tbl == 1) {
 			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 			$stmt->execute(array($_SESSION['user_fair'], 2));
-			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$arr = $result;
-		elseif($tbl == 2) : 
+			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		} else if ($tbl == 2) {
 			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 			$stmt->execute(array($_SESSION['user_fair'], 1));
-			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$arr = $result;
-		elseif($tbl == 3) :
+			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		} else if ($tbl == 3) {
 			$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
 			$stmt->execute(array($_SESSION['user_fair']));
-			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$arr = $result;
-		endif;
+			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		}
 
 		/* Har nu tabellinformationen i en array, 
 		sätt in informationen i ett exceldokument 
 		och skicka i headern */
 		
-		if($tbl == 1 )
+		if ($tbl == 1)
 			$filename = "BookedStandSpaces.xlsx";
-		else if($tbl == 2)
+		else if ($tbl == 2)
 			$filename = "ReservedStandSpaces.xlsx";
-		else if($tbl == 3)
+		else if ($tbl == 3)
 			$filename = "PreliminaryBookings.xlsx";
 
 		header("Pragma: public");
@@ -281,86 +281,57 @@ class AdministratorController extends Controller {
 		header("Content-Type: application/download");
 		header("Content-Disposition: attachment;filename=".$filename);
 		header("Content-Transfer-Encoding: binary");
-				
+
 		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
-		
+
 		$xls = new PHPExcel();
-		
 		$xls->setActiveSheetIndex(0);
-		$count = 0;
-		$alpha = range('A', 'Z');
-		$numcols = 0;
-		
-		$arr2 = array('d', $this->translate->{'Stand'}, $this->translate->{'Area'}, $this->translate->{'Booked by'}, $this->translate->{'Trade'}, $this->translate->{'Time of booking'}, $this->translate->{'Message to organizer'}, $this->translate->{'Reserved until'});
-		
 
-		if(!empty($cols[1])) : 
-			$xls->getActiveSheet()->SetCellValue('A1', $arr2[$cols[1]]);
-		endif;
+		$alpha = range('A', 'Z');		
+		$column_names = array(
+			1 => $this->translate->{'Stand'}, 
+			$this->translate->{'Area'}, 
+			$this->translate->{'Booked by'}, 
+			$this->translate->{'Trade'}, 
+			$this->translate->{'Time of booking'}, 
+			$this->translate->{'Message to organizer'}, 
+			$this->translate->{'Reserved until'}, 
+			$this->translate->{'Last edited'}
+		);
 
-		if(!empty($cols[2])) : 
-			$xls->getActiveSheet()->SetCellValue('B1', $arr2[$cols[2]]);
-		endif;
+		// The variabel $cols contains the INDEXES of the column "names" to show!
+		foreach ($cols as $i => $column_idx) {
+			$xls->getActiveSheet()->SetCellValue($alpha[$i - 1] . '1', $column_names[$column_idx]);
+		}
 
-		if(!empty($cols[3])) : 
-			$xls->getActiveSheet()->SetCellValue('C1', $arr2[$cols[3]]);
-		endif;
-
-		if(!empty($cols[4])) : 
-			$xls->getActiveSheet()->SetCellValue('D1', $arr2[$cols[4]]);
-		endif;
-		
-		if(!empty($cols[5])) :
-			$xls->getActiveSheet()->SetCellValue('E1', $arr2[$cols[5]]);
-		endif;
-
-		if(!empty($cols[6])) :
-			$xls->getActiveSheet()->SetCellValue('F1', $arr2[$cols[6]]);
-		endif;
-
-		if(!empty($cols[7])) :
-			$xls->getActiveSheet()->SetCellValue('G1', $arr2[$cols[7]]);
-		endif;
-
+		// Row 1 in the sheet is now done, continue with data on row 2
 		$row = 2;
 
-		foreach($arr as $arrChild) :
-			if(in_array($arrChild['id'], $rows)):
-				
-				
-				
-				$arr = array('d', $arrChild['name'], $arrChild['area'], $arrChild['company'], $arrChild['commodity'], date('d-m-Y H:i:s', $arrChild['booking_time']), $arrChild['arranger_message'], $arrChild['expires']);
-				
-				if(!empty($cols[1])) : 	
-					$xls->getActiveSheet()->SetCellValue('A'.$row, $arr[$cols[1]]); 
-				endif;
+		// Start outputing the actual booking data into the spreadsheet
+		foreach ($data_rows as $arrChild) {
 
-				if(!empty($cols[2])) : 
-					$xls->getActiveSheet()->SetCellValue('B'.$row, $arr[$cols[2]]);
-				endif;
+			// Is this row selected for print out?
+			if (in_array($arrChild['id'], $rows)) {
 
-				if(!empty($cols[3])) : 
-					$xls->getActiveSheet()->SetCellValue('C'.$row, $arr[$cols[3]]);
-				endif;
+				$data = array(
+					1 => $arrChild['name'], 
+					$arrChild['area'], 
+					$arrChild['company'], 
+					$arrChild['commodity'], 
+					date('d-m-Y H:i:s', $arrChild['booking_time']), 
+					$arrChild['arranger_message'], 
+					(isset($arrChild['expires']) ? $arrChild['expires'] : ''), 
+					($arrChild['edit_time'] > 0 ? date('d-m-Y H:i:s', $arrChild['edit_time']) : '')
+				);
 
-				if(!empty($cols[4])) :  
-					$xls->getActiveSheet()->SetCellValue('D'.$row, $arr[$cols[4]]);
-				endif;
+				foreach ($cols as $i => $column_idx) {
+					$xls->getActiveSheet()->SetCellValue($alpha[$i - 1] . $row, $data[$column_idx]);
+				}
 
-				if(!empty($cols[5])) : 
-					$xls->getActiveSheet()->SetCellValue('E'.$row, $arr[$cols[5]]);
-				endif;
-	
-				if(!empty($cols[6])) : 
-					$xls->getActiveSheet()->SetCellValue('F'.$row, $arr[$cols[6]]);
-				endif;
-
-				if(!empty($cols[7])) : 
-					$xls->getActiveSheet()->SetCellValue('G'.$row, $arr[$cols[7]]);
-				endif;
+				// Next row in spreadsheet
 				$row++; 
-			endif;
-		endforeach;
+			}
+		}
 		
 			
 		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
