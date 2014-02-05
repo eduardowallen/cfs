@@ -28,14 +28,13 @@ function reservePopup(row, link, action) {
 	open_dialogue = dialogue;
 
 	var data = row.children(), 
-		catArr = data.eq(7).text().split("|");
+		catArr = data.eq(7).text().split("|"), 
+		i;
 
-	$('#reserve_category_scrollbox > p').each(function(){
-		var categoryValue = $(this).children().val();
-		for (var i = 0; i < catArr.length; i++) {
-			$(this).children().prop('checked', categoryValue == catArr[i]);
-		}
-	});
+	$('#reserve_category_scrollbox input').prop('checked', false);
+	for (i = 0; i < catArr.length; i++) {
+		$('#reserve_category_scrollbox input[value=' + catArr[i] + ']').prop('checked', true);
+	}
 
 	$('form', dialogue).prop('action', link);
 	$('.position-name', dialogue).text(data.eq(0).text());
@@ -60,14 +59,13 @@ function bookPopup(row, link, action) {
 	open_dialogue = dialogue;
 	
 	var data = row.children(), 
-		catArr = data.eq(7).text().split("|");
+		catArr = data.eq(7).text().split("|"), 
+		i;
 
-	$('#book_category_scrollbox > p').each(function(){
-		var categoryValue = $(this).children().val();
-		for (var i = 0; i < catArr.length; i++) {
-			$(this).children().prop('checked', categoryValue == catArr[i]);
-		}
-	});
+	$('#book_category_scrollbox input').prop('checked', false);
+	for (i = 0; i < catArr.length; i++) {
+		$('#book_category_scrollbox input[value=' + catArr[i] + ']').prop('checked', true);
+	}
 
 	$('form', dialogue).prop('action', link);
 	$('.position-name', dialogue).text(data.eq(0).text());
