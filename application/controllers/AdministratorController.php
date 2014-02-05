@@ -439,6 +439,7 @@ class AdministratorController extends Controller {
 			$ex->set('commodity', $_POST['commodity']);
 			$ex->set('arranger_message', $_POST['arranger_message']);
 			$ex->set('approved', 1);
+			$ex->set('edit_time', time());
 			
 			$exId = $ex->save();
 			$pos->save();
@@ -1000,6 +1001,7 @@ class AdministratorController extends Controller {
 			$exhib->set('arranger_message', $_POST['arranger_message']);
 			$exhib->set('booking_time', $prel->get('booking_time'));
 			$exhib->set('approved', 1);
+			$exhib->set('edit_time', time());
 			$exId = $exhib->save();
 			$pos->save();
 
