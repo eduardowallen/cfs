@@ -542,6 +542,7 @@ if (isset($_POST['approve_preliminary'])) {
 		$exhibitor->set('presentation', '');
 		$exhibitor->set('commodity', $_POST['commodity']);
 		$exhibitor->set('arranger_message', $_POST['message']);
+		$exhibitor->set('edit_time', time());
 		$exhibitor_id = $exhibitor->save();
 		
 		$stmt = $position->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
