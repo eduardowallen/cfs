@@ -38,6 +38,7 @@ function reservePopup(row, link, action) {
 	});
 
 	$('form', dialogue).prop('action', link);
+	$('.position-name', dialogue).text(data.eq(0).text());
 	$('#reserve_id').val(row.data('id'));
 	$('#reserve_user').text(data.eq(2).text());
 	$('#reserve_commodity_input').val(data.eq(3).text());
@@ -69,6 +70,7 @@ function bookPopup(row, link, action) {
 	});
 
 	$('form', dialogue).prop('action', link);
+	$('.position-name', dialogue).text(data.eq(0).text());
 	$('#book_id').val(row.data('id'));
 	$('#book_user').text(data.eq(2).text());
 	$('#book_commodity_input').val(data.eq(3).text());

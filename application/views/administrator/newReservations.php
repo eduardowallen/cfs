@@ -184,7 +184,9 @@
 		<h3 class="confirm"><?php echo $translator->{'Reserve stand space'} ?></h3>
 		<h3 class="edit"><?php echo $translator->{'Edit reservation'} ?></h3>
 
-		<div class="ssinfo"></div>
+		<p>
+			<strong><?php echo htmlspecialchars($translator->{'Space'}); ?> <span class="position-name"></span></strong>
+		</p>
 		
 		<label for="reserve_category_input"><?php echo $translator->{'Category'} ?></label>
 		<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
@@ -223,7 +225,9 @@
 		<h3 class="confirm"><?php echo $translator->{'Book stand space'} ?></h3>
 		<h3 class="edit"><?php echo $translator->{'Edit booking'} ?></h3>
 
-		<div class="ssinfo"></div>
+		<p>
+			<strong><?php echo htmlspecialchars($translator->{'Space'}); ?> <span class="position-name"></span></strong>
+		</p>
 		
 		<label for="book_category_input"><?php echo $translator->{'Category'} ?></label>
 		<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
