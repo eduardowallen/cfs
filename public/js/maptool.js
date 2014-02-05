@@ -1773,9 +1773,10 @@ maptool.showPreliminaryBookings = function(position_data) {
 			var i;
 
 			for (i = 0; i < response.length; i++) {
-				tbody.append('<tr><td><a href="#" class="open-reservation-form" data-index="' + i + '">'
+				tbody.append('<tr><td><a href="/exhibitor/profile/' + response[i].user + '">'
 					+ response[i].company + '</a></td><td>'
-					+ response[i].booking_time + '</td></tr>');
+					+ response[i].booking_time + '</td>'
+					+ '<td class="center"><a href="#" class="open-reservation-form" data-index="' + i + '"><img src="images/icons/add.png" alt="+" /></a></td></tr>');
 			}
 
 			// Save this list data for later use, in reservePreliminaryBooking()

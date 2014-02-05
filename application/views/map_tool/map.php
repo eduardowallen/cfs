@@ -348,6 +348,7 @@ function makeUserOptions3($sel=0, $fair) {
 			<tr>
 				<th><?php echo htmlspecialchars($translator->{'Booked by'}); ?></th>
 				<th><?php echo htmlspecialchars($translator->{'Time of booking'}); ?></th>
+				<th><?php echo htmlspecialchars($translator->{'Reserve stand space'}); ?></th>
 			</tr>
 		</thead>
 		<tbody>
