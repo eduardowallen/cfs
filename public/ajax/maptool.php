@@ -71,6 +71,7 @@ if (isset($_POST['init'])) {
 		}
 
 	}
+
 	$userId = (userLevel() > 0) ? $_SESSION['user_id'] : 0;
 	$ret = array(
 		'userlevel' => userLevel(),
@@ -84,9 +85,16 @@ if (isset($_POST['init'])) {
 		'positions'=>array()
 	);
 
+	if (userLevel() > 1) {
+		// Prepare a SQL statement for getting the number of prelimnary bookings for a position
+		$num_prel_booking_stmt = $globalDB->prepare("SELECT COUNT(*) AS cnt FROM preliminary_booking WHERE position = ?");
+	}
+
 	foreach ($map->get('positions') as $pos) {
 		$ex = $pos->get('exhibitor');
 		$cats = array();
+		$num_prel = 0;
+		$applied = 0;
 		unset($ex->password);
 		//unset($ex->commodity);
 		if (is_object($ex)) {
@@ -102,12 +110,24 @@ if (isset($_POST['init'])) {
 			
 			$ex->set('categories', $cats);
 			
-		}
-		
-		if (in_array($pos->get('id'), $prels)) {
-			$applied = 1;
-		} else {
+		} else if (userLevel() > 1) {
+
 			$applied = 0;
+			if (userCanAdminFair($map->get('fair'), $map->get('id'))) {
+
+				// Fetch any preliminary bookings for this position
+				$num_prel_booking_stmt->execute(array($pos->get('id')));
+				$num_prel_result = $num_prel_booking_stmt->fetchObject();
+
+				if ($num_prel_result->cnt > 0) {
+					$applied = 1;
+					$num_prel = $num_prel_result->cnt;
+				}
+			}
+
+		} else if (in_array($pos->get('id'), $prels)) {
+			$applied = 1;
+
 		}
 
 		$ret['positions'][] = array(
@@ -122,6 +142,7 @@ if (isset($_POST['init'])) {
 			'exhibitor' => $ex,
 			'expires' => date('d-m-Y H:i', strtotime($pos->get('expires'))),
 			'applied' => $applied,
+			'num_prel_bookings' => $num_prel,
 			'being_edited' => $pos->get('being_edited'),
 			'edit_started' => $pos->get('edit_started')
 		);
@@ -471,5 +492,68 @@ if(isset($_POST['getComment'])){
 	<?php endforeach; ?>
 	</ul>
 	<?php
+}
+
+if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
+
+	$position = new FairMapPosition();
+	$position->load($_GET['position'], 'id');
+
+	if ($position->wasLoaded()) {
+
+		$fair_map = new FairMap();
+		$fair_map->load($position->get('map'), 'id');
+
+		if ($fair_map->wasLoaded() && userCanAdminFair($fair_map->get('fair'), $fair_map->get('id'))) {
+
+			$stmt = $globalDB->prepare("SELECT id, user, categories, commodity, arranger_message, booking_time FROM preliminary_booking WHERE position = ?");
+			$stmt->execute(array($position->get('id')));
+			$result = array();
+
+			foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $prel_booking) {
+				$user = new User();
+				$user->load($prel_booking->user, 'id');
+				$prel_booking->company = $user->get('company');
+				$prel_booking->booking_time = date('d-m-Y H:i', $prel_booking->booking_time) . ' UTC';
+				$result[] = $prel_booking;
+			}
+
+			header('Content-type: application/json; charset=utf-8');
+			echo json_encode($result);
+		}
+	}
+}
+
+if (isset($_POST['approve_preliminary'])) {
+
+	$prel_booking = new PreliminaryBooking();
+	$prel_booking->load($_POST['approve_preliminary'], 'id');
+
+	if ($prel_booking->wasLoaded()) {
+
+		$position = new FairMapPosition();
+		$position->load($prel_booking->get('position'), 'id');
+
+		$exhibitor = new Exhibitor();
+		$exhibitor->set('user', $_POST['user']);
+		$exhibitor->set('fair', $prel_booking->get('fair'));
+		$exhibitor->set('position', $position->get('id'));
+		$exhibitor->set('category', 0);
+		$exhibitor->set('presentation', '');
+		$exhibitor->set('commodity', $_POST['commodity']);
+		$exhibitor->set('arranger_message', $_POST['message']);
+		$exhibitor_id = $exhibitor->save();
+		
+		$stmt = $position->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+		foreach ($_POST['categories'] as $cat) {
+			$stmt->execute(array($exhibitor_id, $cat));
+		}
+		
+		$position->set('status', 1);
+		$position->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+		$position->save();
+
+		$prel_booking->delete();
+	}
 }
 ?>

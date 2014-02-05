@@ -127,6 +127,7 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.reserveStandSpace = '<?php echo $translator->{"Reserve stand space"} ?>';
 	lang.preliminaryBookStandSpace = '<?php echo $translator->{"Preliminary book stand space"} ?>';
 	lang.cancelPreliminaryBooking = '<?php echo $translator->{"Cancel preliminary booking"} ?>';
+	lang.showPreliminaryBookings = '<?php echo $translator->{"Show preliminary bookings"} ?>';
 	lang.editBooking = '<?php echo $translator->{"Edit booking"} ?>';
 	lang.cancelBooking = '<?php echo $translator->{"Cancel booking"} ?>';
 	lang.pasteExhibitor = '<?php echo $translator->{"Paste exhibitor"} ?>';
@@ -338,6 +339,22 @@ function makeUserOptions3($sel=0, $fair) {
 	<div class="presentation" style="margin-top: 0px;"></div>
 	<p class="website_link"></p>
 </div>
+
+<div id="preliminary_bookings_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
+	<h3><?php echo htmlspecialchars($translator->{"Preliminary bookings"}); ?></h3>
+	<table class="std_table">
+		<thead>
+			<tr>
+				<th><?php echo htmlspecialchars($translator->{'Booked by'}); ?></th>
+				<th><?php echo htmlspecialchars($translator->{'Time of booking'}); ?></th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</div>
+
 <?php
 	if((userLevel() == 2 && userIsConnectedTo($fair->get('id'))) || userLevel() > 2) : ?>
 		<div id="note_dialogue" class="dialogue">

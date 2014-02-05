@@ -422,6 +422,8 @@ maptool.showContextMenu = function(position, marker) {
 		} else if (maptool.map.positions[objIndex].status == 2) {
 			contextMenu.append('<li id="cm_reserve">' + lang.reserveStandSpace + '</li>');
 		}
+	} else if (maptool.map.positions[objIndex].applied > 0 && maptool.map.userlevel > 1 && hasRights) {
+		contextMenu.append('<li id="cm_show_preliminary_bookings">' + lang.showPreliminaryBookings + '</li>');
 	}
 
 	if ($("li", contextMenu).length > 0) {
@@ -469,6 +471,8 @@ maptool.showContextMenu = function(position, marker) {
 					maptool.cancelBooking(maptool.map.positions[objIndex]);
 				} else if(e.target.id == 'cm_note') {
 					maptool.makeNote(maptool.map.positions[objIndex]);
+				} else if(e.target.id == 'cm_show_preliminary_bookings') {
+					maptool.showPreliminaryBookings(maptool.map.positions[objIndex]);
 				}
 			}); 		
 			} else {
@@ -1752,7 +1756,169 @@ maptool.makeNote = function(positionObject){
 		});
 	});
 	maptool.openDialogue('note_dialogue');
-}
+};
+
+maptool.showPreliminaryBookings = function(position_data) {
+	var dialogue = $('#preliminary_bookings_dialogue'),
+		tbody = $('tbody', dialogue);
+
+	tbody.html('');
+	maptool.openDialogue('preliminary_bookings_dialogue');
+
+	$.ajax({
+		url: 'ajax/maptool.php',
+		type: 'GET',
+		data: 'prel_bookings_list=1&position=' + position_data.id,
+		success: function(response) {
+			var i;
+
+			for (i = 0; i < response.length; i++) {
+				tbody.append('<tr><td><a href="#" class="open-reservation-form" data-index="' + i + '">'
+					+ response[i].company + '</a></td><td>'
+					+ response[i].booking_time + '</td></tr>');
+			}
+
+			// Save this list data for later use, in reservePreliminaryBooking()
+			maptool.prel_bookings_data = response;
+
+			dialogue.on('click', '.open-reservation-form', function(e) {
+				e.preventDefault();
+				maptool.reservePreliminaryBooking(position_data, maptool.prel_bookings_data[$(this).data('index')]);
+				dialogue.hide();
+			});
+		}
+	});
+};
+
+maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
+
+	$('#reserve_commodity_input').val(prel_booking_data.commodity);
+	$('#reserve_message_input').val(prel_booking_data.arranger_message);
+	$('#reserve_user_input').val(prel_booking_data.user);
+
+	var categories = prel_booking_data.categories.split('|'),
+		category_input,
+		i;
+
+	$('#reserve_category_scrollbox input').prop('checked', false);
+	for (i = 0; i < categories.length; i++) {
+
+		$('#reserve_category_scrollbox input[value=' + categories[i] + ']').each(function() {
+			$(this).prop('checked', true);
+		});
+	}
+
+	$('#reserve_position_dialogue').show();
+
+	$('#reserve_position_dialogue h3 .standSpaceName').text(position_data.name);
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<strong>' + lang.space + ' ' + position_data.name + '<br/>' + lang.area + ':</strong> ' + position_data.area + '<br/><strong>' + lang.info + ': </strong>' + position_data.information);
+
+	$('#reserve_user_input').unbind('change');
+	$('#reserve_user_input').change(function() {
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: 'getUserCommodity=1&userId=' + encodeURIComponent($('#reserve_user_input').val()),
+			success: function(response) {
+				if (response) {
+					r = JSON.parse(response);
+					$('#reserve_commodity_input').val(r.commodity);
+				}
+			}
+		});
+	});
+
+	$('#reserve_position_dialogue > #search_user_input').unbind('keyup');
+	$('#reserve_position_dialogue > #search_user_input').val('');
+	$('#reserve_position_dialogue > #search_user_input').keyup(function(e) {
+		if (e.keyCode == 13) {
+			$('#reserve_user_input').change();
+		} else {
+			var query = $(this).val().toLowerCase();
+			var selectedFirst = false;
+			if (query == "") {
+				$('#reserve_user_input > option').show();
+			} else {
+				$('#reserve_user_input > option').each(function() {
+					if ($(this).text().toLowerCase().indexOf(query) == -1) {
+						$(this).prop('selected', false);
+						$(this).hide();
+					} else {
+						if (!selectedFirst) {
+							$(this).prop("selected", true);
+							selectedFirst = true;
+						}
+						$(this).show();
+					}
+				});
+			}
+		}
+	});
+
+	$("#reserve_post").unbind("click");
+	$("#reserve_post").click(function() {
+		var cats = [];
+
+		$('#reserve_category_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats.push(val);
+			}
+		});
+
+		if (cats.length == 0) {
+			$('#reserve_category_scrollbox').css('border-color', 'red');
+			return;
+		} else {
+			$('#reserve_category_scrollbox').css('border-color', '#000000');
+		}
+
+		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
+			var dateParts = $("#reserve_expires_input").val().split('-');
+			dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
+			// Add one day, since it should be up to and including.
+			dt.setDate(dt.getDate()+1);
+			if (dt < new Date()) {
+				$("#reserve_expires_input").css('border-color', 'red');
+				return;
+			}
+		} else {
+			$("#reserve_expires_input").css('border-color', 'red');
+			return;
+		}	
+
+		var catStr = '';
+		for (var j=0; j<cats.length; j++) {
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
+		}
+
+		var dataString = 'approve_preliminary=' + prel_booking_data.id
+				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
+				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
+				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
+				   + catStr;
+		
+		if (maptool.map.userlevel > 1) {
+			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
+		}
+
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: dataString,
+			success: function(response) {
+				maptool.markPositionAsNotBeingEdited();
+				maptool.update();
+				maptool.closeDialogues();
+				$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
+				$('.ssinfo').html('');
+			}
+		});
+	});
+};
 
 //Zoom to 0
 maptool.zoomZero = function() {
