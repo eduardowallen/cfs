@@ -954,14 +954,14 @@ class AdministratorController extends Controller {
 
 				// Remove old categories for this booking
 				$stmt = $this->db->prepare("DELETE FROM exhibitor_category_rel WHERE exhibitor = ?");
-				$stmt->execute(array($exhibitor->get('id')));
+				$stmt->execute(array($exhibitor->get('exhibitor_id')));
 
 				// Set new categories for this booking
 				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 					$stmt = $this->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 
 					foreach ($_POST['categories'] as $cat) {
-						$stmt->execute(array($exhibitor->get('id'), $cat));
+						$stmt->execute(array($exhibitor->get('exhibitor_id'), $cat));
 					}
 				}
 
