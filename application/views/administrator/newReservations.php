@@ -207,7 +207,7 @@
 		</select>
 
 		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (DD-MM-YYYY HH:MM UTC)</label>
-		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" value="<?php echo date('d-m-Y H:m', (isset($fairCloses) && $fairCloses > 0 ? $fairCloses : time()));  ?>"/>
+		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" value="" />
 
 		<p>
 			<input type="hidden" name="id" id="reserve_id" />
