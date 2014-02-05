@@ -42,7 +42,10 @@ function reservePopup(row, link, action) {
 	$('#reserve_user').text(data.eq(2).text());
 	$('#reserve_commodity_input').val(data.eq(3).text());
 	$('#reserve_message_input').val(data.eq(6).prop('title'));
-	$('#reserve_expires_input').val(data.eq(8).text().replace(' UTC', ''));
+
+	if (action == 'edit') {
+		$('#reserve_expires_input').val(data.eq(8).text().replace(' UTC', ''));
+	}
 }
 
 function bookPopup(row, link, action) {
