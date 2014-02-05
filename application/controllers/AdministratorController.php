@@ -498,7 +498,7 @@ class AdministratorController extends Controller {
 				$pos = array_merge($pos, $catarray);
 			endif;
 
-			array_push($positions, $pos);
+			$positions[$pos['position']] = $pos;
 		endforeach;
 		
 
@@ -534,14 +534,22 @@ class AdministratorController extends Controller {
 				$pos = array_merge($pos, $catarray);
 			endif;
 
-			array_push($rpositions, $pos);
+			$rpositions[$pos['position']] = $pos;
 		endforeach;
 
 
 		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, pos.map, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
 		$stmt->execute(array($_SESSION['user_fair']));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$prelpos = $result;
+		$prelpos = array();
+
+		// Check that only preliminary bookings on map positions 
+		// NOT booked/reserved are listed
+		foreach ($result as $preliminary_booking) {
+			if (!isset($positions[$preliminary_booking['position']]) && !isset($rpositions[$preliminary_booking['position']])) {
+				$prelpos[] = $preliminary_booking;
+			}
+		}
 
 		$this->setNoTranslate('positions', $positions);
 		$this->setNoTranslate('rpositions', $rpositions);

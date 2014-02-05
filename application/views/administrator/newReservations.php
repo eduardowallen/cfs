@@ -484,21 +484,6 @@
 		</thead>
 			<tbody>
 			<?php foreach($prelpos as $pos): ?>
-				<?php
-					$hidden = 0;
-					foreach($rpositions as $postemp):
-						if($postemp['position'] == $pos['position']):
-							$hidden = 1;
-						endif;
-					endforeach;
-
-					foreach($positions as $postemp):
-						if($postemp['position'] == $pos['position']):
-							$hidden = 1;
-						endif;
-					endforeach;
-				?>
-				<?php if($hidden == 0) : ?>
 				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?> data-id="<?php echo $pos['id']; ?>">
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
@@ -540,7 +525,6 @@
 					</td>
 					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 				</tr>
-				<?php endif?>
 			<?php endforeach;?>
 			</tbody>
 		</table>
