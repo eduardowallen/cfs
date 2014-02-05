@@ -180,7 +180,7 @@
 
 <div id="reserve_position_dialogue" class="dialogue">
 	<form action="" method="post">
-		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('reserve')" class="closeDialogue"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 		<h3 class="confirm"><?php echo $translator->{'Reserve stand space'} ?></h3>
 		<h3 class="edit"><?php echo $translator->{'Edit reservation'} ?></h3>
 
@@ -219,7 +219,7 @@
 
 <div id="book_position_dialogue" class="dialogue">
 	<form action="" method="post">
-		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('book')" class="closeDialogue"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 		<h3 class="confirm"><?php echo $translator->{'Book stand space'} ?></h3>
 		<h3 class="edit"><?php echo $translator->{'Edit booking'} ?></h3>
 
