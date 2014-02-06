@@ -42,9 +42,9 @@ function scrollbarWidth() {
 	scrollDiv.style.top = "50px";
 	scrollDiv.style.overflow = "scroll";
 	var scrollbarWidth = scrollDiv.offsetWidth - scrollDiv.clientWidth;
+	document.body.removeChild(scrollDiv);
 
 	return scrollbarWidth; 
-	document.body.removeChild(scrollDiv);
 }
 
 (function($) {
