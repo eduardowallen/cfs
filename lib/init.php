@@ -98,5 +98,7 @@ $translator = new Translator($lang);
 $globalDB = new Database;
 global $globalDB;
 
+define('TIMEZONE', 'GMT' . getGMToffset());
+
 setReporting();
 callHook();

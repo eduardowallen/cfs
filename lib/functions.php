@@ -245,4 +245,11 @@ function accessLevelToText($level)
   endswitch;
 }
 
+function getGMToffset() {
+	$gmt = date('O');
+	$gmt_sign = substr($gmt, 0, 1);
+	$gmt_offset = floatval(substr($gmt, 1, 2) . '.' . substr($gmt, 3, 4));
+
+	return $gmt_sign . $gmt_offset;
+}
 ?>
