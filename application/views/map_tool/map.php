@@ -90,16 +90,87 @@ function makeUserOptions3($sel=0, $fair) {
 			<img src="images/icons/pan_right.png" id="panright" alt=""/>
 		</div>
 
+<?php if ($hasRights): ?>
+		<div id="maptoolbox">
+			<h3>
+				<?php echo htmlspecialchars($translator->{'Map tools'}); ?>
+				<a href="#" id="maptoolbox_minimize" title="<?php echo htmlspecialchars($translator->{'Minimize'}); ?>"></a>
+			</h3>
+
+			<p id="zoombar">
+				<img src="images/zoom_marker_new.png" alt=""/>
+				<a href="javascript:void(0)" id="in"></a>
+				<a href="javascript:void(0)" id="out"></a>
+			</p>
+			<div id="maptoolbox_controls">
+				<label>
+					<input type="checkbox" id="maptool_grid_visible" />
+					<?php echo htmlspecialchars($translator->{'Show grid'}); ?>
+				</label>
+				<label>
+					<?php echo htmlspecialchars($translator->{'Opacity'}); ?>:
+					<input type="range" id="maptool_grid_opacity" min="1" max="100" value="100" />
+					<input type="number" id="maptool_grid_opacity_num" value="100" class="spinner" />
+				</label>
+				<label>
+					<input type="checkbox" id="maptool_grid_white" />
+					<?php echo htmlspecialchars($translator->{'White grid'}); ?>
+				</label>
+				<label>
+					<input type="checkbox" id="maptool_grid_snap_markers" />
+					<?php echo htmlspecialchars($translator->{'Snap stand space to grid'}); ?>
+				</label>
+				<label>
+					<input type="checkbox" id="maptool_grid_is_moving" />
+					<?php echo htmlspecialchars($translator->{'Move grid'}); ?>
+				</label>
+				<span class="maptoolbox-label-row">
+					<?php echo htmlspecialchars($translator->{'Coordinates'}); ?>:
+					<label>
+						X
+						<input type="number" id="maptool_grid_coord_x" value="0" class="spinner" />
+					</label>
+					<label>
+						Y
+						<input type="number" id="maptool_grid_coord_y" value="0" class="spinner" />
+					</label>
+				</span>
+				<label>
+					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Cell width (W)'}); ?>:</span>
+					<input type="number" id="maptool_grid_width" value="20" class="spinner" />
+				</label>
+				<label>
+					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Cell height (H)'}); ?>:</span>
+					<input type="number" id="maptool_grid_height" value="20" class="spinner" />
+				</label>
+				<label>
+					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'W x H per cell'}); ?>:</span>
+					<input type="number" id="maptool_grid_width_rat" value="20" class="spinner" />
+					x
+					<input type="number" id="maptool_grid_height_rat" value="20" class="spinner" />
+				</label>
+				<label>
+					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Reset grid to original size'}); ?>:</span>
+					<input type="button" id="maptool_grid_reset" value="<?php echo htmlspecialchars($translator->{'Reset'}); ?>" />
+				</label>
+			</div>
+		</div>
+
+		<style id="maptool_grid_style">
+		</style>
+<?php else: ?>
 		<p id="zoombar">
 			<img src="images/zoom_marker_new.png" alt=""/>
 			<a href="javascript:void(0)" id="in"></a>
 			<a href="javascript:void(0)" id="out"></a>
 		</p>
+<?php endif; ?>
+
 	<div id="mapHolder">
 		<div id="map">
-			<img  alt="" id="map_img"/>
+			<div id="maptool_grid"><div id="maptool_grid_frame"></div></div>
+			<img alt="" id="map_img" />
 		</div>
-		
 	</div>
 
 <?php endif;?>

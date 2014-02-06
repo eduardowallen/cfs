@@ -201,7 +201,7 @@
 .marker {
 	position:absolute;
 	cursor:pointer;
-	z-index:998;
+	z-index:999;
 }
 .marker_tooltip {
 	background-color: #EAEAEA;
@@ -340,6 +340,123 @@ h1.inline-block {
 	padding-left:2.5%;
 	height:40px;
 }
+
+/* Map grid toolbox */
+
+#maptoolbox {
+	position: absolute;
+	z-index: 999;
+	top: 60px;
+	width: 315px;
+	height: 350px;
+	background: #4c90d9;
+	border: 1px solid #032952;
+	color: #fff;
+}
+
+#maptoolbox.minimized {
+	height: 43px;
+}
+
+#maptoolbox h3 {
+	position: relative;
+	margin: 0;
+	padding: 15px 0;
+	background: #75b0ef;
+	color: #fff;
+	text-align: center;
+	line-height: 1;
+}
+
+#maptoolbox_minimize {
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	right: 12px;
+	top: 12px;
+	background: url('../images/minimize.png') no-repeat;
+}
+
+#maptoolbox #zoombar {
+	position: static;
+	float: left;
+	margin-top: 50px;
+}
+
+#maptoolbox.minimized #zoombar {
+	position: absolute;
+}
+
+#maptoolbox_controls {
+	float: right;
+	margin-right: 10px;
+}
+
+#maptoolbox.minimized #maptoolbox_controls {
+	display: none;
+}
+
+#maptoolbox_controls label {
+	padding-top: 6px;
+	font-weight: 400;
+}
+
+#maptoolbox_controls input[type=number] {
+	width: 25px;
+}
+
+#maptool_grid_opacity {
+	width: 110px;
+	vertical-align: bottom;
+}
+
+#maptoolbox_controls .maptoolbox-label-row {
+	display: block;
+}
+
+#maptoolbox_controls .maptoolbox-label-row label {
+	display: inline-block;
+	font-weight: 700;
+}
+
+#maptoolbox_controls .maptoolbox-label {
+	display: inline-block;
+	width: 125px;
+}
+
+/* Map grid */
+
+#maptool_grid {
+	display: none;
+	position: fixed;
+	overflow: hidden;
+	z-index: 998;
+}
+
+#maptool_grid.moving {
+	cursor: move;
+}
+
+#maptool_grid_frame {
+	position: absolute;
+	top: 0;
+	left: 0;
+	border-top: 1px solid #000;
+	border-left: 1px solid #000;
+}
+
+.grid-cell {
+	float: left;
+	border-bottom: 1px solid #000;
+	border-right: 1px solid #000;
+}
+
+.white .grid-cell {
+	border-color: #fff;
+}
+
+/* Map zoom tools */
+
 #zoombar {
 	background:url("../images/zoom_bar_new_short.png") no-repeat;
 	width:27px;

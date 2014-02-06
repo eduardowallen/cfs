@@ -684,11 +684,19 @@ maptool.editPosition = function(positionObject) {
 
 //Trace mouse movements with marker
 maptool.traceMouse = function(e) {
-	var scrollOffset = $('html').offset().top;
-	var scrollOffsetLeft = $('html').offset().left;
-	$("#newMarkerIcon").css({
-		top: e.originalEvent.pageY - config.iconOffset - scrollOffset,
-		left: e.originalEvent.pageX - config.iconOffset + scrollOffsetLeft
+
+	var marker = $('#newMarkerIcon'), 
+		top = e.originalEvent.pageY, 
+		left = e.originalEvent.pageX;
+
+	if (maptool.Grid.getSnapState()) {
+		top = maptool.Grid.snapY(top);
+		left = maptool.Grid.snapX(left);
+	}
+
+	marker.css({
+		top: top - config.iconOffset + 'px',
+		left: left - config.iconOffset + 'px'
 	});
 }
 
@@ -1860,6 +1868,319 @@ maptool.zoomOut = function(e) {
 	}
 }
 
+/**
+ * Map tool grid
+ */
+maptool.Grid = (function() {
+
+	var grid = null,
+	grid_frame = null,
+	map_canvas = null,
+	grid_generation_timer = null,
+	supports_transform = (typeof document.createElement('div').style.transform !== 'undefined'),
+
+	gridmove = {
+		started: false,
+		start_x: null,
+		start_y: null,
+		element_start_x: null,
+		element_start_y: null
+	},
+
+	settings = {
+		visible: false,
+		opacity: 100,
+		white: false,
+		snap_markers: false,
+		is_moving: false,
+
+		coords: {
+			x: 0,
+			y: 0
+		},
+
+		width: 20,
+		height: 20
+	},
+
+	setting_listeners = {
+		visible: toggleVisibility,
+		opacity: changeOpacitySlide,
+		opacity_num: changeOpacityNum,
+		white: toggleWhite,
+		snap_markers: toggleSnapMarkers,
+		is_moving: toggleIsMoving,
+		coord_x: changeCoords,
+		coord_y: changeCoords,
+		width: changeDimensions,
+		height: changeDimensions,
+		width_rat: changeDimensionsChained,
+		height_rat: changeDimensionsChained
+	};
+
+	/**
+	 * Generates the grid as HTML
+	 */
+	function generateGrid() {
+		var html = '', 
+			num_cols = Math.ceil((grid.width() + settings.width * 2) / settings.width), 
+			num_rows = Math.ceil((grid.height() + settings.height * 2) / settings.height), 
+			num_cells = num_cols * num_rows, 
+			i;
+
+		for (i = 0; i < num_cells; i++) {
+			html += '<div class="grid-cell"></div>';
+		}
+
+		grid_frame.html(html);
+	}
+
+	/**
+	 * Call this to request a new grid generation, but not directly.
+	 * This is useful to call when a setting changes frequently.
+	 */
+	function requestGeneration() {
+		if (grid_generation_timer !== null) {
+			clearTimeout(grid_generation_timer);
+			grid_generation_timer = null;
+		}
+
+		setTimeout(generateGrid, 1000);
+	}
+
+	function updateCSS() {
+		$('#maptool_grid_style').text('.grid-cell {' +
+				'width: ' + (settings.width - 1) + 'px;' +
+				'height: ' + (settings.height - 1) + 'px;' +
+			'}');
+
+		grid_frame.css({
+			width: grid.width() + settings.width * 2 + 'px',
+			height: grid.height() + settings.height * 2 + 'px'
+		});
+
+		var top = (settings.height * -1) + settings.coords.y + 'px',
+			left = (settings.width * -1) + settings.coords.x + 'px';
+
+		if (supports_transform) {
+			grid_frame.css('transform', 'translate(' + left + ', ' + top + ')');
+		} else {
+			grid_frame.css({
+				top: top,
+				left: left
+			});
+		}
+	}
+
+	function updateCoords(x, y) {
+		settings.coords.x = x;
+		settings.coords.y = y;
+
+		setTimeout(function() {
+			$('#maptool_grid_coord_x').val(settings.coords.x);
+			$('#maptool_grid_coord_y').val(settings.coords.y);
+		}, 200);
+console.log('X: ' + settings.coords.x + ' Y: ' + settings.coords.y);
+
+		updateCSS();
+	}
+
+	function validateCoordsAndSet(x, y) {
+		var delta_x = settings.width - Math.abs(x),
+			delta_y = settings.height - Math.abs(y);
+
+		if (delta_x < 0) {
+			x = settings.coords.x;
+		}
+
+		if (delta_y < 0) {
+			y = settings.coords.y;
+		}
+
+		updateCoords(x, y);
+	}
+
+	function toggleToolbox(e) {
+		e.preventDefault();
+		$('#maptoolbox').toggleClass('minimized');
+	}
+
+	function toggleVisibility() {
+		settings.visible = $('#maptool_grid_visible').prop('checked');
+
+		if (settings.visible) {
+			grid.show();
+			requestGeneration();
+		} else {
+			grid.hide();
+		}
+	}
+
+	function changeOpacity(value) {
+		settings.opacity = value;
+		grid.css('opacity', value / 100);
+	}
+
+	function changeOpacitySlide() {
+		changeOpacity(parseInt($('#maptool_grid_opacity').val(), 10));
+		$('#maptool_grid_opacity_num').val(settings.opacity);
+	}
+
+	function changeOpacityNum() {
+		changeOpacity(parseInt($('#maptool_grid_opacity_num').val(), 10));
+		$('#maptool_grid_opacity').val(settings.opacity);
+	}
+
+	function toggleWhite() {
+		settings.white = $('#maptool_grid_white').prop('checked');
+
+		if (settings.white) {
+			grid.addClass('white');
+		} else {
+			grid.removeClass('white');
+		}
+	}
+
+	function toggleSnapMarkers() {
+		settings.snap_markers = $('#maptool_grid_snap_markers').prop('checked');
+	}
+
+	function toggleIsMoving() {
+		settings.is_moving = $('#maptool_grid_is_moving').prop('checked');
+
+		if (settings.is_moving) {
+			grid.addClass('moving');
+		} else {
+			grid.removeClass('moving');
+		}
+	}
+
+	function changeCoords() {
+		var x = parseInt($('#maptool_grid_coord_x').val(), 10),
+			y = parseInt($('#maptool_grid_coord_y').val(), 10);
+
+		validateCoordsAndSet(x, y);
+	}
+
+	function changeDimensions() {
+		settings.width = Math.max(10, parseInt($('#maptool_grid_width').val(), 10));
+		settings.height = Math.max(10, parseInt($('#maptool_grid_height').val(), 10));
+
+		updateCSS();
+		requestGeneration();
+	}
+
+	function changeDimensionsChained(e) {
+		if (e) {
+			var value = parseInt($(this).val(), 10);
+
+			$('#maptool_grid_width, #maptool_grid_height, #maptool_grid_width_rat, #maptool_grid_height_rat').val(value);
+
+			changeDimensions();
+		}
+	}
+
+	function resetGrid() {
+		$('#maptool_grid_width_rat').val(20).trigger('change');
+		updateCoords(0, 0);
+	}
+
+	function windowSizeChanged() {
+		var offset = map_canvas.offset();
+
+		grid.css({
+			top: offset.top,
+			left: offset.left,
+			width: map_canvas.width() - scrollbarWidth(),
+			height: map_canvas.height()
+		});
+
+		updateCSS();
+		requestGeneration();
+	}
+
+	function mouseMoved(e) {
+		if (settings.is_moving && gridmove.started) {
+			var x = e.pageX - gridmove.start_x - map_canvas.offset().left + gridmove.element_start_x, 
+				y = e.pageY - gridmove.start_y - map_canvas.offset().top + gridmove.element_start_y;
+
+			validateCoordsAndSet(x, y);
+		}
+	}
+
+	function startMove(e) {
+		e.preventDefault();
+
+		gridmove.started = true;
+		gridmove.start_x = e.pageX - map_canvas.offset().left;
+		gridmove.start_y = e.pageY - map_canvas.offset().top;
+		gridmove.element_start_x = settings.coords.x;
+		gridmove.element_start_y = settings.coords.y;
+	}
+
+	function stopMove() {
+		gridmove.started = false;
+	}
+
+	function init() {
+		grid = $('#maptool_grid');
+		grid_frame = $('#maptool_grid_frame');
+		map_canvas = $('#mapHolder');
+
+		$('.spinner').spinner({
+			spin: function(e, ui) {
+				$(this).val(ui.value);
+				$(this).trigger('change');
+			}
+		});
+
+		// Toolbox events
+		for (var property in setting_listeners) {
+			if (setting_listeners.hasOwnProperty(property)) {
+				$('#maptool_grid_' + property).on('change', setting_listeners[property]);
+				setting_listeners[property]();
+			}
+		}
+
+		$('#maptoolbox_minimize').on('click', toggleToolbox);
+		$('#maptool_grid_reset').on('click', resetGrid);
+
+		// Grid movement events
+		grid.on('mousemove', mouseMoved);
+		grid_frame.on('mousedown', startMove);
+		grid_frame.on('mouseup', stopMove);
+
+		// Window resize events
+		$(window).on('resize', windowSizeChanged);
+		windowSizeChanged();
+	}
+
+	function getSnapState() {
+		return settings.snap_markers;
+	}
+
+	function snap(value, property) {
+		return settings[property] * Math.round(value / settings[property]);
+	}
+
+	function snapX(x) {
+		return snap(x - map_canvas.offset().left - settings.coords.x, 'width') + map_canvas.offset().left + settings.coords.x;
+	}
+
+	function snapY(y) {
+		return snap(y - map_canvas.offset().top - settings.coords.y, 'height') + map_canvas.offset().top + settings.coords.y;
+	}
+
+	// Public API
+	return {
+		'init': init,
+		'getSnapState': getSnapState,
+		'snapX': snapX,
+		'snapY': snapY,
+		'canvasChanged': windowSizeChanged
+	};
+}());
+
 maptool.reCalculatePositions = function() {
 	
 	for (var i=0; i<maptool.map.positions.length; i++) {
@@ -2153,6 +2474,10 @@ maptool.init = function(mapId) {
 		return;
 	}
 
+	if ($('#maptoolbox').length) {
+		maptool.Grid.init();
+	}
+
 	$.ajax({
 		url: 'ajax/maptool.php',
 		type: 'POST',
@@ -2196,6 +2521,7 @@ maptool.init = function(mapId) {
 				maptool.map.canvasOffset = $("#mapHolder").offset();
 				maptool.placeMarkers();
 				maptool.populateList();
+				maptool.Grid.canvasChanged();
 				
 			});
 			// Refresh the markers even if the image is already loaded.
