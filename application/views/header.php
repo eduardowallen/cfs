@@ -11,7 +11,7 @@
 <link rel="stylesheet" type="text/css" href="css/generic.css?u=<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/main.css?u=<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" media="print" href="css/print.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css?u=<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.1/themes/smoothness/jquery-ui.css" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
 <script type="text/javascript" src="js/jquery-1.9.1.min.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/jquery-ui-1.10.1.min.js?u=<?php echo $unique?>"></script>
