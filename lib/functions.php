@@ -37,8 +37,9 @@ function userCanAdminFair($fair_id, $map_id) {
 
 		$stmt = $globalDB->prepare("SELECT map_access FROM fair_user_relation WHERE user = ? AND fair = ?");
 		$stmt->execute(array($_SESSION['user_id'], $fair_id));
+		$result = $stmt->fetch(PDO::FETCH_OBJ);
 
-		if ($stmt->fetch(PDO::FETCH_OBJ)) {
+		if ($result) {
 
 			$accessible_maps = explode('|', $result->map_access);
 			if (in_array($map_id, $accessible_maps)) {
