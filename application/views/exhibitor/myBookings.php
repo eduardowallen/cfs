@@ -71,7 +71,7 @@ $maps = $maps[0]->get('positions');
 					<td class="center"><?php echo $pos->get('area'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
-					<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
+					<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?> <?php echo TIMEZONE; ?></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos->get('exhibitor')->get('arranger_message')); ?>">
 <?php if (strlen($pos->get('exhibitor')->get('arranger_message')) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos->get('exhibitor')->get('exhibitor_id'); ?>" class="open-arranger-message">
@@ -141,8 +141,8 @@ $maps = $maps[0]->get('positions');
 					<td class="center"><?php echo $pos->get('area'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
-					<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?></td>
-					<td><?php echo date('d-m-Y H:i:s', strtotime($pos->get('expires'))); ?> UTC</td>
+					<td><?php echo date('d-m-Y H:i:s', $pos->get('exhibitor')->get('booking_time')); ?> <?php echo TIMEZONE; ?></td>
+					<td><?php echo date('d-m-Y H:i:s', strtotime($pos->get('expires'))); ?> <?php echo TIMEZONE; ?></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos->get('exhibitor')->get('arranger_message')); ?>">
 <?php if (strlen($pos->get('exhibitor')->get('arranger_message')) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos->get('exhibitor')->get('exhibitor_id'); ?>" class="open-arranger-message">
@@ -220,7 +220,7 @@ $maps = $maps[0]->get('positions');
 					<td class="center"><?php echo $pos->get('area'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('company'); ?></td>
 					<td class="center"><?php echo $pos->get('exhibitor')->get('commodity'); ?></td>
-					<td class="center"><?php echo date('d-m-Y H:i:s', $booking_time[$count]['booking_time']); ?></td>
+					<td class="center"><?php echo date('d-m-Y H:i:s', $booking_time[$count]['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos->get('exhibitor')->get('arranger_message')); ?>">
 <?php if (strlen($pos->get('exhibitor')->get('arranger_message')) > 0): ?>
 						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos->get('preliminary_id'); ?>" class="open-arranger-message">
