@@ -923,23 +923,13 @@ class AdministratorController extends Controller {
 		setAuthLevel(2);
 
 		if (isset($_POST['id'])) {
-
-			$exhib = new Exhibitor();
-			$exhib->load($_POST['id'], 'id');
-			$exhib->set('commodity', $_POST['commodity']);
-			$exhib->set('arranger_message', $_POST['arranger_message']);
-			$exhib->save();
-
-			$pos = new FairMapPosition();
-			$pos->load($exhib->get('position'), 'id');
-			$pos->set('status', 2);
-			$pos->save();
+			$this->editBooking($_POST['id'], 2);
 		}
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
 
-	public function editBooking($exhibitor_id = 0) {
+	public function editBooking($exhibitor_id = 0, $set_status = null) {
 		setAuthLevel(2);
 
 		if ($exhibitor_id > 0) {
@@ -968,11 +958,16 @@ class AdministratorController extends Controller {
 				$pos = new FairMapPosition();
 				$pos->load($exhibitor->get('position'), 'id');
 
-				// If this is a reservation (status is 1), then also set the expiry date
-				if ($pos->wasLoaded() && $pos->get('status') == 1) {
-					$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
-					$pos->save();
+				if ($set_status == null) {
+					// If this is a reservation (status is 1), then also set the expiry date
+					if ($pos->wasLoaded() && $pos->get('status') == 1) {
+						$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+					}
+				} else {
+					$pos->set('status', $set_status);
 				}
+
+				$pos->save();
 			}
 		}
 
