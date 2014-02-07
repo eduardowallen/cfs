@@ -138,8 +138,8 @@
 
 		<label for="hidden"> Hide fair for unauthorized accounts </label>
 		<select name="hidden" id="hidden">
-			<option value="0"> false </option>
-			<option value="1"> true </option>
+			<option value="0"<?php echo $hidden_sel0; ?>>false</option>
+			<option value="1"<?php echo $hidden_sel1; ?>>true</option>
 		</select>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Whether or not other users are able to access the event.'}); ?>" />
 	</div>
