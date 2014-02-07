@@ -204,7 +204,7 @@
 <tbody>
 <?php foreach($positions as $pos): ?>
 	<tr>
-		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/none/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
+		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/<?php echo $pos->get('id'); ?>/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
 		<td><?php echo $pos->get('name'); ?></td>
 		<td class="center"><?php echo $pos->get('area'); ?></td>
 		<td class="center"><?php echo $pos->get('company'); ?></td>
