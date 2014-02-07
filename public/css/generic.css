@@ -43,6 +43,7 @@ a:hover {
 .dialogue {
 	display:none;
 	position:absolute;
+	position: fixed;
 	z-index:10000;
 	width:400px;
 	top:50%;
