@@ -46,16 +46,13 @@
 		(function() {
 			var current_id = null;
 
-			function closeDialog() {
-				$('#reminder_dialog').hide();
-			}
-
 			// Open dialog when user clicks edit link
 			$('.edit-reminder-text').click(function(e) {
 				e.preventDefault();
 				current_id = $(this).data('id');
 
-				$('#reminder_dialog').show();
+				open_dialogue = $('#reminder_dialog').show();
+
 				$('#dialog_reminder_note').val($('#reminder_note' + current_id).val());
 				$('#reminder_dialog_header').text(lang['edit_note_' + current_id + '_label']);
 			});
@@ -64,16 +61,15 @@
 			$('#reminder_save_btn').click(function(e) {
 				e.preventDefault();
 				$('#reminder_note' + current_id).val($('#dialog_reminder_note').val());
-				closeDialog();
+				closeDialogue();
 			});
 
 			$('#reminder_cancel_btn').click(function(e) {
 				e.preventDefault();
-				closeDialog();
+				closeDialogue();
 			});
 
 			// Initial state: hide dialog and note's textareas
-			closeDialog();
 			$('.reminder-note').hide();
 		}());
 	});
@@ -166,7 +162,7 @@
 
 </form>
 
-<div id="reminder_dialog" class="dialog">
+<div id="reminder_dialog" class="dialogue">
 	<div class="dialog-content">
 		<h2 id="reminder_dialog_header"></h2>
 		<p>
