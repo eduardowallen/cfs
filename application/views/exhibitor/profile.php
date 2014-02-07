@@ -189,6 +189,7 @@
 </form>
 
 <h3><?php echo $bookings_section; ?></h3>
+<?php if (count($positions) > 0): ?>
 <table class="std_table">
 <thead>
 	<tr>
@@ -215,6 +216,9 @@
 <?php endforeach; ?>
 </tbody>
 </table>
+<?php else: ?>
+<p><?php echo $no_bookings_label; ?></p>
+<?php endif; ?>
 <?php  echo '';/*
 <form action="exhibitor/profile/<?php echo $user->get('id'); ?>" method="post">
 	<h3><?php echo $ban_section_header ?></h3>
