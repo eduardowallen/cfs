@@ -291,8 +291,7 @@ textarea {
 
 }
 
-.scrolltbl .std_table thead {
-	visibility: hidden;
+.scrolltbl .std_table thead tr {
 	height: 32px;
 }
 
