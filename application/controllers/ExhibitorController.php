@@ -836,6 +836,8 @@ class ExhibitorController extends Controller {
 		foreach($u->getPreliminaries() as $prel) {
 			$pos = new FairMapPosition;
 			$pos->load($prel['position'], 'id');
+			$pos->set('exhibitor_id', $prel['id']);
+			$pos->set('preliminary', true);
 			$pos->set('company', $u->get('company'));
 			$pos->set('booking_time', $prel['booking_time']);
 			$pos->set('commodity', $prel['commodity']);
@@ -849,6 +851,8 @@ class ExhibitorController extends Controller {
 		foreach ($result as $res) {
 			$pos = new FairMapPosition;
 			$pos->load($res['position'], 'id');
+			$pos->set('exhibitor_id', $res['id']);
+			$pos->set('preliminary', false);
 			$pos->set('commodity', $res['commodity']);
 			$pos->set('arranger_message', $res['arranger_message']);
 			$pos->set('company', $u->get('company'));
@@ -929,6 +933,7 @@ class ExhibitorController extends Controller {
 		$this->set('tr_field', 'Trade');
 		$this->set('tr_time', 'Time of booking');
 		$this->set('tr_message', 'Message to organizer');
+		$this->set('ok_label', 'OK');
 	}
 
 	function myBookings() {
