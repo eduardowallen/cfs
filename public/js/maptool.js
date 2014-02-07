@@ -207,7 +207,7 @@ maptool.placeMarkers = function() {
 		var tooltip = '<div class="marker_tooltip" id="info-' + maptool.map.positions[i].id + '">';
 
 		//Tooltip content
-		tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ' (m<sup>2</sup>):</strong> ' + maptool.map.positions[i].area + '</p>';
+		tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ' :</strong> ' + maptool.map.positions[i].area + '</p>';
 		
 		if (maptool.map.positions[i].status > 0 && maptool.map.positions[i].exhibitor) { 
 			tooltip += '<p><strong>' + lang.StatusText(maptool.map.positions[i].statusText).charAt(0).toUpperCase() + lang.StatusText(maptool.map.positions[i].statusText).substr(1) + ' ' + lang.by + ':</strong> ' + maptool.map.positions[i].exhibitor.company + '</p>';
@@ -1644,7 +1644,7 @@ maptool.positionInfo = function(positionObject) {
 	else
 		$("#more_info_dialogue h3").text(positionObject.name);
 
-	var tt = '<p><strong>' + lang.status + ': </strong>' + lang.StatusText(positionObject.statusText) + '<br/><strong>' + lang.area + ' (m<sup>2</sup>):</strong> ' + positionObject.area + '</p>';
+	var tt = '<p><strong>' + lang.status + ': </strong>' + lang.StatusText(positionObject.statusText) + '<br/><strong>' + lang.area + ':</strong> ' + positionObject.area + '</p>';
 	var info = $("#more_info_dialogue .info");
 
 	info.html(tt);

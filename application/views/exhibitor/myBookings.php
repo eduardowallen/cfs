@@ -35,7 +35,7 @@
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_fair; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div></li>
@@ -49,7 +49,7 @@
 				<tr>
 					<th><?php echo $tr_fair; ?></th>
 					<th><?php echo $tr_pos; ?></th>
-					<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+					<th><?php echo $tr_area; ?></th>
 					<th><?php echo $tr_booker; ?></th>
 					<th><?php echo $tr_field; ?></th>
 					<th><?php echo $tr_time; ?></th>
@@ -102,7 +102,7 @@ $maps = $maps[0]->get('positions');
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_fair; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div></li>
@@ -117,7 +117,7 @@ $maps = $maps[0]->get('positions');
 				<tr>
 					<th><?php echo $tr_fair; ?></th>
 					<th><?php echo $tr_pos; ?></th>
-					<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+					<th><?php echo $tr_area; ?></th>
 					<th><?php echo $tr_booker; ?></th>
 					<th><?php echo $tr_field; ?></th>
 					<th><?php echo $tr_time; ?></th>
@@ -173,7 +173,7 @@ $maps = $maps[0]->get('positions');
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_fair; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div></li>
@@ -188,7 +188,7 @@ $maps = $maps[0]->get('positions');
 				<tr>
 					<th><?php echo $tr_fair; ?></th>
 					<th><?php echo $tr_pos; ?></th>
-					<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+					<th><?php echo $tr_area; ?></th>
 					<th><?php echo $tr_booker; ?></th>
 					<th><?php echo $tr_field; ?></th>
 					<th><?php echo $tr_time; ?></th>
