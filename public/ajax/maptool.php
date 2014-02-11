@@ -209,6 +209,7 @@ if (isset($_POST['bookPosition'])) {
 	$ex->set('arranger_message', $_POST['message']);
 	$ex->set('category', 0);
 	$ex->set('presentation', '');
+	$ex->set('edit_time', 0);
 	$exId = $ex->save();
 	
 	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
@@ -252,6 +253,7 @@ if (isset($_POST['reservePosition'])) {
 	$ex->set('arranger_message', $_POST['message']);
 	$ex->set('category', 0);
 	$ex->set('presentation', '');
+	$ex->set('edit_time', 0);
 	$exId = $ex->save();
 	
 	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
