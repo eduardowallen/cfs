@@ -629,8 +629,9 @@ class AdministratorController extends Controller {
 		$this->set('headline', 'Delete administrator');
 		$this->setNoTranslate('from', $from);
 
+		$this->Administrator->load($id, 'id');
+
 		if ($confirmed == 'confirmed') {
-			$this->Administrator->load($id, 'id');
 			if (userLevel() == 3 && $this->Administrator->get('owner') != $_SESSION['user_id']) {
 				toLogin();
 			} else {
@@ -643,7 +644,8 @@ class AdministratorController extends Controller {
 			}
 		} else {
 			$this->setNoTranslate('admin_id', $id);
-			$this->set('warning', 'Do you really want to delete this administrator?');
+			$this->set('warning', 'Do you really want to delete the administrator');
+			$this->setNoTranslate('administrator', $this->Administrator);
 			$this->set('yes', 'Yes');
 			$this->set('no', 'No');
 		}
