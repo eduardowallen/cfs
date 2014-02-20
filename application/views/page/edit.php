@@ -4,7 +4,7 @@
 <form action="page/edit/<?php echo $page; ?>/<?php echo $lang; ?>" method="post">
 	<!--<label for="content"><?php echo $content_label; ?></label>-->
 	<textarea name="page_content" id="page_content" style="width:100%; height:500px;"><?php echo $page_content; ?></textarea>
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 </form>
 
 <?php else: ?>

@@ -5,5 +5,5 @@
 	<select name="category" id="category">
 		<?php echo $cat_options; ?>
 	</select>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>"/>
+	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
 </form>

@@ -158,7 +158,7 @@
 <?php endfor; ?>
 	</div>
 
-	<p class="clear"><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p class="clear"><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 
 </form>
 
@@ -169,7 +169,7 @@
 			<textarea id="dialog_reminder_note" class="no-editor" cols="50" rows="5"></textarea>
 		</p>
 		<p class="right">
-			<button type="button" id="reminder_save_btn"><?php echo $save_label; ?></button>
+			<button type="button" id="reminder_save_btn" class="save-btn"><?php echo $save_label; ?></button>
 			<button type="button" id="reminder_cancel_btn"><?php echo $cancel_label; ?></button>
 		</p>
 	</div>

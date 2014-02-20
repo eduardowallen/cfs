@@ -6,7 +6,7 @@
 	<h3><?php echo $form_headline; ?></h3>
 	<label for="name"><?php echo $name_label; ?> *</label>
 	<input type="text" name="name" id="name" value="<?php echo $current_title ?>"/>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>"/>
+	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
 </form>
 
 <?php else: ?>
@@ -15,7 +15,7 @@
 	<h3><?php echo $form_headline; ?></h3>
 	<label for="name"><?php echo $name_label; ?> *</label>
 	<input type="text" name="name" id="name"/>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>"/>
+	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
 </form>
 
 <?php if(count($categories) > 0) : ?>

@@ -46,6 +46,6 @@
 	<label for="email"><?php echo $email_label; ?> *</label>
 	<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
 	
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 	
 </form>

@@ -214,7 +214,7 @@
 		<p>
 			<input type="hidden" name="id" id="reserve_id" />
 			<input type="submit" name="reserve" class="confirm" value="<?php echo $translator->{'Confirm reservation'} ?>" />
-			<input type="submit" name="reserve" class="edit" value="<?php echo $translator->{'Save'} ?>" />
+			<input type="submit" name="reserve" class="edit" value="<?php echo $translator->{'Save'} ?>" class="save-btn" />
 		</p>
 	</form>
 </div>

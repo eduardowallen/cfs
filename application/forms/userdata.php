@@ -182,7 +182,7 @@
 <?php endif; ?>
 
   <p>
-    <input type="submit" name="save" value="<?php echo $translator->{'Save'}; ?>"/>
+    <input type="submit" name="save" value="<?php echo $translator->{'Save'}; ?>" class="save-btn" />
   </p>
 
 </form>

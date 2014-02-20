@@ -352,6 +352,6 @@
 	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo $locked_label1; ?></label>
 	
 	
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 
 </form>

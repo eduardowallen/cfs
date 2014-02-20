@@ -328,5 +328,5 @@
 		<p style="position:relative; bottom:90px; left:300px; width:235px; background:#efefef; border:1px solid #b1b1b1; padding:10px; "><?php echo $pass_standard ?></p>
 	</div>
 	
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 </form>

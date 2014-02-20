@@ -148,6 +148,6 @@
 	<?php endif; ?>
 
 
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 
 </form>

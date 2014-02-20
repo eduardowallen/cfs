@@ -79,7 +79,7 @@
 	<label for="name"><?php echo $contact_label; ?> *</label>
 	<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 	
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 	</div>
 	
 </form>
