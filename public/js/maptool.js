@@ -399,9 +399,9 @@ maptool.showContextMenu = function(position, marker) {
 		if (copiedExhibitor) {
 			contextMenu.append('<li id="cm_paste">' + lang.pasteExhibitor + '</li>');
 		}
-	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && hasRights && maptool.ownsMap()) {
+	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
 		contextMenu.append('<li id="cm_apply">' + lang.preliminaryBookStandSpace + '</li>');
-	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && hasRights && maptool.ownsMap()) {
+	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
 		contextMenu.append('<li id="cm_cancel">' + lang.cancelPreliminaryBooking + '</li>');
 	}
 	

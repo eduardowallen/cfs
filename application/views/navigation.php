@@ -17,6 +17,7 @@
 						<li><a href="arranger/overview"><?php echo $translator->{'Organizers'} ?></a></li>
 						<li><a href="administrator/all"><?php echo $translator->{'Administrators'} ?></a></li>
 						<li><a href="exhibitor/all"><?php echo $translator->{'Exhibitors'} ?></a></li>
+						<li><a href="user/overview/0"><?php echo $translator->{'All users'}; ?></a></li>
 					</ul>
 				</li>
 				

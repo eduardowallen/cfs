@@ -217,7 +217,7 @@ class UserController extends Controller {
         
         if($iid > 0){
         
-          // Succsess
+          // Success
           $this->setNoTranslate('js_confirm', true);
           $this->setNoTranslate('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
           
@@ -817,6 +817,10 @@ class UserController extends Controller {
 
 		$this->User->load($id, 'id');
 
+		if ($this->is_ajax) {
+			$this->createJsonResponse();
+		}
+
 		if ($this->User->wasLoaded()) {
 			$arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
 			shuffle($arr);
@@ -825,13 +829,13 @@ class UserController extends Controller {
 			$this->User->setPassword($str);
 			$this->User->save();
 
-      $mail = new Mail($this->User->get('email'), 'resend_details');
-      $mail->setMailVar('alias', $this->User->get('alias'));
-      $mail->setMailVar('password', $str);
-      $mail->send();
-			$this->set('user_message', 'The user\'s password was reset and a mail was sent.');
+			$mail = new Mail($this->User->get('email'), 'resend_details');
+			$mail->setMailVar('alias', $this->User->get('alias'));
+			$mail->setMailVar('password', $str);
+			$mail->send();
+			$this->set('result', 'The user\'s password was reset and a mail was sent.');
 		} else {
-			$this->set('error_message', 'That user does not exist.');
+			$this->set('result', 'That user does not exist.');
 		}
 	}
 
