@@ -92,8 +92,7 @@ function denyPosition(link, comment, position, status){
 			type: 'POST',
 			data: 'comment='+comment+'&positionName='+position+'&status='+status
 		}).success(function(response){
-			//console.log(response);
-			window.location = 'administrator/newReservations';
+			window.location = '/administrator/newReservations';
 		});
 }
 
