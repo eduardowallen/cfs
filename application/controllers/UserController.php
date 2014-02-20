@@ -831,6 +831,7 @@ class UserController extends Controller {
 
 			$mail = new Mail($this->User->get('email'), 'resend_details');
 			$mail->setMailVar('alias', $this->User->get('alias'));
+			$mail->setMailVar('name', $this->User->get('name'));
 			$mail->setMailVar('password', $str);
 			$mail->send();
 			$this->set('result', 'The user\'s password was reset and a mail was sent.');
