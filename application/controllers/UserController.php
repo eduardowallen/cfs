@@ -217,7 +217,7 @@ class UserController extends Controller {
         
         if($iid > 0){
         
-          // Succsess
+          // Success
           $this->setNoTranslate('js_confirm', true);
           $this->setNoTranslate('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
           
