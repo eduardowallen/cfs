@@ -62,6 +62,13 @@ class Controller {
 		$this->_template = new JsonResponse();
 	}
 
+	public function changeAction($new_action, $args = array()) {
+		$this->_action = $new_action;
+		$this->_template->setAction($new_action);
+
+		call_user_func_array(array($this, $new_action), $args);
+	}
+
 	function __destruct() {
 		$this->_template->render();
 	}
