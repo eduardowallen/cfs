@@ -14,6 +14,11 @@ class Template {
 	function set($name,$value) {
 		$this->variables[$name] = $value;
 	}
+
+	// Sets new action
+	public function setAction($action) {
+		$this->_action = $action;
+	}
 	
 	//Output
     function render() {

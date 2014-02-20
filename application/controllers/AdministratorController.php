@@ -757,142 +757,151 @@ class AdministratorController extends Controller {
 		setAuthLevel(3);
 
 		if (empty($id))
-      return;
+			return;
 
-    if (userLevel() == 3) {
-    
-      $arr = new Arranger;
-      $arr->load($_SESSION['user_id'], 'id');
-      $this->setNoTranslate('arranger', $arr);
-      $this->setNoTranslate('fairs', $arr->get('fairs'));
-      
-    } else {
-    
-      $stmt = $this->Administrator->db->prepare("SELECT id FROM fair");
-      $stmt->execute(array());
-      $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-      $fairs = array();
-      
-      foreach ($result as $res) {
-      
-        $f = new Fair;
-        $f->load($res['id'], 'id');
-        $fairs[] = $f;
-      }
-      
-      $this->setNoTranslate('fairs', $fairs);
-    }
+		if (userLevel() == 3) {
 
-    if ($id != 'new') {
-    
-      $this->Administrator->load($id, 'id');
+			$arr = new Arranger;
+			$arr->load($_SESSION['user_id'], 'id');
+			$this->setNoTranslate('arranger', $arr);
+			$this->setNoTranslate('fairs', $arr->get('fairs'));
 
-      if (userLevel() == 3) {
-      
-        if ($this->Administrator->get('owner') != $_SESSION['user_id']) {
-        
-          toLogin();
-        }
-      }
-    }
+		} else {
 
-    if (isset($_POST['save'])) {
-      
-      $this->Administrator->set('name', $_POST['name']);
-      $this->Administrator->set('phone1', $_POST['phone1']);
-      $this->Administrator->set('phone2', $_POST['phone2']);
-      $this->Administrator->set('contact_phone', $_POST['phone3']);
-      $this->Administrator->set('email', $_POST['email']);
-      
-      $this->Administrator->set('level', 2);
-      $this->Administrator->set('locked', $_POST['locked']);
-      
-      if ($id == 'new') {
-      
-        $this->Administrator->set('alias', $_POST['alias']);
-        
-        if (userLevel() == 4) {
-        
-          $adminFair = new Fair;
-          $adminFair->load($_SESSION['user_fair'], 'id');
-          $this->Administrator->set('owner', $adminFair->get('created_by'));
-          
-        } else {
-        
-          $this->Administrator->set('owner', $_SESSION['user_id']);
-        }
-      }
-      
-      if (!$this->Administrator->emailExists() || $id != 'new') {
-      
-        if ((!$this->Administrator->aliasExists() || $id != 'new') && isset($_POST['fair_permission']) && isset($_POST['maps'])) {
-          
-          $aId = $this->Administrator->save();
-          require_once ROOT.'application/models/FairUserRelation.php';
-          
-          $oldful = new FairUserRelation;
-          $oldful->load($aId, 'user');
+			$stmt = $this->Administrator->db->prepare("SELECT id FROM fair");
+			$stmt->execute(array());
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$fairs = array();
 
-          $stmt = $this->Administrator->db->prepare("DELETE FROM fair_user_relation WHERE user = ?");
-          $stmt->execute(array($aId));
+			foreach ($result as $res) {
 
-          if (isset($_POST['fair_permission'])) {
-          
-            foreach ($_POST['fair_permission'] as $fairId) {
-              
-              if (isset($_POST['maps'][$fairId])) {
-              
-                $rel = new FairUserRelation;
-                $rel->set('fair', $fairId);
-                $rel->set('user', $aId);
-                $rel->set('map_access', implode('|', $_POST['maps'][$fairId]));
-                $rel->set('connected_time', $oldful->get('connected_time'));
-                $rel->save();
-              }
-            }
-          }
-          
-        } else {
-        
-          unset($_POST);
-          if (!isset($_POST['fair_permission'])) {
-          
-            $this->set('user_message', 'You have to assign permissions.');
-            
-          } else {
-          
-            $this->set('user_message', 'The alias already exists in our system. Please choose another one.');
-          }
-          
-          $this->setNoTranslate('error', true);
-        }
-        
-        //if ($id == 'new') {
-          //header("Location: ".BASE_URL."administrator/mine");
-          //exit;
-        //}
-        
-      } else if( $this->Administrator->emailExists() ){
-      
-        //$this->Administrator->addRelation($fair);
-        //$this->Administrator->save();
-        //header("Location: ".BASE_URL."administrator/mine");
-        
-        $this->set('user_message', 'The email address already exists in our system. Please choose another one.');
-        $this->setNoTranslate('error', true);
+				$f = new Fair;
+				$f->load($res['id'], 'id');
+				$fairs[] = $f;
+			}
 
-      }
-      
-      // Load the user again so we get the new permissions.
-      $this->Administrator->load($this->Administrator->get('id'), 'id');
-    }
+			$this->setNoTranslate('fairs', $fairs);
+		}
 
-    $this->setNoTranslate('locked0sel', '');
-    
-    $this->setNoTranslate('edit_id', $id);
-    $this->setNoTranslate('user', $this->Administrator);
-    $this->setNoTranslate('user_maps', $this->Administrator->get('maps'));
-    $this->setNoTranslate('user_fairs', $this->Administrator->get('fairs'));
+		if ($id != 'new') {
+
+			$this->Administrator->load($id, 'id');
+
+			if (userLevel() == 3) {
+
+				if ($this->Administrator->get('owner') != $_SESSION['user_id']) {
+
+					toLogin();
+				}
+			}
+		}
+
+		if (isset($_POST['save'])) {
+
+			$this->Administrator->set('name', $_POST['name']);
+			$this->Administrator->set('phone1', $_POST['phone1']);
+			$this->Administrator->set('phone2', $_POST['phone2']);
+			$this->Administrator->set('contact_phone', $_POST['phone3']);
+			$this->Administrator->set('email', $_POST['email']);
+
+			$this->Administrator->set('level', 2);
+			$this->Administrator->set('locked', $_POST['locked']);
+
+			if ($id == 'new') {
+
+				$this->Administrator->set('alias', $_POST['alias']);
+
+				if (userLevel() == 4) {
+
+					$adminFair = new Fair;
+					$adminFair->load($_SESSION['user_fair'], 'id');
+					$this->Administrator->set('owner', $adminFair->get('created_by'));
+
+				} else {
+
+					$this->Administrator->set('owner', $_SESSION['user_id']);
+				}
+			}
+
+			if (!$this->Administrator->emailExists() || $id != 'new') {
+
+				if ((!$this->Administrator->aliasExists() || $id != 'new') && isset($_POST['fair_permission']) && isset($_POST['maps'])) {
+
+					$aId = $this->Administrator->save();
+					require_once ROOT.'application/models/FairUserRelation.php';
+
+					$oldful = new FairUserRelation;
+					$oldful->load($aId, 'user');
+
+					$stmt = $this->Administrator->db->prepare("DELETE FROM fair_user_relation WHERE user = ?");
+					$stmt->execute(array($aId));
+
+					if (isset($_POST['fair_permission'])) {
+
+						foreach ($_POST['fair_permission'] as $fairId) {
+
+							if (isset($_POST['maps'][$fairId])) {
+
+								$rel = new FairUserRelation;
+								$rel->set('fair', $fairId);
+								$rel->set('user', $aId);
+								$rel->set('map_access', implode('|', $_POST['maps'][$fairId]));
+								$rel->set('connected_time', $oldful->get('connected_time'));
+								$rel->save();
+							}
+						}
+					}
+
+				} else {
+
+					unset($_POST);
+					if (!isset($_POST['fair_permission'])) {
+
+						$this->set('user_message', 'You have to assign permissions.');
+
+					} else {
+
+						$this->set('user_message', 'The alias already exists in our system. Please choose another one.');
+					}
+
+					$this->setNoTranslate('error', true);
+				}
+
+				//if ($id == 'new') {
+				//header("Location: ".BASE_URL."administrator/mine");
+				//exit;
+				//}
+
+			} else if ($this->Administrator->emailExists()) {
+
+				//$this->Administrator->addRelation($fair);
+				//$this->Administrator->save();
+				//header("Location: ".BASE_URL."administrator/mine");
+
+				$this->set('user_message', 'The email address already exists in our system. Please choose another one.');
+				$this->setNoTranslate('error', true);
+
+			}
+
+			// Load the user again so we get the new permissions.
+			$this->Administrator->load($this->Administrator->get('id'), 'id');
+
+			if (userLevel() == 4) {
+				$this->changeAction('all');
+
+			} else if (userLevel() == 3) {
+				$this->changeAction('mine');
+			}
+
+			return;
+		}
+
+		$this->setNoTranslate('locked0sel', '');
+
+		$this->setNoTranslate('edit_id', $id);
+		$this->setNoTranslate('user', $this->Administrator);
+		$this->setNoTranslate('user_maps', $this->Administrator->get('maps'));
+		$this->setNoTranslate('user_fairs', $this->Administrator->get('fairs'));
 	}
 
 	public function deleteBooking($id = 0, $posId = 0) {
