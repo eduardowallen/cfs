@@ -44,7 +44,7 @@ function reservePopup(row, link, action) {
 	$('#reserve_message_input').val(data.eq(6).prop('title'));
 
 	if (action == 'edit') {
-		$('#reserve_expires_input').val(data.eq(8).text().replace(' UTC', ''));
+		$('#reserve_expires_input').val(data.eq(8).text().replace(/ GMT[+-]\d*/, ''));
 	}
 }
 
