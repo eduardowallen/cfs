@@ -934,6 +934,7 @@ class ExhibitorController extends Controller {
 		$this->set('tr_time', 'Time of booking');
 		$this->set('tr_message', 'Message to organizer');
 		$this->set('ok_label', 'OK');
+		$this->set('no_bookings_label', 'This exhibitor has not made any bookings yet.');
 	}
 
 	function myBookings() {

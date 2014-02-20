@@ -138,7 +138,7 @@
 			<li><div class="tblrow1"><?php echo $th_fairs; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $th_bookings; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $th_last_login; ?></div><input type="checkbox" value="5" checked="checked" /></li>
-			<li><div class="tblrow1"></div><input onclick="multiCheck('booked')" type="checkbox" style="padding-top:15px;" checked="checked" /></li>
+			<li><div class="tblrow1"></div><input onclick="multiCheck('booked')" type="checkbox" checked="checked" /></li>
 		</ul>
 	</div>
 	<div class="scrolltbl">

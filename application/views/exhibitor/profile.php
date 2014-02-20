@@ -201,6 +201,7 @@
 </form>
 
 <h3><?php echo $bookings_section; ?></h3>
+<?php if (count($positions) > 0): ?>
 <table class="std_table">
 <thead>
 	<tr>
@@ -216,7 +217,7 @@
 <tbody>
 <?php foreach($positions as $pos): ?>
 	<tr>
-		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/none/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
+		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/<?php echo $pos->get('id'); ?>/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
 		<td><?php echo $pos->get('name'); ?></td>
 		<td class="center"><?php echo $pos->get('area'); ?></td>
 		<td class="center"><?php echo $pos->get('company'); ?></td>
@@ -233,6 +234,9 @@
 <?php endforeach; ?>
 </tbody>
 </table>
+<?php else: ?>
+<p><?php echo $no_bookings_label; ?></p>
+<?php endif; ?>
 <?php  echo '';/*
 <form action="exhibitor/profile/<?php echo $user->get('id'); ?>" method="post">
 	<h3><?php echo $ban_section_header ?></h3>

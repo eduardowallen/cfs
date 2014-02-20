@@ -279,7 +279,7 @@
 		<a onclick="prepareTable('booked')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
@@ -296,7 +296,7 @@
 			<thead>
 				<tr>
 					<th><?php echo $tr_pos; ?></th>
-					<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+					<th><?php echo $tr_area; ?></th>
 					<th><?php echo $tr_booker; ?></th>
 					<th><?php echo $tr_field; ?></th>
 					<th><?php echo $tr_time; ?></th>
@@ -362,7 +362,7 @@
 		<a onclick="prepareTable('reserved')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
@@ -381,7 +381,7 @@
 		<thead>
 			<tr>
 				<th><?php echo $tr_pos; ?></th>
-				<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+				<th><?php echo $tr_area; ?></th>
 				<th><?php echo $tr_booker; ?></th>
 				<th><?php echo $tr_field; ?></th>
 				<th><?php echo $tr_time; ?></th>
@@ -457,7 +457,7 @@
 		<a onclick="prepareTable('prem')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?> (m<sup>2</sup>)</div><input type="checkbox" value="2" checked="checked" /></li>
+			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
@@ -474,7 +474,7 @@
 		<thead>
 			<tr>
 				<th><?php echo $tr_pos; ?></th>
-				<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+				<th><?php echo $tr_area; ?></th>
 				<th><?php echo $tr_booker; ?></th>
 				<th><?php echo $tr_field; ?></th>
 				<th><?php echo $tr_time; ?></th>

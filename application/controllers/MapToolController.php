@@ -35,8 +35,10 @@ class MapToolController extends Controller {
 				$this->setNoTranslate('hasRights', false);
 			else
 				$this->setNoTranslate('hasRights', true);
-		} else {
+		} else if (userLevel() == 4) {
 			$this->setNoTranslate('hasRights', true);
+		} else {
+			$this->setNoTranslate('hasRights', false);
 		}
 
 		$fair = new Fair;

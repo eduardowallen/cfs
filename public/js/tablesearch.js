@@ -141,8 +141,10 @@ function filterTableTable(table, str, results) {
 				}
 			});
 
-			searchfield.find("#search_input").keyup(function(e) {
+			searchfield.find("#search_input").keydown(function(e) {
 				if (e.keyCode == 13) {
+					e.preventDefault();
+
 					filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
 
 					if(site == "forFair"){

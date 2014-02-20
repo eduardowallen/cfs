@@ -181,11 +181,25 @@ class AdministratorController extends Controller {
 
 		//require_once ROOT.'application/models/Fair.php';
 
-		foreach ($this->Administrator->get('fairs') as $fId) {
-			$fair = new Fair;
-			$fair->load($fId, 'id');
-			$fairs[] = $fair;
+		if (userLevel() == 2) {
+			foreach ($this->Administrator->get('fairs') as $fId) {
+				$fair = new Fair;
+				$fair->load($fId, 'id');
+				$fairs[] = $fair;
+			}
+
+		} else if (userLevel() == 3) {
+			$stmt = $this->db->prepare("SELECT id FROM fair WHERE created_by = ?");
+			$stmt->execute(array($_SESSION['user_id']));
+			$owned_fairs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			foreach ($owned_fairs as $fair_data) {
+				$fair = new Fair;
+				$fair->load($fair_data['id'], 'id');
+				$fairs[] = $fair;
+			}
 		}
+
 		$this->setNoTranslate('fairs', $fairs);
 
 		$this->setNoTranslate('error', $error);
