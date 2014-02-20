@@ -8,12 +8,12 @@
 
 <h1><?php echo $headline; ?></h1>
 
+<form action="translate/all" method="post">
 <p>
 	<input type="submit" name="save" value="<?php echo $save_label; ?>" />
 	<a href="translate/toggle" class="link-button toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
 </p>
 
-<form action="translate/all" method="post">
 <table class="std_table">
 	<thead>
 	<tr>
