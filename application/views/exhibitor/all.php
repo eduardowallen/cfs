@@ -5,15 +5,14 @@
 		$('#popupform').remove();
 	}
 
-	function resendDetails(id){
-		if(confirm("<?php echo $translator->{'Really reset user password?'} ?>") == true){
+	function resendDetails(id, name){
+		if(confirm("<?php echo $translator->{'Really reset user password'} ?> " + name + "?") == true){
 			$.ajax({
 				url: 'user/resendDetails/'+id, 
 				type: 'GET'
 			}).success(function(responseData){
-				var reponse = $(responseData).children('#content');
-				
-				$('body').append('<div id="overlay"></div><div id="popupform"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue">'+reponse.html()+'</div>');
+
+				$('body').append('<div id="overlay"></div><div id="popupform"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue">'+responseData.result+'</div>');
 				$('#overlay').css('display', 'block');
 
 				$('#overlay').bind('click',function(){
@@ -87,7 +86,7 @@
 				<td><?php echo date('d-m-Y H:i:s', $user->get('created')); ?></td>
 				<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $translator->{'Edit'} ?>"/></a></td>
 				<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really delete?'} ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
-				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>)"> <img src="images/icons/delete.png" alt=""/></a></td>
+				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>, '<?php echo htmlspecialchars($user->get('name')); ?>')"> <img src="images/icons/delete.png" alt=""/></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>
