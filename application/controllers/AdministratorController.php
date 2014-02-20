@@ -909,18 +909,32 @@ class AdministratorController extends Controller {
 	public function deleteBooking($id = 0, $posId = 0) {
 		setAuthLevel(2);
 
-		$positionName = $_POST['positionName'];
-		$comment = $_POST['comment'];
 		$status = $_POST['status'];
+		$comment = $_POST['comment'];
 
-		if($status == "Preliminary Booking"):
+		$position = new FairMapPosition();
+		$position->load($posId, 'id');
+
+		$fair = new Fair();
+		$fair->load($position->get('id'), 'id');
+
+		$current_user = new User();
+		$current_user->load($_SESSION['user_id'], 'id');
+
+		$organizer = new User();
+		$organizer->load($fair->get('created_by'), 'id');
+
+		if ($status == "Preliminary Booking") {
 			$pb = new PreliminaryBooking;
 			$pb->load($id, 'id');
 			
 			$u = new User();
 			$u->load($pb->get('user'), 'id');
 			$pb->delete();
-		else:
+
+			$mail_type = 'booking';
+
+		} else {
 			$exhib = new Exhibitor;
 			$exhib->load($id, 'id');
 
@@ -930,16 +944,41 @@ class AdministratorController extends Controller {
 			$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND position = ?");
 			$stmt->execute(array($id, $posId));
 
-			$stmt = $this->db->prepare("UPDATE fair_map_position SET `status`=0 WHERE id = ?");
-			$stmt->execute(array($posId));
-		endif;
+			$position->set('status', 0);
+			$position->save();
 
-		if(empty($comment)):
-			$comment = " ";
-		endif;
-    
-    $mail = new Mail($u->get('email'), 'booking_cancelled');
-    $mail->send();
+			if ($status == 'Reservation') {
+				$mail_type = 'reservation';
+			} else {
+				$mail_type = 'booking';
+			}
+		}
+
+		$current_date = date('d-m-Y H:i');
+
+		$mail_exhibitor = new Mail($u->get('email'), $mail_type . '_cancelled');
+		$mail_exhibitor->setMailVar('position_name', $position->get('name'));
+		$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
+		$mail_exhibitor->setMailVar('event_name', $fair->get('name'));
+		$mail_exhibitor->setMailVar('edit_time', $current_date);
+		$mail_exhibitor->setMailVar('comment', $comment);
+		$mail_exhibitor->send();
+
+		$mail_user = new Mail($current_user->get('email'), $mail_type . '_cancelled_confirm');
+		$mail_user->setMailVar('position_name', $position->get('name'));
+		$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
+		$mail_user->setMailVar('event_name', $fair->get('name'));
+		$mail_user->setMailVar('edit_time', $current_date);
+		$mail_user->setMailVar('comment', $comment);
+		$mail_user->send();
+
+		$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_cancelled_confirm');
+		$mail_organizer->setMailVar('position_name', $position->get('name'));
+		$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
+		$mail_organizer->setMailVar('event_name', $fair->get('name'));
+		$mail_organizer->setMailVar('edit_time', $current_date);
+		$mail_organizer->setMailVar('comment', $comment);
+		$mail_organizer->send();
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
