@@ -315,5 +315,5 @@
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
 
 	</div>
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 </form>

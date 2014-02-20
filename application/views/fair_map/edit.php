@@ -11,6 +11,6 @@
 	<input type="text" name="name" id="name" value="<?php echo $mo->get('name') ?>"/>
 	<label for="image"><?php echo $image_label; ?> (jpeg, jpg, gif, png, pdf - max 8mb)</label>
 	<input type="file" name="image" id="image"/>
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 	<p id="loading" class="hidden"><img src="images/icons/loading.gif" alt="loading..." style="width:100px;"/></p>
 </form>

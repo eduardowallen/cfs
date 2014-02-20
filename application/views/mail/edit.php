@@ -10,7 +10,7 @@
   <p><input name="mail_subject" id="mail_subject" style="width:100%;" value="<?php echo $mail_subject; ?>"/></p>
 	<!--<label for="content"><?php echo $content_label; ?></label>-->
 	<textarea name="mail_content" id="mail_content" style="width:100%; height:500px;"><?php echo $mail_content; ?></textarea>
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>"/></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 </form>
 
 <?php else: ?>

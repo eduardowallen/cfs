@@ -10,7 +10,7 @@
 
 <form action="translate/all" method="post">
 <p>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>" />
+	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
 	<a href="translate/toggle" class="link-button toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
 </p>
 
@@ -44,7 +44,7 @@
 </table>
 
 <p>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>" />
+	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
 	<a href="translate/toggle" class="link-button toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
 </p>
 
