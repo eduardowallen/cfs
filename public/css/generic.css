@@ -43,6 +43,7 @@ a:hover {
 .dialogue {
 	display:none;
 	position:absolute;
+	position: fixed;
 	z-index:10000;
 	width:400px;
 	top:50%;
@@ -76,8 +77,8 @@ a:hover {
 }
 
 #nouser_dialogue {
-	margin-left: -380px;
-	width: 760px;
+	margin-left: -275px;
+	width: 550px;
 	min-height: 210px;
 }
 
@@ -86,13 +87,29 @@ a:hover {
 }
 
 #nouser_dialogue .link-button {
-	padding: 50px 0;
-	width: 370px;
+	padding: 32px 0;
+	width: 254px;
+	border: 0;
+	background-repeat: no-repeat;
+	background-position: center center;
 	font-size: 16px;
+}
+
+#open_loginform {
+	background-image: url('../images/button_icons/blue-new.png');
+}
+
+#open_loginform {
+	background-image: url('../images/button_icons/blue-new.png');
+}
+
+#nouser_dialogue .registerlink {
+	background-image: url('../images/button_icons/green-new.png');
 }
 
 #user_login_dialogue {
 	display: none;
+	margin-left: 15px;
 }
 
 .ui-icon-circle-triangle-e{
@@ -291,8 +308,7 @@ textarea {
 
 }
 
-.scrolltbl .std_table thead {
-	visibility: hidden;
+.scrolltbl .std_table thead tr {
 	height: 32px;
 }
 

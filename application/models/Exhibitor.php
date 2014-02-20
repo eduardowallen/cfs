@@ -64,7 +64,7 @@ class Exhibitor extends User {
 			$params = array($this->user, $this->fair, $this->position, $this->category, $this->presentation, $this->commodity, $this->arranger_message, time(), $this->exhibitor_id);
 		} else {
 			$sql = "INSERT INTO exhibitor (user, fair, position, category, presentation, commodity, arranger_message, booking_time, edit_time) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			$params = array($this->user, $this->fair, $this->position, $this->category, $this->presentation, $this->commodity, $this->arranger_message, time(), 0);
+			$params = array($this->user, $this->fair, $this->position, $this->category, $this->presentation, $this->commodity, $this->arranger_message, time(), $this->edit_time);
 		}
 		
 		$stmt = $this->db->prepare($sql);

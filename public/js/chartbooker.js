@@ -1,4 +1,6 @@
 /* Funktioner för att visa popuper under newReservations! Hämtar data från tabellen och placerar i en popup! */
+var open_dialogue = null;
+
 function showPopup(type, activator){
 	
 	var row = $(activator).parent().parent();
@@ -21,24 +23,29 @@ function reservePopup(row, link, action) {
 
 	$('.confirm, .edit', dialogue).hide();
 	$('.' + action, dialogue).show();
+	$('.closeDialogue', dialogue).click(closeDialogue);
 	dialogue.css('display', 'block');
+	open_dialogue = dialogue;
 
 	var data = row.children(), 
-		catArr = data.eq(7).text().split("|");
+		catArr = data.eq(7).text().split("|"), 
+		i;
 
-	$('#reserve_category_scrollbox > p').each(function(){
-		var categoryValue = $(this).children().val();
-		for (var i = 0; i < catArr.length; i++) {
-			$(this).children().prop('checked', categoryValue == catArr[i]);
-		}
-	});
+	$('#reserve_category_scrollbox input').prop('checked', false);
+	for (i = 0; i < catArr.length; i++) {
+		$('#reserve_category_scrollbox input[value=' + catArr[i] + ']').prop('checked', true);
+	}
 
 	$('form', dialogue).prop('action', link);
+	$('.position-name', dialogue).text(data.eq(0).text());
 	$('#reserve_id').val(row.data('id'));
 	$('#reserve_user').text(data.eq(2).text());
 	$('#reserve_commodity_input').val(data.eq(3).text());
 	$('#reserve_message_input').val(data.eq(6).prop('title'));
-	$('#reserve_expires_input').val(data.eq(8).text().replace(' UTC', ''));
+
+	if (action == 'edit') {
+		$('#reserve_expires_input').val(data.eq(8).text().replace(' UTC', ''));
+	}
 }
 
 function bookPopup(row, link, action) {
@@ -47,27 +54,36 @@ function bookPopup(row, link, action) {
 
 	$('.confirm, .edit', dialogue).hide();
 	$('.' + action, dialogue).show();
+	$('.closeDialogue', dialogue).click(closeDialogue);
 	dialogue.css('display', 'block');
+	open_dialogue = dialogue;
 	
 	var data = row.children(), 
-		catArr = data.eq(7).text().split("|");
+		catArr = data.eq(7).text().split("|"), 
+		i;
 
-	$('#book_category_scrollbox > p').each(function(){
-		var categoryValue = $(this).children().val();
-		for (var i = 0; i < catArr.length; i++) {
-			$(this).children().prop('checked', categoryValue == catArr[i]);
-		}
-	});
+	$('#book_category_scrollbox input').prop('checked', false);
+	for (i = 0; i < catArr.length; i++) {
+		$('#book_category_scrollbox input[value=' + catArr[i] + ']').prop('checked', true);
+	}
 
 	$('form', dialogue).prop('action', link);
+	$('.position-name', dialogue).text(data.eq(0).text());
 	$('#book_id').val(row.data('id'));
 	$('#book_user').text(data.eq(2).text());
 	$('#book_commodity_input').val(data.eq(3).text());
 	$('#book_message_input').val(data.eq(6).prop('title'));	
 }
 
-function closeDialogue(pref){
-	$('#'+pref+'_position_dialogue').css('display', 'none');
+function closeDialogue(e) {
+	if (e) {
+		e.preventDefault();
+	}
+
+	if (open_dialogue !== null) {
+		open_dialogue.hide();
+		open_dialogue = null;
+	}
 }
 
 function denyPosition(link, comment, position, status){
@@ -388,16 +404,8 @@ $(document).ready(function() {
 
 	if ($('#arranger_message_popup').length) {
 
-		function closeArrangerMsgPopup(e) {
-			if (e) {
-				e.preventDefault();
-			}
-
-			arranger_message_popup.hide();
-		}
-
 		var arranger_message_popup = $('#arranger_message_popup');
-		$('.close-popup', arranger_message_popup).click(closeArrangerMsgPopup);
+		$('.close-popup', arranger_message_popup).click(closeDialogue);
 
 		$('.open-arranger-message').click(function(e) {
 			e.preventDefault();
@@ -409,16 +417,17 @@ $(document).ready(function() {
 				success: function(response) {
 					$('#arranger_message_text').text(response.message);
 					arranger_message_popup.show();
+					open_dialogue = arranger_message_popup;
 				}
 			});
 		});
-
-		$(window).on('keyup', function(e) {
-			if (e.keyCode == 27) {
-				closeArrangerMsgPopup();
-			}
-		});
 	}
+
+	$(window).on('keyup', function(e) {
+		if (e.keyCode == 27 && open_dialogue !== null) {
+			closeDialogue();
+		}
+	});
 
 	$(document.body).on('click', '.open-edit-booking', function(e) {
 		var link = $(this);

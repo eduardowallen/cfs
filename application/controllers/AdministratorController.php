@@ -439,6 +439,7 @@ class AdministratorController extends Controller {
 			$ex->set('commodity', $_POST['commodity']);
 			$ex->set('arranger_message', $_POST['arranger_message']);
 			$ex->set('approved', 1);
+			$ex->set('edit_time', time());
 			
 			$exId = $ex->save();
 			$pos->save();
@@ -497,7 +498,7 @@ class AdministratorController extends Controller {
 				$pos = array_merge($pos, $catarray);
 			endif;
 
-			array_push($positions, $pos);
+			$positions[$pos['position']] = $pos;
 		endforeach;
 		
 
@@ -533,14 +534,22 @@ class AdministratorController extends Controller {
 				$pos = array_merge($pos, $catarray);
 			endif;
 
-			array_push($rpositions, $pos);
+			$rpositions[$pos['position']] = $pos;
 		endforeach;
 
 
 		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, pos.map, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
 		$stmt->execute(array($_SESSION['user_fair']));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$prelpos = $result;
+		$prelpos = array();
+
+		// Check that only preliminary bookings on map positions 
+		// NOT booked/reserved are listed
+		foreach ($result as $preliminary_booking) {
+			if (!isset($positions[$preliminary_booking['position']]) && !isset($rpositions[$preliminary_booking['position']])) {
+				$prelpos[] = $preliminary_booking;
+			}
+		}
 
 		$this->setNoTranslate('positions', $positions);
 		$this->setNoTranslate('rpositions', $rpositions);
@@ -914,23 +923,13 @@ class AdministratorController extends Controller {
 		setAuthLevel(2);
 
 		if (isset($_POST['id'])) {
-
-			$exhib = new Exhibitor();
-			$exhib->load($_POST['id'], 'id');
-			$exhib->set('commodity', $_POST['commodity']);
-			$exhib->set('arranger_message', $_POST['arranger_message']);
-			$exhib->save();
-
-			$pos = new FairMapPosition();
-			$pos->load($exhib->get('position'), 'id');
-			$pos->set('status', 2);
-			$pos->save();
+			$this->editBooking($_POST['id'], 2);
 		}
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
 
-	public function editBooking($exhibitor_id = 0) {
+	public function editBooking($exhibitor_id = 0, $set_status = null) {
 		setAuthLevel(2);
 
 		if ($exhibitor_id > 0) {
@@ -945,25 +944,30 @@ class AdministratorController extends Controller {
 
 				// Remove old categories for this booking
 				$stmt = $this->db->prepare("DELETE FROM exhibitor_category_rel WHERE exhibitor = ?");
-				$stmt->execute(array($exhibitor->get('id')));
+				$stmt->execute(array($exhibitor->get('exhibitor_id')));
 
 				// Set new categories for this booking
 				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 					$stmt = $this->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 
 					foreach ($_POST['categories'] as $cat) {
-						$stmt->execute(array($exhibitor->get('id'), $cat));
+						$stmt->execute(array($exhibitor->get('exhibitor_id'), $cat));
 					}
 				}
 
 				$pos = new FairMapPosition();
 				$pos->load($exhibitor->get('position'), 'id');
 
-				// If this is a reservation (status is 1), then also set the expiry date
-				if ($pos->wasLoaded() && $pos->get('status') == 1) {
-					$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
-					$pos->save();
+				if ($set_status == null) {
+					// If this is a reservation (status is 1), then also set the expiry date
+					if ($pos->wasLoaded() && $pos->get('status') == 1) {
+						$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+					}
+				} else {
+					$pos->set('status', $set_status);
 				}
+
+				$pos->save();
 			}
 		}
 
@@ -1000,6 +1004,7 @@ class AdministratorController extends Controller {
 			$exhib->set('arranger_message', $_POST['arranger_message']);
 			$exhib->set('booking_time', $prel->get('booking_time'));
 			$exhib->set('approved', 1);
+			$exhib->set('edit_time', time());
 			$exId = $exhib->save();
 			$pos->save();
 

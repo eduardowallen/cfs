@@ -65,19 +65,13 @@ function filterTableTable(table, str, results) {
 				var header = $('#h'+tblarr[i]+' > ul');
 				var headertmp = $('#'+tblarr[i]+' > thead > tr');
 				var headerarr = new Array();
-				var headerarrHeight = new Array();
-
 
 				headertmp.children().each(function(i){
 					headerarr[i] = $(this).width();
-					headerarrHeight[i] = $(this).outerHeight();
 				});
-
-				header.css('max-height', headerarrHeight[0]);
 
 				header.children().each(function(i){
 					$(this).css('width', headerarr[i]);
-					$(this).css('height', headerarrHeight[i]);
 				});
 
 				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');

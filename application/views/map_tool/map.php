@@ -410,8 +410,8 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
 	</select>
 
-	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (DD-MM-YYYY HH:MM UTC)</label>
-	<input type="text" class="dialogueInput datetime datepicker" name="reserve_expires_input" id="reserve_expires_input" value="<?php if (@$edit_id != 'new') { echo date('d-m-Y', $fair->get('auto_close')); } ?>"/>
+	<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>)</label>
+	<input type="text" class="dialogueInput datetime datepicker" name="reserve_expires_input" id="reserve_expires_input" value=""/>
 	<p><input type="button" id="reserve_post" value="<?php echo $translator->{'Confirm reservation'} ?>"/></p>
 </div>
 

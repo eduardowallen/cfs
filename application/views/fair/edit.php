@@ -46,16 +46,13 @@
 		(function() {
 			var current_id = null;
 
-			function closeDialog() {
-				$('#reminder_dialog').hide();
-			}
-
 			// Open dialog when user clicks edit link
 			$('.edit-reminder-text').click(function(e) {
 				e.preventDefault();
 				current_id = $(this).data('id');
 
-				$('#reminder_dialog').show();
+				open_dialogue = $('#reminder_dialog').show();
+
 				$('#dialog_reminder_note').val($('#reminder_note' + current_id).val());
 				$('#reminder_dialog_header').text(lang['edit_note_' + current_id + '_label']);
 			});
@@ -64,16 +61,15 @@
 			$('#reminder_save_btn').click(function(e) {
 				e.preventDefault();
 				$('#reminder_note' + current_id).val($('#dialog_reminder_note').val());
-				closeDialog();
+				closeDialogue();
 			});
 
 			$('#reminder_cancel_btn').click(function(e) {
 				e.preventDefault();
-				closeDialog();
+				closeDialogue();
 			});
 
 			// Initial state: hide dialog and note's textareas
-			closeDialog();
 			$('.reminder-note').hide();
 		}());
 	});
@@ -100,11 +96,11 @@
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'This is the title which will be shown as the title of the website for your visitors and exhibitors.'}); ?>" />
 		
 		<?php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disabled="true"'; } ?>
-		<label for="auto_publish"><?php echo $auto_publish_label; ?> (DD-MM-YYYY HH:MM UTC) *</label>
+		<label for="auto_publish"><?php echo $auto_publish_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_publish" id="auto_publish" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('auto_publish')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Enter a date for when the event should become available for booking.'}); ?>" />
 		
-		<label for="auto_close"><?php echo $auto_close_label; ?> (DD-MM-YYYY HH:MM UTC) *</label>
+		<label for="auto_close"><?php echo $auto_close_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_close" id="auto_close" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('auto_close')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Enter a date for when the booking should no longer be available.'}); ?>" />
 		
@@ -166,7 +162,7 @@
 
 </form>
 
-<div id="reminder_dialog" class="dialog">
+<div id="reminder_dialog" class="dialogue">
 	<div class="dialog-content">
 		<h2 id="reminder_dialog_header"></h2>
 		<p>

@@ -180,11 +180,13 @@
 
 <div id="reserve_position_dialogue" class="dialogue">
 	<form action="" method="post">
-		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('reserve')" class="closeDialogue"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 		<h3 class="confirm"><?php echo $translator->{'Reserve stand space'} ?></h3>
 		<h3 class="edit"><?php echo $translator->{'Edit reservation'} ?></h3>
 
-		<div class="ssinfo"></div>
+		<p>
+			<strong><?php echo htmlspecialchars($translator->{'Space'}); ?> <span class="position-name"></span></strong>
+		</p>
 		
 		<label for="reserve_category_input"><?php echo $translator->{'Category'} ?></label>
 		<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
@@ -206,8 +208,8 @@
 			<option id="reserve_user"></option>
 		</select>
 
-		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (DD-MM-YYYY HH:MM UTC)</label>
-		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" value="<?php echo date('d-m-Y H:m', (isset($fairCloses) && $fairCloses > 0 ? $fairCloses : time()));  ?>"/>
+		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>)</label>
+		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" value="" />
 
 		<p>
 			<input type="hidden" name="id" id="reserve_id" />
@@ -219,11 +221,13 @@
 
 <div id="book_position_dialogue" class="dialogue">
 	<form action="" method="post">
-		<img src="images/icons/close_dialogue.png" alt="" onclick="closeDialogue('book')" class="closeDialogue"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 		<h3 class="confirm"><?php echo $translator->{'Book stand space'} ?></h3>
 		<h3 class="edit"><?php echo $translator->{'Edit booking'} ?></h3>
 
-		<div class="ssinfo"></div>
+		<p>
+			<strong><?php echo htmlspecialchars($translator->{'Space'}); ?> <span class="position-name"></span></strong>
+		</p>
 		
 		<label for="book_category_input"><?php echo $translator->{'Category'} ?></label>
 		<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
@@ -311,8 +315,8 @@
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
-					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
-					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' UTC' : $never_edited_label); ?></td>
+					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
+					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -398,8 +402,8 @@
 				<td class="center"><?php echo $pos['area']; ?></td>
 				<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 				<td class="center"><?php echo $pos['commodity']; ?></td>
-				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
-				<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' UTC' : $never_edited_label); ?></td>
+				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
+				<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
 				<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -408,7 +412,7 @@
 <?php endif; ?>
 				</td>
 				<td style="display:none;"><?php echo $pos['categories']?></td>
-				<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> UTC</td>
+				<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?></td>
 				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
 				<td class="center">
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
@@ -484,27 +488,12 @@
 		</thead>
 			<tbody>
 			<?php foreach($prelpos as $pos): ?>
-				<?php
-					$hidden = 0;
-					foreach($rpositions as $postemp):
-						if($postemp['position'] == $pos['position']):
-							$hidden = 1;
-						endif;
-					endforeach;
-
-					foreach($positions as $postemp):
-						if($postemp['position'] == $pos['position']):
-							$hidden = 1;
-						endif;
-					endforeach;
-				?>
-				<?php if($hidden == 0) : ?>
 				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?> data-id="<?php echo $pos['id']; ?>">
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
-					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> UTC</td>
+					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td style="display:none;"></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
@@ -540,7 +529,6 @@
 					</td>
 					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 				</tr>
-				<?php endif?>
 			<?php endforeach;?>
 			</tbody>
 		</table>
