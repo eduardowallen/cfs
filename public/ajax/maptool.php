@@ -21,6 +21,9 @@ function __autoload($className) {
 	}
 }
 
+$lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
+define('LANGUAGE', $lang);
+
 function userHasAccess() {
 	
 }
@@ -340,25 +343,67 @@ if (isset($_POST['editBooking'])) {
 if (isset($_POST['preliminary'])) {
 	
 	if (userLevel() == 1) {
-		
-		foreach ($_POST['preliminary'] as $index=>$prel) {
-			
-			$pb = new PreliminaryBooking;
-			$pb->set('user', $_SESSION['user_id']);
-			$pb->set('fair', $_SESSION['user_fair']);
-			$pb->set('position', $prel);
-			$pb->set('categories', implode('|', $_POST['categories'][$index]));
-			$pb->set('commodity', $_POST['commodity'][$index]);
-			$pb->set('arranger_message', $_POST['message'][$index]);
-			$pb->set('booking_time', time());
-			$pb->save();
-			
-		}	
 
+		$fair = new Fair();
+		$fair->load($_SESSION['user_fair'], 'id');
+
+		$user = new User();
+		$user->load($_SESSION['user_id'], 'id');
+
+		$organizer = new User();
+		$organizer->load($fair->get('created_by'), 'id');
+
+		if ($fair->wasLoaded() && $user->wasLoaded()) {
+			foreach ($_POST['preliminary'] as $index=>$prel) {
+
+				$position = new FairMapPosition();
+				$position->load($prel, 'id');
+
+				$pb = new PreliminaryBooking();
+				$pb->set('user', $user->get('id'));
+				$pb->set('fair', $fair->get('id'));
+				$pb->set('position', $position->get('id'));
+				$pb->set('categories', implode('|', $_POST['categories'][$index]));
+				$pb->set('commodity', $_POST['commodity'][$index]);
+				$pb->set('arranger_message', $_POST['message'][$index]);
+				$pb->set('booking_time', time());
+				$pb->save();
+
+				$time_now = date('d-m-Y H:i');
+
+				$categories = array();
+				foreach ($_POST['categories'][$index] as $category_id) {
+					$ex_category = new ExhibitorCategory();
+					$ex_category->load($category_id, 'id');
+					$categories[] = $ex_category->get('name');
+				}
+
+				$categories = implode(', ', $categories);
+
+				$mail_organizer = new Mail($organizer->get('email'), 'new_preliminary_booking');
+				$mail_organizer->setMailVar('position_name', $position->get('name'));
+				$mail_organizer->setMailVar('position_information', $position->get('information'));
+				$mail_organizer->setMailVar('booking_time', $time_now);
+				$mail_organizer->setMailVar('arranger_message', $_POST['message'][$index]);
+				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
+				$mail_organizer->setMailVar('exhibitor_category', $categories);
+				$mail_organizer->setMailVar('exhibitor_name', $user->get('name'));
+				$mail_organizer->send();
+
+				$mail_user = new Mail($user->get('email'), 'receipt_preliminary_booking');
+				$mail_user->setMailVar('position_name', $position->get('name'));
+				$mail_user->setMailVar('position_information', $position->get('information'));
+				$mail_user->setMailVar('booking_time', $time_now);
+				$mail_user->setMailVar('arranger_message', $_POST['message'][$index]);
+				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
+				$mail_user->setMailVar('exhibitor_category', $categories);
+				$mail_user->setMailVar('exhibitor_name', $user->get('name'));
+				$mail_user->send();
+			}
+		}
 	}
 
 	exit;
-
 }
 
 if (isset($_POST['cancelPreliminary'])) {
