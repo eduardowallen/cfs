@@ -19,6 +19,39 @@ function userIsConnectedTo($fairId) {
 	}
 }
 
+function userCanAdminFair($fair_id, $map_id) {
+
+	$user_level = userLevel();
+	global $globalDB;
+
+	if ($user_level == 4) {
+		return true;
+
+	} else if ($user_level == 3) {
+
+		$stmt = $globalDB->prepare("SELECT id FROM fair WHERE created_by = ? AND id = ?");
+		$stmt->execute(array($_SESSION['user_id'], $fair_id));
+		return ($stmt->fetch(PDO::FETCH_OBJ) ? true : false);
+
+	} else if ($user_level == 2) {
+
+		$stmt = $globalDB->prepare("SELECT map_access FROM fair_user_relation WHERE user = ? AND fair = ?");
+		$stmt->execute(array($_SESSION['user_id'], $fair_id));
+		$result = $stmt->fetch(PDO::FETCH_OBJ);
+
+		if ($result) {
+
+			$accessible_maps = explode('|', $result->map_access);
+			if (in_array($map_id, $accessible_maps)) {
+				return true;
+			}
+		}
+
+	}
+
+	return false;
+}
+
 function getTableName($classname) {
 	$tbl = '';
 	foreach(str_split($classname) as $char) {
