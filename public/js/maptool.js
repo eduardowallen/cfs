@@ -100,7 +100,11 @@ maptool.openDialogue = function(id) {
 maptool.closeDialogues = function() {
 	if (userIsEditing > 0) {
 		maptool.markPositionAsNotBeingEdited();
-	}			
+
+	} else if (movingMarker !== null) {
+		maptool.endMovePosition();
+	}
+
 	$(".dialogue").hide(0, function() {
 		$("#overlay").hide();
 		$("#popupform").remove();
@@ -596,25 +600,6 @@ maptool.movePosition = function(clickEvent, positionObject) {
 	});
 
 	$(document).on('mousemove', 'body', function(e) {
-		$(document).keyup(function(e) {
-		  	if (e.keyCode == 27) {
-				
-					$.ajax({
-						url: 'ajax/maptool.php',
-						type: 'POST',
-						data: 'movePosition=' + positionObject.id + '&x=' + originalPositionX + '&y=' + originalPositionY,
-						success: function(res) {
-							maptool.markPositionAsNotBeingEdited();
-							maptool.resumeUpdate();
-							maptool.update();
-						}
-					});
-					movingMarker.remove();
-					movingMarker = null;
-				}
-				
-		});
-
 		var movePosX = e.clientX + $('body').scrollLeft();
 		var movePosY = e.clientY + $('body').scrollTop();
 
@@ -622,6 +607,12 @@ maptool.movePosition = function(clickEvent, positionObject) {
 			top: movePosY,
 			left: movePosX
 		});
+	});
+
+	$(document).one('keyup', function(e) {
+		if (e.keyCode === 27) {
+			maptool.endMovePosition();
+		}
 	});
 	
 	marker.click(function(e) {
@@ -648,7 +639,6 @@ maptool.movePosition = function(clickEvent, positionObject) {
 					success: function(res) {
 						maptool.markPositionAsNotBeingEdited();
 						maptool.resumeUpdate();
-						maptool.update();
 					}
 				});
 				movingMarker.remove();
@@ -656,7 +646,14 @@ maptool.movePosition = function(clickEvent, positionObject) {
 			movingMarker = null;	
 		}
 	});
-}
+};
+
+// End moving position
+maptool.endMovePosition = function() {
+	movingMarker.remove();
+	movingMarker = null;
+	maptool.resumeUpdate();
+};
 
 //Edit position
 maptool.editPosition = function(positionObject) {
@@ -2341,6 +2338,8 @@ $(document).ready(function() {
 			alert(lang.noPlaceRights);
 		}
 	});
+
+	// ESC-key press listener
 	$(document).keydown(function(e) {
 		if (e.keyCode == 27)
 			maptool.closeDialogues();
