@@ -240,8 +240,12 @@ if (isset($_POST['reservePosition'])) {
 	
 	//Delete existing exhibitor if position is booked
 	if ($pos->get('status') > 0) {
-		$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
-		$stmt->execute(array($pos->get('id')));
+		$ex = new Exhibitor;
+		$ex->load($pos->get('id'), 'position');
+
+		if ($ex->wasLoaded()) {
+			$ex->delete();
+		}
 	}
 	
 	$ex = new Exhibitor;
