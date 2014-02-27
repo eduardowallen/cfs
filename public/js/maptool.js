@@ -1939,10 +1939,16 @@ maptool.Grid = (function() {
 	}
 
 	function updateCSS() {
-		$('#maptool_grid_style').text('.grid-cell {' +
+		var style_css = '.grid-cell {' +
 				'width: ' + (settings.width - 1) + 'px;' +
 				'height: ' + (settings.height - 1) + 'px;' +
-			'}');
+			'}';
+
+		try {
+			$('#maptool_grid_style').html(style_css);
+		} catch (error) {
+			$('#maptool_grid_style')[0].styleSheet.cssText = style_css;
+		}
 
 		grid_frame.css({
 			width: grid.width() + settings.width * 2 + 'px',
