@@ -1,6 +1,6 @@
 <h1><?php echo $headline; ?></h1>
 
-<p><a href="user/changePassword" class="button settings"><?php echo $translator->{'Change password'} ?></a></p>
+<p><a href="user/changePassword" class="button settings"><?php echo uh($translator->{'Change password'}); ?></a></p>
 
 <form action="arranger/accountSettings" method="post">
 	

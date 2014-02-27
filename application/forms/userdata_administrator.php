@@ -90,15 +90,15 @@
 <?php if (userLevel() >= 3): ?>
   <p id="permission_search">
     <input type="text" id="search_input"/>
-    <input type="button" id="search_button" value="<?php echo $translator->{'Search'} ?>"/>
+    <input type="button" id="search_button" value="<?php echo htmlspecialchars($translator->{'Search'}); ?>"/>
   </p>
   <div id="permission_box">
-    <h2><?php echo $translator->{'Permissions for user'}; ?></h2>
+    <h2><?php echo htmlspecialchars($translator->{'Permissions for user'}); ?></h2>
     <div id="permission_search">
     
     </div>
     <p style="text-align:center;">
-      <strong style="margin-right:10px;"><?php echo $translator->{'OBS! '}?></strong><?php echo $translator->{'Events without maps are not listed.'}?>
+      <strong style="margin-right:10px;"><?php echo htmlspecialchars($translator->{'OBS! '}); ?></strong><?php echo htmlspecialchars($translator->{'Events without maps are not listed.'}); ?>
     </p>
     <?php foreach ($fairs as $fair): ?>
       <?php if(count($fair->get('maps')) > 0) :?>
@@ -118,22 +118,22 @@
 <?php endif?>
   
   <div class="form_column">
-		<label for="alias"><?php echo $translator->{'Username'}; ?> *</label>
+		<label for="alias"><?php echo htmlspecialchars($translator->{'Username'}); ?> *</label>
 		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>"<?php if ($user->get('id') != 0) { echo 'disabled="disabled"'; } ?>/>
 
-		<label for="name"><?php echo $translator->{'Name'}; ?> *</label>
+		<label for="name"><?php echo htmlspecialchars($translator->{'Name'}); ?> *</label>
 		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
-		<label for="phone1"><?php echo $translator->{'Phone 1'}; ?> *</label>
+		<label for="phone1"><?php echo htmlspecialchars($translator->{'Phone 1'}); ?> *</label>
 		<input type="text" name="phone1" id="phone1" value="<?php echo $user->get('phone1'); ?>"/>
 	
-		<label for="phone2"><?php echo $translator->{'Phone 2'}; ?></label>
+		<label for="phone2"><?php echo htmlspecialchars($translator->{'Phone 2'}); ?></label>
 		<input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
 
-		<label for="phone3"><?php echo $translator->{'Contact Phone'}; ?></label>
+		<label for="phone3"><?php echo htmlspecialchars($translator->{'Contact Phone'}); ?></label>
 		<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
 		
-		<label for="email"><?php echo $translator->{'E-mail'}; ?> *</label>
+		<label for="email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
 		<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
   </div>
   
@@ -146,13 +146,13 @@
 <?php endif; ?>
   
 <?php if (userLevel() >= 3): ?>
-	<label for="#"><?php echo $translator->{'Account locked'}; ?></label>
-	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo $translator->{'No'}; ?></label>
-	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo $translator->{'Yes'}; ?></label>
+	<label for="#"><?php echo htmlspecialchars($translator->{'Account locked'}); ?></label>
+	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo htmlspecialchars($translator->{'No'}); ?></label>
+	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo htmlspecialchars($translator->{'Yes'}); ?></label>
 <?php endif; ?>
 
   <p>
-    <input type="submit" name="save" value="<?php echo $translator->{'Save'}; ?>" class="save-btn" />
+    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
   </p>
 
 </form>

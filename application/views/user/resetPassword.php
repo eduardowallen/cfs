@@ -3,9 +3,9 @@
 <form action="user/resetPassword/backref/<?php echo $go_back_url; ?>" method="post">
 	<?php if (isset($new_pass)): ?>
 	
-	<p><?php echo $translator->{'Your new password is '}; ?>
+	<p><?php echo uh($translator->{'Your new password is '}); ?>
 	<strong><?php echo $new_pass; ?></strong><br/>
-	<a href="user/login"><?php echo $translator->{'Sign in to change it.'}; ?></p></a>
+	<a href="user/login"><?php echo uh($translator->{'Sign in to change it.'}); ?></p></a>
 	
 	<?php else: ?>
 	<p class="error"><?php echo $error; ?></p>
