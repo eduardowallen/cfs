@@ -252,4 +252,16 @@ function getGMToffset() {
 
 	return $gmt_sign . $gmt_offset;
 }
+
+// Encodes any HTML special chars to entities INCLUDING single quote
+// Stands for "User input to JavaScript"
+function ujs($str) {
+	return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+}
+
+// Encodes any HTML special chars to entities EXCLUDING single quote
+// Stands for "User input to HTML"
+function uh($str) {
+	return htmlspecialchars($str, ENT_COMPAT | ENT_HTML5, 'UTF-8');
+}
 ?>
