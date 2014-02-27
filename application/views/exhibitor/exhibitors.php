@@ -31,8 +31,8 @@
       $translator->{"Select all:"}." ".$translator->{"Contact person"} => array(
           //'alias' => $translator->{'Username'},
           'name' => $translator->{'Contact person'},
-          'phone3' => $translator->{'Contact Phone'},
-          'phone4' => $translator->{'Contact Phone 2'},
+          'contact_phone' => $translator->{'Contact Phone'},
+          'contact_phone2' => $translator->{'Contact Phone 2'},
           'contact_email' => $translator->{'Contact Email'},
         )
     );
@@ -312,7 +312,7 @@
 			<?php foreach ($exhibitors as $pos): ?>
 			<tr>		
 			
-				<td><?php echo ($pos['posstatus'] == 2 ? 'booked' : ($pos['posstatus'] == 1 ? 'reserved' : '')); ?></td>
+				<td><?php echo ($pos['posstatus'] == 2 ? $label_booked : ($pos['posstatus'] == 1 ? $label_reserved : '')); ?></td>
 				<td class="center"><?php echo $pos['posname']; ?></td>
 				<td class="center"><?php echo $pos['company']; ?></td>
 				<td class="center"><?php echo $pos['address']; ?></td>
