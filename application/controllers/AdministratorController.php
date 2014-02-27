@@ -440,33 +440,70 @@ class AdministratorController extends Controller {
 			$pb = new PreliminaryBooking;
 			$pb->load($_POST['id'], 'id');
 
-			$pos = new FairMapPosition;
-			$pos->load($pb->get('position'), 'id');
-			$pos->set('status', 2);
+			if ($pb->wasLoaded()) {
+				$pos = new FairMapPosition;
+				$pos->load($pb->get('position'), 'id');
+				$pos->set('status', 2);
 
-			$ex = new Exhibitor;
-			$ex->set('user', $pb->get('user'));
-			$ex->set('fair', $pb->get('fair'));
-			$ex->set('position', $pb->get('position'));
-			$ex->set('category', 0);
-			$ex->set('presentation', '');
-			$ex->set('commodity', $_POST['commodity']);
-			$ex->set('arranger_message', $_POST['arranger_message']);
-			$ex->set('approved', 1);
-			$ex->set('edit_time', time());
-			
-			$exId = $ex->save();
-			$pos->save();
-			$pb->delete();
+				$ex = new Exhibitor;
+				$ex->set('user', $pb->get('user'));
+				$ex->set('fair', $pb->get('fair'));
+				$ex->set('position', $pb->get('position'));
+				$ex->set('category', 0);
+				$ex->set('presentation', '');
+				$ex->set('commodity', $_POST['commodity']);
+				$ex->set('arranger_message', $_POST['arranger_message']);
+				$ex->set('approved', 1);
+				$ex->set('edit_time', time());
+				
+				$exId = $ex->save();
+				$pos->save();
+				$pb->delete();
 
-			$stmt = $pb->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
-			$stmt->execute(array($pos->get('id')));
-			
-			if (isset($_POST['categories']) && is_array($_POST['categories'])) {
-				$stmt = $pb->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
-				foreach ($_POST['categories'] as $cat) {
-					$stmt->execute(array($exId, $cat));
+				$stmt = $pb->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
+				$stmt->execute(array($pos->get('id')));
+
+				$categories = array();
+				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+
+					$stmt = $pb->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+
+					foreach ($_POST['categories'] as $category_id) {
+						$stmt->execute(array($exId, $category_id));
+
+						$ex_category = new ExhibitorCategory();
+						$ex_category->load($category_id, 'id');
+						$categories[] = $ex_category->get('name');
+					}
 				}
+
+				// Send mail
+				$categories = implode(', ', $categories);
+				$time_now = date('d-m-Y H:i');
+
+				$organizer = new User();
+				$organizer->load($fair->get('created_by'), 'id');
+
+				$ex_user = new User();
+				$ex_user->load($ex->get('user'), 'id');
+
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_edited_confirm');
+				$mail_organizer->setMailVar('position_name', $pos->get('name'));
+				$mail_organizer->setMailVar('position_information', $pos->get('information'));
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_organizer->setMailVar('exhibitor_category', $categories);
+				$mail_organizer->send();
+
+				$mail_user = new Mail($ex_user->get('email'), 'booking_edited_confirm');
+				$mail_user->setMailVar('position_name', $pos->get('name'));
+				$mail_user->setMailVar('position_information', $pos->get('information'));
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_user->setMailVar('exhibitor_category', $categories);
+				$mail_user->send();
 			}
 			
 			header("Location: ".BASE_URL."administrator/newReservations");
@@ -1011,16 +1048,29 @@ class AdministratorController extends Controller {
 				$stmt->execute(array($exhibitor->get('exhibitor_id')));
 
 				// Set new categories for this booking
+				$categories = array();
 				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 					$stmt = $this->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 
-					foreach ($_POST['categories'] as $cat) {
-						$stmt->execute(array($exhibitor->get('exhibitor_id'), $cat));
+					foreach ($_POST['categories'] as $category_id) {
+						$stmt->execute(array($exhibitor->get('exhibitor_id'), $category_id));
+
+						$ex_category = new ExhibitorCategory();
+						$ex_category->load($category_id, 'id');
+						$categories[] = $ex_category->get('name');
 					}
 				}
 
 				$pos = new FairMapPosition();
 				$pos->load($exhibitor->get('position'), 'id');
+
+				$fair = new Fair();
+				$fair->load($exhibitor->get('fair'), 'id');
+
+				$organizer = new User();
+				$organizer->load($fair->get('created_by'), 'id');
+
+				$mail_type = ($pos->get('status') == 1 ? 'reservation' : 'booking');
 
 				if ($set_status == null) {
 					// If this is a reservation (status is 1), then also set the expiry date
@@ -1030,6 +1080,37 @@ class AdministratorController extends Controller {
 				} else {
 					$pos->set('status', $set_status);
 				}
+
+				$categories = implode(', ', $categories);
+				$time_now = date('d-m-Y H:i');
+
+				$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
+				$mail_organizer->setMailVar('position_name', $pos->get('name'));
+				$mail_organizer->setMailVar('position_information', $pos->get('information'));
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_organizer->setMailVar('exhibitor_category', $categories);
+
+				if ($mail_type == 'reservation') {
+					$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+				}
+
+				$mail_organizer->send();
+
+				$mail_user = new Mail($exhibitor->get('email'), $mail_type . '_edited_receipt');
+				$mail_user->setMailVar('position_name', $pos->get('name'));
+				$mail_user->setMailVar('position_information', $pos->get('information'));
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_user->setMailVar('exhibitor_category', $categories);
+
+				if ($mail_type == 'reservation') {
+					$mail_user->setMailVar('date_expires', $_POST['expires']);
+				}
+
+				$mail_user->send();
 
 				$pos->save();
 			}
@@ -1046,43 +1127,86 @@ class AdministratorController extends Controller {
 			$prel = new PreliminaryBooking;
 			$prel->load($_POST['id'], 'id');
 
-			$pos = new FairMapPosition;
-			$pos->load($prel->get('position'), 'id');
+			if ($prel->wasLoaded()) {
+				$pos = new FairMapPosition;
+				$pos->load($prel->get('position'), 'id');
 
-			// Delete existing exhibitor if position is booked
-			if ($pos->get('status') > 0) {
-				$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
-				$stmt->execute(array($pos->get('id')));
-			}
+				// Delete existing exhibitor if position is booked
+				if ($pos->get('status') > 0) {
+					$ex = new Exhibitor;
+					$ex->load($pos->get('id'), 'position');
 
-			$pos->set('status', 1);
-			$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
-
-			$exhib = new Exhibitor;
-			$exhib->set('user', $prel->get('user'));
-			$exhib->set('fair', $prel->get('fair'));
-			$exhib->set('position', $prel->get('position'));
-			$exhib->set('category', 0);
-			$exhib->set('presentation', '');
-			$exhib->set('commodity', $_POST['commodity']);
-			$exhib->set('arranger_message', $_POST['arranger_message']);
-			$exhib->set('booking_time', $prel->get('booking_time'));
-			$exhib->set('approved', 1);
-			$exhib->set('edit_time', time());
-			$exId = $exhib->save();
-			$pos->save();
-
-			if (isset($_POST['categories']) && is_array($_POST['categories'])) {
-				$stmt = $exhib->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
-				foreach ($_POST['categories'] as $cat) {
-					$stmt->execute(array($exId, $cat));
+					if ($ex->wasLoaded()) {
+						$ex->delete();
+					}
 				}
-			}
 
-			// Clean up preliminaries.
-			$prel->delete();
-			$stmt = $prel->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
-			$stmt->execute(array($pos->get('id')));
+				$pos->set('status', 1);
+				$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+
+				$exhib = new Exhibitor;
+				$exhib->set('user', $prel->get('user'));
+				$exhib->set('fair', $prel->get('fair'));
+				$exhib->set('position', $prel->get('position'));
+				$exhib->set('category', 0);
+				$exhib->set('presentation', '');
+				$exhib->set('commodity', $_POST['commodity']);
+				$exhib->set('arranger_message', $_POST['arranger_message']);
+				$exhib->set('booking_time', $prel->get('booking_time'));
+				$exhib->set('approved', 1);
+				$exhib->set('edit_time', time());
+				$exId = $exhib->save();
+				$pos->save();
+
+				$categories = array();
+				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+
+					$stmt = $exhib->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+
+					foreach ($_POST['categories'] as $category_id) {
+						$stmt->execute(array($exId, $category_id));
+
+						$ex_category = new ExhibitorCategory();
+						$ex_category->load($category_id, 'id');
+						$categories[] = $ex_category->get('name');
+					}
+				}
+
+				// Clean up preliminaries.
+				$prel->delete();
+				$stmt = $prel->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
+				$stmt->execute(array($pos->get('id')));
+
+				// Send mail
+				$categories = implode(', ', $categories);
+				$time_now = date('d-m-Y H:i');
+
+				$fair = new Fair();
+				$fair->load($exhib->get('fair'), 'id');
+
+				$organizer = new User();
+				$organizer->load($fair->get('created_by'), 'id');
+
+				$mail_organizer = new Mail($organizer->get('email'), 'reservation_edited_confirm');
+				$mail_organizer->setMailVar('position_name', $pos->get('name'));
+				$mail_organizer->setMailVar('position_information', $pos->get('information'));
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_organizer->setMailVar('exhibitor_category', $categories);
+				$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+				$mail_organizer->send();
+
+				$mail_user = new Mail($exhib->get('email'), 'reservation_edited_confirm');
+				$mail_user->setMailVar('position_name', $pos->get('name'));
+				$mail_user->setMailVar('position_information', $pos->get('information'));
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_user->setMailVar('exhibitor_category', $categories);
+				$mail_user->setMailVar('date_expires', $_POST['expires']);
+				$mail_user->send();
+			}
 		}
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
