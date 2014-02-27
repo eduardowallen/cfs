@@ -9,6 +9,7 @@ var markedAsBooked = new Array;
 var scrollTimeout = null;
 var deltaSteps = 0;
 var movingMarker = null;
+var marker = null;
 
 //Some settings
 var config = {
@@ -543,7 +544,7 @@ maptool.addPosition = function(clickEvent) {
 
 	$("body").prepend('<img src="images/icons/marker_open.png" alt="" id="newMarkerIcon" class="marker"/>');
 
-	$("#newMarkerIcon").css({
+	marker = $("#newMarkerIcon").css({
 		top: clickEvent.clientY - config.iconOffset,
 		left: clickEvent.clientX - config.iconOffset
 	});
@@ -582,7 +583,7 @@ maptool.movePosition = function(clickEvent, positionObject) {
 
 
 	$(".marker_tooltip").remove();
-	var marker = $("#pos-" + positionObject.id);
+	marker = $("#pos-" + positionObject.id);
 
 	movingMarker = marker;
 	marker.off("click");
@@ -594,43 +595,33 @@ maptool.movePosition = function(clickEvent, positionObject) {
 	marker.prependTo('body');
 	var canAjax = true;
 
-	marker.css({
-		marginTop: '-' + config.iconOffset + 'px',
-		marginLeft: '-' + config.iconOffset + 'px'
-	});
+	$(document).on('mousemove', 'body', maptool.traceMouse);
 
-	$(document).on('mousemove', 'body', function(e) {
-		$(document).keyup(function(e) {
-		  	if (e.keyCode == 27) {
-				
-					$.ajax({
-						url: 'ajax/maptool.php',
-						type: 'POST',
-						data: 'movePosition=' + positionObject.id + '&x=' + originalPositionX + '&y=' + originalPositionY,
-						success: function(res) {
-							maptool.markPositionAsNotBeingEdited();
-							maptool.resumeUpdate();
-							maptool.update();
-						}
-					});
-					movingMarker.remove();
-					movingMarker = null;
+	$(document).keyup(function(e) {
+		if (e.keyCode == 27) {
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: 'movePosition=' + positionObject.id + '&x=' + originalPositionX + '&y=' + originalPositionY,
+				success: function(res) {
+					maptool.markPositionAsNotBeingEdited();
+					maptool.resumeUpdate();
+					maptool.update();
 				}
-				
-		});
+			});
 
-		var movePosX = e.clientX + $('body').scrollLeft();
-		var movePosY = e.clientY + $('body').scrollTop();
+			$(document).off('mousemove', 'body', maptool.traceMouse);
 
-		marker.css({
-			top: movePosY,
-			left: movePosX
-		});
+			movingMarker.remove();
+			movingMarker = null;
+		}
 	});
 	
 	marker.click(function(e) {
 		if (maptool.isOnMap(e.clientX, e.clientY)) {
 			marker.off("click");
+			$(document).off('mousemove', 'body', maptool.traceMouse);
+
 			var xOffset = parseFloat(marker.offset().left + config.iconOffset);
 			var yOffset = parseFloat(marker.offset().top + config.iconOffset);
 			
@@ -689,8 +680,7 @@ maptool.editPosition = function(positionObject) {
 //Trace mouse movements with marker
 maptool.traceMouse = function(e) {
 
-	var marker = $('#newMarkerIcon'), 
-		top = e.originalEvent.pageY, 
+	var top = e.originalEvent.pageY, 
 		left = e.originalEvent.pageX;
 
 	if (maptool.Grid.getSnapState()) {
