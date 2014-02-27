@@ -2431,7 +2431,7 @@ maptool.update = function(posId) {
 
 					maptool.populateList();
 					maptool.placeFocusArrow();
-					updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 30000);
+					updateTimer = setTimeout(maptool.update, config.markerUpdateTime * 30000);
 					preHover(posId);
 				}
 			}
@@ -2466,7 +2466,7 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
-	
+
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
 		return;
@@ -2528,10 +2528,11 @@ maptool.init = function(mapId) {
 
 		}
 	});
+
 	$(".closeDialogue").click(function() {
 		maptool.closeDialogues();
 	});
-	
+
 	if (!isNaN(prePosId)) {
 		setTimeout(function() {
 			maptool.focusOn(prePosId);
@@ -2564,12 +2565,10 @@ maptool.init = function(mapId) {
 			
 		}, 1000);
 	}
-
 }
 
 //Event handlers
 $(document).ready(function() {
-	
 	$('.order').click(function() {
 		var sel = $(this).val();
 		$('#book_user_input option, #reserve_user_input option').each(function() {
@@ -2750,7 +2749,7 @@ $(document).ready(function() {
 	});
 
 	// Start automatic updating
-	setTimeout('maptool.update()', config.markerUpdateTime * 1000);
+	setTimeout(maptool.update, config.markerUpdateTime * 1000);
 });
 
 
