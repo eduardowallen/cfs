@@ -1970,7 +1970,6 @@ maptool.Grid = (function() {
 			$('#maptool_grid_coord_x').val(settings.coords.x);
 			$('#maptool_grid_coord_y').val(settings.coords.y);
 		}, 200);
-console.log('X: ' + settings.coords.x + ' Y: ' + settings.coords.y);
 
 		updateCSS();
 	}
