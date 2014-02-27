@@ -8,7 +8,7 @@
 <h1 style="float: left; margin-right: 60px;"><?php echo $fair->get('name'); ?></h1>
 
 <?php if (isset($fairs_admin)): // If a list of accessible fairs is found, display a drop-down list to choose from ?>
-  <label class="inline-block"><?php echo $translator->{'Switch to event: '}; ?></label>
+  <label class="inline-block"><?php echo uh($translator->{'Switch to event: '}); ?></label>
   <select onchange="if(this.value) document.location.href=this.value;">
   <?php
     $own = false;
@@ -181,14 +181,14 @@
 <div id="reserve_position_dialogue" class="dialogue">
 	<form action="" method="post">
 		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-		<h3 class="confirm"><?php echo $translator->{'Reserve stand space'} ?></h3>
-		<h3 class="edit"><?php echo $translator->{'Edit reservation'} ?></h3>
+		<h3 class="confirm"><?php echo uh($translator->{'Reserve stand space'}); ?></h3>
+		<h3 class="edit"><?php echo uh($translator->{'Edit reservation'}); ?></h3>
 
 		<p>
-			<strong><?php echo htmlspecialchars($translator->{'Space'}); ?> <span class="position-name"></span></strong>
+			<strong><?php echo uh($translator->{'Space'}); ?> <span class="position-name"></span></strong>
 		</p>
 		
-		<label for="reserve_category_input"><?php echo $translator->{'Category'} ?></label>
+		<label for="reserve_category_input"><?php echo uh($translator->{'Category'}); ?></label>
 		<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 			<?php foreach($fair->get('categories') as $cat): ?>
 				<p style="margin:0; width:100%; float:left;">
@@ -197,24 +197,24 @@
 			<?php endforeach; ?>
 		</div>
 		
-		<label for="reserve_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+		<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<input type="text" class="dialogueInput" name="commodity" id="reserve_commodity_input" />
 		
-		<label for="reserve_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+		<label for="reserve_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 		<textarea name="arranger_message" id="reserve_message_input"></textarea>
 
-		<label for="reserve_user_input"><?php echo $translator->{'User'} ?></label>
+		<label for="reserve_user_input"><?php echo uh($translator->{'User'}); ?></label>
 		<select style="width:300px;" id="reserve_user_input" disabled="disabled">
 			<option id="reserve_user"></option>
 		</select>
 
-		<label for="reserve_expires_input"><?php echo $translator->{'Reserved until'} ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>)</label>
+		<label for="reserve_expires_input"><?php echo uh($translator->{'Reserved until'}); ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>)</label>
 		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" value="" />
 
 		<p>
 			<input type="hidden" name="id" id="reserve_id" />
-			<input type="submit" name="reserve" class="confirm" value="<?php echo $translator->{'Confirm reservation'} ?>" />
-			<input type="submit" name="reserve" class="edit" value="<?php echo $translator->{'Save'} ?>" class="save-btn" />
+			<input type="submit" name="reserve" class="confirm" value="<?php echo uh($translator->{'Confirm reservation'}); ?>" />
+			<input type="submit" name="reserve" class="edit" value="<?php echo uh($translator->{'Save'}); ?>" class="save-btn" />
 		</p>
 	</form>
 </div>
@@ -222,14 +222,14 @@
 <div id="book_position_dialogue" class="dialogue">
 	<form action="" method="post">
 		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-		<h3 class="confirm"><?php echo $translator->{'Book stand space'} ?></h3>
-		<h3 class="edit"><?php echo $translator->{'Edit booking'} ?></h3>
+		<h3 class="confirm"><?php echo uh($translator->{'Book stand space'}); ?></h3>
+		<h3 class="edit"><?php echo uh($translator->{'Edit booking'}); ?></h3>
 
 		<p>
-			<strong><?php echo htmlspecialchars($translator->{'Space'}); ?> <span class="position-name"></span></strong>
+			<strong><?php echo uh($translator->{'Space'}); ?> <span class="position-name"></span></strong>
 		</p>
 		
-		<label for="book_category_input"><?php echo $translator->{'Category'} ?></label>
+		<label for="book_category_input"><?php echo uh($translator->{'Category'}); ?></label>
 		<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 			<?php foreach($fair->get('categories') as $cat): ?>
 			<p style="margin:0; width:100%; float:left;">
@@ -238,21 +238,21 @@
 			<?php endforeach; ?>
 		</div>
 		
-		<label for="book_commodity_input"><?php echo $translator->{'Commodity'} ?></label>
+		<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<input type="text" class="dialogueInput" name="commodity" id="book_commodity_input" />
 
-		<label for="book_message_input"><?php echo $translator->{'Message to organizer'} ?></label>
+		<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 		<textarea name="arranger_message" id="book_message_input"></textarea>
 
-		<label for="book_user_input"><?php echo $translator->{'User'} ?></label>
+		<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
 		<select style="width:300px;" id="book_user_input" disabled="disabled">
 			<option id="book_user"></option>
 		</select>
 
 		<p>
 			<input type="hidden" name="id" id="book_id" />
-			<input type="submit" name="approve" class="confirm" value="<?php echo $translator->{'Confirm booking'} ?>" />
-			<input type="submit" name="approve" class="edit" value="<?php echo $translator->{'Save'} ?>" />
+			<input type="submit" name="approve" class="confirm" value="<?php echo uh($translator->{'Confirm booking'}); ?>" />
+			<input type="submit" name="approve" class="edit" value="<?php echo uh($translator->{'Save'}); ?>" />
 		</p>
 	</form>
 </div>

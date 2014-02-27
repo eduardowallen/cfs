@@ -80,7 +80,7 @@
 <p><?php echo $user_message ?></p>
 <?php endif; ?>
 <p id="permission_search"><input type="text" id="search_input"/>
-			<input type="button" id="search_button" value="<?php echo $translator->{'Search'} ?>"/></p>
+			<input type="button" id="search_button" value="<?php echo uh($translator->{'Search'}); ?>"/></p>
 <form action="administrator/edit/<?php echo $edit_id; ?>" method="post">
 	<div id="permission_box">
 		<h2><?php echo $permissions_headline ?></h2>

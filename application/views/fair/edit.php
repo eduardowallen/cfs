@@ -84,25 +84,25 @@
 	<div class="floatleft">
 		<label for="name"><?php echo $name_label; ?><?php echo ($fair_id == 'new') ? ' *' : ''; ?></label>
 		<input <?php echo $disable; ?> autocomplete="off"<?php echo ($fair_id == 'new') ? '' : ' disabled="disabled"' ?> type="text" name="name" id="name" value="<?php echo $fair->get('name'); ?>"/>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'This is the name of the event, which is used to create a link to your event, as seen below the text box.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'This is the name of the event, which is used to create a link to your event, as seen below the text box.'}); ?>" />
 		<label for="" style="font-style:italic; width:400px;" id="name_preview"><?php echo BASE_URL ?><span><?php echo $fair->get('url'); ?></span></label>
 		
 		<label for="max_positions"><?php echo $max_positions_label; ?><?php echo ($fair_id == 'new') ? ' *' : ''; ?></label>
 		<input <?php echo $disable; ?> autocomplete="off"<?php echo ($fair_id == 'new') ? '' : ' ' ?> type="text" name="max_positions" id="max_positions" value="<?php echo $fair->get('max_positions'); ?>"/>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Enter the recommended number of stand spaces which should be available on the event.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter the recommended number of stand spaces which should be available on the event.'}); ?>" />
 		
 		<label for="windowtitle"><?php echo $window_title_label; ?> *</label>
 		<input <?php echo $disable; ?> type="text" name="windowtitle" id="windowtitle" value="<?php echo $fair->get('windowtitle'); ?>"/>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'This is the title which will be shown as the title of the website for your visitors and exhibitors.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'This is the title which will be shown as the title of the website for your visitors and exhibitors.'}); ?>" />
 		
 		<?php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disabled="true"'; } ?>
 		<label for="auto_publish"><?php echo $auto_publish_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_publish" id="auto_publish" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('auto_publish')); } ?>"/>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Enter a date for when the event should become available for booking.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date for when the event should become available for booking.'}); ?>" />
 		
 		<label for="auto_close"><?php echo $auto_close_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_close" id="auto_close" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('auto_close')); } ?>"/>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Enter a date for when the booking should no longer be available.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date for when the booking should no longer be available.'}); ?>" />
 		
 		<!--
 		<label for="logo"><?php echo $logo_label; ?></label>
@@ -111,7 +111,7 @@
 
 		<?php (empty($disable)) ? tiny_mce() : ''; ?>
 		<div><label class="inline-block" for="contact_info"><?php echo $contact_label; ?> *</label>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'This is the information which will be shown to visitors and exhibitors when they press the "Contact Us" button from the navigation menu at the top.'}); ?>" /></div>
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'This is the information which will be shown to visitors and exhibitors when they press the "Contact Us" button from the navigation menu at the top.'}); ?>" /></div>
 		<textarea <?php echo $disable; ?> name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
 
 		<?php if (userLevel() == 4): ?>
@@ -119,7 +119,7 @@
 		<select name="arranger" id="arranger">
 			<?php echo makeUserOptions($fair->db, $fair->get('created_by')); ?>
 		</select> <?php if ($edit_id != 'new'): ?> <!--<a href="arranger/edit/<?php echo $fair->get('created_by'); ?>">View organizer</a>--> <?php endif; ?>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Choose an organizer who will be treated as the creator of this event.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Choose an organizer who will be treated as the creator of this event.'}); ?>" />
 		<?php endif; ?>
 
 		<?php if (userLevel() == 4): ?>
@@ -129,7 +129,7 @@
 			<option value="1"<?php echo $app_sel1; ?>><?php echo $app_opt1; ?></option>
 			<option value="2"<?php echo $app_sel2; ?>><?php echo $app_opt2; ?></option>
 		</select>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Select the initial status of the event. You can immediately approve the new event or you can do it at a later time.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Select the initial status of the event. You can immediately approve the new event or you can do it at a later time.'}); ?>" />
 		<?php endif; ?>
 
 		<label for="hidden"> Hide fair for unauthorized accounts </label>
@@ -137,11 +137,11 @@
 			<option value="0"<?php echo $hidden_sel0; ?>>false</option>
 			<option value="1"<?php echo $hidden_sel1; ?>>true</option>
 		</select>
-	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Whether or not other users are able to access the event.'}); ?>" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Whether or not other users are able to access the event.'}); ?>" />
 	</div>
 
 	<div class="floatright">
-		<h2><?php echo $interval_reminders_label; ?> <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Select the amount of days that this reminder should be sent to the exhibitor, before the "reserved until"-date is reached for a reserved stand space.'}); ?>" /></h2>
+		<h2><?php echo $interval_reminders_label; ?> <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Select the amount of days that this reminder should be sent to the exhibitor, before the "reserved until"-date is reached for a reserved stand space.'}); ?>" /></h2>
 <?php for ($i = 1; $i <= 3; $i++): ?>
 		<p class="form-one-row">
 			<label for="reminder_day<?php echo $i; ?>"><?php echo ${'reminder_' . $i . '_label'}; ?></label>
@@ -153,7 +153,7 @@
 			</select>
 			<textarea name="reminder_note<?php echo $i; ?>" id="reminder_note<?php echo $i; ?>" class="reminder-note no-editor" cols="50" rows="5"><?php echo htmlspecialchars($fair->get('reminder_note' . $i)); ?></textarea>
 			<a href="#" class="edit-reminder-text" data-id="<?php echo $i; ?>"><img src="images/icons/pencil.png" alt="<?php $edit_label; ?>" /></a>
-			<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'Edit the message of the reminder'}); ?>" />
+			<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Edit the message of the reminder'}); ?>" />
 		</p>
 <?php endfor; ?>
 	</div>

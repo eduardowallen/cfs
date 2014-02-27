@@ -2,7 +2,7 @@
   global $translator;
   if(!$hasRights):
 ?>
-	<p><?php echo $translator->{'You are not authorized to administer this fair.'}; ?></p>
+	<p><?php echo uh($translator->{'You are not authorized to administer this fair.'}); ?></p>
 <?php
     return;
   endif;
@@ -165,8 +165,8 @@
 						<td class="center"><?php echo $user->get('ex_count');?></td>
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login'));?></td>
 						<td><input type="checkbox" id="<?php echo $user->get('id'); ?>" checked="checked" /></td>
-						<!--<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $translator->{'Edit'} ?>"/></a></td>
-						<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really delete?'} ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>-->
+						<!--<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
+						<td class="center"><a onclick="return confirm('<?php echo uh($translator->{'Really delete?'}); ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>-->
 					</tr>
 				<?php endforeach; ?>
 			</tbody>

@@ -28,44 +28,44 @@
     $( document ).tooltip(); // Initialize jQueryUI tooltips
 	});
 	var lang = {};
-	lang.login_username = '<?php echo $translator->{"Username"} ?>';
-	lang.login_password = '<?php echo $translator->{"Password"} ?>';
-	lang.company_label = '<?php echo $translator->{"Company"} ?>';
-	lang.commodity_label = '<?php echo $translator->{"Commodity"} ?>';
-	lang.presentation_label = '<?php echo $translator->{"Presentation"} ?>';
-	lang.category_label = '<?php echo $translator->{"Category"} ?>';
-	lang.customer_nr_label = '<?php echo $translator->{"Customer number"} ?>';
-	lang.contact_label = '<?php echo $translator->{"Contact person"} ?>';
-	lang.orgnr_label = '<?php echo $translator->{"Organization number"} ?>';
-	lang.address_label = '<?php echo $translator->{"Address"} ?>';
-	lang.zipcode_label = '<?php echo $translator->{"Zip code"} ?>';
-	lang.city_label = '<?php echo $translator->{"City"} ?>';
-	lang.invoice_company_label = '<?php echo $translator->{"Company"} ?>';
-	lang.invoice_address_label = '<?php echo $translator->{"Address"} ?>';
-	lang.invoice_zipcode_label = '<?php echo $translator->{"Zip code"} ?>';
-	lang.invoice_city_label = '<?php echo $translator->{"City"} ?>';
-	lang.invoice_email_label = '<?php echo $translator->{"E-mail"} ?>';
-	lang.country_label = '<?php echo $translator->{"Country"} ?>';
-	lang.phone1_label = '<?php echo $translator->{"Phone 1"} ?>';
-	lang.phone2_label = '<?php echo $translator->{"Phone 2"} ?>';
-	lang.phone3_label = '<?php echo $translator->{"Phone 3"} ?>';
-	lang.phone4_label = '<?php echo $translator->{"Phone 4"} ?>';
-	lang.fax_label = '<?php echo $translator->{"Fax number"} ?>';
-	lang.website_label = '<?php echo $translator->{"Website"} ?>';
-	lang.email_label = '<?php echo $translator->{"E-mail"} ?>';
-	lang.password_label = '<?php echo $translator->{"Password"} ?>';
-	lang.password_repeat_label = '<?php echo $translator->{"Password again (repeat to confirm)"} ?>';
-	lang.password_standard = '<?php echo $translator->{"Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter."} ?>';
-	lang.forgot_pass = '<?php echo $translator->{"Forgot your password?"} ?>';
-	lang.forgot_user = '<?php echo $translator->{"Forgot your username?"} ?>';
-	lang.save_label = '<?php echo $translator->{"Save"}?>';
-	lang.alias_label = '<?php echo $translator->{"Username"}?>';
-	lang.company_section = '<?php echo $translator->{"Company"}?>';
-	lang.invoice_section = '<?php echo $translator->{"Billing address"}?>';
-	lang.contact_section = '<?php echo $translator->{"Contact"}?>';
-	lang.contact_email = '<?php echo $translator->{"Contact Email"}?>';
-	lang.copy_label = '<?php echo $translator->{"Copy from company details"} ?>';
-	lang.email_exists_label = '<?php echo $translator->{"The email address already exists in our system"} ?>';
+	lang.login_username = '<?php echo ujs($translator->{"Username"}); ?>';
+	lang.login_password = '<?php echo ujs($translator->{"Password"}); ?>';
+	lang.company_label = '<?php echo ujs($translator->{"Company"}); ?>';
+	lang.commodity_label = '<?php echo ujs($translator->{"Commodity"}); ?>';
+	lang.presentation_label = '<?php echo ujs($translator->{"Presentation"}); ?>';
+	lang.category_label = '<?php echo ujs($translator->{"Category"}); ?>';
+	lang.customer_nr_label = '<?php echo ujs($translator->{"Customer number"}); ?>';
+	lang.contact_label = '<?php echo ujs($translator->{"Contact person"}); ?>';
+	lang.orgnr_label = '<?php echo ujs($translator->{"Organization number"}); ?>';
+	lang.address_label = '<?php echo ujs($translator->{"Address"}); ?>';
+	lang.zipcode_label = '<?php echo ujs($translator->{"Zip code"}); ?>';
+	lang.city_label = '<?php echo ujs($translator->{"City"}); ?>';
+	lang.invoice_company_label = '<?php echo ujs($translator->{"Company"}); ?>';
+	lang.invoice_address_label = '<?php echo ujs($translator->{"Address"}); ?>';
+	lang.invoice_zipcode_label = '<?php echo ujs($translator->{"Zip code"}); ?>';
+	lang.invoice_city_label = '<?php echo ujs($translator->{"City"}); ?>';
+	lang.invoice_email_label = '<?php echo ujs($translator->{"E-mail"}); ?>';
+	lang.country_label = '<?php echo ujs($translator->{"Country"}); ?>';
+	lang.phone1_label = '<?php echo ujs($translator->{"Phone 1"}); ?>';
+	lang.phone2_label = '<?php echo ujs($translator->{"Phone 2"}); ?>';
+	lang.phone3_label = '<?php echo ujs($translator->{"Phone 3"}); ?>';
+	lang.phone4_label = '<?php echo ujs($translator->{"Phone 4"}); ?>';
+	lang.fax_label = '<?php echo ujs($translator->{"Fax number"}); ?>';
+	lang.website_label = '<?php echo ujs($translator->{"Website"}); ?>';
+	lang.email_label = '<?php echo ujs($translator->{"E-mail"}); ?>';
+	lang.password_label = '<?php echo ujs($translator->{"Password"}); ?>';
+	lang.password_repeat_label = '<?php echo ujs($translator->{"Password again (repeat to confirm)"}); ?>';
+	lang.password_standard = '<?php echo ujs($translator->{"Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter."}); ?>';
+	lang.forgot_pass = '<?php echo ujs($translator->{"Forgot your password?"}); ?>';
+	lang.forgot_user = '<?php echo ujs($translator->{"Forgot your username?"}); ?>';
+	lang.save_label = '<?php echo ujs($translator->{"Save"}); ?>';
+	lang.alias_label = '<?php echo ujs($translator->{"Username"}); ?>';
+	lang.company_section = '<?php echo ujs($translator->{"Company"}); ?>';
+	lang.invoice_section = '<?php echo ujs($translator->{"Billing address"}); ?>';
+	lang.contact_section = '<?php echo ujs($translator->{"Contact"}); ?>';
+	lang.contact_email = '<?php echo ujs($translator->{"Contact Email"}); ?>';
+	lang.copy_label = '<?php echo ujs($translator->{"Copy from company details"}); ?>';
+	lang.email_exists_label = '<?php echo ujs($translator->{"The email address already exists in our system"}); ?>';
 	lang.timezone = '<?php echo TIMEZONE; ?>';
 </script>
 <?php if (userLevel() > 0): ?>
@@ -136,17 +136,17 @@
 	<div id="confirmBox">
 		<p class="msg"></p>
 		<p class="dialog-buttons" id="confirmBoxOK_CANCEL">
-			<input type="button" id="confirm_ok" value="<?php echo $translator->{'OK'}; ?>"/>
-			<input type="button" id="confirm_abort" value="<?php echo $translator->{'Cancel'}; ?>"/>
+			<input type="button" id="confirm_ok" value="<?php echo uh($translator->{'OK'}); ?>"/>
+			<input type="button" id="confirm_abort" value="<?php echo uh($translator->{'Cancel'}); ?>"/>
 		</p>
 		<p class="dialog-buttons" id="confirmBoxYES_NO">
-			<input type="button" id="confirm_yes" value="<?php echo $translator->{'Yes'}; ?>"/>
-			<input type="button" id="confirm_no" value="<?php echo $translator->{'No'}; ?>"/>
+			<input type="button" id="confirm_yes" value="<?php echo uh($translator->{'Yes'}); ?>"/>
+			<input type="button" id="confirm_no" value="<?php echo uh($translator->{'No'}); ?>"/>
 		</p>
 	</div>
 	<div id="save_confirm">
-		<p><?php echo $translator->{'Changes saved'}; ?></p>
-		<p><input type="button" value="<?php echo $translator->{'OK'}; ?>"/></p>
+		<p><?php echo uh($translator->{'Changes saved'}); ?></p>
+		<p><input type="button" value="<?php echo uh($translator->{'OK'}); ?>"/></p>
 	</div>
 	<div id="wrapper">
 		<div id="header">

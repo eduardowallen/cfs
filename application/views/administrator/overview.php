@@ -12,7 +12,7 @@
 			echo "&bcc=".$user->get('email');
 		endif;
 		$count++;
-	endforeach;?>"><?php echo $translator->{'Send mail'}?></a></p>
+	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>
 	<div class="tbld">
 		<table class="std_table">
 			<thead>

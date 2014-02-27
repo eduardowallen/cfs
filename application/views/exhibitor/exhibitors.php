@@ -100,15 +100,15 @@
         
       <?php foreach($fields as $field_name => $field_label): ?>
         html += '<div><input type="checkbox" column="<?php echo $fieldcolumn; ?>" name="field_<?php echo $field_name; ?>"/>'
-          + '<label class="inline-block"><?php echo $field_label; ?></label></div>';
+          + '<label class="inline-block"><?php echo htmlspecialchars($field_label); ?></label></div>';
       <?php endforeach; ?>
         
       html += '</div>';
     <?php endforeach; ?>
         
       html += '<p class="clear" style="text-align: right;">'
-        + '<input type="submit" id="button_cancel" value="<?php echo $translator->{"Cancel"}; ?>"/>'
-        + '<input type="submit" id="button_export" value="<?php echo $translator->{"Export as Excel document"}; ?>"/></p>'
+        + '<input type="submit" id="button_cancel" value="<?php echo uh($translator->{"Cancel"}); ?>"/>'
+        + '<input type="submit" id="button_export" value="<?php echo uh($translator->{"Export as Excel document"}); ?>"/></p>'
         + '<input type="hidden" name="rows" value="'+rows+'"/>';
     html += '</form>';
     
@@ -267,7 +267,7 @@
 			echo "&bcc=".$user['email'];
 		endif;
 		$count++;
-	endforeach;?>"><?php echo $translator->{'Send mail'}?></a></p>
+	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>
 <div class="tbld" style="">
 	<input type="button" value="<?php echo $export_button ?>" style="float:right;" onclick="confirmRequest();"/>
 	<table class="std_table">

@@ -6,7 +6,7 @@
 	}
 
 	function resendDetails(id, name){
-		if(confirm("<?php echo $translator->{'Really reset user password'} ?> " + name + "?") == true){
+		if(confirm("<?php echo uh($translator->{'Really reset user password'}); ?> " + name + "?") == true){
 			$.ajax({
 				url: 'user/resendDetails/'+id, 
 				type: 'GET'
@@ -23,7 +23,7 @@
 					destroyPopup();
 				});
 			}).error(function(){
-				$('body').append('<div id="overlay"></div><div id="popupform"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"><p style="color:#f00;"><?php echo $translator->{'Error: Could not resend user details!'}?></p></div>');
+				$('body').append('<div id="overlay"></div><div id="popupform"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"><p style="color:#f00;"><?php echo uh($translator->{'Error: Could not resend user details!'}); ?></p></div>');
 				$('#overlay').css('display', 'block');
 
 				$('#overlay').bind('click',function(){
@@ -53,7 +53,7 @@
 			echo "&bcc=".$user->get('email');
 		endif;
 		$count++;
-	endforeach;?>"><?php echo $translator->{'Send mail'}?></a></p>
+	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>
 <div class="tbld">
 	<table class="std_table">
 		<thead>
@@ -84,8 +84,8 @@
 				<td class="center"><?php echo $user->get('ex_count'); ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $user->get('created')); ?></td>
-				<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $translator->{'Edit'} ?>"/></a></td>
-				<td class="center"><a onclick="return confirm('<?php echo $translator->{'Really delete?'} ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
+				<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
+				<td class="center"><a onclick="return confirm('<?php echo uh($translator->{'Really delete?'}); ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
 				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>, '<?php echo htmlspecialchars($user->get('name')); ?>')"> <img src="images/icons/delete.png" alt=""/></a></td>
 			</tr>
 			<?php endforeach; ?>

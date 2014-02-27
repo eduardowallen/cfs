@@ -7,7 +7,7 @@
 
 <p>
 	<strong><?php echo $space ?>:</strong> <?php echo $exhibitor->get('position') ?><br/>
-	<strong><?php echo $status ?>:</strong> <?php echo $translator->{$position->get('statusText')} ?><br/>
+	<strong><?php echo $status ?>:</strong> <?php echo uh($translator->{$position->get('statusText')}); ?><br/>
 	<strong><?php echo $area ?>:</strong> <?php echo $position->get('area') ?>
 </p>
 <p>
