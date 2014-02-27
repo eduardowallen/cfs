@@ -208,16 +208,20 @@ if (isset($_POST['bookPosition'])) {
 	if (userLevel() < 1)
 		exit;
 
-	$map = new FairMap;
+	$map = new FairMap();
 	$map->load($_POST['map'], 'id');
 
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	$pos->load($_POST['bookPosition'], 'id');
 	
 	//Delete existing exhibitor if position is reserved
 	if ($pos->get('status') > 0) {
-		$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
-		$stmt->execute(array($pos->get('id')));
+		$ex = new Exhibitor;
+		$ex->load($pos->get('id'), 'position');
+
+		if ($ex->wasLoaded()) {
+			$ex->delete();
+		}
 	}
 
 	$ex = new Exhibitor;
@@ -261,8 +265,12 @@ if (isset($_POST['reservePosition'])) {
 	
 	//Delete existing exhibitor if position is booked
 	if ($pos->get('status') > 0) {
-		$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
-		$stmt->execute(array($pos->get('id')));
+		$ex = new Exhibitor;
+		$ex->load($pos->get('id'), 'position');
+
+		if ($ex->wasLoaded()) {
+			$ex->delete();
+		}
 	}
 	
 	$ex = new Exhibitor;
@@ -298,21 +306,29 @@ if (isset($_POST['editBooking'])) {
 	if (userLevel() < 1)
 		exit;
 	
-	$map = new FairMap;
+	$map = new FairMap();
 	$map->load($_POST['map'], 'id');
 
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	$pos->load($_POST['editBooking'], 'id');
+
+	$fair = new Fair();
+	$fair->load($map->get('fair'), 'id');
 
 	$ex = new Exhibitor;
 	$ex->load($_POST['exhibitor_id'], 'id');
 	if (!$ex->wasLoaded()) {
 		die('exhibitor not found');
 	}
+
+	$organizer = new User();
+	$organizer->load($fair->get('created_by'), 'id');
+
 	if (isset($_POST['user']) && userLevel() > 1)
 		$ex->set('user', $_POST['user']);
 	else
 		$ex->set('user', $_SESSION['user_id']);
+
 	//$ex->set('position', $_POST['editBooking']);
 	//$ex->set('map', $_POST['map']);
 	//$ex->set('fair', $map->get('fair'));
@@ -334,7 +350,49 @@ if (isset($_POST['editBooking'])) {
 	if (isset($_POST['expires'])) {
 		$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 		$pos->save();
+		$mail_type = 'reservation';
+
+	} else {
+		$mail_type = 'booking';
 	}
+
+	$categories = array();
+	foreach ($_POST['categories'] as $category_id) {
+		$ex_category = new ExhibitorCategory();
+		$ex_category->load($category_id, 'id');
+		$categories[] = $ex_category->get('name');
+	}
+
+	$categories = implode(', ', $categories);
+	$time_now = date('d-m-Y H:i');
+
+	$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
+	$mail_organizer->setMailVar('position_name', $pos->get('name'));
+	$mail_organizer->setMailVar('position_information', $pos->get('information'));
+	$mail_organizer->setMailVar('edit_time', $time_now);
+	$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+	$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+	$mail_organizer->setMailVar('exhibitor_category', $categories);
+
+	if ($mail_type == 'reservation') {
+		$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+	}
+
+	$mail_organizer->send();
+
+	$mail_user = new Mail($ex->get('email'), $mail_type . '_edited_receipt');
+	$mail_user->setMailVar('position_name', $pos->get('name'));
+	$mail_user->setMailVar('position_information', $pos->get('information'));
+	$mail_user->setMailVar('edit_time', $time_now);
+	$mail_user->setMailVar('arranger_message', $_POST['message']);
+	$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+	$mail_user->setMailVar('exhibitor_category', $categories);
+
+	if ($mail_type == 'reservation') {
+		$mail_user->setMailVar('date_expires', $_POST['expires']);
+	}
+
+	$mail_user->send();
 
 	exit;
 	
