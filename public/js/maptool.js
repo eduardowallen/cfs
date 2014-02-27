@@ -2279,36 +2279,39 @@ maptool.Grid = (function() {
 	}
 
 	function init() {
-		grid = $('#maptool_grid');
-		grid_frame = $('#maptool_grid_frame');
-		map_canvas = $('#mapHolder');
+		// Don't init if we already init'ed
+		if (grid === null) {
+			grid = $('#maptool_grid');
+			grid_frame = $('#maptool_grid_frame');
+			map_canvas = $('#mapHolder');
 
-		$('.spinner').spinner({
-			spin: function(e, ui) {
-				$(this).val(ui.value);
-				$(this).trigger('change');
-			}
-		});
+			$('.spinner').spinner({
+				spin: function(e, ui) {
+					$(this).val(ui.value);
+					$(this).trigger('change');
+				}
+			});
 
-		// Toolbox events
-		for (var property in setting_listeners) {
-			if (setting_listeners.hasOwnProperty(property)) {
-				$('#maptool_grid_' + property).on('change', setting_listeners[property]);
-				setting_listeners[property]();
+			// Toolbox events
+			for (var property in setting_listeners) {
+				if (setting_listeners.hasOwnProperty(property)) {
+					$('#maptool_grid_' + property).on('change', setting_listeners[property]);
+					setting_listeners[property]();
+				}
 			}
+
+			$('#maptoolbox_minimize').on('click', toggleToolbox);
+			$('#maptool_grid_reset').on('click', resetGrid);
+
+			// Grid movement events
+			grid.on('mousemove', mouseMoved);
+			grid_frame.on('mousedown', startMove);
+			grid_frame.on('mouseup', stopMove);
+
+			// Window resize events
+			$(window).on('resize', windowSizeChanged);
+			windowSizeChanged();
 		}
-
-		$('#maptoolbox_minimize').on('click', toggleToolbox);
-		$('#maptool_grid_reset').on('click', resetGrid);
-
-		// Grid movement events
-		grid.on('mousemove', mouseMoved);
-		grid_frame.on('mousedown', startMove);
-		grid_frame.on('mouseup', stopMove);
-
-		// Window resize events
-		$(window).on('resize', windowSizeChanged);
-		windowSizeChanged();
 	}
 
 	function getSnapState() {
