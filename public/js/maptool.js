@@ -676,8 +676,8 @@ maptool.editPosition = function(positionObject) {
 //Trace mouse movements with marker
 maptool.traceMouse = function(e) {
 
-	var top = e.originalEvent.pageY, 
-		left = e.originalEvent.pageX;
+	var top = e.pageY, 
+		left = e.pageX;
 
 	if (maptool.Grid.getSnapState()) {
 		top = maptool.Grid.snapY(top);
