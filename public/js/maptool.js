@@ -678,8 +678,8 @@ maptool.editPosition = function(positionObject) {
 //Trace mouse movements with marker
 maptool.traceMouse = function(e) {
 
-	var top = e.originalEvent.pageY, 
-		left = e.originalEvent.pageX;
+	var top = e.pageY, 
+		left = e.pageX;
 
 	if (maptool.Grid.getSnapState()) {
 		top = maptool.Grid.snapY(top);
@@ -2104,10 +2104,16 @@ maptool.Grid = (function() {
 	}
 
 	function updateCSS() {
-		$('#maptool_grid_style').text('.grid-cell {' +
+		var style_css = '.grid-cell {' +
 				'width: ' + (settings.width - 1) + 'px;' +
 				'height: ' + (settings.height - 1) + 'px;' +
-			'}');
+			'}';
+
+		try {
+			$('#maptool_grid_style').html(style_css);
+		} catch (error) {
+			$('#maptool_grid_style')[0].styleSheet.cssText = style_css;
+		}
 
 		grid_frame.css({
 			width: grid.width() + settings.width * 2 + 'px',
@@ -2590,7 +2596,7 @@ maptool.update = function(posId) {
 
 					maptool.populateList();
 					maptool.placeFocusArrow();
-					updateTimer = setTimeout('maptool.update()', config.markerUpdateTime * 30000);
+					updateTimer = setTimeout(maptool.update, config.markerUpdateTime * 30000);
 					preHover(posId);
 				}
 			}
@@ -2625,7 +2631,7 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
-	
+
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
 		return;
@@ -2687,10 +2693,11 @@ maptool.init = function(mapId) {
 
 		}
 	});
+
 	$(".closeDialogue").click(function() {
 		maptool.closeDialogues();
 	});
-	
+
 	if (!isNaN(prePosId)) {
 		setTimeout(function() {
 			maptool.focusOn(prePosId);
@@ -2723,12 +2730,10 @@ maptool.init = function(mapId) {
 			
 		}, 1000);
 	}
-
 }
 
 //Event handlers
 $(document).ready(function() {
-	
 	$('.order').click(function() {
 		var sel = $(this).val();
 		$('#book_user_input option, #reserve_user_input option').each(function() {
@@ -2911,7 +2916,7 @@ $(document).ready(function() {
 	});
 
 	// Start automatic updating
-	setTimeout('maptool.update()', config.markerUpdateTime * 1000);
+	setTimeout(maptool.update, config.markerUpdateTime * 1000);
 });
 
 
