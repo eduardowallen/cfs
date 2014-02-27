@@ -101,7 +101,11 @@ maptool.openDialogue = function(id) {
 maptool.closeDialogues = function() {
 	if (userIsEditing > 0) {
 		maptool.markPositionAsNotBeingEdited();
-	}			
+
+	} else if (movingMarker !== null) {
+		maptool.endMovePosition();
+	}
+
 	$(".dialogue").hide(0, function() {
 		$("#overlay").hide();
 		$("#popupform").remove();
@@ -597,23 +601,9 @@ maptool.movePosition = function(clickEvent, positionObject) {
 
 	$(document).on('mousemove', 'body', maptool.traceMouse);
 
-	$(document).keyup(function(e) {
-		if (e.keyCode == 27) {
-			$.ajax({
-				url: 'ajax/maptool.php',
-				type: 'POST',
-				data: 'movePosition=' + positionObject.id + '&x=' + originalPositionX + '&y=' + originalPositionY,
-				success: function(res) {
-					maptool.markPositionAsNotBeingEdited();
-					maptool.resumeUpdate();
-					maptool.update();
-				}
-			});
-
-			$(document).off('mousemove', 'body', maptool.traceMouse);
-
-			movingMarker.remove();
-			movingMarker = null;
+	$(document).one('keyup', function(e) {
+		if (e.keyCode === 27) {
+			maptool.endMovePosition();
 		}
 	});
 	
@@ -643,15 +633,23 @@ maptool.movePosition = function(clickEvent, positionObject) {
 					success: function(res) {
 						maptool.markPositionAsNotBeingEdited();
 						maptool.resumeUpdate();
-						maptool.update();
 					}
 				});
 				movingMarker.remove();
+				$(document).off('mousemove', 'body', maptool.traceMouse);
 			}
 			movingMarker = null;	
 		}
 	});
-}
+};
+
+// End moving position
+maptool.endMovePosition = function() {
+	movingMarker.remove();
+	movingMarker = null;
+	maptool.resumeUpdate();
+	$(document).off('mousemove', 'body', maptool.traceMouse);
+};
 
 //Edit position
 maptool.editPosition = function(positionObject) {
@@ -2826,6 +2824,8 @@ $(document).ready(function() {
 			alert(lang.noPlaceRights);
 		}
 	});
+
+	// ESC-key press listener
 	$(document).keydown(function(e) {
 		if (e.keyCode == 27)
 			maptool.closeDialogues();
