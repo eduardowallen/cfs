@@ -710,6 +710,23 @@ class ExhibitorController extends Controller {
 		$objWriter->save('php://output');
 	}
 
+	public function deleteExhibitor($id, $confirmed='', $from='') {
+		setAuthLevel(4);
+
+		$this->set('headline', 'Delete exhibitor');
+		$this->setNoTranslate('from', $from);
+
+		$user = new User();
+
+		$user->load($id, 'id');
+		
+		$this->setNoTranslate('exhibitor_id', $id);
+		$this->set('warning', 'Do you really want to delete the exhibitor');
+		$this->setNoTranslate('exhibitor', $user);
+		$this->set('yes', 'Yes');
+		$this->set('no', 'No');
+	}
+
 	function createFromMap($fairUrl) {
 
 		setAuthLevel(2);
