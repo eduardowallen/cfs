@@ -784,29 +784,33 @@ class UserController extends Controller {
 
 		setAuthLevel(4);
 
+		$this->User->load($id, 'id');
+
 		$this->set('headline', 'Delete super user');
 
 		if ($confirmed == 'confirmed') {
-			$this->User->load($id, 'id');
 			$userid = $id;	
 
 			// Hämta användarens olika exhibitorId'n
 			$statement = $this->db->prepare("SELECT id FROM exhibitor WHERE user = ?");
 			$statement->execute(array($userid));
 			$result = $statement->fetchAll();
+
+			$this->User->delete();
+
+			header("Location: ".BASE_URL."user/overview/");
 	
 			foreach($result as $exhibitor):
 				//$statement = $this->db->prepare("DELETE * FROM exhibitor_category_rel WHERE exhibitor = ?");
 				//$statement->execute(array($exhibitor->id));
 				echo $exhibitor->id;
 			endforeach;
-
-			//$this->User->delete();
 			//header("Location: ".BASE_URL."user/overview/4");
 			//exit;
 		} else {
 			$this->setNoTranslate('user_id', $id);
-			$this->set('warning', 'Do you really want to delete this super user?');
+			$this->setNoTranslate('user', $this->User);
+			$this->set('warning', 'Do you really want to delete this user?');
 			$this->set('yes', 'Yes');
 			$this->set('no', 'No');
 		}

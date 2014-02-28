@@ -85,7 +85,7 @@
 				<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $user->get('created')); ?></td>
 				<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
-				<td class="center"><a onclick="return confirm('<?php echo uh($translator->{'Really delete?'}); ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>
+				<td class="center"><a href="exhibitor/deleteExhibitor/<?php echo $user->get('id'); ?>/no/all"><img src="images/icons/delete.png" alt=""/></a></td>
 				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>, '<?php echo htmlspecialchars($user->get('name')); ?>')"> <img src="images/icons/delete.png" alt=""/></a></td>
 			</tr>
 			<?php endforeach; ?>
