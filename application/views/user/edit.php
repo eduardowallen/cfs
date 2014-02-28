@@ -5,16 +5,16 @@
   if($edit_id == 'new') :
     if(!empty($edit_level)) : 
       switch($edit_level):
-        case 1: $headline='New Exhibitor'; break;
-        case 2: $headline='New Administrator'; break;
-        case 3: $headline='New Arranger'; break;
-        case 4: $headline='New Master'; break;
+        case 1: $headline=$translator->{'New Exhibitor'}; break;
+        case 2: $headline=$translator->{'New Administrator'}; break;
+        case 3: $headline=$translator->{'New Arranger'}; break;
+        case 4: $headline=$translator->{'New Master'}; break;
       endswitch;
     else :
-      $headline='New User';
+      $headline=$translator->{'New User'};
     endif;
   else:
-    $headline='Edit user';
+    $headline=$translator->{'Edit user'};
   endif;
   
   // Load form
