@@ -20,8 +20,8 @@
 				<th><?php echo $th_user; ?></th>
 				<th><?php echo $th_email; ?></th>
 				<th><?php echo $th_phone; ?></th>
-				<th>Last login</th>
-				<th>Created</th>				
+				<th><?php echo $th_lastlogin; ?></th>
+				<th><?php echo $th_created; ?></th>
 				<th><?php echo $th_edit; ?></th>
 				<th><?php echo $th_delete; ?></th>
 			</tr>

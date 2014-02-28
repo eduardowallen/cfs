@@ -16,6 +16,8 @@ class UserController extends Controller {
 		$this->set('th_user', 'Master');
 		$this->set('th_email', 'E-mail');
 		$this->set('th_phone', 'Phone number');
+		$this->set('th_lastlogin', 'Last login');
+		$this->set('th_created', 'Created');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
 		$this->set('headline', 'Master overview');
