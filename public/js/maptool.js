@@ -124,6 +124,18 @@ maptool.populateList = function() {
 		$('#right_sidebar ul li.selected:first #list_commodity').show();
 	}
 
+	maptool.map.positions.sort(function (a, b) {
+		if (a.exhibitor && a.exhibitor.company) {
+			if (a.exhibitor.company < b.exhibitor.company) {
+				return -1;
+			} else if (a.exhibitor.company > b.exhibitor.company) {
+				return 1;
+			}
+			return 0;
+		}
+		return 1;
+	});
+
 	$("#right_sidebar ul").html('');
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		if (maptool.map.positions[i].exhibitor !== null) {
