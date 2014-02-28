@@ -196,17 +196,17 @@ function logToDB($db, $action, $data) {
 
 function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 	
-	if (userLevel() < 2) {
+	/*if (userLevel() < 2) {
 		$toolbar = 'theme_advanced_buttons1 : "undo,redo,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste",
 	        		theme_advanced_buttons2 : "hr,charmap,|,outdent,indent,|,insertdate,inserttime,|,preview,fullscreen",
 	        		theme_advanced_buttons3 : "",
 	        		theme_advanced_buttons4 : "",';
-	} else {
+	} else {*/
 		$toolbar = 'theme_advanced_buttons1 : "undo,redo,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste",
 	        		theme_advanced_buttons2 : "tablecontrols,|,hr,charmap,|,outdent,indent,|,insertdate,inserttime,|,preview,fullscreen,code",
 	        		theme_advanced_buttons3 : "",
 	        		theme_advanced_buttons4 : "",';
-	}
+	//}
 	
 	echo '<script language="javascript" type="text/javascript" src="'.$path.'"></script>';
 	echo '<script language="javascript" type="text/javascript">
