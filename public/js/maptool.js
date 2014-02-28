@@ -126,12 +126,7 @@ maptool.populateList = function() {
 
 	maptool.map.positions.sort(function (a, b) {
 		if (a.exhibitor && a.exhibitor.company && b.exhibitor && b.exhibitor.company) {
-			if (a.exhibitor.company < b.exhibitor.company) {
-				return -1;
-			} else if (a.exhibitor.company > b.exhibitor.company) {
-				return 1;
-			}
-			return 0;
+			return b.toUpperCase().localeCompare(a.toUpperCase(), lang.locale);
 		}
 		return 1;
 	});

@@ -120,6 +120,22 @@ function makeUserOptions3($sel=0, $fair) {
 
 <script type="text/javascript">
 
+	<?php switch (LANGUAGE) {
+		case "sv":
+			$locale = "sv-SE";
+			break;
+		case "eng":
+			$locale = "en-US";
+			break;
+		case "de":
+			$locale = "de-DE";
+			break;
+		case "es":
+			$locale = "es-ES";
+			break;
+	}?>
+
+	lang.locale = "<?php echo $locale; ?>";
 	lang.bookStandSpace = '<?php echo ujs($translator->{"Book stand space"}); ?>';
 	lang.editStandSpace = '<?php echo ujs($translator->{"Edit stand space"}); ?>';
 	lang.moveStandSpace = '<?php echo ujs($translator->{"Move stand space"}); ?>';
