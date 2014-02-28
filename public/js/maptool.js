@@ -126,7 +126,7 @@ maptool.populateList = function() {
 
 	maptool.map.positions.sort(function (a, b) {
 		if (a.exhibitor && a.exhibitor.company && b.exhibitor && b.exhibitor.company) {
-			return b.toUpperCase().localeCompare(a.toUpperCase(), lang.locale);
+			return b.exhibitor.company.toUpperCase().localeCompare(a.exhibitor.company.toUpperCase(), lang.locale);
 		}
 		return 1;
 	});
