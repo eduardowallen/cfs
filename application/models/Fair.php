@@ -120,6 +120,16 @@ class Fair extends Model {
 
 	}
 
+	public function get($property) {
+		$result = parent::get($property);
+		if ($property === "categories") {
+			usort($result, function ($a, $b) {
+				return strcmp(mb_strtoupper($a->name, "UTF-8"), mb_strtoupper($b->name, "UTF-8"));
+			});
+		}
+		return $result;
+	}
+
 	private function isLocked(){
 		if($this->get('approved') == 2 AND userLevel() != 4){
 			header("Location: ".BASE_URL.'locked');
