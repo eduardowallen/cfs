@@ -99,6 +99,9 @@ $globalDB = new Database;
 global $globalDB;
 
 define('TIMEZONE', 'GMT' . getGMToffset());
+if (!defined("ENT_HTML5")) {
+	define("ENT_HTML5", 48);
+}
 
 setReporting();
 callHook();
