@@ -318,7 +318,9 @@ class FairController extends Controller {
 			$this->set('edit_note_3_label', 'Edit message for 3rd reminder');
 			$this->set('save_label', 'Save');
 			$this->set('cancel_label', 'Cancel');
-
+			$this->set('hide_fair_for_label', 'Hide fair for unauthorized accounts');
+			$this->set('false_label', 'false');
+			$this->set('true_label', 'true');
 		}
 	}
 

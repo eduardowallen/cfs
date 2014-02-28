@@ -132,10 +132,10 @@
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Select the initial status of the event. You can immediately approve the new event or you can do it at a later time.'}); ?>" />
 		<?php endif; ?>
 
-		<label for="hidden"> Hide fair for unauthorized accounts </label>
+		<label for="hidden"><?php echo $hide_fair_for_label; ?></label>
 		<select name="hidden" id="hidden">
-			<option value="0"<?php echo $hidden_sel0; ?>>false</option>
-			<option value="1"<?php echo $hidden_sel1; ?>>true</option>
+			<option value="0"<?php echo $hidden_sel0; ?>><?php echo $false_label; ?></option>
+			<option value="1"<?php echo $hidden_sel1; ?>><?php echo $true_label; ?></option>
 		</select>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Whether or not other users are able to access the event.'}); ?>" />
 	</div>
