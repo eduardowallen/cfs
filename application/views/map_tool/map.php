@@ -110,7 +110,7 @@ function makeUserOptions3($sel=0, $fair) {
 				<label>
 					<?php echo htmlspecialchars($translator->{'Opacity'}); ?>:
 					<input type="range" id="maptool_grid_opacity" min="1" max="100" value="100" />
-					<input type="number" id="maptool_grid_opacity_num" value="100" class="spinner" />
+					<input type="text" id="maptool_grid_opacity_num" value="100" class="spinner" />
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_white" />
@@ -128,26 +128,26 @@ function makeUserOptions3($sel=0, $fair) {
 					<?php echo htmlspecialchars($translator->{'Coordinates'}); ?>:
 					<label>
 						X
-						<input type="number" id="maptool_grid_coord_x" value="0" class="spinner" />
+						<input type="text" id="maptool_grid_coord_x" value="0" class="spinner" />
 					</label>
 					<label>
 						Y
-						<input type="number" id="maptool_grid_coord_y" value="0" class="spinner" />
+						<input type="text" id="maptool_grid_coord_y" value="0" class="spinner" />
 					</label>
 				</span>
 				<label>
 					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Cell width (W)'}); ?>:</span>
-					<input type="number" id="maptool_grid_width" value="20" class="spinner" />
+					<input type="text" id="maptool_grid_width" value="20" class="spinner" />
 				</label>
 				<label>
 					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Cell height (H)'}); ?>:</span>
-					<input type="number" id="maptool_grid_height" value="20" class="spinner" />
+					<input type="text" id="maptool_grid_height" value="20" class="spinner" />
 				</label>
 				<label>
 					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'W x H per cell'}); ?>:</span>
-					<input type="number" id="maptool_grid_width_rat" value="20" class="spinner" />
+					<input type="text" id="maptool_grid_width_rat" value="20" class="spinner" />
 					x
-					<input type="number" id="maptool_grid_height_rat" value="20" class="spinner" />
+					<input type="text" id="maptool_grid_height_rat" value="20" class="spinner" />
 				</label>
 				<label>
 					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Save grid for this event'}); ?>:</span>

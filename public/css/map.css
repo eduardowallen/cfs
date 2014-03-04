@@ -401,13 +401,18 @@ h1.inline-block {
 	font-weight: 400;
 }
 
-#maptoolbox_controls input[type=number] {
-	width: 35px;
+/*#maptoolbox_controls input[type=number] {*/
+#maptoolbox_controls .spinner {
+	width: 25px;
+	border: none;
+	padding: 0;
 }
 
 #maptool_grid_opacity {
 	width: 110px;
 	vertical-align: bottom;
+	padding-top: 0;
+	padding-bottom: 0;
 }
 
 #maptoolbox_controls .maptoolbox-label-row {
