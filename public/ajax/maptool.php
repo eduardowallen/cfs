@@ -472,4 +472,21 @@ if(isset($_POST['getComment'])){
 	</ul>
 	<?php
 }
+if (isset($_POST["getGridSettings"])) {
+	$id = $_POST["getGridSettings"];
+	
+	$map = new FairMap();
+	$map->load($id, 'id');
+
+	echo $map->get("grid_settings");
+}
+if (isset($_POST["setGridSettings"])) {
+	$id = $_POST["setGridSettings"];
+	$settings = $_POST["gridSettings"];
+
+	$map = new FairMap();
+	$map->load($id, "id");
+	$map->set("grid_settings", $settings);
+	$map->save();
+}
 ?>
