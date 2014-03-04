@@ -345,7 +345,7 @@ class FairController extends Controller {
 
 			if (isset($_POST['name'])) {
 
-				$auto_close_reserved = date('Y-m-d H:i', strtotime($_POST['auto_close_reserved']));
+				$auto_close_reserved = date('Y-m-d-H:i', strtotime($_POST['auto_close_reserved']));
 
 				$fair_clone = new Fair();
 				$fair_clone->set('name', $_POST['name']);

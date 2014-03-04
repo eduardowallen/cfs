@@ -2528,7 +2528,7 @@ maptool.pan = function(dir) {
 	});
 
 }
-
+/*
 //Switch to full screen mode
 maptool.fullScreenOn = function() {
 
@@ -2583,7 +2583,7 @@ maptool.fullScreenOn = function() {
 	},1000)
 
 }
-
+*/
 maptool.reload = function() {
 	canvasOriginalWidth = null;
 	maptool.init(maptool.map.id);
