@@ -150,6 +150,10 @@ function makeUserOptions3($sel=0, $fair) {
 					<input type="number" id="maptool_grid_height_rat" value="20" class="spinner" />
 				</label>
 				<label>
+					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Save grid for this event'}); ?>:</span>
+					<input type="button" id="maptool_grid_save" value="<?php echo htmlspecialchars($translator->{'Save grid'}); ?>" />
+				</label>
+				<label>
 					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Reset grid to original size'}); ?>:</span>
 					<input type="button" id="maptool_grid_reset" value="<?php echo htmlspecialchars($translator->{'Reset'}); ?>" />
 				</label>

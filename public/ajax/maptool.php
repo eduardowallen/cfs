@@ -662,4 +662,22 @@ if (isset($_POST['approve_preliminary'])) {
 		$prel_booking->delete();
 	}
 }
+
+if (isset($_POST["getGridSettings"])) {
+	$id = $_POST["getGridSettings"];
+	
+	$map = new FairMap();
+	$map->load($id, 'id');
+
+	echo $map->get("grid_settings");
+}
+if (isset($_POST["setGridSettings"])) {
+	$id = $_POST["setGridSettings"];
+	$settings = $_POST["gridSettings"];
+
+	$map = new FairMap();
+	$map->load($id, "id");
+	$map->set("grid_settings", $settings);
+	$map->save();
+}
 ?>

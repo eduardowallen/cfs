@@ -10,6 +10,7 @@ var scrollTimeout = null;
 var deltaSteps = 0;
 var movingMarker = null;
 var marker = null;
+var _mapId = 0;
 
 //Some settings
 var config = {
@@ -2098,6 +2099,40 @@ maptool.Grid = (function() {
 	}
 
 	/**
+	 * Save grid settings to database
+	 */
+	function setGridSettings() {
+		$.ajax({
+			url: "ajax/maptool.php",
+			type: "POST",
+			data: {
+				"setGridSettings": _mapId,
+				"gridSettings": JSON.stringify(settings)
+			}
+		});
+	}
+
+	/**
+	 * Fetch grid settings from database
+	*/
+	function getGridSettings() {
+		$.ajax({
+			url: "ajax/maptool.php",
+			type: "POST",
+			data: {
+				"getGridSettings": _mapId
+			},
+			success: function (response) {
+				if (response) {
+					settings = JSON.parse(response);
+					
+					setSettings();
+				}
+			}
+		});
+	}
+
+	/**
 	 * Call this to request a new grid generation, but not directly.
 	 * This is useful to call when a setting changes frequently.
 	 */
@@ -2184,8 +2219,11 @@ maptool.Grid = (function() {
 	}
 
 	function changeOpacity(value) {
-		settings.opacity = value;
-		grid.css('opacity', value / 100);
+		if (value) {
+			settings.opacity = value;
+		}
+
+		grid.css('opacity', settings.opacity / 100);
 	}
 
 	function changeOpacitySlide() {
@@ -2252,6 +2290,40 @@ maptool.Grid = (function() {
 		updateCoords(0, 0);
 	}
 
+	function setSettings() {
+		//Set visibility
+		$("#maptool_grid_visible")[0].checked = settings.visible;
+		toggleVisibility();
+
+		//Set opacity
+		$("#maptool_grid_opacity").val(settings.opacity);
+		$("#maptool_grid_opacity_num").val(settings.opacity);
+		changeOpacity();
+
+		//Set grid color
+		$("#maptool_grid_white")[0].checked = settings.white;
+		toggleWhite();
+
+		//Set snap to grid
+		$("#maptool_grid_snap_markers")[0].checked = settings.snap_markers;
+
+		//Set is moving
+		$("#maptool_grid_is_moving")[0].checked = settings.is_moving;
+		toggleIsMoving();
+
+		//Set coords
+		$("#maptool_grid_coord_x").val(settings.coords.x);
+		$("#maptool_grid_coord_y").val(settings.coords.y);
+		changeCoords();
+
+		//Set dimensions
+		$("#maptool_grid_width").val(settings.width);
+		$("#maptool_grid_width_rat").val(settings.width);
+		$("#maptool_grid_height").val(settings.height);
+		$("#maptool_grid_height_rat").val(settings.height);
+		changeDimensions();
+	}
+
 	function windowSizeChanged() {
 		var offset = map_canvas.offset();
 
@@ -2296,6 +2368,8 @@ maptool.Grid = (function() {
 			grid_frame = $('#maptool_grid_frame');
 			map_canvas = $('#mapHolder');
 
+			getGridSettings();
+
 			$('.spinner').spinner({
 				spin: function(e, ui) {
 					$(this).val(ui.value);
@@ -2313,6 +2387,7 @@ maptool.Grid = (function() {
 
 			$('#maptoolbox_minimize').on('click', toggleToolbox);
 			$('#maptool_grid_reset').on('click', resetGrid);
+			$('#maptool_grid_save').on('click', setGridSettings);
 
 			// Grid movement events
 			grid.on('mousemove', mouseMoved);
@@ -2643,6 +2718,8 @@ maptool.init = function(mapId) {
 	if (typeof mapId == 'undefined') {
 		return;
 	}
+
+	_mapId = mapId;
 
 	if ($('#maptoolbox').length) {
 		maptool.Grid.init();

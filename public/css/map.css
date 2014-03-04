@@ -348,7 +348,7 @@ h1.inline-block {
 	z-index: 999;
 	top: 60px;
 	width: 315px;
-	height: 350px;
+	height: 400px;
 	background: #4c90d9;
 	border: 1px solid #032952;
 	color: #fff;
@@ -402,7 +402,7 @@ h1.inline-block {
 }
 
 #maptoolbox_controls input[type=number] {
-	width: 25px;
+	width: 35px;
 }
 
 #maptool_grid_opacity {
@@ -421,7 +421,7 @@ h1.inline-block {
 
 #maptoolbox_controls .maptoolbox-label {
 	display: inline-block;
-	width: 125px;
+	width: 106px;
 }
 
 /* Map grid */
