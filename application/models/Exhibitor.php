@@ -73,6 +73,10 @@ class Exhibitor extends User {
 		return ($this->wasLoaded()) ? $this->exhibitor_id : $this->db->lastInsertId();
 	}
 
+	public function delete() {
+		
+	}
+
 
 	// Preliminary bookings
 	public function del_pre_booking($id, $user_id, $position){
