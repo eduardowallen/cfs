@@ -120,30 +120,34 @@ maptool.closeDialogues = function() {
 maptool.populateList = function() {
 	var searchString = $('#search_filter').val();
 	var prevSelectedId = -1;
+	var filtered;
 
 	if ($('#right_sidebar ul li.selected:first').length != 0) {
 		prevSelectedId = $('#right_sidebar ul li.selected:first').attr("id").replace("map-li-", "");
 		$('#right_sidebar ul li.selected:first #list_commodity').show();
 	}
 
-	maptool.map.positions.sort(function (a, b) {
-		if (a.exhibitor && a.exhibitor.company && b.exhibitor && b.exhibitor.company) {
-			return a.exhibitor.company.toUpperCase().localeCompare(b.exhibitor.company.toUpperCase(), lang.locale);
-		}
-		return 1;
+	//Filter out elements that do not have a company name
+	filtered = maptool.map.positions.filter(function (e) {
+		return !!(e.exhibitor && e.exhibitor.company);
+	});
+
+	//Sort filtered list of companies
+	filtered.sort(function (a, b) {
+		return a.exhibitor.company.toUpperCase().localeCompare(b.exhibitor.company.toUpperCase(), lang.locale);
 	});
 
 	$("#right_sidebar ul").html('');
-	for (var i=0; i<maptool.map.positions.length; i++) {
-		if (maptool.map.positions[i].exhibitor !== null) {
+	for (var i=0; i<filtered.length; i++) {
+		if (filtered[i].exhibitor !== null) {
 			var hide = false;
 			if (categoryFilter > 0) {
-				if (!maptool.map.positions[i].exhibitor) {
+				if (!filtered[i].exhibitor) {
 					hide = true;
 				} else {
 					var catMatched = false;
-					for (var j=0; j<maptool.map.positions[i].exhibitor.categories.length; j++) {
-						if (maptool.map.positions[i].exhibitor.categories[j].category_id == categoryFilter) {
+					for (var j=0; j<filtered[i].exhibitor.categories.length; j++) {
+						if (filtered[i].exhibitor.categories[j].category_id == categoryFilter) {
 							catMatched = true;
 						}
 					}
@@ -155,13 +159,13 @@ maptool.populateList = function() {
 				var str = searchString.toLowerCase();
 				var matched = false;
 				
-				if (maptool.map.positions[i].exhibitor.company && maptool.map.positions[i].exhibitor.company.toLowerCase().indexOf(str) > -1) {
+				if (filtered[i].exhibitor.company && filtered[i].exhibitor.company.toLowerCase().indexOf(str) > -1) {
 					matched = true;
 				}
-				if (maptool.map.positions[i].exhibitor.spot_commodity && maptool.map.positions[i].exhibitor.spot_commodity.toLowerCase().indexOf(str) > -1) {
+				if (filtered[i].exhibitor.spot_commodity && filtered[i].exhibitor.spot_commodity.toLowerCase().indexOf(str) > -1) {
 					matched = true;
 				}
-				if (maptool.map.positions[i].name && maptool.map.positions[i].name.toLowerCase().indexOf(str) > -1) {
+				if (filtered[i].name && filtered[i].name.toLowerCase().indexOf(str) > -1) {
 					matched = true;
 				}
 				if (!matched) {
@@ -169,7 +173,7 @@ maptool.populateList = function() {
 				}
 			}
 			if (!hide) {
-				var item = $('<li id="map-li-' + maptool.map.positions[i].id + '">' + maptool.map.positions[i].exhibitor.company + '<p id="list_commodity">' + maptool.map.positions[i].exhibitor.spot_commodity + '</p></li>');
+				var item = $('<li id="map-li-' + filtered[i].id + '">' + filtered[i].exhibitor.company + '<p id="list_commodity">' + filtered[i].exhibitor.spot_commodity + '</p></li>');
 				item.children('#list_commodity').hide();
 				item.click(function() {
 					$('#right_sidebar ul li').removeClass('selected');
@@ -177,10 +181,10 @@ maptool.populateList = function() {
 					$(this).addClass('selected');
 					$(this).children('#list_commodity').show();
 					var index = $(this).attr("id").replace("map-li-", "");
-					//maptool.positionInfo(maptool.map.positions[index]);
+					//maptool.positionInfo(filtered[index]);
 					maptool.focusOn(index);
 				});
-				if (maptool.map.positions[i].id == prevSelectedId) {
+				if (filtered[i].id == prevSelectedId) {
 					item.addClass('selected');
 				}
 				$("#right_sidebar ul").append(item);
