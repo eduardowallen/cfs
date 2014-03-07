@@ -11,6 +11,8 @@ var deltaSteps = 0;
 var movingMarker = null;
 var marker = null;
 var _mapId = 0;
+var start = {};
+var isMoving = false;
 
 //Some settings
 var config = {
@@ -2167,26 +2169,35 @@ maptool.Grid = (function() {
 	}
 
 	function mouseMoved(e) {
-		if (settings.is_moving && gridmove.started) {
+		if (gridmove.started) {
 			var x = e.pageX - gridmove.start_x - map_canvas.offset().left + gridmove.element_start_x, 
 				y = e.pageY - gridmove.start_y - map_canvas.offset().top + gridmove.element_start_y;
 
 			validateCoordsAndSet(x, y);
+		} else if (isMoving) {
+			moveMap(e);
 		}
 	}
 
 	function startMove(e) {
 		e.preventDefault();
 
-		gridmove.started = true;
-		gridmove.start_x = e.pageX - map_canvas.offset().left;
-		gridmove.start_y = e.pageY - map_canvas.offset().top;
-		gridmove.element_start_x = settings.coords.x;
-		gridmove.element_start_y = settings.coords.y;
+		if (settings.is_moving) {
+			gridmove.started = true;
+			gridmove.start_x = e.pageX - map_canvas.offset().left;
+			gridmove.start_y = e.pageY - map_canvas.offset().top;
+			gridmove.element_start_x = settings.coords.x;
+			gridmove.element_start_y = settings.coords.y;
+		} else {
+			start.x = e.pageX;
+			start.y = e.pageY;
+			isMoving = true;
+		}
 	}
 
 	function stopMove() {
 		gridmove.started = false;
+		isMoving = false;
 	}
 
 	function init() {
@@ -2763,32 +2774,10 @@ $(document).ready(function() {
 	
 	//Scroll map by dragging
 	$("#map #map_img").on("mousedown", function(e) {
-		var start = {};
 		start.x = e.pageX;
 		start.y = e.pageY;
-		
-		$(this).on("mousemove", function(e) {
-			maptool.map.beingDragged = true;
-			$(this).css('cursor', 'move');
-			
-			e.preventDefault();
-			e.stopPropagation();
-			
-			var viewport = $('#mapHolder');
-			
-			var xDiff = e.pageX - start.x;
-			var yDiff = e.pageY - start.y;
-			
-			scrollX = viewport.scrollLeft() - xDiff;
-			scrollY = viewport.scrollTop() - yDiff;
-			
-			viewport.scrollLeft(scrollX);
-			viewport.scrollTop(scrollY);
-			
-			start.x = e.pageX;
-			start.y = e.pageY;
-			
-		});
+
+		$(this).on("mousemove", moveMap);
 		return false;
 	});
 	
@@ -2800,10 +2789,12 @@ $(document).ready(function() {
 	$(document).on("mouseup", function(e) {
 		$("#map #map_img").off("mousemove");
 		$("#map #map_img").css('cursor', 'default');
+		$("#maptool_grid_frame").css("cursor", "default");
 		$("#zoombar").off("mousemove");
 		if (maptool.map.beingDragged) {
 			maptool.map.beingDragged = false;
 		}
+		isMoving = false;
 	});
 	
 	$('#zoombar img').on('dragstart', function(e) {
@@ -2829,6 +2820,30 @@ $(document).ready(function() {
 	setTimeout(maptool.update, config.markerUpdateTime * 1000);
 });
 
+function moveMap(e) {
+	var $map = $("#map_img");
+
+	maptool.map.beingDragged = true;
+	$map.css('cursor', 'move');
+	$("#maptool_grid_frame").css("cursor", "move");
+	
+	e.preventDefault();
+	e.stopPropagation();
+	
+	var viewport = $('#mapHolder');
+	
+	var xDiff = e.pageX - start.x;
+	var yDiff = e.pageY - start.y;
+	
+	scrollX = viewport.scrollLeft() - xDiff;
+	scrollY = viewport.scrollTop() - yDiff;
+	
+	viewport.scrollLeft(scrollX);
+	viewport.scrollTop(scrollY);
+	
+	start.x = e.pageX;
+	start.y = e.pageY;
+}
 
 function chooseThis(thisd){
 	var text = $(thisd).text();
