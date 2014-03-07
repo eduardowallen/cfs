@@ -81,14 +81,18 @@
     <label for="website"><?php echo htmlspecialchars($translator->{'Website'}); ?></label>
     <input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
   
-<?php // For popup, place the form here due to layout differences, otherwise below the next column
+<?php
   if(isset($popup)):
 ?>
     <div style="margin-top:100px;">
       <label for="presentation"><?php echo htmlspecialchars($translator->{'Presentation'}); ?></label>
       <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
     </div>
-<?php endif; ?>
+<?php else: ?>
+    <label for="presentation"<?php echo (userLevel()==0?' style="margin-top:50px;"':''); ?>><?php echo htmlspecialchars($translator->{'Presentation'}); ?></label>
+    <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation'); ?>
+    <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
+<?php endif; ?>    
   </div>
         
   <div class="form_column">
@@ -124,55 +128,39 @@
     <label for="invoice_email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
     <input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
           
-<?php
-  // If not popup, place the form here, otherwise below the previous column
-  // Also start a new column
-  if(!isset($popup)):
-?>    
-  	<div style="padding-top:27px;">
-  <?php else: ?>
-  		<div style="padding-top:27px;">
-  <?php endif; ?>
+		<div style="padding-top:27px;">
 
-        <h3><?php echo htmlspecialchars($translator->{'Contact'}); ?></h3>
-              
-        <label for="alias"><?php echo htmlspecialchars($translator->{'Username'}); ?> *</label>
-        <input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>"<?php if ($user->get('id') != 0) { echo 'disabled="disabled"'; } ?>/>
-              
-        <label for="name"><?php echo htmlspecialchars($translator->{'Contact person'}); ?> *</label>
-        <input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
-         
-        <label for="phone3"><?php echo htmlspecialchars($translator->{'Contact Phone'}); ?> *</label>
-        <input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
+      <h3><?php echo htmlspecialchars($translator->{'Contact'}); ?></h3>
+            
+      <label for="alias"><?php echo htmlspecialchars($translator->{'Username'}); ?> *</label>
+      <input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>"<?php if ($user->get('id') != 0) { echo 'disabled="disabled"'; } ?>/>
+            
+      <label for="name"><?php echo htmlspecialchars($translator->{'Contact person'}); ?> *</label>
+      <input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
+       
+      <label for="phone3"><?php echo htmlspecialchars($translator->{'Contact Phone'}); ?> *</label>
+      <input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
 
-        <label for="phone4"><?php echo htmlspecialchars($translator->{'Contact Phone 2'}); ?></label>
-        <input type="text" name="phone4" id="phone4" value="<?php echo $user->get('contact_phone2'); ?>"/>
+      <label for="phone4"><?php echo htmlspecialchars($translator->{'Contact Phone 2'}); ?></label>
+      <input type="text" name="phone4" id="phone4" value="<?php echo $user->get('contact_phone2'); ?>"/>
 
-        <label for="contact_email"><?php echo htmlspecialchars($translator->{'Contact Email'}); ?> *</label>
-        <input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
+      <label for="contact_email"><?php echo htmlspecialchars($translator->{'Contact Email'}); ?> *</label>
+      <input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
 
-  <?php if(userLevel() == 0): ?>
-        <label for="password"><?php echo htmlspecialchars($translator->{'Password'}); ?> *</label>
-        <input type="password" name="password" id="password" class="hasIndicator"/>
-              
-        <label for="password_repeat"><?php echo htmlspecialchars($translator->{'Password again (repeat to confirm)'}); ?> *</label>
-        <input type="password" name="password_repeat" id="password_repeat"/>
-  <?php endif; ?>
-
-  <?php if(isset($popup)): ?>
-      </div>
-  <?php endif; ?>
-
-  <?php if(userLevel() == 0): ?>
-      <p style="position:relative; left:280px; bottom:95px; display:inline-block; width:180px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">
-        <?php echo htmlspecialchars($translator->{'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.'}); ?>
-      </p>
-  <?php endif; ?>
-
-      <label for="presentation"<?php echo (userLevel()==0?' style="margin-top:50px;"':''); ?>><?php echo htmlspecialchars($translator->{'Presentation'}); ?></label>
-      <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation'); ?>
-      <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
+<?php if(userLevel() == 0): ?>
+      <label for="password"><?php echo htmlspecialchars($translator->{'Password'}); ?> *</label>
+      <input type="password" name="password" id="password" class="hasIndicator"/>
+            
+      <label for="password_repeat"><?php echo htmlspecialchars($translator->{'Password again (repeat to confirm)'}); ?> *</label>
+      <input type="password" name="password_repeat" id="password_repeat"/>
+<?php endif; ?>
     </div>
+
+<?php if(userLevel() == 0): ?>
+    <p style="position:relative; left:280px; bottom:95px; display:inline-block; width:180px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">
+      <?php echo htmlspecialchars($translator->{'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.'}); ?>
+    </p>
+<?php endif; ?>
   </div>
   
 <?php if(userLevel() == 4): ?>
