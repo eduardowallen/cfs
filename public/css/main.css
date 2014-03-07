@@ -57,6 +57,9 @@ img#logo {
 	border-top-right-radius:7px;
 	border-top-left-radius:7px;
 }
+.languages a {
+	font-size: 18px;
+}
 #fair_select {
 	/*position:absolute;
 	left:50%;

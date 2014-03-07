@@ -39,19 +39,26 @@ function callHook() {
 
 	//Special case
 	if (!file_exists(ROOT.'application/controllers/'.$controller.'.php') && $controller != 'StartController') {
-
 		$_SESSION['visitor'] = (isset($urlArray[1]) && $urlArray[1] == 'visitor');
+
 		
-		$countView = true;
-		$controller = 'MapToolController';
-		$action = 'map';
-		$model = 'MapTool';
-		$urlArray = array('', '', $urlArray[0]);
-		if (strtolower($urlArray[2]) != 'favicon.ico'){
-			/*echo '<pre>';
-			print_r($urlArray);*/
-			if (strtolower($urlArray[2]) != 'images')
-				$_SESSION['outside_fair_url'] = strtolower($urlArray[2]);
+		if (!isset($_COOKIE['language'])) {
+			$controller = 'ChooseLangController';
+			$action = "chooseLang";
+			$model = "ChooseLang";
+		} else {
+			$countView = true;
+			$controller = 'MapToolController';
+			$action = 'map';
+			$model = 'MapTool';
+
+			$urlArray = array('', '', $urlArray[0]);
+			if (strtolower($urlArray[2]) != 'favicon.ico'){
+				/*echo '<pre>';
+				print_r($urlArray);*/
+				if (strtolower($urlArray[2]) != 'images')
+					$_SESSION['outside_fair_url'] = strtolower($urlArray[2]);
+			}
 		}
 	}
 
