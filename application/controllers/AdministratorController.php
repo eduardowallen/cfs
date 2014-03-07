@@ -862,70 +862,69 @@ class AdministratorController extends Controller {
 				}
 			}
 
-			if (!$this->Administrator->emailExists() || $id != 'new') {
+			$errors = false;
 
-				if ((!$this->Administrator->aliasExists() || $id != 'new') && isset($_POST['fair_permission']) && isset($_POST['maps'])) {
+			if ($this->Administrator->emailExists() && $id === 'new') {
+				$this->set('user_message', 'The email address already exists in our system. Please choose another one.');
+				$this->setNoTranslate("error", true);
+				$errors = true;
+			} else if ($this->Administrator->aliasExists() && $id === 'new') {
+				$this->set('user_message', 'The alias already exists in our system. Please choose another one.');
+				$this->setNoTranslate("error", true);
+				$errors = true;
+			} else if (empty($_POST['fair_permission'])) {
+				$this->set('user_message', 'You have to select at least one fair and at least one map.');
+				$this->setNoTranslate("error", true);
+				$errors = true;
+			} else {
+				require_once ROOT.'application/models/FairUserRelation.php';
 
-					$aId = $this->Administrator->save();
-					require_once ROOT.'application/models/FairUserRelation.php';
+				if (isset($_POST['fair_permission'])) {
 
-					$oldful = new FairUserRelation;
-					$oldful->load($aId, 'user');
+					//First loop through to see that there are no errors
+					foreach ($_POST['fair_permission'] as $fairId) {
 
-					$stmt = $this->Administrator->db->prepare("DELETE FROM fair_user_relation WHERE user = ?");
-					$stmt->execute(array($aId));
-
-					if (isset($_POST['fair_permission'])) {
-
-						foreach ($_POST['fair_permission'] as $fairId) {
-
-							if (isset($_POST['maps'][$fairId])) {
-
-								$rel = new FairUserRelation;
-								$rel->set('fair', $fairId);
-								$rel->set('user', $aId);
-								$rel->set('map_access', implode('|', $_POST['maps'][$fairId]));
-								$rel->set('connected_time', $oldful->get('connected_time'));
-								$rel->save();
-							}
+						if (!isset($_POST['maps'][$fairId])) {
+							$this->set("user_message", "You have to select at least one map for each selected fair.");
+							$this->setNoTranslate("error", true);
+							$errors = true;
+							break;
 						}
 					}
 
-				} else {
+					if (!$errors) {
+						//If no errors occurred, proceed with creation
+						$aId = $this->Administrator->save();
+						$oldful = new FairUserRelation;
+						$oldful->load($aId, 'user');
 
-					unset($_POST);
-					if (!isset($_POST['fair_permission'])) {
+						$stmt = $this->Administrator->db->prepare("DELETE FROM fair_user_relation WHERE user = ?");
+						$stmt->execute(array($aId));
 
-						$this->set('user_message', 'You have to assign permissions.');
-
-					} else {
-
-						$this->set('user_message', 'The alias already exists in our system. Please choose another one.');
+						foreach ($_POST['fair_permission'] as $fairId) {
+							$rel = new FairUserRelation;
+							$rel->set('fair', $fairId);
+							$rel->set('user', $aId);
+							$rel->set('map_access', implode('|', $_POST['maps'][$fairId]));
+							$rel->set('connected_time', $oldful->get('connected_time'));
+							$rel->save();
+						}
 					}
-
-					$this->setNoTranslate('error', true);
 				}
-
-				//if ($id == 'new') {
-				//header("Location: ".BASE_URL."administrator/mine");
-				//exit;
-				//}
-
-			} else if ($this->Administrator->emailExists()) {
-
-				//$this->Administrator->addRelation($fair);
-				//$this->Administrator->save();
-				//header("Location: ".BASE_URL."administrator/mine");
-
-				$this->set('user_message', 'The email address already exists in our system. Please choose another one.');
-				$this->setNoTranslate('error', true);
-
 			}
+
+			unset($_POST);
 
 			// Load the user again so we get the new permissions.
 			$this->Administrator->load($this->Administrator->get('id'), 'id');
 
-			if (userLevel() == 4) {
+			if ($errors) {
+				if ($id === "new") {
+					$this->changeAction("edit", array("new"));
+				} else {
+					$this->changeAction("edit", array($id));
+				}
+			} else if (userLevel() == 4) {
 				$this->changeAction('all');
 
 			} else if (userLevel() == 3) {
