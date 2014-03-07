@@ -144,6 +144,10 @@ class MapToolController extends Controller {
 		}
 	}
 
+	function chooseLang() {
+		
+	}
+
 }
 
 ?>
