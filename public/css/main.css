@@ -57,9 +57,6 @@ img#logo {
 	border-top-right-radius:7px;
 	border-top-left-radius:7px;
 }
-.languages a {
-	font-size: 18px;
-}
 #fair_select {
 	/*position:absolute;
 	left:50%;
@@ -375,4 +372,29 @@ img#logo {
   vertical-align: middle;
 }
 
+.languages {
+	text-align: center;
+}
 
+.languages a {
+	font-size: 18px;
+	text-decoration: none;
+	color: black;
+}
+
+.languages h1 {
+	color: #00652C;
+}
+
+.languages #logoBig {
+	width: 40%;
+}
+
+.languages span {
+	display: block;
+}
+
+.languageGroup .language {
+	display: inline-block;
+	margin: 20px 30px;
+}
