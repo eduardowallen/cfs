@@ -1881,6 +1881,7 @@ maptool.Grid = (function() {
 	},
 
 	settings = {
+		activated: false,
 		visible: false,
 		opacity: 100,
 		white: false,
@@ -1897,6 +1898,7 @@ maptool.Grid = (function() {
 	},
 
 	setting_listeners = {
+		activated: toggleActivated,
 		visible: toggleVisibility,
 		opacity: changeOpacitySlide,
 		opacity_num: changeOpacityNum,
@@ -1921,8 +1923,10 @@ maptool.Grid = (function() {
 			num_cells = num_cols * num_rows, 
 			i;
 
-		for (i = 0; i < num_cells; i++) {
-			html += '<div class="grid-cell"></div>';
+		if ($("#maptool_grid_activated")[0].checked) {
+			for (i = 0; i < num_cells; i++) {
+				html += '<div class="grid-cell"></div>';
+			}
 		}
 
 		grid_frame.html(html);
@@ -2115,12 +2119,21 @@ maptool.Grid = (function() {
 		}
 	}
 
+	function toggleActivated() {
+		settings.activated = $("#maptool_grid_activated")[0].checked;
+
+		generateGrid();
+	}
+
 	function resetGrid() {
 		$('#maptool_grid_width_rat').val(20).trigger('change');
 		updateCoords(0, 0);
 	}
 
 	function setSettings() {
+		//Set active
+		$("#maptool_grid_activated")[0].checked = settings.activated;
+		toggleActivated();
 		//Set visibility
 		$("#maptool_grid_visible")[0].checked = settings.visible;
 		toggleVisibility();

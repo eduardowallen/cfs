@@ -104,6 +104,11 @@ function makeUserOptions3($sel=0, $fair) {
 			</p>
 			<div id="maptoolbox_controls">
 				<label>
+					<input type="checkbox" id="maptool_grid_activated" />
+					<?php echo htmlspecialchars($translator->{"Grid activated"}); ?>
+					<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'If this is unchecked, the grid will not be generated.'}); ?>" />
+				</label>
+				<label>
 					<input type="checkbox" id="maptool_grid_visible" />
 					<?php echo htmlspecialchars($translator->{'Show grid'}); ?>
 				</label>
