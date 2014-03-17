@@ -393,7 +393,7 @@ h1.inline-block {
 	margin-right: 10px;
 }
 
-#maptoolbox.minimized #maptoolbox_controls {
+#maptoolbox.minimized #maptoolbox_controls, #maptoolbox.minimized #zoombar {
 	display: none;
 }
 
