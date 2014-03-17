@@ -361,7 +361,7 @@ h1.inline-block {
 #maptoolbox h3 {
 	position: relative;
 	margin: 0;
-	padding: 15px 0;
+	padding: 5px 0;
 	background: #75b0ef;
 	color: #fff;
 	text-align: center;
@@ -374,7 +374,7 @@ h1.inline-block {
 	width: 18px;
 	height: 18px;
 	right: 12px;
-	top: 12px;
+	top: 2px;
 	background: url('../images/minimize.png') no-repeat;
 }
 
