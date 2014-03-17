@@ -13,6 +13,7 @@
 	max-height:100%;
 	padding:0 253px 0 20px;
 	border:0;
+	position: relative;
 }
 #right_sidebar {
 	width:213px;
@@ -346,7 +347,7 @@ h1.inline-block {
 #maptoolbox {
 	position: absolute;
 	z-index: 999;
-	top: 60px;
+	/*top: 60px;*/
 	width: 315px;
 	height: 430px;
 	background: #4c90d9;
@@ -355,7 +356,7 @@ h1.inline-block {
 }
 
 #maptoolbox.minimized {
-	height: 43px;
+	height: 23px;
 }
 
 #maptoolbox h3 {
@@ -376,6 +377,10 @@ h1.inline-block {
 	right: 12px;
 	top: 2px;
 	background: url('../images/minimize.png') no-repeat;
+}
+
+#maptoolbox.minimized #maptoolbox_minimize {
+	background-image: url("../images/icons/maximize.png");
 }
 
 #maptoolbox #zoombar {

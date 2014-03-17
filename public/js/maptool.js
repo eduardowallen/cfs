@@ -2048,7 +2048,32 @@ maptool.Grid = (function() {
 
 	function toggleToolbox(e) {
 		e.preventDefault();
-		$('#maptoolbox').toggleClass('minimized');
+		var $maptoolbox = $(maptoolbox),
+			minimize = document.getElementById("maptoolbox_minimize");
+
+		$maptoolbox.toggleClass('minimized');
+
+		if ($maptoolbox.hasClass("minimized")) {
+			maptoolbox.style.top = "";
+			maptoolbox.style.bottom = 0;
+			maptoolbox.style.left = "20px";
+
+			maptoolboxHeader.off("mousedown", toolboxStartMove);
+
+			window.setTimeout(function () {
+				minimize.setAttribute("title", "Maximize");
+			}, 500);
+		} else {
+			maptoolbox.style.bottom = "";
+			maptoolbox.style.left = toolboxmove.element_start_x + "px";
+			maptoolbox.style.top = toolboxmove.element_start_y - $("#header").outerHeight() + "px";
+
+			maptoolboxHeader.on("mousedown", toolboxStartMove);
+
+			window.setTimeout(function () {
+				minimize.setAttribute("title", "Minimize");
+			}, 500);
+		}
 	}
 
 	function toggleVisibility() {
@@ -2204,7 +2229,7 @@ maptool.Grid = (function() {
 
 	function toolboxMove(e) {
 		var x = e.pageX - toolboxmove.start_x + toolboxmove.element_start_x, 
-				y = e.pageY - toolboxmove.start_y + toolboxmove.element_start_y;
+				y = e.pageY - toolboxmove.start_y + toolboxmove.element_start_y - $("#header").outerHeight();
 
 		maptoolbox.style.left = x + "px";
 		maptoolbox.style.top = y + "px";
