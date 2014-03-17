@@ -1871,6 +1871,8 @@ maptool.Grid = (function() {
 	map_canvas = null,
 	grid_generation_timer = null,
 	supports_transform = (typeof document.createElement('div').style.transform !== 'undefined'),
+	maptoolboxHeader = null,
+	maptoolbox = null,
 
 	gridmove = {
 		started: false,
@@ -1879,6 +1881,14 @@ maptool.Grid = (function() {
 		element_start_x: null,
 		element_start_y: null
 	},
+
+	toolboxmove = {
+		started: false,
+		start_x: null,
+		start_y: null,
+		element_start_x: 20,
+		element_start_y: 60
+	};
 
 	settings = {
 		activated: false,
@@ -2192,6 +2202,14 @@ maptool.Grid = (function() {
 		}
 	}
 
+	function toolboxMove(e) {
+		var x = e.pageX - toolboxmove.start_x + toolboxmove.element_start_x, 
+				y = e.pageY - toolboxmove.start_y + toolboxmove.element_start_y;
+
+		maptoolbox.style.left = x + "px";
+		maptoolbox.style.top = y + "px";
+	}
+
 	function startMove(e) {
 		e.preventDefault();
 
@@ -2208,9 +2226,57 @@ maptool.Grid = (function() {
 		}
 	}
 
+	function toolboxStartMove(e) {
+		var offset = $(maptoolbox).offset();
+
+		e.preventDefault();
+
+		toolboxmove.started = true;
+		toolboxmove.start_x = e.pageX;
+		toolboxmove.start_y = e.pageY;
+		toolboxmove.element_start_x = offset.left;
+		toolboxmove.element_start_y = offset.top;
+		$(document.body).on("mousemove", toolboxMove);
+	}
+
 	function stopMove() {
 		gridmove.started = false;
 		isMoving = false;
+	}
+
+	function toolboxStopMove(e) {
+		$(document.body).off("mousemove", toolboxMove);
+
+		saveToolboxPosition();
+	}
+
+	function saveToolboxPosition() {
+		var offset = JSON.stringify($(maptoolbox).offset());
+
+		$.ajax({
+			url: "ajax/maptool.php",
+			type: "POST",
+			data: {
+				saveToolboxPosition: offset,
+			}
+		});
+	}
+
+	function setMaptoolboxPosition() {
+		$.ajax({
+			url: "ajax/maptool.php",
+			type: "POST",
+			dataType: "JSON",
+			data: {
+				getToolboxPosition: ""
+			},
+			success: function (response) {
+				toolboxmove.element_start_x = response.left;
+				toolboxmove.element_start_y = response.top;
+				maptoolbox.style.left = response.left + "px";
+				maptoolbox.style.top = response.top + "px";
+			}
+		});
 	}
 
 	function init() {
@@ -2219,6 +2285,8 @@ maptool.Grid = (function() {
 			grid = $('#maptool_grid');
 			grid_frame = $('#maptool_grid_frame');
 			map_canvas = $('#mapHolder');
+			maptoolboxHeader = $("#maptoolbox_header");
+			maptoolbox = $("#maptoolbox")[0];
 
 			getGridSettings();
 
@@ -2240,11 +2308,18 @@ maptool.Grid = (function() {
 			$('#maptoolbox_minimize').on('click', toggleToolbox);
 			$('#maptool_grid_reset').on('click', resetGrid);
 			$('#maptool_grid_save').on('click', setGridSettings);
+			$("#maptoolbox_header").on("mousedown", toolboxStartMove);
 
 			// Grid movement events
 			grid.on('mousemove', mouseMoved);
 			grid_frame.on('mousedown', startMove);
 			grid_frame.on('mouseup', stopMove);
+
+			//Toolbox movement events
+			maptoolboxHeader.on("mousedown", toolboxStartMove);
+			maptoolboxHeader.on("mouseup", toolboxStopMove);
+
+			setMaptoolboxPosition();
 
 			// Window resize events
 			$(window).on('resize', windowSizeChanged);

@@ -366,6 +366,7 @@ h1.inline-block {
 	color: #fff;
 	text-align: center;
 	line-height: 1;
+	cursor: move;
 }
 
 #maptoolbox_minimize {

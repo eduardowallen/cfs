@@ -92,7 +92,7 @@ function makeUserOptions3($sel=0, $fair) {
 
 <?php if ($hasRights): ?>
 		<div id="maptoolbox">
-			<h3>
+			<h3 id="maptoolbox_header">
 				<?php echo htmlspecialchars($translator->{'Map tools'}); ?>
 				<a href="#" id="maptoolbox_minimize" title="<?php echo htmlspecialchars($translator->{'Minimize'}); ?>"></a>
 			</h3>
