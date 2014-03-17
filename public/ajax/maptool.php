@@ -680,4 +680,10 @@ if (isset($_POST["setGridSettings"])) {
 	$map->set("grid_settings", $settings);
 	$map->save();
 }
+if (isset($_POST["saveToolboxPosition"])) {
+	setcookie("gridtoolbox_position", $_POST["saveToolboxPosition"], time() + (3600 * 24 * 365));
+}
+if (isset($_POST["getToolboxPosition"])) {
+	echo $_COOKIE["gridtoolbox_position"];
+}
 ?>
