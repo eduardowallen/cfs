@@ -2223,7 +2223,10 @@ maptool.Grid = (function() {
 	}
 
 	function toggleToolbox(e) {
-		e.preventDefault();
+		if (e) {
+			e.preventDefault();
+		}
+
 		var $maptoolbox = $(maptoolbox),
 			minimize = document.getElementById("maptoolbox_minimize");
 
@@ -2242,7 +2245,7 @@ maptool.Grid = (function() {
 		} else {
 			maptoolbox.style.bottom = "";
 			maptoolbox.style.left = toolboxmove.element_start_x + "px";
-			maptoolbox.style.top = toolboxmove.element_start_y - $("#header").outerHeight() + "px";
+			maptoolbox.style.top = toolboxmove.element_start_y + "px";
 
 			maptoolboxHeader.on("mousedown", toolboxStartMove);
 
@@ -2250,6 +2253,8 @@ maptool.Grid = (function() {
 				minimize.setAttribute("title", "Minimize");
 			}, 500);
 		}
+
+		saveToolboxPosition();
 	}
 
 	function toggleVisibility() {
@@ -2432,12 +2437,14 @@ maptool.Grid = (function() {
 
 		e.preventDefault();
 
-		toolboxmove.started = true;
-		toolboxmove.start_x = e.pageX;
-		toolboxmove.start_y = e.pageY;
-		toolboxmove.element_start_x = offset.left;
-		toolboxmove.element_start_y = offset.top;
-		$(document.body).on("mousemove", toolboxMove);
+		if (e.target.id !== "maptoolbox_minimize") {
+			toolboxmove.started = true;
+			toolboxmove.start_x = e.pageX;
+			toolboxmove.start_y = e.pageY;
+			toolboxmove.element_start_x = offset.left;
+			toolboxmove.element_start_y = offset.top;
+			$(document.body).on("mousemove", toolboxMove);
+		}
 	}
 
 	function stopMove() {
@@ -2455,7 +2462,20 @@ maptool.Grid = (function() {
 	}
 
 	function saveToolboxPosition() {
-		var offset = JSON.stringify($(maptoolbox).offset());
+		var $maptoolbox = $(maptoolbox);
+		var offset = {};
+
+		if ($maptoolbox.hasClass("minimized")) {
+			//If minimized, save the maximized position
+			offset.left = toolboxmove.element_start_x;
+			offset.top = toolboxmove.element_start_y;
+			offset.minimized = true;
+		} else {
+			offset = $maptoolbox.offset();
+			offset.top -= $("#header").outerHeight();
+		}
+
+		offset = JSON.stringify(offset);
 
 		$.ajax({
 			url: "ajax/maptool.php",
@@ -2475,10 +2495,17 @@ maptool.Grid = (function() {
 				getToolboxPosition: ""
 			},
 			success: function (response) {
-				toolboxmove.element_start_x = response.left;
-				toolboxmove.element_start_y = response.top;
-				maptoolbox.style.left = response.left + "px";
-				maptoolbox.style.top = response.top + "px";
+				if (response) {
+					toolboxmove.element_start_x = response.left;
+					toolboxmove.element_start_y = response.top;
+
+					if (response.minimized) {
+						toggleToolbox();
+					} else {
+						maptoolbox.style.left = response.left + "px";
+						maptoolbox.style.top = response.top + "px";
+					}
+				}
 			}
 		});
 	}
