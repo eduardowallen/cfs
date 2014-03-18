@@ -1931,9 +1931,9 @@ maptool.Grid = (function() {
 		coord_x: changeCoords,
 		coord_y: changeCoords,
 		width: changeDimensions,
-		height: changeDimensions,
-		width_rat: changeDimensionsChained,
-		height_rat: changeDimensionsChained
+		height: changeDimensions
+		//width_rat: changeDimensionsChained,
+		//height_rat: changeDimensionsChained
 	};
 
 	/**
@@ -2227,9 +2227,9 @@ maptool.Grid = (function() {
 
 		//Set dimensions
 		$("#maptool_grid_width").val(settings.width);
-		$("#maptool_grid_width_rat").val(settings.width);
+		//$("#maptool_grid_width_rat").val(settings.width);
 		$("#maptool_grid_height").val(settings.height);
-		$("#maptool_grid_height_rat").val(settings.height);
+		//$("#maptool_grid_height_rat").val(settings.height);
 		changeDimensions();
 	}
 
