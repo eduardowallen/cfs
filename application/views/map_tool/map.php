@@ -122,8 +122,12 @@ function makeUserOptions3($sel=0, $fair) {
 					<?php echo htmlspecialchars($translator->{'White grid'}); ?>
 				</label>
 				<label>
-					<input type="checkbox" id="maptool_grid_snap_markers" />
-					<?php echo htmlspecialchars($translator->{'Snap stand space to grid'}); ?>
+					<input type="checkbox" id="maptool_grid_snap_markers_x" />
+					<?php echo htmlspecialchars($translator->{'Snap stand spaces to X-axis'}); ?>
+				</label>
+				<label>
+					<input type="checkbox" id="maptool_grid_snap_markers_y" />
+					<?php echo htmlspecialchars($translator->{'Snap stand spaces to Y-axis'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_is_moving" />

@@ -680,10 +680,13 @@ maptool.editPosition = function(positionObject) {
 maptool.traceMouse = function(e) {
 
 	var top = e.pageY, 
-		left = e.pageX;
-
-	if (maptool.Grid.getSnapState()) {
+		left = e.pageX,
+		snapState = maptool.Grid.getSnapState();
+		
+	if (snapState.x) {
 		top = maptool.Grid.snapY(top);
+	}
+	if (snapState.y) {
 		left = maptool.Grid.snapX(left);
 	}
 
@@ -1895,7 +1898,10 @@ maptool.Grid = (function() {
 		visible: false,
 		opacity: 100,
 		white: false,
-		snap_markers: false,
+		snap_markers: {
+			x: false,
+			y: false
+		},
 		is_moving: false,
 
 		coords: {
@@ -1913,7 +1919,8 @@ maptool.Grid = (function() {
 		opacity: changeOpacitySlide,
 		opacity_num: changeOpacityNum,
 		white: toggleWhite,
-		snap_markers: toggleSnapMarkers,
+		snap_markers_x: toggleSnapMarkers,
+		snap_markers_y: toggleSnapMarkers,
 		is_moving: toggleIsMoving,
 		coord_x: changeCoords,
 		coord_y: changeCoords,
@@ -2121,7 +2128,10 @@ maptool.Grid = (function() {
 	}
 
 	function toggleSnapMarkers() {
-		settings.snap_markers = $('#maptool_grid_snap_markers').prop('checked');
+		settings.snap_markers = {
+			x: $('#maptool_grid_snap_markers_x').prop('checked'),
+			y: $('#maptool_grid_snap_markers_y').prop('checked')
+		};
 	}
 
 	function toggleIsMoving() {
@@ -2188,7 +2198,8 @@ maptool.Grid = (function() {
 		toggleWhite();
 
 		//Set snap to grid
-		$("#maptool_grid_snap_markers")[0].checked = settings.snap_markers;
+		$("#maptool_grid_snap_markers_x")[0].checked = settings.snap_markers_x;
+		$("#maptool_grid_snap_markers_y")[0].checked = settings.snap_markers_y;
 
 		//Set is moving
 		$("#maptool_grid_is_moving")[0].checked = settings.is_moving;
