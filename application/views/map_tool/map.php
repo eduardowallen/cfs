@@ -149,19 +149,19 @@ function makeUserOptions3($sel=0, $fair) {
 					</label>
 				</span>
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Cell width (W)'}); ?>:</span>
-					<input type="text" id="maptool_grid_width" value="20" class="spinner" />
-				</label>
-				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Cell height (H)'}); ?>:</span>
+					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'X-axis gap'}); ?>:</span>
 					<input type="text" id="maptool_grid_height" value="20" class="spinner" />
 				</label>
 				<label>
+					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Y-axis gap'}); ?>:</span>
+					<input type="text" id="maptool_grid_width" value="20" class="spinner" />
+				</label>
+				<!--<label>
 					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'W x H per cell'}); ?>:</span>
 					<input type="text" id="maptool_grid_width_rat" value="20" class="spinner" />
 					x
 					<input type="text" id="maptool_grid_height_rat" value="20" class="spinner" />
-				</label>
+				</label>-->
 				<label>
 					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Save grid for this event'}); ?>:</span>
 					<input type="button" id="maptool_grid_save" value="<?php echo htmlspecialchars($translator->{'Save grid'}); ?>" />
