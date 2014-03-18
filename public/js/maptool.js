@@ -435,7 +435,7 @@ maptool.showContextMenu = function(position, marker) {
 
 		contextMenu.css({
 			left: $("#pos-" + position).offset().left + config.iconOffset,
-			top: $("#pos-" + position).offset().top + config.iconOffset,
+			top: $("#pos-" + position).offset().top + config.iconOffset - 30
 		}).show();
 
 		//Clear click events
