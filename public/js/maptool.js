@@ -2389,8 +2389,8 @@ maptool.Grid = (function() {
 		toggleWhite();
 
 		//Set snap to grid
-		$("#maptool_grid_snap_markers_x")[0].checked = settings.snap_markers_x;
-		$("#maptool_grid_snap_markers_y")[0].checked = settings.snap_markers_y;
+		$("#maptool_grid_snap_markers_x")[0].checked = settings.snap_markers.x;
+		$("#maptool_grid_snap_markers_y")[0].checked = settings.snap_markers.y;
 
 		//Set is moving
 		$("#maptool_grid_is_moving")[0].checked = settings.is_moving;
