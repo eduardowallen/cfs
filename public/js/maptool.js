@@ -1893,11 +1893,14 @@ maptool.Grid = (function() {
 		start_y: null,
 		element_start_x: 20,
 		element_start_y: 60
-	};
+	},
 
 	settings = {
 		activated: false,
-		visible: false,
+		visible: {
+			x: false,
+			y: false
+		},
 		opacity: 100,
 		white: false,
 		snap_markers: {
@@ -1917,7 +1920,8 @@ maptool.Grid = (function() {
 
 	setting_listeners = {
 		activated: toggleActivated,
-		visible: toggleVisibility,
+		visible_x: toggleVisibility,
+		visible_y: toggleVisibility,
 		opacity: changeOpacitySlide,
 		opacity_num: changeOpacityNum,
 		white: toggleWhite,
@@ -2091,13 +2095,21 @@ maptool.Grid = (function() {
 	}
 
 	function toggleVisibility() {
-		settings.visible = $('#maptool_grid_visible').prop('checked');
+		settings.visible = {
+			x: $('#maptool_grid_visible_x').prop('checked'),
+			y: $('#maptool_grid_visible_y').prop('checked')
+		};
 
-		if (settings.visible) {
-			grid.show();
-			requestGeneration();
+		if (settings.visible.x) {
+			grid.addClass("gridBorderRight");
 		} else {
-			grid.hide();
+			grid.removeClass("gridBorderRight");
+		}
+
+		if (settings.visible.y) {
+			grid.addClass("gridBorderBottom");
+		} else {
+			grid.removeClass("gridBorderBottom");
 		}
 	}
 
@@ -2187,7 +2199,8 @@ maptool.Grid = (function() {
 		$("#maptool_grid_activated")[0].checked = settings.activated;
 		toggleActivated();
 		//Set visibility
-		$("#maptool_grid_visible")[0].checked = settings.visible;
+		$("#maptool_grid_visible_x")[0].checked = settings.visible.x;
+		$("#maptool_grid_visible_y")[0].checked = settings.visible.y;
 		toggleVisibility();
 
 		//Set opacity
