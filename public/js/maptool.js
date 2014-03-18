@@ -2446,9 +2446,12 @@ maptool.Grid = (function() {
 	}
 
 	function toolboxStopMove(e) {
-		$(document.body).off("mousemove", toolboxMove);
+		if (toolboxmove.started) {
+			toolboxmove.started = false;
+			$(document.body).off("mousemove", toolboxMove);
 
-		saveToolboxPosition();
+			saveToolboxPosition();
+		}
 	}
 
 	function saveToolboxPosition() {
