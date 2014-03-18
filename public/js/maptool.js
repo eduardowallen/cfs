@@ -21,7 +21,8 @@ var config = {
 	panMovement: 200, //pixels, distance to pan
 	panSpeed: 500, //animation speed for panning map
 	iconOffset: 7.5, //pixels to adjust icon position (half the width/height of the icon)
-	markerUpdateTime: 30 //marker update interval in seconds
+	markerUpdateTime: 30, //marker update interval in seconds
+	positionTopOffset: 0
 };
 
 //Prepare maptool object
@@ -277,7 +278,6 @@ maptool.placeMarkers = function() {
 
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		var marker = $(this);
-		var offset = $("#header").outerHeight();
 
 		if (!tooltip.is(":visible")) {
 			// Övre kant
@@ -285,7 +285,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped'); 
 				tooltip.css({
 					left: marker.offset().left,
-					top: marker.offset().top + 20 - offset
+					top: marker.offset().top + 20 - config.positionTopOffset
 				});
 			}
 			// Vänster övre kant
@@ -293,7 +293,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
-					top: marker.offset().top + 15 - offset
+					top: marker.offset().top + 15 - config.positionTopOffset
 				});
 			}
 			// Vänster undre kant && Vänster kant
@@ -301,7 +301,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
-					top: marker.offset().top - tooltip.height() - 15 - offset
+					top: marker.offset().top - tooltip.height() - 15 - config.positionTopOffset
 				});
 			}
 			// Under kant
@@ -309,7 +309,7 @@ maptool.placeMarkers = function() {
 				tooltip.removeClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left,
-					top: marker.offset().top - tooltip.height() - 20 - offset
+					top: marker.offset().top - tooltip.height() - 20 - config.positionTopOffset
 				});
 			}
 			//$(".marker_tooltip", mapHolderContext).hide();
@@ -2247,7 +2247,7 @@ maptool.Grid = (function() {
 
 	function toolboxMove(e) {
 		var x = e.pageX - toolboxmove.start_x + toolboxmove.element_start_x, 
-				y = e.pageY - toolboxmove.start_y + toolboxmove.element_start_y - $("#header").outerHeight();
+				y = e.pageY - toolboxmove.start_y + toolboxmove.element_start_y - config.positionTopOffset;
 
 		maptoolbox.style.left = x + "px";
 		maptoolbox.style.top = y + "px";
@@ -2355,6 +2355,8 @@ maptool.Grid = (function() {
 			map_canvas = $('#mapHolder');
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
+
+			config.positionTopOffset = $("#header").outerHeight();
 
 			getGridSettings();
 
