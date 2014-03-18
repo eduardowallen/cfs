@@ -292,13 +292,15 @@ maptool.placeMarkers = function() {
 
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		var marker = $(this);
+		var offset = $("#header").outerHeight();
+
 		if (!tooltip.is(":visible")) {
 			// Övre kant
 			if ((tooltip.height() > marker.offset().top) && (tooltip.width() < marker.offset().left*2)) {
 				tooltip.addClass('marker_tooltip_flipped'); 
 				tooltip.css({
 					left: marker.offset().left,
-					top: marker.offset().top + 20
+					top: marker.offset().top + 20 - offset
 				});
 			}
 			// Vänster övre kant
@@ -306,7 +308,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
-					top: marker.offset().top + 15
+					top: marker.offset().top + 15 - offset
 				});
 			}
 			// Vänster undre kant && Vänster kant
@@ -314,7 +316,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
-					top: marker.offset().top - tooltip.height()-15
+					top: marker.offset().top - tooltip.height() - 15 - offset
 				});
 			}
 			// Under kant
@@ -322,7 +324,7 @@ maptool.placeMarkers = function() {
 				tooltip.removeClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left,
-					top: marker.offset().top - tooltip.height() - 20
+					top: marker.offset().top - tooltip.height() - 20 - offset
 				});
 			}
 			//$(".marker_tooltip", mapHolderContext).hide();
@@ -693,10 +695,13 @@ maptool.editPosition = function(positionObject) {
 maptool.traceMouse = function(e) {
 
 	var top = e.pageY, 
-		left = e.pageX;
-
-	if (maptool.Grid.getSnapState()) {
+		left = e.pageX,
+		snapState = maptool.Grid.getSnapState();
+		
+	if (snapState.x) {
 		top = maptool.Grid.snapY(top);
+	}
+	if (snapState.y) {
 		left = maptool.Grid.snapX(left);
 	}
 
@@ -2071,7 +2076,10 @@ maptool.Grid = (function() {
 		visible: false,
 		opacity: 100,
 		white: false,
-		snap_markers: false,
+		snap_markers: {
+			x: false,
+			y: false
+		},
 		is_moving: false,
 
 		coords: {
@@ -2089,7 +2097,8 @@ maptool.Grid = (function() {
 		opacity: changeOpacitySlide,
 		opacity_num: changeOpacityNum,
 		white: toggleWhite,
-		snap_markers: toggleSnapMarkers,
+		snap_markers_x: toggleSnapMarkers,
+		snap_markers_y: toggleSnapMarkers,
 		is_moving: toggleIsMoving,
 		coord_x: changeCoords,
 		coord_y: changeCoords,
@@ -2297,7 +2306,10 @@ maptool.Grid = (function() {
 	}
 
 	function toggleSnapMarkers() {
-		settings.snap_markers = $('#maptool_grid_snap_markers').prop('checked');
+		settings.snap_markers = {
+			x: $('#maptool_grid_snap_markers_x').prop('checked'),
+			y: $('#maptool_grid_snap_markers_y').prop('checked')
+		};
 	}
 
 	function toggleIsMoving() {
@@ -2364,7 +2376,8 @@ maptool.Grid = (function() {
 		toggleWhite();
 
 		//Set snap to grid
-		$("#maptool_grid_snap_markers")[0].checked = settings.snap_markers;
+		$("#maptool_grid_snap_markers_x")[0].checked = settings.snap_markers_x;
+		$("#maptool_grid_snap_markers_y")[0].checked = settings.snap_markers_y;
 
 		//Set is moving
 		$("#maptool_grid_is_moving")[0].checked = settings.is_moving;
