@@ -2101,15 +2101,15 @@ maptool.Grid = (function() {
 		};
 
 		if (settings.visible.x) {
-			grid.addClass("gridBorderRight");
-		} else {
-			grid.removeClass("gridBorderRight");
-		}
-
-		if (settings.visible.y) {
 			grid.addClass("gridBorderBottom");
 		} else {
 			grid.removeClass("gridBorderBottom");
+		}
+
+		if (settings.visible.y) {
+			grid.addClass("gridBorderRight");
+		} else {
+			grid.removeClass("gridBorderRight");
 		}
 	}
 
