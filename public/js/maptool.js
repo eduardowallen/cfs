@@ -277,13 +277,15 @@ maptool.placeMarkers = function() {
 
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		var marker = $(this);
+		var offset = $("#header").outerHeight();
+
 		if (!tooltip.is(":visible")) {
 			// Övre kant
 			if ((tooltip.height() > marker.offset().top) && (tooltip.width() < marker.offset().left*2)) {
 				tooltip.addClass('marker_tooltip_flipped'); 
 				tooltip.css({
 					left: marker.offset().left,
-					top: marker.offset().top + 20
+					top: marker.offset().top + 20 - offset
 				});
 			}
 			// Vänster övre kant
@@ -291,7 +293,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
-					top: marker.offset().top + 15
+					top: marker.offset().top + 15 - offset
 				});
 			}
 			// Vänster undre kant && Vänster kant
@@ -299,7 +301,7 @@ maptool.placeMarkers = function() {
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
-					top: marker.offset().top - tooltip.height()-15
+					top: marker.offset().top - tooltip.height() - 15 - offset
 				});
 			}
 			// Under kant
@@ -307,7 +309,7 @@ maptool.placeMarkers = function() {
 				tooltip.removeClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left,
-					top: marker.offset().top - tooltip.height() - 20
+					top: marker.offset().top - tooltip.height() - 20 - offset
 				});
 			}
 			//$(".marker_tooltip", mapHolderContext).hide();
