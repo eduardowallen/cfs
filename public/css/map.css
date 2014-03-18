@@ -349,7 +349,7 @@ h1.inline-block {
 	z-index: 999;
 	/*top: 60px;*/
 	width: 315px;
-	height: 430px;
+	height: 475px;
 	background: #4c90d9;
 	border: 1px solid #032952;
 	color: #fff;
@@ -438,7 +438,6 @@ h1.inline-block {
 /* Map grid */
 
 #maptool_grid {
-	display: none;
 	position: fixed;
 	overflow: hidden;
 	z-index: 998;
@@ -458,8 +457,14 @@ h1.inline-block {
 
 .grid-cell {
 	float: left;
-	border-bottom: 1px solid #000;
+}
+
+.gridBorderRight .grid-cell {
 	border-right: 1px solid #000;
+}
+
+.gridBorderBottom .grid-cell {
+	border-bottom: 1px solid #000;
 }
 
 .white .grid-cell {

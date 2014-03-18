@@ -109,8 +109,12 @@ function makeUserOptions3($sel=0, $fair) {
 					<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'If this is unchecked, the grid will not be generated.'}); ?>" />
 				</label>
 				<label>
-					<input type="checkbox" id="maptool_grid_visible" />
-					<?php echo htmlspecialchars($translator->{'Show grid'}); ?>
+					<input type="checkbox" id="maptool_grid_visible_x" />
+					<?php echo htmlspecialchars($translator->{'Show X-axis'}); ?>
+				</label>
+				<label>
+					<input type="checkbox" id="maptool_grid_visible_y" />
+					<?php echo htmlspecialchars($translator->{'Show Y-axis'}); ?>
 				</label>
 				<label>
 					<?php echo htmlspecialchars($translator->{'Opacity'}); ?>:
