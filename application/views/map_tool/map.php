@@ -237,6 +237,7 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.clickToViewMoreInfo = '<?php echo $translator->{"Click to view more information"} ?>';
 	lang.noPresentationText = '<?php echo $translator->{"The company has not specified any information."}?>';
 	lang.insert_comment = '<?php echo $translator->{"Insert comment"}?>';
+	lang.viewBooking = '<?php echo $translator->{"View booking"}; ?>';
 	
 	lang.StatusText = function(str) {
 		if (str == 'open')

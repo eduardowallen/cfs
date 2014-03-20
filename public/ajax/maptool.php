@@ -120,6 +120,7 @@ if (isset($_POST['init'])) {
 			'status' => $pos->get('status'),
 			'statusText' => $pos->getStatusText(),
 			'exhibitor' => $ex,
+			"preliminaries" => $user->getPreliminaries(),
 			'expires' => date('d-m-Y H:i', strtotime($pos->get('expires'))),
 			'applied' => $applied,
 			'being_edited' => $pos->get('being_edited'),

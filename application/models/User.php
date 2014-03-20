@@ -49,6 +49,22 @@ class User extends Model {
 		$prels = array();
 		if (count($res) > 0) {
 			foreach ($res as $r) {
+				$category_ids = explode("|", $r["categories"]);
+				//Get categories for prel booking
+				foreach ($category_ids as $catid) {
+					$stmt = $this->db->prepare("SELECT * FROM exhibitor_category WHERE id = ?");
+					$stmt->execute(array($catid));
+					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					if ($result > 0) {
+						$r["category_list"] = array();
+						foreach ($result as $row) {
+							$r["category_list"][] = $row['name'];
+						}
+					}
+				}
+				$r["presentation"] = $this->get("presentation");
+				$r["website"] = $this->get("website");
+				$r["company"] = $this->get("company");
 				$prels[] = $r;
 			}
 		}
