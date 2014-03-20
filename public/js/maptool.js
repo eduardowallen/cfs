@@ -1946,7 +1946,7 @@ maptool.Grid = (function() {
 			num_cells = num_cols * num_rows, 
 			i;
 
-		if ($("#maptool_grid_activated")[0].checked) {
+		if (settings.activated) {
 			for (i = 0; i < num_cells; i++) {
 				html += '<div class="grid-cell"></div>';
 			}
