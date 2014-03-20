@@ -2538,7 +2538,7 @@ maptool.Grid = (function() {
 
 	function init() {
 		// Don't init if we already init'ed
-		if (grid === null) {
+		if (grid === null && $("#maptoolbox").length) {
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
 
@@ -2907,9 +2907,7 @@ maptool.init = function(mapId) {
 
 	_mapId = mapId;
 
-	if ($('#maptoolbox').length) {
-		maptool.Grid.init();
-	}
+	maptool.Grid.init();
 
 	$.ajax({
 		url: 'ajax/maptool.php',
