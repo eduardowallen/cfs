@@ -2366,8 +2366,6 @@ maptool.Grid = (function() {
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
 
-			config.positionTopOffset = $("#header").outerHeight();
-
 			getGridSettings();
 
 			$('.spinner').spinner({
@@ -2723,6 +2721,7 @@ maptool.init = function(mapId) {
 	grid = $('#maptool_grid');
 	grid_frame = $('#maptool_grid_frame');
 	map_canvas = $('#mapHolder');
+	config.positionTopOffset = $("#header").outerHeight();
 
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
