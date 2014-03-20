@@ -436,7 +436,12 @@ maptool.showContextMenu = function(position, marker) {
 	if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0){
 		contextMenu.append('<li id="cm_note">' + lang.notes + '</li>');
 	}
-	contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
+
+	if (maptool.map.positions[objIndex].applied) {
+		contextMenu.append('<li id="cm_more">' + lang.viewBooking + '</li>');
+	} else {
+		contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
+	}
 
 	if (maptool.map.positions[objIndex].status > 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
 		contextMenu.append('<li id="cm_edit_booking">' + lang.editBooking + '</li>');
@@ -1656,15 +1661,26 @@ maptool.deletePosition = function(id) {
 
 //View more information about a certain position
 maptool.positionInfo = function(positionObject) {
+	var preliminary,
+		i;
+
+	for (i = 0; i < positionObject.preliminaries.length; i++) {
+		if (positionObject.preliminaries[i].position == positionObject.id) {
+			preliminary = positionObject.preliminaries[i];
+			break;
+		}
+	}
+
 	$("#more_info_dialogue h3").text("");
 	$('#more_info_dialogue h4').text("");
 	$("#more_info_dialogue p.presentation").html("");
 	$("#more_info_dialogue p.website_link").html("");
 
-	if (positionObject.exhibitor)
+	if (positionObject.exhibitor) {
 		$("#more_info_dialogue h3").text(positionObject.name + ': ' + positionObject.exhibitor.company);
-	else
+	} else {
 		$("#more_info_dialogue h3").text(positionObject.name);
+	}
 
 	var tt = '<p><strong>' + lang.status + ': </strong>' + lang.StatusText(positionObject.statusText) + '<br/><strong>' + lang.area + ':</strong> ' + positionObject.area + '</p>';
 	var info = $("#more_info_dialogue .info");
@@ -1677,8 +1693,7 @@ maptool.positionInfo = function(positionObject) {
 	if (positionObject.status == 1) {
 		info.append('<p><strong>' + lang.reservedUntil + ':</strong> ' + positionObject.expires + '</p>');
 	}
-	if (positionObject.exhibitor) {
-		
+	if (positionObject.exhibitor) {		
 		var categoryString = '';
 		for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
 			categoryString += ', ' + positionObject.exhibitor.categories[i].name;
@@ -1690,9 +1705,8 @@ maptool.positionInfo = function(positionObject) {
 		$("#more_info_dialogue .presentation").empty();
 		$('#more_info_dialogue .presentation').css('display', 'block');
 		if(positionObject.exhibitor.presentation.length < 1){
-			
 			$("#more_info_dialogue .presentation").append(lang.noPresentationText);
-		}else{
+		} else {
 			$("#more_info_dialogue .presentation").append(positionObject.exhibitor.presentation);
 		}
 		
@@ -1705,6 +1719,38 @@ maptool.positionInfo = function(positionObject) {
 		} else
 			$("#more_info_dialogue p.website_link").html('');
 		
+	} else if (preliminary) {
+		info.append('<p><strong>' + lang.StatusText(positionObject.statusText).charAt(0).toUpperCase() + lang.StatusText(positionObject.statusText).substr(1) + ' ' + lang.by + ':</strong> ' + preliminary.company + '</p>');
+		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + preliminary.commodity + '</p>');
+
+		var categoryString = '';
+		
+		for (i = 0; i < preliminary.category_list.length; i++) {
+			categoryString += ', ' + preliminary.category_list[i];
+		}
+
+		if (categoryString.length) {
+			categoryString = categoryString.substring(2);
+
+			info.append("<p><strong>" + lang.category + ":</strong> " + categoryString + "</p>");
+		}
+
+		if (preliminary.presentation.length) {
+			$("#more_info_dialogue .presentation").append(preliminary.presentation);
+		} else {
+			$("#more_info_dialogue .presentation").append(lang.noPresentationText);
+		}
+
+		if (preliminary.website !== null && preliminary.website !== "") {
+			var website = preliminary.website;
+
+			if (website.indexOf("http://") == -1) {
+				website = "http://" + website;
+			}
+			$("#more_info_dialogue p.website_link").html('<strong>' + lang.website + ':</strong> <a href="' + website + '" target="_blank">' + preliminary.website + '</a>');
+		} else {
+			$("#more_info_dialogue p.website_link").html('');
+		}
 	} else {
 		if(positionObject.information.length < 1){
 			$('#more_info_dialogue .presentation').css('display', 'none');

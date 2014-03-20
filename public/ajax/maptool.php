@@ -143,6 +143,7 @@ if (isset($_POST['init'])) {
 			'status' => $pos->get('status'),
 			'statusText' => $pos->getStatusText(),
 			'exhibitor' => $ex,
+			"preliminaries" => $user->getPreliminaries(),
 			'expires' => date('d-m-Y H:i', strtotime($pos->get('expires'))),
 			'applied' => $applied,
 			'num_prel_bookings' => $num_prel,
