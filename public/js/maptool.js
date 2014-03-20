@@ -13,6 +13,9 @@ var marker = null;
 var _mapId = 0;
 var start = {};
 var isMoving = false;
+var grid = null;
+var grid_frame = null;
+var map_canvas = null;
 
 //Some settings
 var config = {
@@ -2047,10 +2050,7 @@ maptool.zoomOut = function(e) {
  */
 maptool.Grid = (function() {
 
-	var grid = null,
-	grid_frame = null,
-	map_canvas = null,
-	grid_generation_timer = null,
+	var	grid_generation_timer = null,
 	supports_transform = (typeof document.createElement('div').style.transform !== 'undefined'),
 	maptoolboxHeader = null,
 	maptoolbox = null,
@@ -2539,9 +2539,6 @@ maptool.Grid = (function() {
 	function init() {
 		// Don't init if we already init'ed
 		if (grid === null) {
-			grid = $('#maptool_grid');
-			grid_frame = $('#maptool_grid_frame');
-			map_canvas = $('#mapHolder');
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
 
@@ -2899,6 +2896,9 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
+	grid = $('#maptool_grid');
+	grid_frame = $('#maptool_grid_frame');
+	map_canvas = $('#mapHolder');
 
 	// Quick fix for map reloading without id sometimes.
 	if (typeof mapId == 'undefined') {
