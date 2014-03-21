@@ -133,7 +133,7 @@ if (isset($_POST['init'])) {
 
 		}
 
-		$ret['positions'][] = array(
+		$length = array_push($ret["positions"], array(
 			'id' => $pos->get('id'),
 			'x' => $pos->get('x'),
 			'y' => $pos->get('y'),
@@ -143,13 +143,15 @@ if (isset($_POST['init'])) {
 			'status' => $pos->get('status'),
 			'statusText' => $pos->getStatusText(),
 			'exhibitor' => $ex,
-			"preliminaries" => $user->getPreliminaries(),
 			'expires' => date('d-m-Y H:i', strtotime($pos->get('expires'))),
 			'applied' => $applied,
 			'num_prel_bookings' => $num_prel,
 			'being_edited' => $pos->get('being_edited'),
 			'edit_started' => $pos->get('edit_started')
-		);
+		));
+		if (isset($user)) {
+			$ret["positions"][$length - 1]["preliminaries"] = $user->getPreliminaries();
+		}
 	}
 
 	echo json_encode($ret);
