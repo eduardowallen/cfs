@@ -2605,7 +2605,7 @@ maptool.Grid = (function() {
 
 	function init() {
 		// Don't init if we already init'ed
-		if (grid === null && $("#maptoolbox").length) {
+		if (maptoolboxHeader === null && $("#maptoolbox").length) {
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
 
