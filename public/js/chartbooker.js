@@ -86,13 +86,18 @@ function closeDialogue(e) {
 	}
 }
 
-function denyPosition(link, comment, position, status){
+function denyPosition(link, comment, position, status, onMap){
 		$.ajax({
 			url : link,
 			type: 'POST',
 			data: 'comment='+comment+'&positionName='+position+'&status='+status
 		}).success(function(response){
-			window.location = '/administrator/newReservations';
+			console.log(onMap);
+			if (onMap) {
+				window.location.reload();
+			} else {
+				window.location = '/administrator/newReservations';
+			}
 		});
 }
 
