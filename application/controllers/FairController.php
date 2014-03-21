@@ -517,6 +517,7 @@ class FairController extends Controller {
 			$this->set('headline', 'Map overview');
 			$this->set('create_link', 'New map');
 			$this->set('th_name', 'Map');
+			$this->set("th_file", "File");
 			$this->set('th_view', 'View');
 			$this->set('th_edit', 'Edit');
 			$this->set('th_delete', 'Delete');
