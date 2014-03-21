@@ -330,12 +330,19 @@ function makeUserOptions3($sel=0, $fair) {
 		<div id="user_login_dialogue">
 			<form action="user/login" method="post">
 				<p class="error"></p>
-				<div><label for="user"><?php echo uh($translator->{"Username"}); ?></label>
-				<input type="text" name="user" id="user"/>
-				<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
-				<input type="password" name="pass" id="pass"/>
-				<p><a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>"><?php echo uh($translator->{"Forgot your password?"}); ?></a></p>
-				<p><input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>"/></p></div>
+				<div>
+					<label for="user"><?php echo uh($translator->{"Username"}); ?></label>
+					<input type="text" name="user" id="user"/>
+					<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
+					<input type="password" name="pass" id="pass"/>
+					<p>
+						<a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>"><?php echo uh($translator->{"Forgot your password?"}); ?></a>
+					</p>
+					<p>
+						<input type="hidden" name="outside_fair_url" value="<?php echo $_SESSION["outside_fair_url"]; ?>" />
+						<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>"/>
+					</p>
+				</div>
 			</form>
 		</div>
 	</div>
