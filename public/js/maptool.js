@@ -1651,10 +1651,12 @@ maptool.positionInfo = function(positionObject) {
 	var preliminary,
 		i;
 
-	for (i = 0; i < positionObject.preliminaries.length; i++) {
-		if (positionObject.preliminaries[i].position == positionObject.id) {
-			preliminary = positionObject.preliminaries[i];
-			break;
+	if (positionObject.preliminaries) {
+		for (i = 0; i < positionObject.preliminaries.length; i++) {
+			if (positionObject.preliminaries[i].position == positionObject.id) {
+				preliminary = positionObject.preliminaries[i];
+				break;
+			}
 		}
 	}
 
