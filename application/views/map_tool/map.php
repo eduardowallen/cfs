@@ -317,7 +317,7 @@ function makeUserOptions3($sel=0, $fair) {
 	function denyPrepPosition(link, position, status){
 		if(confirm(confirmDialogue.replace('%s', position))){
 			var message = prompt(deletion, "");
-			denyPosition(link, message, position, status);
+			denyPosition(link, message, position, status, true);
 		}
 	}
 </script>
