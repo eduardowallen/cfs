@@ -373,3 +373,11 @@ img#logo {
 }
 
 
+#preliminary_bookings_dialogue {
+	width: 606px;
+	margin-left: -340px;
+}
+
+#book_position_dialogue {
+	z-index: 99999;
+}

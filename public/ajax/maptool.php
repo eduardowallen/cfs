@@ -508,15 +508,22 @@ if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 
 		if ($fair_map->wasLoaded() && userCanAdminFair($fair_map->get('fair'), $fair_map->get('id'))) {
 
-			$stmt = $globalDB->prepare("SELECT id, user, categories, commodity, arranger_message, booking_time FROM preliminary_booking WHERE position = ?");
+			$stmt = $globalDB->prepare("SELECT id, user, categories, position, commodity, arranger_message, booking_time FROM preliminary_booking WHERE position = ?");
 			$stmt->execute(array($position->get('id')));
 			$result = array();
 
 			foreach ($stmt->fetchAll(PDO::FETCH_OBJ) as $prel_booking) {
+				$stmt2 = $globalDB->prepare("SELECT `name`, `area` FROM `fair_map_position` WHERE `id` = ? LIMIT 0, 1");
+				$stmt2->execute(array($prel_booking->position));
+				$position = $stmt2->fetch(PDO::FETCH_ASSOC);
+
 				$user = new User();
 				$user->load($prel_booking->user, 'id');
 				$prel_booking->company = $user->get('company');
 				$prel_booking->booking_time = date('d-m-Y H:i', $prel_booking->booking_time) . ' UTC';
+				$prel_booking->standSpace = $position;
+				$prel_booking->denyUrl = BASE_URL . '/administrator/deleteBooking/' . $prel_booking->id;
+				$prel_booking->denyImgUrl = BASE_URL . 'images/icons/delete.png';
 				$result[] = $prel_booking;
 			}
 

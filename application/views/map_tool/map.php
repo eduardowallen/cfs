@@ -205,6 +205,17 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php endif; ?>
 	});
 </script>
+<script>
+	var confirmDialogue = "<?php echo $translator->{'Are you sure that you want to remove stand space'}; ?>";
+	var deletion = "<?php echo $translator->{'Enter comment about deletion'}; ?>";
+
+	function denyPrepPosition(link, position, status){
+		if(confirm(confirmDialogue.replace('%s', position))){
+			var message = prompt(deletion, "");
+			denyPosition(link, message, position, status);
+		}
+	}
+</script>
 
 <?php if (!isset($_SESSION['user_level']) && (!isset($_SESSION['visitor']) || !$_SESSION['visitor'])): ?>
 <div id="nouser_dialogue" class="dialogue">
@@ -346,8 +357,14 @@ function makeUserOptions3($sel=0, $fair) {
 	<table class="std_table">
 		<thead>
 			<tr>
+				<th><?php echo htmlspecialchars($translator->{"Stand space"}); ?></th>
+				<th><?php echo htmlspecialchars($translator->{"Area"}); ?></th>
 				<th><?php echo htmlspecialchars($translator->{'Booked by'}); ?></th>
+				<th><?php echo htmlspecialchars($translator->{"Trade"}); ?></th>
 				<th><?php echo htmlspecialchars($translator->{'Time of booking'}); ?></th>
+				<th><?php echo htmlspecialchars($translator->{"Message to organizer"}); ?></th>
+				<th><?php echo htmlspecialchars($translator->{"Deny"}); ?></th>
+				<th><?php echo htmlspecialchars($translator->{"Approve"}); ?></th>
 				<th><?php echo htmlspecialchars($translator->{'Reserve stand space'}); ?></th>
 			</tr>
 		</thead>
