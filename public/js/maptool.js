@@ -1839,10 +1839,29 @@ maptool.showPreliminaryBookings = function(position_data) {
 			var i;
 
 			for (i = 0; i < response.length; i++) {
-				tbody.append('<tr><td><a href="/exhibitor/profile/' + response[i].user + '">'
-					+ response[i].company + '</a></td><td>'
-					+ response[i].booking_time + '</td>'
-					+ '<td class="center"><a href="#" class="open-reservation-form" data-index="' + i + '"><img src="images/icons/add.png" alt="+" /></a></td></tr>');
+				tbody.append('<tr><td>'
+							+ response[i].standSpace.name +
+						'</td><td>'
+							+ response[i].standSpace.area + 
+						'</td><td><a href="/exhibitor/profile/'
+							+ response[i].user
+						+ '">'
+							+ response[i].company +
+						'</a></td><td>'
+							+ response[i].commodity +
+						'</td><td>'
+							+ response[i].booking_time +
+						'</td><td>'
+							+ response[i].arranger_message +
+						'</td><td class="center"><a style="cursor: pointer;" onclick="denyPrepPosition(\''
+							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\')"' +
+						'</a><img src="'
+							+ response[i].denyImgUrl + 
+						'" /></td><td class="center"><a style="cursor: pointer" onclick="approveClick(this)"><img src="images/icons/add.png"' + 
+						' alt="approve" /></a></td><td class="center"><a href="#" class="open-reservation-form" data-index="'
+							+ i
+							+ '"><img src="images/icons/add.png" alt="+" /></a></td></tr>'
+				);
 			}
 
 			// Save this list data for later use, in reservePreliminaryBooking()
@@ -3257,4 +3276,9 @@ function chooseThisBook(thisd){
 	$('input#search_user_input').css('border-color','#00FF00');
 	$('input#book_user_input').val(id);
 	$('#hiddenExhibitorList').hide();
+}
+
+function approveClick(clicked) {
+	$('.dialogue').hide();
+	showPopup('book', clicked);
 }
