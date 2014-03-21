@@ -253,7 +253,8 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.clickToViewMoreInfo = '<?php echo ujs($translator->{"Click to view more information"}); ?>';
 	lang.noPresentationText = '<?php echo ujs($translator->{"The company has not specified any information."}); ?>';
 	lang.insert_comment = '<?php echo ujs($translator->{"Insert comment"}); ?>';
-	lang.viewBooking = '<?php echo $translator->{"View booking"}; ?>';
+	lang.viewBooking = '<?php echo ujs($translator->{"View booking"}); ?>';
+	lang.showPreliminaryBookings = '<?php echo ujs($translator->{"View preliminary bookings"}); ?>';
 	
 	lang.StatusText = function(str) {
 		if (str == 'open')
