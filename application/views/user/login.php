@@ -14,13 +14,23 @@ if (isset($loggedin)) {
 	<p><b><?php echo $confirmed_msg; ?></b></p>
 <?php endif; ?>
 <form action="user/login<?php echo ($fair_url != '') ? '/'.$fair_url : ''; ?>" method="post">
-	<p class="error"><?php echo $error; ?></p>
-	<p><label for="user"><?php echo $user_name; ?></label>
-	<input type="text" name="user" id="user"/></p>
-	<p><label for="pass"><?php echo $password; ?></label>
-	<input type="password" name="pass" id="pass"/></p>
-	<p><input type="submit" name="login" value="<?php echo $button; ?>"/></p>
-	<p><a href="user/resetPassword"><?php echo $forgotlink; ?></a></p>
+	<p class="error">
+		<?php echo $error; ?>
+	</p>
+	<p>
+		<label for="user"><?php echo $user_name; ?></label>
+		<input type="text" name="user" id="user"/>
+	</p>
+	<p>
+		<label for="pass"><?php echo $password; ?></label>
+		<input type="password" name="pass" id="pass"/>
+	</p>
+	<p>
+		<input type="submit" name="login" value="<?php echo $button; ?>"/>
+	</p>
+	<p>
+		<a href="user/resetPassword"><?php echo $forgotlink; ?></a>
+	</p>
 	<p <?php if (isset($good)) {
 		if ($good == "yes")
 			echo 'style="color:#168912;"';

@@ -55,6 +55,11 @@ class MapToolController extends Controller {
 				//Update session to selected fair
 				$_SESSION['user_fair'] = $fair->get('id');
 				$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
+
+				//Save latest visited fair
+				if (!empty($_SESSION["user_id"])) {
+					setcookie($_SESSION["user_id"] . "_last_fair", $_SESSION["user_fair"], time() + 3600 * 24 * 365, "/");
+				}
 				
 				$this->setNoTranslate('fair', $fair);
 				$this->set('connect', 'Connect to fair');
