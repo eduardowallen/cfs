@@ -24,10 +24,12 @@ class FairMapController extends Controller {
 		if (isset($_POST['create'])) {
 			$this->FairMap->set('fair', $fair);
 			$this->FairMap->set('name', $_POST['name']);
-			$mId = $this->FairMap->save();
 
 			if (is_uploaded_file($_FILES['image']['tmp_name'])) {
-				
+				$this->FairMap->set("file_name", $_FILES["image"]["name"]);
+
+				$mId = $this->FairMap->save();
+
 				$im = new ImageMagick;
 				
 				$ext = end(explode('.', $_FILES['image']['name']));
@@ -82,10 +84,12 @@ class FairMapController extends Controller {
 		if (isset($_POST['save'])) {
 			$this->FairMap->load($map_id, 'id');
 			$this->FairMap->set('name', $_POST['name']);
-			$this->FairMap->save();
 			$mId = $map_id;
 			
 			if (is_uploaded_file($_FILES['image']['tmp_name'])) {
+				$this->FairMap->set("file_name", $_FILES["image"]["name"]);
+				$this->FairMap->save();
+
 				$im = new ImageMagick;
 				$name_parts = explode('.', $_FILES['image']['name']);
 				$ext = end($name_parts);
