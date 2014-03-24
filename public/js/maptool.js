@@ -1839,7 +1839,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 			var i;
 
 			for (i = 0; i < response.length; i++) {
-				tbody.append('<tr><td>'
+				tbody.append('<tr data-id="' + response[i].id + '"><td>'
 							+ response[i].standSpace.name +
 						'</td><td>'
 							+ response[i].standSpace.area + 
@@ -1857,7 +1857,8 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\')"' +
 						'</a><img src="'
 							+ response[i].denyImgUrl + 
-						'" /></td><td class="center"><a style="cursor: pointer" onclick="approveClick(this)"><img src="images/icons/add.png"' + 
+						'" /></td><td class="approve" style="display:none;">' + response[i].baseUrl + 'administrator/newReservations/approve/</td>'
+						+ '<td class="center"><a style="cursor: pointer" onclick="approveClick(this)"><img src="images/icons/add.png"' + 
 						' alt="approve" /></a></td><td class="center"><a href="#" class="open-reservation-form" data-index="'
 							+ i
 							+ '"><img src="images/icons/add.png" alt="+" /></a></td></tr>'

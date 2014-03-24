@@ -64,7 +64,7 @@ function bookPopup(row, link, action) {
 
 	$('#book_category_scrollbox input').prop('checked', false);
 	for (i = 0; i < catArr.length; i++) {
-		$('#book_category_scrollbox input[value=' + catArr[i] + ']').prop('checked', true);
+		$('#book_category_scrollbox input[value=\'' + catArr[i] + '\']').prop('checked', true);
 	}
 
 	$('form', dialogue).prop('action', link);
