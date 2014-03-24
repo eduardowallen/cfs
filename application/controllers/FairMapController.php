@@ -87,7 +87,6 @@ class FairMapController extends Controller {
 			
 			if (is_uploaded_file($_FILES['image']['tmp_name'])) {
 				$this->FairMap->set("file_name", $_FILES["image"]["name"]);
-				$this->FairMap->save();
 
 				$im = new ImageMagick;
 				$name_parts = explode('.', $_FILES['image']['name']);
@@ -113,6 +112,8 @@ class FairMapController extends Controller {
 				chmod(ROOT.'public/images/fairs/'.$fair_id.'/maps/'.$mId.'.jpg', 0775);
 				
 			}
+
+			$this->FairMap->save();
 
 			header("Location: ".BASE_URL."fair/maps/".$fair_id);
 			exit;
