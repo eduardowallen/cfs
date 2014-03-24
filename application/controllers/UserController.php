@@ -768,15 +768,15 @@ class UserController extends Controller {
 				$_SESSION['user_password_changed'] = $this->User->get('password_changed');
         
         // Get fair associated with the user
-        $stmt = $this->db->prepare("SELECT rel.fair, fair.windowtitle FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
+        $stmt = $this->db->prepare("SELECT rel.fair, fair.windowtitle, fair.url FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
         $stmt->execute(array($this->User->get('id')));
         $result = $stmt->fetch();
         $_SESSION['user_fair'] = $result['fair'];
         $_SESSION['fair_windowtitle'] = $result['windowtitle'];
         
         $this->setNoTranslate('noView', true);
-        
-        header("Location: ".BASE_URL."page/loggedin");
+
+        header("Location: " . BASE_URL . $result["url"]);
 				exit;
         
 			} else if( $hash == $userHash ) {
