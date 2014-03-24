@@ -119,6 +119,7 @@ maptool.closeDialogues = function() {
 		$("#popupform_register").remove();
 		$('#popupformTwo').remove();
 		$("#newMarkerIcon").remove();
+		$("#apply_category_scrollbox").css("border-color", "");
 	});
 }
 
