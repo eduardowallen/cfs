@@ -1676,7 +1676,7 @@ maptool.positionInfo = function(positionObject) {
 
 	$("#more_info_dialogue h3").text("");
 	$('#more_info_dialogue h4').text("");
-	$("#more_info_dialogue p.presentation").html("");
+	$("#more_info_dialogue .presentation").html("");
 	$("#more_info_dialogue p.website_link").html("");
 
 	if (positionObject.exhibitor) {
