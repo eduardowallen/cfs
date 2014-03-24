@@ -1852,9 +1852,10 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].commodity +
 						'</td><td>'
 							+ response[i].booking_time +
-						'</td><td>'
+						'</td><td style="display: none"></td><td class="center" title=\'' + response[i].arranger_message + '\'>'
 							+ response[i].arranger_message +
-						'</td><td class="center"><a style="cursor: pointer;" onclick="denyPrepPosition(\''
+						'</td><td style="display: none">' + response[i].categories + '</td>' + 
+						'<td class="center"><a style="cursor: pointer;" onclick="denyPrepPosition(\''
 							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\')"' +
 						'</a><img src="'
 							+ response[i].denyImgUrl + 
