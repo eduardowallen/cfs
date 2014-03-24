@@ -506,7 +506,11 @@ class AdministratorController extends Controller {
 				$mail_user->send();
 			}
 			
-			header("Location: ".BASE_URL."administrator/newReservations");
+			if (isset($_POST["redirect"])) {
+				header("location: {$_POST["redirect"]}");
+			} else {
+				header("Location: ".BASE_URL."administrator/newReservations");
+			}
 			exit;
 			
 		}
