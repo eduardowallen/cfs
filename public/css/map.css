@@ -295,21 +295,22 @@
 	
 }
 #more_info_dialogue {
-	height:auto;
+	width: auto;
+	height: auto;
+	min-width: 448px;
 }
 #more_info_dialogue .presentation {
-	max-height:200px;
 	word-wrap:break-word;
 	border:1px solid #aaa;
 	padding:5px;
-	overflow-y:scroll;
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 .dialogue {
 	display:none;
 	position:absolute;
 	z-index:10000;
 	width:400px;
-	/*height:420px;*/
 	top:30%;
 	left:50%;
 	margin-left:-222px;
