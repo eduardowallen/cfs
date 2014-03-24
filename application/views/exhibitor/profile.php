@@ -165,7 +165,7 @@
         <label for="presentation"><?php echo $presentation_label; ?></label>
         <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation')?> 
         <!--textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea-->
-			<div style="width: 565px; height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></div>
+			<div style="width: 565px; max-height: 1000px; overflow-x: scroll;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></div>
       </div>
       
 
