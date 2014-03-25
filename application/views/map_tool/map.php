@@ -325,30 +325,34 @@ function makeUserOptions3($sel=0, $fair) {
 <?php if (!isset($_SESSION['user_level']) && (!isset($_SESSION['visitor']) || !$_SESSION['visitor'])): ?>
 <div id="nouser_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>
+	<img src="images/button_icons/Chartbooker Fair System Logotype.png" alt="" class="nouser_cfslogo" style="margin: 0 0 0 5px;"></img>
+	<div id="inner">
+		<p class="center"><span style="color:#116734;text-align:center;font-size:18px; font-weight:bold;"><strong><?php echo ($translator->{'To use this service you need an account:'}); ?></div></p></span></strong>
 
 	<div class="clear floatleft panel">
-		<p class="right"><a href="user/login" id="open_loginform" class="link-button"><?php echo uh($translator->{'I already have an account'}); ?></a></p>
+		<p class="right"><a href="user/login" id="open_loginform" class="link-button"><span style="font-weight:bold;"><?php echo uh($translator->{'I already have an account'}); ?></a></span></p>
 		<div id="user_login_dialogue">
 			<form action="user/login" method="post">
 				<p class="error"></p>
 				<div>
-					<label for="user"><?php echo uh($translator->{"Username"}); ?></label>
-					<input type="text" name="user" id="user"/>
-					<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
-					<input type="password" name="pass" id="pass"/>
-					<p>
-						<a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>"><?php echo uh($translator->{"Forgot your password?"}); ?></a>
-					</p>
-					<p>
+        <label for="user"><?php echo uh($translator->{"Username"}); ?></label>
+				<input type="text" name="user" id="user"/>
+				<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
+				<input type="password" name="pass" id="pass"/>
+				<p>
+          <a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>">
+        <span style="color:#116734; font-size:14px; font-weight:bold;">
+        <?php echo uh($translator->{"Forgot your password?"}); ?></a></span></p>
+				<p>
 						<input type="hidden" name="outside_fair_url" value="<?php echo $_SESSION["outside_fair_url"]; ?>" />
-						<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>"/>
+						<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>" class="save-btn"/>
 					</p>
 				</div>
 			</form>
 		</div>
 	</div>
 	<div class="floatright panel">
-		<p><a href="user/register" class="link-button registerlink"><?php echo uh($translator->{'Register new account'}); ?></a></p>
+		<p><a href="user/register" class="link-button registerlink"><span style="font-weight:bold;"><?php echo uh($translator->{'Register new account'}); ?></a></span></p>
 		<p></p>
 	</div>
 </div>
@@ -405,7 +409,7 @@ function makeUserOptions3($sel=0, $fair) {
 
 </div>
 
-<!--<div id="book_position_dialogue" class="dialogue">
+<div id="book_position_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo uh($translator->{'Book stand space'}); ?></h3>
 
@@ -452,46 +456,6 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<p><input type="button" id="book_post" value="<?php echo uh($translator->{'Confirm booking'}); ?>"/></p>
 
-</div>-->
-
-<div id="book_position_dialogue" class="dialogue">
-	<form action="" method="post">
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-		<h3 class="confirm"><?php echo uh($translator->{'Book stand space'}); ?></h3>
-		<h3 class="edit"><?php echo uh($translator->{'Edit booking'}); ?></h3>
-
-		<p>
-			<strong><?php echo uh($translator->{'Space'}); ?> <span class="position-name"></span></strong>
-		</p>
-		
-		<label for="book_category_input"><?php echo uh($translator->{'Category'}); ?></label>
-		<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-			<?php foreach($fair->get('categories') as $cat): ?>
-			<p style="margin:0; width:100%; float:left;">
-				<input type="checkbox" name="categories[]" value="<?php echo $cat->get('id') ?>" /><?php echo $cat->get('name') ?>
-			</p>
-			<?php endforeach; ?>
-		</div>
-		
-		<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
-		<input type="text" class="dialogueInput" name="commodity" id="book_commodity_input" />
-
-		<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
-		<textarea name="arranger_message" id="book_message_input"></textarea>
-
-		<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
-		<select style="width:300px;" id="book_user_input" disabled="disabled">
-			<option id="book_user"></option>
-		</select>
-
-		<input type="hidden" value="<?php echo BASE_URL . 'mapTool/map/' . $_SESSION['user_fair']; ?>" name="redirect" />
-
-		<p>
-			<input type="hidden" name="id" id="book_id" />
-			<input type="submit" name="approve" class="confirm" value="<?php echo uh($translator->{'Confirm booking'}); ?>" />
-			<input type="submit" name="approve" class="edit" value="<?php echo uh($translator->{'Save'}); ?>" />
-		</p>
-	</form>
 </div>
 
 <div id="arranger_message_popup" class="dialogue">

@@ -77,9 +77,14 @@ a:hover {
 }
 
 #nouser_dialogue {
-	margin-left: -275px;
+	margin-left: -300px;
 	width: 550px;
-	min-height: 210px;
+ 	min-height: 150px;
+ }
+
+.nouser_cfslogo {
+	width:518px;
+	height:auto;
 }
 
 #nouser_dialogue .panel {
@@ -227,6 +232,18 @@ textarea {
 	border: 0;
 	font-family: 'Open Sans', sans-serif, Arial, Helvetica;
 	font-size: 28px;
+	font-weight: bold;
+	color: #fff;
+	cursor:pointer;
+}
+
+.save-btn2[type=button], .save-btn2[type=submit] {
+	padding: 5px 0;
+	width: 100px;
+	background: url('../images/save_btn.png') no-repeat;
+	border: 0;
+	font-family: 'Open Sans', sans-serif, Arial, Helvetica;
+	font-size: 17px;
 	font-weight: bold;
 	color: #fff;
 }

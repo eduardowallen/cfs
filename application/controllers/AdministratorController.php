@@ -1195,6 +1195,9 @@ class AdministratorController extends Controller {
 				$organizer = new User();
 				$organizer->load($fair->get('created_by'), 'id');
 
+				$exhib_user = new User();
+				$exhib_user->load($exhib->get('user'), 'id');
+
 				$mail_organizer = new Mail($organizer->get('email'), 'reservation_edited_confirm');
 				$mail_organizer->setMailVar('position_name', $pos->get('name'));
 				$mail_organizer->setMailVar('position_information', $pos->get('information'));
@@ -1205,7 +1208,7 @@ class AdministratorController extends Controller {
 				$mail_organizer->setMailVar('date_expires', $_POST['expires']);
 				$mail_organizer->send();
 
-				$mail_user = new Mail($exhib->get('email'), 'reservation_edited_confirm');
+				$mail_user = new Mail($exhib_user->get('email'), 'reservation_edited_confirm');
 				$mail_user->setMailVar('position_name', $pos->get('name'));
 				$mail_user->setMailVar('position_information', $pos->get('information'));
 				$mail_user->setMailVar('edit_time', $time_now);

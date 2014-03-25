@@ -12,7 +12,7 @@
 <link rel="stylesheet" type="text/css" href="css/main.css?u=<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/map.css?u=<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" media="print" href="css/print.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.1/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css?u=<?php echo $unique?>" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
 <script type="text/javascript" src="js/jquery-1.9.1.min.js?u=<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/jquery-ui-1.10.1.min.js?u=<?php echo $unique?>"></script>
@@ -69,7 +69,7 @@
 	lang.contact_email = '<?php echo ujs($translator->{"Contact Email"}); ?>';
 	lang.copy_label = '<?php echo ujs($translator->{"Copy from company details"}); ?>';
 	lang.email_exists_label = '<?php echo ujs($translator->{"The email address already exists in our system"}); ?>';
-  
+  	lang.timezone = '<?php echo TIMEZONE; ?>';
   form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
 </script>
 <?php if (userLevel() > 0): ?>

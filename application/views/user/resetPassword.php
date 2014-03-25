@@ -12,7 +12,7 @@
 	<p class="ok"><?php echo $ok; ?></p>
 	<p><label for="user"><?php echo $user_name.' / '.$email;?></label>
 	<input type="text" name="user" id="user"/></p>
-	<p><input type="submit" name="send" value="<?php echo $button; ?>"/></p>
+	<p><input type="submit" name="send" value="<?php echo $button; ?>" class="save-btn2"/></p>
 
 	<?php endif; ?>
 </form>

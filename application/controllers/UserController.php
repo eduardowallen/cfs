@@ -513,6 +513,7 @@ class UserController extends Controller {
         $mail = new Mail($this->User->email, 'password_reset2');
         $mail->setMailVar('alias', $this->User->get('alias'));
         $mail->setMailVar('password', $pass);
+		$mail->setMailVar('name', $this->User->get('name'));
         $mail->send();
 				$_SESSION['m'] = $this->User->email;
 				header('Location: '.BASE_URL.'user/login/ok');
@@ -526,6 +527,7 @@ class UserController extends Controller {
           $mail = new Mail($this->User->email, 'password_reset2');
           $mail->setMailVar('alias', $this->User->alias);
           $mail->setMailVar('password', $pass);
+		  $mail->setMailVar('name', $this->User->name);
           $mail->send();
 					$_SESSION['m'] = $this->User->email;
 					header('Location: '.BASE_URL.'user/login/ok');

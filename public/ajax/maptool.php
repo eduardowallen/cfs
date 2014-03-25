@@ -626,7 +626,7 @@ if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 				$user = new User();
 				$user->load($prel_booking->user, 'id');
 				$prel_booking->company = $user->get('company');
-				$prel_booking->booking_time = date('d-m-Y H:i', $prel_booking->booking_time) . ' UTC';
+				$prel_booking->booking_time = date('d-m-Y H:i', $prel_booking->booking_time) . ' GMT+1';
 				$prel_booking->standSpace = $position;
 				$prel_booking->denyUrl = BASE_URL . 'administrator/deleteBooking/' . $prel_booking->id . "/" . $_GET["position"];
 				$prel_booking->denyImgUrl = BASE_URL . 'images/icons/delete.png';

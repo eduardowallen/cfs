@@ -25,7 +25,7 @@ var config = {
 	panSpeed: 500, //animation speed for panning map
 	iconOffset: 7.5, //pixels to adjust icon position (half the width/height of the icon)
 	markerUpdateTime: 30, //marker update interval in seconds
-	positionTopOffset: 0
+	positionTopOffset: 30, //amount of pixels to separate the cursor from the tooltips for stand spaces
 };
 
 //Prepare maptool object
@@ -461,7 +461,7 @@ maptool.showContextMenu = function(position, marker) {
 
 		contextMenu.css({
 			left: $("#pos-" + position).offset().left + config.iconOffset,
-			top: $("#pos-" + position).offset().top + config.iconOffset - 30
+			top: $("#pos-" + position).offset().top + config.iconOffset - 35
 		}).show();
 
 		//Clear click events
