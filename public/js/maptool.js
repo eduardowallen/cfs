@@ -2630,7 +2630,11 @@ maptool.Grid = (function() {
 
 	function init() {
 		// Don't init if we already init'ed
-		if (grid === null && $("#maptoolbox").length) {
+		if (grid === null) {
+			grid = $('#maptool_grid');
+			grid_frame = $('#maptool_grid_frame');
+			map_canvas = $('#mapHolder');
+
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
 
@@ -2643,11 +2647,14 @@ maptool.Grid = (function() {
 				}
 			});
 
-			// Toolbox events
-			for (var property in setting_listeners) {
-				if (setting_listeners.hasOwnProperty(property)) {
-					$('#maptool_grid_' + property).on('change', setting_listeners[property]);
-					setting_listeners[property]();
+			//Only run if tool box exists
+			if (maptoolbox) {
+				// Toolbox events
+				for (var property in setting_listeners) {
+					if (setting_listeners.hasOwnProperty(property)) {
+						$('#maptool_grid_' + property).on('change', setting_listeners[property]);
+						setting_listeners[property]();
+					}
 				}
 			}
 
@@ -2665,7 +2672,10 @@ maptool.Grid = (function() {
 			maptoolboxHeader.on("mousedown", toolboxStartMove);
 			maptoolboxHeader.on("mouseup", toolboxStopMove);
 
-			setMaptoolboxPosition();
+			//Only run if tool box exists
+			if (maptoolbox) {
+				setMaptoolboxPosition();
+			}
 
 			// Window resize events
 			$(window).on('resize', windowSizeChanged);
@@ -2986,9 +2996,6 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
-	grid = $('#maptool_grid');
-	grid_frame = $('#maptool_grid_frame');
-	map_canvas = $('#mapHolder');
 	config.positionTopOffset = $("#header").outerHeight();
 
 	// Quick fix for map reloading without id sometimes.
