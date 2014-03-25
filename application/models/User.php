@@ -77,20 +77,25 @@ class User extends Model {
 			$stmt = $this->db->prepare("SELECT id FROM user WHERE `alias` = ? LIMIT 0,1");
 			$stmt->execute(array($user));
 		} else {*/
-			$stmt = $this->db->prepare("SELECT id FROM user WHERE `alias` = ? AND password = ? AND locked = ? LIMIT 0,1");
-			$stmt->execute(array($user, $this->bCrypt($pass, $user), 0));
+		$stmt = $this->db->prepare("SELECT `id`, `alias`, `password` FROM `user` WHERE `alias` = ? AND `locked` = 0 LIMIT 0, 1");
+		$stmt->execute(array($user));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+			//$stmt = $this->db->prepare("SELECT id FROM user WHERE `alias` = ? AND password = ? AND locked = ? LIMIT 0,1");
+			//$stmt->execute(array($user, $this->bCrypt($pass, $user), 0));
 		//}
-		$res = $stmt->fetch();
-		if ($res > 0) {
-			$this->load($res['id'], 'id');
-			$this->set('last_login', time());
-			$this->set('total_logins', $this->get('total_logins') + 1);
-			$this->save();
-			$this->load($res['id'], 'id');
-			return true;
-		} else {
-			return false;
+		if (!empty($res)) {
+			if ($res["password"] === $this->bCrypt($pass, $res["alias"])) {
+				$this->load($res['id'], 'id');
+				$this->set('last_login', time());
+				$this->set('total_logins', $this->get('total_logins') + 1);
+				$this->save();
+				$this->load($res['id'], 'id');
+
+				return true;
+			}
 		}
+
+		return false;
 	}
 
 	public function emailExists($email = '') {
