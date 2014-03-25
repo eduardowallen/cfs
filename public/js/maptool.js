@@ -1119,7 +1119,7 @@ maptool.cancelApplication = function(positionObject) {
 
 maptool.editBooking = function(positionObject) {
 
-	if (positionObject.status == 2) {
+	if (positionObject.status == 2 || positionObject.status == 0) {
 		//booked
 		//maptool.openDialogue('book_position_dialogue');
 		var prefix = 'book';
@@ -1139,8 +1139,14 @@ maptool.editBooking = function(positionObject) {
 		$('#'+prefix+'_category_scrollbox > p').each(function(){
 			var value = $(this).children().val();
 			
-			if(value == categories[i].category_id){
-					$(this).children().prop('checked', true);
+			if (typeof categories[i] === "string") {
+				 if (value == categories[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == categories[i].category_id){
+						$(this).children().prop('checked', true);
+				}
 			}
 		});
 	}
@@ -1260,11 +1266,11 @@ maptool.editBooking = function(positionObject) {
 	
 	$('#' + prefix + '_category_input option').prop("selected", false);
 	var categories = positionObject.exhibitor.categories;
-	$('#' + prefix + '_category_scrollbox > p > input').prop('checked', false);
+	//$('#' + prefix + '_category_scrollbox > p > input').prop('checked', false);
 	for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
 		$('#'+prefix+'_category_scrollbox').children().each(function(j){
 			if(positionObject.exhibitor.categories[i].category_id == $(this).children('input').val()){
-				$(this).children('input').prop('checked', true);
+				//$(this).children('input').prop('checked', true);
 			}
 		});
 	}
@@ -1882,7 +1888,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 						'</a><img src="'
 							+ response[i].denyImgUrl + 
 						'" /></td><td class="approve" style="display:none;">' + response[i].baseUrl + 'administrator/newReservations/approve/</td>'
-						+ '<td class="center"><a style="cursor: pointer" onclick="approveClick(this)"><img src="images/icons/add.png"' + 
+						+ '<td class="center"><a style="cursor: pointer" class="open-approve-form" data-index="' + i + '"><img src="images/icons/add.png"' + 
 						' alt="approve" /></a></td><td class="center"><a href="#" class="open-reservation-form" data-index="'
 							+ i
 							+ '"><img src="images/icons/add.png" alt="+" /></a></td></tr>'
@@ -1896,6 +1902,26 @@ maptool.showPreliminaryBookings = function(position_data) {
 				e.preventDefault();
 				maptool.reservePreliminaryBooking(position_data, maptool.prel_bookings_data[$(this).data('index')]);
 				dialogue.hide();
+			}).on('click', '.open-approve-form', function(e) {
+				e.preventDefault();
+
+				var positions = maptool.map.positions;
+
+				for (var i = positions.length - 1; i >= 0; i--) {
+					if (positions[i].id === position_data.id) {
+						break;
+					}
+				}
+
+				if (i !== -1) {
+					positions[i].exhibitor = response[$(this).data("index")];
+
+					if (typeof positions[i].exhibitor.categories === "string") {
+						positions[i].exhibitor.categories = positions[i].exhibitor.categories.split("|");
+					}
+					maptool.editBooking(positions[i]);
+					dialogue.hide();
+				}
 			});
 		}
 	});
