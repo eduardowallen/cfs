@@ -86,15 +86,15 @@ function closeDialogue(e) {
 	}
 }
 
-function denyPosition(link, comment, position, status, onMap){
+function denyPosition(link, comment, position, status, clicked){
 		$.ajax({
 			url : link,
 			type: 'POST',
-			data: 'comment='+comment+'&positionName='+position+'&status='+status
+			data: 'comment='+comment+'&positionName='+position+'&status='+status + '&ajax=1'
 		}).success(function(response){
-			console.log(onMap);
-			if (onMap) {
-				window.location.reload();
+			if (clicked) {
+				$(clicked.parentNode.parentNode).remove();
+				maptool.update();
 			} else {
 				window.location = '/administrator/newReservations';
 			}

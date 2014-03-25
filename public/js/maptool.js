@@ -1878,7 +1878,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].arranger_message +
 						'</td><td style="display: none">' + response[i].categories + '</td>' + 
 						'<td class="center"><a style="cursor: pointer;" onclick="denyPrepPosition(\''
-							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\')"' +
+							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\', this)"' +
 						'</a><img src="'
 							+ response[i].denyImgUrl + 
 						'" /></td><td class="approve" style="display:none;">' + response[i].baseUrl + 'administrator/newReservations/approve/</td>'

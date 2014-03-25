@@ -314,10 +314,10 @@ function makeUserOptions3($sel=0, $fair) {
 	var confirmDialogue = "<?php echo $translator->{'Are you sure that you want to remove stand space'}; ?>";
 	var deletion = "<?php echo $translator->{'Enter comment about deletion'}; ?>";
 
-	function denyPrepPosition(link, position, status){
+	function denyPrepPosition(link, position, status, clicked){
 		if(confirm(confirmDialogue.replace('%s', position))){
 			var message = prompt(deletion, "");
-			denyPosition(link, message, position, status, true);
+			denyPosition(link, message, position, status, clicked);
 		}
 	}
 </script>

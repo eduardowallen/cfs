@@ -955,8 +955,11 @@ class AdministratorController extends Controller {
 		$position = new FairMapPosition();
 		$position->load($posId, 'id');
 
+		$fairMap = new FairMap();
+		$fairMap->load($position->get("map"), "id");
+
 		$fair = new Fair();
-		$fair->load($position->get('id'), 'id');
+		$fair->load($fairMap->get('fair'), 'id');
 
 		$current_user = new User();
 		$current_user->load($_SESSION['user_id'], 'id');
@@ -1020,7 +1023,9 @@ class AdministratorController extends Controller {
 		$mail_organizer->setMailVar('comment', $comment);
 		$mail_organizer->send();
 
-		header('Location: '.BASE_URL.'administrator/newReservations');
+		if (!isset($_POST["ajax"])){
+			header('Location: '.BASE_URL.'administrator/newReservations');
+		}
 	}
 
 	public function approveReservation() {
