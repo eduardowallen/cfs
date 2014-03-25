@@ -405,7 +405,7 @@ function makeUserOptions3($sel=0, $fair) {
 
 </div>
 
-<!--<div id="book_position_dialogue" class="dialogue">
+<div id="book_position_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo uh($translator->{'Book stand space'}); ?></h3>
 
@@ -452,46 +452,6 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<p><input type="button" id="book_post" value="<?php echo uh($translator->{'Confirm booking'}); ?>"/></p>
 
-</div>-->
-
-<div id="book_position_dialogue" class="dialogue">
-	<form action="" method="post">
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-		<h3 class="confirm"><?php echo uh($translator->{'Book stand space'}); ?></h3>
-		<h3 class="edit"><?php echo uh($translator->{'Edit booking'}); ?></h3>
-
-		<p>
-			<strong><?php echo uh($translator->{'Space'}); ?> <span class="position-name"></span></strong>
-		</p>
-		
-		<label for="book_category_input"><?php echo uh($translator->{'Category'}); ?></label>
-		<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-			<?php foreach($fair->get('categories') as $cat): ?>
-			<p style="margin:0; width:100%; float:left;">
-				<input type="checkbox" name="categories[]" value="<?php echo $cat->get('id') ?>" /><?php echo $cat->get('name') ?>
-			</p>
-			<?php endforeach; ?>
-		</div>
-		
-		<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
-		<input type="text" class="dialogueInput" name="commodity" id="book_commodity_input" />
-
-		<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
-		<textarea name="arranger_message" id="book_message_input"></textarea>
-
-		<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
-		<select style="width:300px;" id="book_user_input" disabled="disabled">
-			<option id="book_user"></option>
-		</select>
-
-		<input type="hidden" value="<?php echo BASE_URL . 'mapTool/map/' . $_SESSION['user_fair']; ?>" name="redirect" />
-
-		<p>
-			<input type="hidden" name="id" id="book_id" />
-			<input type="submit" name="approve" class="confirm" value="<?php echo uh($translator->{'Confirm booking'}); ?>" />
-			<input type="submit" name="approve" class="edit" value="<?php echo uh($translator->{'Save'}); ?>" />
-		</p>
-	</form>
 </div>
 
 <div id="arranger_message_popup" class="dialogue">
