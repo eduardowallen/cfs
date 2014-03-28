@@ -54,7 +54,7 @@
 		endif;
 		$count++;
 	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>
-<div class="tbld">
+<div class="scrolltbl onlythirteen">
 	<table class="std_table">
 		<thead>
 			<tr>
