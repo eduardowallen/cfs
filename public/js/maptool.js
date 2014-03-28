@@ -729,7 +729,7 @@ maptool.bookPosition = function(positionObject) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
 	
-	if (positionObject.status == 1) {
+	if (positionObject.status < 2) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
 		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
@@ -738,7 +738,9 @@ maptool.bookPosition = function(positionObject) {
 		for(var i = 0; i < categories.length; i++){
 			$('#book_category_scrollbox > p').each(function(){
 				var value = $(this).children().val();
-				if(value == categories[i].category_id){
+				var categoryId = (typeof categories[i] === "string") ? categories[i] : categories[i].category_id;
+
+				if (value == categoryId) {
 					$(this).children().prop('checked', true);
 				}
 			});
@@ -1919,7 +1921,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 					if (typeof positions[i].exhibitor.categories === "string") {
 						positions[i].exhibitor.categories = positions[i].exhibitor.categories.split("|");
 					}
-					maptool.editBooking(positions[i]);
+					maptool.bookPosition(positions[i]);
 					dialogue.hide();
 				}
 			});
