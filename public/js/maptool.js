@@ -1777,30 +1777,8 @@ maptool.positionInfo = function(positionObject) {
 	}
 
 	maptool.openDialogue('more_info_dialogue');
-	maptool.positionDialogue("more_info_dialogue");
+	positionDialogue("more_info_dialogue");
 }
-
-maptool.positionDialogue = function (id) {
-	var dialogue = document.getElementById(id);
-	var $dialogue = $(dialogue);
-	var presentation = $dialogue.find(".presentation")[0];
-	var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-	var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-	var popupMaxWidth = Math.max(448, viewportWidth * .52);
-	var popupMaxHeight = Math.max(328, viewportHeight * .70);
-	var popupWidth =  0;
-	var popupHeight = 0;
-	var presentationHeight = popupMaxHeight * .55;
-
-	dialogue.style.maxWidth = popupMaxWidth + "px";
-	dialogue.style.maxHeight = popupMaxHeight + "px";
-	presentation.style.maxHeight = presentationHeight + "px";
-
-	popupHeight = $dialogue.outerHeight();
-	popupWidth = $dialogue.outerWidth();
-
-	dialogue.style.marginLeft = -(popupWidth / 2) + "px";
-};
 
 maptool.getNotes = function(positionObject){
 	$('#note_dialogue > textarea').text ="";

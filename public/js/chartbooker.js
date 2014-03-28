@@ -18,8 +18,8 @@ function showPopup(type, activator){
 }
 
 function reservePopup(row, link, action) {
-
-	var dialogue = $('#reserve_position_dialogue');
+	var dialogueId = "reserve_position_dialogue";
+	var dialogue = $('#' + dialogueId);
 
 	$('.confirm, .edit', dialogue).hide();
 	$('.' + action, dialogue).show();
@@ -46,11 +46,14 @@ function reservePopup(row, link, action) {
 	if (action == 'edit') {
 		$('#reserve_expires_input').val(data.eq(8).text().replace(/ GMT[+-]\d*/, ''));
 	}
+
+	positionDialogue(dialogueId, -310);
 }
 
 function bookPopup(row, link, action) {
+	var dialogueId = "book_position_dialogue";
 
-	var dialogue = $('#book_position_dialogue');
+	var dialogue = $('#' + dialogueId);
 
 	$('.confirm, .edit', dialogue).hide();
 	$('.' + action, dialogue).show();
@@ -73,6 +76,8 @@ function bookPopup(row, link, action) {
 	$('#book_user').text(data.eq(2).text());
 	$('#book_commodity_input').val(data.eq(3).text());
 	$('#book_message_input').val(data.eq(6).prop('title'));	
+
+	positionDialogue(dialogueId, -310);
 }
 
 function closeDialogue(e) {
@@ -153,6 +158,36 @@ function ajaxLoginForm(form) {
 		});
 	}
 }
+
+function positionDialogue(id, marginTop) {
+	var dialogue = document.getElementById(id);
+	var $dialogue = $(dialogue);
+	var presentation = $dialogue.find(".presentation")[0];
+	var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+	var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+	var popupMaxWidth = Math.max(448, viewportWidth * .52);
+	var popupMaxHeight = Math.max(328, viewportHeight * .70);
+	var popupWidth =  0;
+	var popupHeight = 0;
+	var presentationHeight = popupMaxHeight * .55;
+
+	if (typeof marginTop !== "number") {
+		marginTop = -200;
+	}
+
+	dialogue.style.maxWidth = popupMaxWidth + "px";
+	dialogue.style.maxHeight = popupMaxHeight + "px";
+
+	if (presentation) {
+		presentation.style.maxHeight = presentationHeight + "px";
+	}
+
+	popupHeight = $dialogue.outerHeight();
+	popupWidth = $dialogue.outerWidth();
+
+	dialogue.style.marginLeft = -(popupWidth / 2) + "px";
+	dialogue.style.marginTop = marginTop + window.scrollY + "px";
+};
 
 $(document).ready(function() {
 	$('.datepicker.date').datepicker();
