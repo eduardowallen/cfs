@@ -202,38 +202,40 @@
 
 <h3><?php echo $bookings_section; ?></h3>
 <?php if (count($positions) > 0): ?>
-<table class="std_table">
-<thead>
-	<tr>
-		<th><?php echo $tr_event; ?></th>
-		<th><?php echo $tr_pos; ?></th>
-		<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
-		<th><?php echo $tr_booker; ?></th>
-		<th><?php echo $tr_field; ?></th>
-		<th><?php echo $tr_time; ?></th>
-		<th><?php echo $tr_message; ?></th>
-	</tr>
-</thead>
-<tbody>
-<?php foreach($positions as $pos): ?>
-	<tr>
-		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/<?php echo $pos->get('id'); ?>/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
-		<td><?php echo $pos->get('name'); ?></td>
-		<td class="center"><?php echo $pos->get('area'); ?></td>
-		<td class="center"><?php echo $pos->get('company'); ?></td>
-		<td class="center"><?php echo $pos->get('commodity'); ?></td>
-		<td><?php echo ($pos->get('booking_time') != '') ? date('d-m-Y H:i:s', $pos->get('booking_time')) : ''; ?></td>
-		<td class="center" title="<?php echo htmlspecialchars($pos->get('arranger_message')); ?>">
-<?php if (strlen($pos->get('arranger_message')) > 0): ?>
-						<a href="administrator/arrangerMessage/<?php echo ($pos->get('preliminary') ? 'preliminary' : 'exhibitor') . '/' . $pos->get('exhibitor_id'); ?>" class="open-arranger-message">
-							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
-						</a>
-<?php endif; ?>
-		</td>
-	</tr>
-<?php endforeach; ?>
-</tbody>
-</table>
+<div class="scrolltbl onlyfive">
+  <table class="std_table">
+  <thead>
+  	<tr>
+  		<th><?php echo $tr_event; ?></th>
+  		<th><?php echo $tr_pos; ?></th>
+  		<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+  		<th><?php echo $tr_booker; ?></th>
+  		<th><?php echo $tr_field; ?></th>
+  		<th><?php echo $tr_time; ?></th>
+  		<th><?php echo $tr_message; ?></th>
+  	</tr>
+  </thead>
+  <tbody>
+  <?php foreach($positions as $pos): ?>
+  	<tr>
+  		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/<?php echo $pos->get('id'); ?>/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
+  		<td><?php echo $pos->get('name'); ?></td>
+  		<td class="center"><?php echo $pos->get('area'); ?></td>
+  		<td class="center"><?php echo $pos->get('company'); ?></td>
+  		<td class="center"><?php echo $pos->get('commodity'); ?></td>
+  		<td><?php echo ($pos->get('booking_time') != '') ? date('d-m-Y H:i:s', $pos->get('booking_time')) : ''; ?></td>
+  		<td class="center" title="<?php echo htmlspecialchars($pos->get('arranger_message')); ?>">
+  <?php if (strlen($pos->get('arranger_message')) > 0): ?>
+  						<a href="administrator/arrangerMessage/<?php echo ($pos->get('preliminary') ? 'preliminary' : 'exhibitor') . '/' . $pos->get('exhibitor_id'); ?>" class="open-arranger-message">
+  							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+  						</a>
+  <?php endif; ?>
+  		</td>
+  	</tr>
+  <?php endforeach; ?>
+  </tbody>
+  </table>
+</div>
 <?php else: ?>
 <p><?php echo $no_bookings_label; ?></p>
 <?php endif; ?>
