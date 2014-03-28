@@ -729,7 +729,7 @@ maptool.bookPosition = function(positionObject) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
 	
-	if (positionObject.status < 2) {
+	if (positionObject.status < 2 && positionObject.exhibitor) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
 		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
