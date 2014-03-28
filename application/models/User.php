@@ -45,18 +45,18 @@ class User extends Model {
 		$id = ($id != null) ? $id : $this->id ;
 		$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE user = ?");
 		$stmt->execute(array($id));
-		$res = $stmt->fetchAll();
+		$res = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$prels = array();
 		if (count($res) > 0) {
 			foreach ($res as $r) {
 				$category_ids = explode("|", $r["categories"]);
 				//Get categories for prel booking
+				$r["category_list"] = array();
 				foreach ($category_ids as $catid) {
 					$stmt = $this->db->prepare("SELECT * FROM exhibitor_category WHERE id = ?");
 					$stmt->execute(array($catid));
 					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 					if ($result > 0) {
-						$r["category_list"] = array();
 						foreach ($result as $row) {
 							$r["category_list"][] = $row['name'];
 						}
