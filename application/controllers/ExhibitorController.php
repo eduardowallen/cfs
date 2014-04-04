@@ -871,43 +871,73 @@ class ExhibitorController extends Controller {
 		
 		//Masters get the full list of positions, lower levels get the ones for their fair
 		if (userLevel() == 4) {
-			$stmt = $u->db->prepare("SELECT * FROM exhibitor WHERE user = ?");
+			$stmt = $u->db->prepare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ?");
 			$stmt->execute(array($u->get('id')));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `user` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id")));
+
 		} else {
-			$stmt = $u->db->prepare("SELECT * FROM exhibitor WHERE user = ? AND fair = ?");
+			$stmt = $u->db->preppare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ? AND `exhibitor`.`fair` = ?");
 			$stmt->execute(array($u->get('id'), $_SESSION['user_fair']));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `preliminary_booking`.`user` = ? AND `preliminary_booking`.`fair` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
 		}
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 		$positions = array();
 
-		foreach($u->getPreliminaries() as $prel) {
-			$pos = new FairMapPosition;
-			$pos->load($prel['position'], 'id');
-			$pos->set('exhibitor_id', $prel['id']);
-			$pos->set('preliminary', true);
-			$pos->set('company', $u->get('company'));
-			$pos->set('booking_time', $prel['booking_time']);
-			$pos->set('commodity', $prel['commodity']);
-			$pos->set('arranger_message', $prel['arranger_message']);
-      $fairmap = new FairMap;
-      $fairmap->load($pos->get('map'), 'id');
-      $pos->set('map', $fairmap);
-			$positions[] = $pos;
+		//foreach($u->getPreliminaries() as $prel) {
+		while (($res = $stmtPreliminary->fetch(PDO::FETCH_ASSOC))) {
+			$positions[] = $res;
 		}
 
-		foreach ($result as $res) {
-			$pos = new FairMapPosition;
-			$pos->load($res['position'], 'id');
-			$pos->set('exhibitor_id', $res['id']);
-			$pos->set('preliminary', false);
-			$pos->set('commodity', $res['commodity']);
-			$pos->set('arranger_message', $res['arranger_message']);
-			$pos->set('company', $u->get('company'));
-			$pos->set('booking_time', $res['booking_time']);
-      $fairmap = new FairMap;
-      $fairmap->load($pos->get('map'), 'id');
-      $pos->set('map', $fairmap);
-			$positions[] = $pos;
+		while (($res = $stmt->fetch(PDO::FETCH_ASSOC))) {
+			$positions[] = $res;
 		}
 		
 		/*

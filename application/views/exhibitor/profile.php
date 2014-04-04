@@ -218,15 +218,15 @@
   <tbody>
   <?php foreach($positions as $pos): ?>
   	<tr>
-  		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/<?php echo $pos->get('id'); ?>/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
-  		<td><?php echo $pos->get('name'); ?></td>
-  		<td class="center"><?php echo $pos->get('area'); ?></td>
-  		<td class="center"><?php echo $pos->get('company'); ?></td>
-  		<td class="center"><?php echo $pos->get('commodity'); ?></td>
-  		<td><?php echo ($pos->get('booking_time') != '') ? date('d-m-Y H:i:s', $pos->get('booking_time')) : ''; ?></td>
-  		<td class="center" title="<?php echo htmlspecialchars($pos->get('arranger_message')); ?>">
-  <?php if (strlen($pos->get('arranger_message')) > 0): ?>
-  						<a href="administrator/arrangerMessage/<?php echo ($pos->get('preliminary') ? 'preliminary' : 'exhibitor') . '/' . $pos->get('exhibitor_id'); ?>" class="open-arranger-message">
+  		<td><a href="/mapTool/map/<?php echo $pos['fair']; ?>/<?php echo $pos['id']; ?>/<?php $pos['map']; ?>"><?php echo $pos['fair_map_name']; ?></a></td>
+  		<td><?php echo $pos['name']; ?></td>
+  		<td class="center"><?php echo $pos['area']; ?></td>
+  		<td class="center"><?php echo $pos['company']; ?></td>
+  		<td class="center"><?php echo $pos['commodity']; ?></td>
+  		<td><?php echo ($pos['booking_time'] != '') ? date('d-m-Y H:i:s', $pos['booking_time']) : ''; ?></td>
+  		<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+  <?php if (strlen($pos['arranger_message']) > 0): ?>
+  						<a href="administrator/arrangerMessage/<?php echo ($pos['preliminary'] ? 'preliminary' : 'exhibitor') . '/' . $pos['exhibitor_id']; ?>" class="open-arranger-message">
   							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
   						</a>
   <?php endif; ?>
