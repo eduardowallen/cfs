@@ -1054,6 +1054,9 @@ maptool.applyForPositions = function() {
 				maptool.closeDialogues();
 				$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
 				markedAsBooked = new Array;
+
+				maptool.openDialogue("preliminaryConfirm");
+				positionDialogue("preliminaryConfirm", 0);
 			}
 		});
 	}
