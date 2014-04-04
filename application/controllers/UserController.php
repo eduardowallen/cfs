@@ -684,6 +684,9 @@ class UserController extends Controller {
       
 				$error.= 'The email address already exists in our system.';
         
+			} else if (!$this->validAlias($_POST["alias"])) {
+
+				$error .= "The username can only consist of numbers and lowercase letters.";
 			} else {
       
 				if (strlen($_POST['alias']) > 3) {
@@ -861,6 +864,11 @@ class UserController extends Controller {
 		} else {
 			$this->set('result', 'That user does not exist.');
 		}
+	}
+
+	private function validAlias($string) {
+		//Check if string only consists of numbers or any lowercase letter from any language.
+		return preg_match("/^[0-9\p{Ll}]+$/u", $string);
 	}
 
 }
