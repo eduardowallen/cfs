@@ -166,10 +166,16 @@ function positionDialogue(id, marginTop) {
 	var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 	var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 	var popupMaxWidth = Math.max(448, viewportWidth * .52);
-	var popupMaxHeight = Math.max(328, viewportHeight * .70);
+	var popupMaxHeight = Math.max(328, viewportHeight * .90);
 	var popupWidth =  0;
 	var popupHeight = 0;
 	var presentationHeight = popupMaxHeight * .55;
+
+	if (id === "showUserDialogue") {
+		popupMaxWidth = Math.max(448, viewportWidth * .70);
+		popupMaxHeight = Math.max(328, viewportHeight * .90);
+		dialogue.style.width = "950px";
+	}
 
 	if (typeof marginTop !== "number") {
 		marginTop = -200;
@@ -177,6 +183,8 @@ function positionDialogue(id, marginTop) {
 
 	dialogue.style.maxWidth = popupMaxWidth + "px";
 	dialogue.style.maxHeight = popupMaxHeight + "px";
+
+	dialogue.style.width = "auto";
 
 	if (presentation) {
 		presentation.style.maxHeight = presentationHeight + "px";
@@ -188,6 +196,42 @@ function positionDialogue(id, marginTop) {
 	dialogue.style.marginLeft = -(popupWidth / 2) + "px";
 	dialogue.style.marginTop = marginTop + window.scrollY + "px";
 };
+
+function showUser(e) {
+	e.preventDefault();
+
+	var userId = $(this).data("id");
+
+	$.ajax({
+		url: "ajax/exhibitor.php",
+		type: "GET",
+		data: {
+			getProfile: userId
+		},
+		success: function (response) {
+			var id = "showUserDialogue";
+			var dialogue = document.getElementById(id);
+			if (!dialogue) {
+				dialogue = document.createElement("diV");
+
+				dialogue.id = id;
+				dialogue.className = "dialogue";
+			}
+
+			dialogue.innerHTML = response;
+
+			document.getElementById("content").appendChild(dialogue);
+
+			dialogue.style.display = "block";
+
+			$(".closeDialogue").on("click", function () {
+				dialogue.style.display = "none";
+			});
+
+			positionDialogue(id, -350);
+		}
+	});
+}
 
 $(document).ready(function() {
 	$('.datepicker.date').datepicker();
@@ -477,7 +521,7 @@ $(document).ready(function() {
 		var link = $(this);
 		e.preventDefault();
 		reservePopup(link.parent().parent(), link.attr('href'), 'edit');
-	});
+	}).on("click", ".showProfileLink", showUser);
 	
 	$(document).ready(function() {
 	$("#copy").change(function() {

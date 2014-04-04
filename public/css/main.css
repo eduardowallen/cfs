@@ -416,3 +416,7 @@ img#logo {
 #book_position_dialogue {
 	z-index: 99999;
 }
+
+#showUserDialogue table {
+	border-top: 1px solid;
+}

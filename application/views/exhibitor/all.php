@@ -77,7 +77,7 @@
 			<tr>
 				<td><?php echo $user->get('company'); ?></td>
 				<td><?php echo $user->get('orgnr'); ?></td>
-				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
+				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink" data-id="<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
 				<td><?php echo $user->get('phone1'); ?></td>
 				<td><?php echo $user->get('email'); ?></td>
 				<td class="center"><?php echo $user->get('fair_count'); ?></td>
