@@ -1,3 +1,5 @@
+var aliasTimer;
+
 function isValidEmailAddress(emailAddress) {
 	var pattern = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i);
 	return pattern.test(emailAddress);
@@ -42,6 +44,43 @@ function prepFormChecker() {
 			$(this).css('border', '1px solid #FF0000');
 			$(this).data('valid', false);
 		}
+	});
+
+	$("#alias").on("keyup", function () {
+		var $input = $(this);
+
+		$input.data('valid', true);
+		$input.tooltip();
+
+		if (typeof aliasTimer !== "undefined") {
+			window.clearTimeout(aliasTimer);
+		}
+
+		//Wait 250ms in case of more inputs
+		aliasTimer = window.setTimeout(function () {
+			$.ajax({
+				url: "ajax/maptool.php",
+				type: "POST",
+				data: {
+					aliasExists: 1,
+					alias: $input.val()
+				},
+				dataType: "json",
+				success: function (response) {
+					if (response.aliasExists) {
+						$input.prop("title", lang.alias_exists_label);
+						$input.tooltip("open");
+						$input.css("border", "1px solid red");
+						$input.data("valid", false);
+					} else {
+						$input.tooltip("disable");
+						$input.css('border', '1px solid #00FF00');
+						$input.data('valid', true);
+					}
+				}
+			});
+
+		}, 250);
 	});
 
 	$("form #invoice_email").data('valid', true);
@@ -136,6 +175,12 @@ function prepFormChecker() {
 
 					//Email addresses 3
 					if (input.attr("name") == "contact_email" && (!isValidEmailAddress(input.val()) || !input.data('valid'))) {
+						$(this).css("color", "red");
+						errors.push($(this).attr("for"));
+					}
+
+					//Alias input
+					if (input.attr("name") === "alias" && !input.data("valid")) {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}

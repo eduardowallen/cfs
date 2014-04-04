@@ -69,6 +69,7 @@
 	lang.contact_email = '<?php echo ujs($translator->{"Contact Email"}); ?>';
 	lang.copy_label = '<?php echo ujs($translator->{"Copy from company details"}); ?>';
 	lang.email_exists_label = '<?php echo ujs($translator->{"The email address already exists in our system"}); ?>';
+	lang.alias_exists_label = '<?php echo ujs($translator->{"The username already exists in our system"}); ?>';
   	lang.timezone = '<?php echo TIMEZONE; ?>';
   form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
 </script>
