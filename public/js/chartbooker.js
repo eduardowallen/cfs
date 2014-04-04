@@ -233,6 +233,86 @@ function showUser(e) {
 	});
 }
 
+function positionExcelCheckboxes() {
+	var $checkboxContainers = $(".excelCheckboxes");
+
+	$checkboxContainers.each(function () {
+		var $checkboxContainer = $(this),
+			$checkboxes = $checkboxContainer.find("input[type='checkbox']"),
+			$table = $("#" + $checkboxContainer.data("for")),
+			$tableHeaders = $table.find(".excelHeader");
+
+		$checkboxes.each(function (i) {
+			var $checkbox = $(this),
+				$th = $tableHeaders.eq(i),
+				thOffset = $th.offset(),
+				center = getHorizontalCenter($th, $checkbox);
+
+			$checkbox.css({
+				position: "absolute",
+				left: thOffset.left + center + "px",
+				top: thOffset.top + $th.parent().height() - 40 + "px"
+			});
+		});
+
+		$table.parent().on("scroll", function () {
+			if (this.scrollTop > 0) {
+				$checkboxContainer.hide();
+			} else {
+				$checkboxContainer.show();
+			}
+		});
+	});
+}
+
+function multiCheck(checkbox, box){
+	$('#'+box+' > tbody > tr').children(':last-child').children().prop('checked', $(checkbox).prop('checked'));
+}
+
+/* A function to collect data from a specified HTML table (the inparameter takes the ID of the table) */
+function prepareTable(tbl, checkboxes){
+	var rowArray = new Array();
+	var colArray = new Array();
+
+	var table = $('#'+tbl);
+	var rows = 0;
+
+	$("#" + checkboxes).children("input").each(function () {
+		var $this = $(this);
+
+		if ($this.prop("checked")) {
+			colArray.push($this.val());
+		}
+	});
+
+	table.children(':last-child').children().each(function(){
+		var thisRow = $(this);
+		var thisRowCheckBox = thisRow.children(':last-child').children();
+
+		if (thisRowCheckBox.prop('checked') == true){
+			rowArray.push(thisRowCheckBox.attr('id'));
+		}
+	});
+	
+	if(tbl == "booked"){
+		exportTableToExcel(rowArray, colArray, 1);
+	} else if(tbl == "reserved"){
+		exportTableToExcel(rowArray, colArray, 2);
+	} else if(tbl == "prem"){
+		exportTableToExcel(rowArray, colArray, 3);
+	} else if (tbl === "connected") {
+		exportTableToExcel(rowArray, colArray, 4);
+	}
+	
+
+	rowArray = [];
+	colArray = [];
+}
+
+function getHorizontalCenter($parent, $child) {
+	return ($parent.width() / 2) - ($child.width() / 2);
+}
+
 $(document).ready(function() {
 	$('.datepicker.date').datepicker();
 	$('.datepicker.date').datepicker('option', 'dateFormat', 'dd-mm-yy');

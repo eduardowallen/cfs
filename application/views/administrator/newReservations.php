@@ -61,6 +61,7 @@
 	$(document).ready(function(){
 		setTimeout(function(){
 			anpassaTabeller();
+			positionExcelCheckboxes();
 			
 			for(var i = 0; i<3; i++){
 				var tblarr = new Array('booked', 'reserved', 'prem');
@@ -81,54 +82,13 @@
 				var height = $('#'+tblarr[i]+' > thead').height();
 				height = height * -1;
 
-				$('#'+tblarr[i]).css('margin-top', height);
+				//$('#'+tblarr[i]).css('margin-top', height);
 				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
 
 				if(i == 2){header.css('display', 'block');}
 			}
 		}, 500);
 	});
-
-	function multiCheck(box){
-		$('#'+box+' > tbody > tr').children(':last-child').children().prop('checked', $('#h'+box+' > ul > li:last-child > input:last-child').prop('checked'));
-	}
-
-	/* A function to collect data from a specified HTML table (the inparameter takes the ID of the table) */
-	function prepareTable(tbl){
-		var rowArray = new Array();
-		var colArray = new Array();
-
-		var table = $('#'+tbl);
-		var rows = 0;
-
-		$('#h'+tbl+' > ul > li').each(function(){
-			if($(this).children('input').prop('checked')){
-				colArray.push($(this).children('input').val());
-			}
-		});
-
-		table.children(':last-child').children().each(function(){
-			var thisRow = $(this);
-			var thisRowCheckBox = thisRow.children(':last-child').children();
-
-			if(thisRowCheckBox.prop('checked') == true){
-				rowArray.push(thisRowCheckBox.attr('id'));
-			}
-		});
-		
-		
-		if(tbl == "booked"){
-			exportTableToExcel(rowArray, colArray, 1);
-		} else if(tbl == "reserved"){
-			exportTableToExcel(rowArray, colArray, 2);
-		} else if(tbl == "prem"){
-			exportTableToExcel(rowArray, colArray, 3);
-		}
-		
-
-		rowArray = [];
-		colArray = [];
-	}
 
 	/* Takes an array and sends it to the desired controller in order to export. */
 	function exportTableToExcel(rowArray, colArray, tbl){
@@ -275,7 +235,7 @@
 <div class="tbld tbl1">
 <?php if(count($positions) > 0){ ?>
 	
-	<div class="tblHeader" id="hbooked">
+	<!--<div class="tblHeader" id="hbooked">
 		<a onclick="prepareTable('booked')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
@@ -290,22 +250,56 @@
 			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('booked')" checked="checked" /></li>
 		</ul>
+	</div>-->
+	
+	<!--Checkboxes need to be outside th because of sorting function-->
+	<div class="excelCheckboxes" data-for="booked" id="checkboxesBooked">
+		<input type="checkbox" value="1" checked="checked" />
+		<input type="checkbox" value="2" checked="checked" />
+		<input type="checkbox" value="3" checked="checked" />
+		<input type="checkbox" value="4" checked="checked" />
+		<input type="checkbox" value="5" checked="checked" />
+		<input type="checkbox" value="8" checked="checked" />
+		<input type="checkbox" value="6" checked="checked" />
+		<input type="checkbox" onclick="multiCheck(this, 'booked')" checked="checked" />
 	</div>
+	<a onclick="prepareTable('booked', 'checkboxesBooked')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 	<div class="scrolltbl onlyfive">
 		<table class="std_table" id="booked" style="float:left; padding-right: 16px;">
 			<thead>
 				<tr>
-					<th><?php echo $tr_pos; ?></th>
-					<th><?php echo $tr_area; ?></th>
-					<th><?php echo $tr_booker; ?></th>
-					<th><?php echo $tr_field; ?></th>
-					<th><?php echo $tr_time; ?></th>
-					<th><?php echo $tr_last_edited; ?></th>
-					<th><?php echo $tr_message; ?></th>
-					<th><?php echo $tr_view; ?></th>
-					<th><?php echo $tr_edit; ?></th>
-					<th><?php echo $tr_delete; ?></th>
-					<th></th>
+					<th class="excelHeader">
+						<?php echo $tr_pos; ?>
+					</th>
+					<th class="excelHeader">
+						<?php echo $tr_area; ?>
+					</th>
+					<th class="excelHeader">
+						<?php echo $tr_booker; ?>
+					</th>
+					<th class="excelHeader">
+						<?php echo $tr_field; ?>
+					</th>
+					<th class="excelHeader">
+						<?php echo $tr_time; ?>
+					</th>
+					<th class="excelHeader">
+						<?php echo $tr_last_edited; ?>
+					</th>
+					<th class="excelHeader">
+						<?php echo $tr_message; ?>
+					</th>
+					<th>
+						<?php echo $tr_view; ?>
+					</th>
+					<th>
+						<?php echo $tr_edit; ?>
+					</th>
+					<th>
+						<?php echo $tr_delete; ?>
+					</th>
+					<th class="excelHeader">
+					</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -358,8 +352,7 @@
 
 <div class="tbld tbl2">
 	<?php if(count($rpositions) > 0){?>
-	<div class="tblHeader" id="hreserved">
-		<a onclick="prepareTable('reserved')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
+	<!--<div class="tblHeader" id="hreserved">
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
@@ -375,24 +368,37 @@
 			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('reserved')" checked="checked" /></li>
 		</ul>
+	</div>-->
+
+	<div class="excelCheckboxes" data-for="reserved" id="checkboxesReserved">
+		<input type="checkbox" value="1" checked="checked" />
+		<input type="checkbox" value="2" checked="checked" />
+		<input type="checkbox" value="3" checked="checked" />
+		<input type="checkbox" value="4" checked="checked" />
+		<input type="checkbox" value="5" checked="checked" />
+		<input type="checkbox" value="8" checked="checked" />
+		<input type="checkbox" value="6" checked="checked" />
+		<input type="checkbox" value="7" checked="checked" />
+		<input type="checkbox" onClick="multiCheck(this, 'reserved')" checked="checked" />
 	</div>
+	<a onclick="prepareTable('reserved', 'checkboxesReserved')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 	<div class="scrolltbl onlyfive">
 		<table class="std_table" id="reserved" style="float:left; padding-right: 16px;">
 		<thead>
 			<tr>
-				<th><?php echo $tr_pos; ?></th>
-				<th><?php echo $tr_area; ?></th>
-				<th><?php echo $tr_booker; ?></th>
-				<th><?php echo $tr_field; ?></th>
-				<th><?php echo $tr_time; ?></th>
-				<th><?php echo $tr_last_edited; ?></th>
-				<th><?php echo $tr_message; ?></th>
-				<th><?php echo $tr_reserved_until; ?></th>
+				<th class="excelHeader"><?php echo $tr_pos; ?></th>
+				<th class="excelHeader"><?php echo $tr_area; ?></th>
+				<th class="excelHeader"><?php echo $tr_booker; ?></th>
+				<th class="excelHeader"><?php echo $tr_field; ?></th>
+				<th class="excelHeader"><?php echo $tr_time; ?></th>
+				<th class="excelHeader"><?php echo $tr_last_edited; ?></th>
+				<th class="excelHeader"><?php echo $tr_message; ?></th>
+				<th class="excelHeader"><?php echo $tr_reserved_until; ?></th>
 				<th><?php echo $tr_view; ?></th>
 				<th><?php echo $tr_edit; ?></th>
 				<th><?php echo $tr_deny; ?></th>
 				<th><?php echo $tr_approve; ?></th>
-				<th></th>
+				<th class="excelHeader"></th>
 			</tr>
 		</thead>
 		<tbody>
@@ -453,8 +459,7 @@
 <h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
 <div class="tbld tbl3">
 <?php if(count($prelpos) > 0){ ?>
-	<div class="tblHeader" id="hprem">
-		<a onclick="prepareTable('prem')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
+	<!--<div class="tblHeader" id="hprem">
 		<ul class="special">
 			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
 			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
@@ -468,22 +473,33 @@
 			<li><div class="tblrow1"><?php echo $tr_reserve; ?></div><div style="padding-top:19px;"></div></li>
 			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('prem')"  checked="checked" /></li>
 		</ul>
+	</div>-->
+
+	<div class="excelCheckboxes" data-for="prem" id="checkboxesPrem">
+		<input type="checkbox" value="1" checked="checked" />
+		<input type="checkbox" value="2" checked="checked" />
+		<input type="checkbox" value="3" checked="checked" />
+		<input type="checkbox" value="4" checked="checked" />
+		<input type="checkbox" value="5" checked="checked" />
+		<input type="checkbox" value="6" checked="checked" />
+		<input type="checkbox" onClick="multiCheck(this, 'prem')" checked="checked" />
 	</div>
+	<a onclick="prepareTable('prem', 'checkboxesPrem')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
 	<div class="scrolltbl onlyfive">
 		<table class="std_table" id="prem" style="float:left; padding-right: 16px;">
 		<thead>
 			<tr>
-				<th><?php echo $tr_pos; ?></th>
-				<th><?php echo $tr_area; ?></th>
-				<th><?php echo $tr_booker; ?></th>
-				<th><?php echo $tr_field; ?></th>
-				<th><?php echo $tr_time; ?></th>
-				<th><?php echo $tr_message; ?></th>
+				<th class="excelHeader"><?php echo $tr_pos; ?></th>
+				<th class="excelHeader"><?php echo $tr_area; ?></th>
+				<th class="excelHeader"><?php echo $tr_booker; ?></th>
+				<th class="excelHeader"><?php echo $tr_field; ?></th>
+				<th class="excelHeader"><?php echo $tr_time; ?></th>
+				<th class="excelHeader"><?php echo $tr_message; ?></th>
 				<th><?php echo $tr_view; ?></th>
 				<th><?php echo $tr_deny; ?></th>
 				<th><?php echo $tr_approve; ?></th>
 				<th><?php echo $tr_reserve; ?></th>
-				<th></th>
+				<th class="excelHeader"></th>
 			</tr>
 		</thead>
 			<tbody>

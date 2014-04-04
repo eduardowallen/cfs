@@ -341,8 +341,12 @@ textarea {
 	height: 32px;
 }
 
-.onlyfive{max-height:177px;}
+.onlyfive{max-height:313px;}
 .onlythirteen{max-height:697px;}
+
+.excelHeader {
+	padding-bottom: 26px !important;
+}
 
 h2.tblsite{
 	float:left; width:100%;
