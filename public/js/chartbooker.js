@@ -62,12 +62,18 @@ function bookPopup(row, link, action) {
 	open_dialogue = dialogue;
 	
 	var data = row.children(), 
-		catArr = data.eq(7).text().split("|"), 
+		catArr = data.eq(7).text().split("|"),
+		optArr = data.eq(15).text().split("|"), 
 		i;
 
 	$('#book_category_scrollbox input').prop('checked', false);
 	for (i = 0; i < catArr.length; i++) {
 		$('#book_category_scrollbox input[value=\'' + catArr[i] + '\']').prop('checked', true);
+	}
+
+	$('#book_option_scrollbox input').prop('checked', false);
+	for (i = 0; i < optArr.length; i++) {
+		$('#book_option_scrollbox input[value=\'' + optArr[i] + '\']').prop('checked', true);
 	}
 
 	$('form', dialogue).prop('action', link);

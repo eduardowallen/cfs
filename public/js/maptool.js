@@ -745,6 +745,20 @@ maptool.bookPosition = function(positionObject) {
 				}
 			});
 		}
+
+		var options = positionObject.exhibitor.options;
+
+		$('#book_option_scrollbox > p > input').prop('checked', false);
+		for (var i = 0; i < options.length; i++) {
+			$('#book_option_scrollbox > p').each(function() {
+				var value = $(this).children().val();
+				var optionId = (typeof options[i] === "string") ? options[i] : options[i].category_id;
+
+				if (value == optionId) {
+					$(this).children().prop('checked', true);
+				}
+			});
+		}
 	} else {
 		$("#book_commodity_input, #book_message_input").val("");
 	}
@@ -863,7 +877,8 @@ maptool.bookPosition = function(positionObject) {
 
 	$('#book_post').unbind('click');
 	$("#book_post").click(function() {
-		var cats = new Array();
+		var cats = [];
+		var options = [];
 		var count = 0;
 		$('#book_category_scrollbox > p').each(function(){
 			var val = $(this).children('input:checked').val();
@@ -879,12 +894,32 @@ maptool.bookPosition = function(positionObject) {
 				catStr += '&categories[]=' + cats[j];
 			}
 		}
+
+		count = 0;
+		$('#book_option_scrollbox > p').each(function() {
+			var val = $(this).children('input:checked').val();
+			
+			if (val != "undefined") {
+				options[count] = val;
+				count++;
+			}
+		});
+		
+		var optStr = '';
+
+
+		for (var j = 0; j < options.length; j++) {
+			if (options[j] != undefined) {
+				optStr += '&options[]=' + options[j];
+			}
+		}
 		
 		var dataString = 'bookPosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#book_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#book_message_input").val())
 				   + '&map=' + maptool.map.id
-				   + catStr;
+				   + catStr
+				   + optStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
@@ -983,6 +1018,17 @@ maptool.markForApplication = function(positionObject) {
 			$('#apply_category_scrollbox').css('border', '1px solid #f00');
 			return;
 		}
+
+		var opts = [];
+		var count = 0;
+		$('#apply_option_scrollbox > p').each(function() {
+			var val = $(this).children('input:checked').val();
+			if(val != null){
+				opts[count] = val;
+				count = count+1;
+			}
+		});
+
 		var exists = false;
 		for (var i=0; i<markedAsBooked.length; i++) {
 			if (markedAsBooked[i].id == positionObject.id)
@@ -993,6 +1039,8 @@ maptool.markForApplication = function(positionObject) {
 			positionObject.user_commodity = $("#apply_commodity_input").val();
 			positionObject.user_message = $("#apply_message_input").val();
 			positionObject.user_categories = cats;
+			positionObject.user_options = opts;
+
 			markedAsBooked.push(positionObject);
 		}
 		
@@ -1027,6 +1075,7 @@ maptool.applyForPositions = function() {
 		var posStr = '';
 		var msgStr = '';
 		var catStr = '';
+		var optStr = '';
 		var comStr = '';
 		for (var i=0; i<markedAsBooked.length; i++) {
 			
@@ -1037,13 +1086,18 @@ maptool.applyForPositions = function() {
 			for (var j=0; j<markedAsBooked[i].user_categories.length; j++) {
 				catStr += 'categories[' + i + '][]=' + markedAsBooked[i].user_categories[j] + '&';
 			}
+
+			for (var j = 0; j < markedAsBooked[i].user_options.length; j++) {
+				optStr += 'options[' + i + '][]=' + markedAsBooked[i].user_options[j] + '&';
+			}
 		}
 		
 		var dataString = posStr
 				   + msgStr
 				   + comStr
 				   + 'map=' + maptool.map.id
-				   + '&' + catStr;
+				   + '&' + catStr
+				   + "&" + optStr;
 		
 		$.ajax({
 			url: 'ajax/maptool.php',
@@ -1150,6 +1204,24 @@ maptool.editBooking = function(positionObject) {
 				 }
 			} else {
 				if(value == categories[i].category_id){
+						$(this).children().prop('checked', true);
+				}
+			}
+		});
+	}
+
+	var options = positionObject.exhibitor.options;
+	$('#'+prefix+'_option_scrollbox > p > input').prop('checked', false);
+	for (var i = 0; i < options.length; i++){
+		$('#'+prefix+'_option_scrollbox > p').each(function() {
+			var value = $(this).children().val();
+			
+			if (typeof options[i] === "string") {
+				 if (value == options[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == options[i].option_id){
 						$(this).children().prop('checked', true);
 				}
 			}
@@ -1284,12 +1356,21 @@ maptool.editBooking = function(positionObject) {
 	$("#" + prefix + "_post").click(function() {
 		
 		var cats = new Array();
+		var opts = [];
 		var count = 0;
 
 		$('#'+prefix+'_category_scrollbox > p').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		$('#'+prefix+'_option_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				opts[count] = val;
 				count = count+1;
 			}
 		});
@@ -1301,12 +1382,20 @@ maptool.editBooking = function(positionObject) {
 			}
 		}
 
+		var optStr = '';
+		for (var j = 0; j < opts.length; j++) {
+			if (opts[j] != undefined){
+				optStr += '&options[]=' + opts[j];
+			}
+		}
+
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
 				   + '&message=' + $("#" + prefix + "_message_input").val()
 				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
 				   + '&map=' + maptool.map.id
-				   + catStr;
+				   + catStr
+				   + optStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + $("#" + prefix + "_user_input").val();
@@ -1540,13 +1629,22 @@ maptool.reservePosition = function(positionObject) {
 	$("#reserve_post").unbind("click");
 	$("#reserve_post").click(function() {
 		var cats = new Array();
-
+		var options = [];
 
 		var count = 0;
 		$('#reserve_category_scrollbox > p').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		count = 0;
+		$('#reserve_option_scrollbox > p').each(function() {
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				options[count] = val;
 				count = count+1;
 			}
 		});
@@ -1580,12 +1678,20 @@ maptool.reservePosition = function(positionObject) {
 			}
 		}
 
+		var optStr = '';
+		for (var j = 0; j < options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
+			}
+		}
+
 		var dataString = 'reservePosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
 				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
 				   + '&map=' + maptool.map.id
-				   + catStr;
+				   + catStr
+				   + optStr;
 		
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
@@ -1902,6 +2008,11 @@ maptool.showPreliminaryBookings = function(position_data) {
 					if (typeof positions[i].exhibitor.categories === "string") {
 						positions[i].exhibitor.categories = positions[i].exhibitor.categories.split("|");
 					}
+
+					if (typeof positions[i].exhibitor.options === "string") {
+						positions[i].exhibitor.options = positions[i].exhibitor.options.split("|");
+					}
+
 					maptool.bookPosition(positions[i]);
 					dialogue.hide();
 				}

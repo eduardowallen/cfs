@@ -420,3 +420,12 @@ img#logo {
 #showUserDialogue table {
 	border-top: 1px solid;
 }
+
+.optionsWhenBooking {
+	float: left;
+	margin-left: 40px;
+}
+
+.contactInfoWrapper {
+	clear: left;
+}

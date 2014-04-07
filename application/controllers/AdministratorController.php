@@ -477,6 +477,20 @@ class AdministratorController extends Controller {
 					}
 				}
 
+				$options = array();
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+
+					$stmt = $pb->db->prepare("INSERT INTO exhibitor_option_rel (exhibitor, `option`) VALUES (?, ?)");
+
+					foreach ($_POST['options'] as $option_id) {
+						$stmt->execute(array($exId, $option_id));
+
+						$ex_option = new FairExtraOption();
+						$ex_option->load($option_id, 'id');
+						$options[] = $ex_option->get('text');
+					}
+				}
+
 				// Send mail
 				$categories = implode(', ', $categories);
 				$time_now = date('d-m-Y H:i');
@@ -1069,6 +1083,20 @@ class AdministratorController extends Controller {
 					}
 				}
 
+				// Set new options for this booking
+				$options = array();
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+					$stmt = $this->db->prepare("INSERT INTO exhibitor_option_rel (exhibitor, `option`) VALUES (?, ?)");
+
+					foreach ($_POST['options'] as $option_id) {
+						$stmt->execute(array($exhibitor->get('option_id'), $option_id));
+
+						$ex_option = new FairExtraOption();
+						$ex_option->load($option_id, 'id');
+						$options[] = $ex_option->get('text');
+					}
+				}
+
 				$pos = new FairMapPosition();
 				$pos->load($exhibitor->get('position'), 'id');
 
@@ -1177,6 +1205,20 @@ class AdministratorController extends Controller {
 						$ex_category = new ExhibitorCategory();
 						$ex_category->load($category_id, 'id');
 						$categories[] = $ex_category->get('name');
+					}
+				}
+
+				$categories = array();
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+
+					$stmt = $exhib->db->prepare("INSERT INTO exhibitor_option_rel (exhibitor, `option`) VALUES (?, ?)");
+
+					foreach ($_POST['options'] as $option_id) {
+						$stmt->execute(array($exId, $option_id));
+
+						$ex_option = new FairExtraOption();
+						$ex_option->load($option_id, 'id');
+						$option[] = $ex_option->get('text');
 					}
 				}
 

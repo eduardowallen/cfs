@@ -72,6 +72,132 @@
 			// Initial state: hide dialog and note's textareas
 			$('.reminder-note').hide();
 		}());
+
+		function createNewOption(e) {
+			e.preventDefault();
+
+			var $input = $("#new_option_input");
+			var value = $input.val();
+			var fairId = $input.data("fair");
+
+			if (value !== "") {
+				//Can't insert into database if fair does not already exsist
+				if (fairId === "new") {
+					appendToList(value);
+				} else {
+					$.ajax({
+						url: "ajax/fair.php",
+						type: "POST",
+						data: {
+							"newOption": fairId,
+							"value": value
+						},
+						dataType: "json",
+						success: function (response) {
+							appendToList(value, response);
+						}
+					});
+				}
+			}
+		}
+
+		function appendToList(value, response) {
+			if (typeof response ===  "undefined") {
+				response = {
+					id: "new"
+				};
+			}
+			var $optionList = $("#optionList");
+			var html = "<li><span class=\"optionText\">"
+				+ value + 
+				"</span><input type=\"hidden\" value=\""
+				+ value +
+				"\" name=\"options[]\" class=\"optionTextHidden\" /><img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\""
+				+ response.id + 
+				"\" /><img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\""
+				+ response.id +
+				"\" />";
+
+			$optionList.html($optionList.html() + html);
+		}
+
+		function deleteExtraOption(e) {
+			e.preventDefault();
+
+			var li = this.parentNode;
+			var id = $(this).data("id");
+
+			if (id === "new") {
+				li.parentNode.removeChild(li);
+			} else {
+				$.ajax({
+					url: "ajax/fair.php",
+					type: "POST",
+					data: {
+						deleteOption: id
+					},
+					success: function (response) {
+						li.parentNode.removeChild(li);
+					}
+				});
+			}
+		}
+
+		function editExtraOption(e) {
+			e.preventDefault();
+
+			var $this = $(this);
+			var $span = $this.parent().children(".optionText");
+			var text = $span.text();
+
+			$span.html("<input type=\"text\" value=\"" + text + "\" class=\"optionTextInput\" data-old-value=\"" + text + "\" />");
+
+			this.src = "images/icons/save_32x32.png";
+
+			$this.removeClass("editExtraOption");
+			$this.addClass("saveExtraOption");
+		}
+
+		function saveExtraOption(e) {
+			e.preventDefault();
+
+			var $this = $(this);
+			var id = $this.data("id");
+			var $parent = $this.parent();
+			var $span = $parent.children(".optionText");
+			var $hiddenInput = $parent.children(".optionTextHidden");
+			var value = $span.children(".optionTextInput").val();
+
+			if (value === "") {
+				value = $span.children(".optionTextInput").data("old-value");
+			} else {
+				if (id !== "new") {
+					$.ajax({
+						url: "ajax/fair.php",
+						type: "POST",
+						data: {
+							saveOption: $this.data("id"),
+							value: value
+						},
+						success: function (response) {
+						}
+					});
+				}
+			}
+
+			$span.html(value);
+			$hiddenInput.val(value);
+
+			this.src = "images/icons/pencil.png";
+
+			$this.removeClass("saveExtraOption");
+			$this.addClass("editExtraOption");
+		}
+
+		$(document.body).on("click", "#new_option_button", createNewOption)
+			.on("click", ".deleteExtraOption", deleteExtraOption)
+			.on("click", ".editExtraOption", editExtraOption)
+			.on("click", ".saveExtraOption", saveExtraOption);
 	});
 </script>
 
@@ -103,6 +229,51 @@
 		<label for="auto_close"><?php echo $auto_close_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_close" id="auto_close" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('auto_close')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date for when the booking should no longer be available.'}); ?>" />
+	</div>
+	<div class="optionsWhenBooking">
+		<h2><?php echo $options_when_booking_label; ?></h2>
+		<label for="new_option_input"><?php echo $new_option_label; ?></label>
+		<input type="text" id="new_option_input" data-fair="<?php echo $fair_id; ?>" />
+		<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo ""; ?>" />
+		<input type="button" id="new_option_button" value="Ok" />
+		<ul id="optionList">
+			<?php
+			if (!empty($options_when_booking)) {
+				foreach ($options_when_booking as $option) {
+					if (strlen($option["text"]) > 18) {
+						$text = substr($option["text"], 0, 15) . "...";
+					} else {
+						$text = $option["text"];
+					}
+					echo "<li>
+						<span title=\"{$option["text"]}\" class=\"optionText\">{$text}</span>
+						</span><input type=\"hidden\" value=\"{$option["text"]}\" name=\"options[]\" class=\"optionTextHidden\" />
+						<img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\"{$option["id"]}\" />
+						<img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\"{$option["id"]}\" />
+					</li>";
+				}
+			}
+			?>
+		</ul>
+	</div>
+	<div class="floatright">
+		<h2><?php echo $interval_reminders_label; ?> <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Select the amount of days that this reminder should be sent to the exhibitor, before the "reserved until"-date is reached for a reserved stand space.'}); ?>" /></h2>
+<?php for ($i = 1; $i <= 3; $i++): ?>
+		<p class="form-one-row">
+			<label for="reminder_day<?php echo $i; ?>"><?php echo ${'reminder_' . $i . '_label'}; ?></label>
+			<select name="reminder_day<?php echo $i; ?>" id="reminder_day<?php echo $i; ?>">
+				<option value="0"><?php echo $no_reminder_label; ?></option>
+<?php	for ($j = 1; $j <= 365; $j++): ?>
+				<option value="<?php echo $j; ?>"<?php if ($j == $fair->get('reminder_day' . $i)) echo ' selected="selected"'; ?>><?php echo $j; ?></option>
+<?php	endfor; ?>
+			</select>
+			<textarea name="reminder_note<?php echo $i; ?>" id="reminder_note<?php echo $i; ?>" class="reminder-note no-editor" cols="50" rows="5"><?php echo htmlspecialchars($fair->get('reminder_note' . $i)); ?></textarea>
+			<a href="#" class="edit-reminder-text" data-id="<?php echo $i; ?>"><img src="images/icons/pencil.png" alt="<?php $edit_label; ?>" /></a>
+			<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Edit the message of the reminder'}); ?>" />
+		</p>
+<?php endfor; ?>
+	</div>
+	<div class="contactInfoWrapper">
 		
 		<!--
 		<label for="logo"><?php echo $logo_label; ?></label>
@@ -138,24 +309,6 @@
 			<option value="1"<?php echo $hidden_sel1; ?>><?php echo $true_label; ?></option>
 		</select>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Whether or not other users are able to access the event.'}); ?>" />
-	</div>
-
-	<div class="floatright">
-		<h2><?php echo $interval_reminders_label; ?> <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Select the amount of days that this reminder should be sent to the exhibitor, before the "reserved until"-date is reached for a reserved stand space.'}); ?>" /></h2>
-<?php for ($i = 1; $i <= 3; $i++): ?>
-		<p class="form-one-row">
-			<label for="reminder_day<?php echo $i; ?>"><?php echo ${'reminder_' . $i . '_label'}; ?></label>
-			<select name="reminder_day<?php echo $i; ?>" id="reminder_day<?php echo $i; ?>">
-				<option value="0"><?php echo $no_reminder_label; ?></option>
-<?php	for ($j = 1; $j <= 365; $j++): ?>
-				<option value="<?php echo $j; ?>"<?php if ($j == $fair->get('reminder_day' . $i)) echo ' selected="selected"'; ?>><?php echo $j; ?></option>
-<?php	endfor; ?>
-			</select>
-			<textarea name="reminder_note<?php echo $i; ?>" id="reminder_note<?php echo $i; ?>" class="reminder-note no-editor" cols="50" rows="5"><?php echo htmlspecialchars($fair->get('reminder_note' . $i)); ?></textarea>
-			<a href="#" class="edit-reminder-text" data-id="<?php echo $i; ?>"><img src="images/icons/pencil.png" alt="<?php $edit_label; ?>" /></a>
-			<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Edit the message of the reminder'}); ?>" />
-		</p>
-<?php endfor; ?>
 	</div>
 
 	<p class="clear"><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>

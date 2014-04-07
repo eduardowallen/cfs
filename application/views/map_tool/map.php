@@ -447,6 +447,15 @@ function makeUserOptions3($sel=0, $fair) {
 	<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 	<textarea rows="3" style="height:45px; resize:none;" type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"></textarea>
 
+	<label for="book_option_input"><?php echo uh($translator->{"Extra options"}); ?></label>
+	<div id="book_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('options') as $option) { ?>
+			<p>
+				<input type="checkbox" value="<?php echo $option->get('id') ?>" /><?php echo $option->get('text') ?>
+			</p>
+		<?php } ?>
+	</div>
+
 	<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 	<textarea name="book_message_input" style="resize:none;" id="book_message_input"></textarea>
 
@@ -548,6 +557,7 @@ function makeUserOptions3($sel=0, $fair) {
 			</p>
 		<?php endforeach; ?>
 	</div>
+
 	<?php /*
 	<div id="hiddenExhibitorList">
 		<ul>
@@ -565,6 +575,14 @@ function makeUserOptions3($sel=0, $fair) {
 	<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/>
 
+	<label for="reserve_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
+	<div id="reserve_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('options') as $opt): ?>
+			<p>
+				<input type="checkbox" value="<?php echo $opt->get('id') ?>" /><?php echo $opt->get('text') ?>
+			</p>
+		<?php endforeach; ?>
+	</div>
 	
 	<label for="reserve_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 	<textarea name="reserve_message_input" id="reserve_message_input"></textarea>
@@ -588,7 +606,6 @@ function makeUserOptions3($sel=0, $fair) {
 	<h3><?php echo uh($translator->{'Apply for stand space'}); ?></h3>
 	
 	<div class="ssinfo"></div>
-	
 	<label for="apply_category_scrollbox"><?php echo uh($translator->{'Category'}); ?></label>
 	<div style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;" id="apply_category_scrollbox">
 		<?php foreach($fair->get('categories') as $cat): ?>
@@ -596,6 +613,15 @@ function makeUserOptions3($sel=0, $fair) {
 			<input type="checkbox" value="<?php echo $cat->get('id') ?>" /><?php echo $cat->get('name') ?>
 		</p>
 		<?php endforeach; ?>
+	</div>
+
+	<label for="apply_option_input"><?php echo uh($translator->{"Extra options"}); ?></label>
+	<div id="apply_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('options') as $option) { ?>
+			<p>
+				<input type="checkbox" value="<?php echo $option->get('id') ?>" /><?php echo $option->get('text') ?>
+			</p>
+		<?php } ?>
 	</div>
 	
 	<label for="apply_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>

@@ -486,3 +486,9 @@ p.pricetag input{margin:0; padding:0; margin-top:2px; height:23px; width:120px;}
 .hidden {
 	display:none;
 }
+
+
+.icon {
+	cursor: pointer;
+	width: 16px;
+}

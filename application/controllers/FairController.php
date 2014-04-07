@@ -229,7 +229,18 @@ class FairController extends Controller {
 					$this->Fair->set('reminder_day' . $i, $_POST['reminder_day' . $i]);
 					$this->Fair->set('reminder_note' . $i, $_POST['reminder_note' . $i]);
 				}
+
 				$fId = $this->Fair->save();
+
+				foreach ($_POST["options"] as $option) {
+					$fairOption = new FairExtraOption();
+					$fairOption->load($option, "text", $fId, "fair");
+
+					$fairOption->set("text", $option);
+					$fairOption->set("fair", $fId);
+					$fairOption->save();
+				}
+				
 				if ($id == 'new') {
 					$_SESSION['user_fair'] = $fId;
 					$user = new User;
@@ -321,6 +332,16 @@ class FairController extends Controller {
 			$this->set('hide_fair_for_label', 'Hide fair for unauthorized accounts');
 			$this->set('false_label', 'false');
 			$this->set('true_label', 'true');
+			$this->set("options_when_booking_label", "Options when booking");
+			$this->set("new_option_label", "New option");
+
+			if ($id === "new") {
+				$options = array();
+			} else {
+				$stmt = $this->db->query("SELECT `id`, `text` FROM `fair_extra_option` WHERE `fair` = " . $this->Fair->get("id"));
+				$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$this->setNoTranslate("options_when_booking", $options);
+			}
 		}
 	}
 

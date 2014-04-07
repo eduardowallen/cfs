@@ -96,6 +96,7 @@ if (isset($_POST['init'])) {
 	foreach ($map->get('positions') as $pos) {
 		$ex = $pos->get('exhibitor');
 		$cats = array();
+		$opts = array();
 		$num_prel = 0;
 		$applied = 0;
 		unset($ex->password);
@@ -112,6 +113,17 @@ if (isset($_POST['init'])) {
 			}
 			
 			$ex->set('categories', $cats);
+
+			foreach ($ex->get('exhibitor_options') as $opt) {
+				$o = new FairExtraOption;
+				$o->load($opt, 'id');
+				if ($o->wasLoaded()) {
+					$o->set('option_id', $opt);
+					$opts[] = $o;
+				}
+			}
+
+			$ex->set("options", $opts);
 			
 		} else if (userLevel() > 1) {
 
@@ -247,6 +259,11 @@ if (isset($_POST['bookPosition'])) {
 	foreach ($_POST['categories'] as $cat) {
 		$stmt->execute(array($exId, $cat));
 	}
+
+	$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+	foreach ($_POST['options'] as $opt) {
+		$stmt->execute(array($exId, $opt));
+	}
 	
 	$pos->set('status', 2);
 	$pos->save();
@@ -294,6 +311,11 @@ if (isset($_POST['reservePosition'])) {
 	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 	foreach ($_POST['categories'] as $cat) {
 		$stmt->execute(array($exId, $cat));
+	}
+
+	$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+	foreach ($_POST['options'] as $opt) {
+		$stmt->execute(array($exId, $opt));
 	}
 	
 	$pos->set('status', 1);
@@ -347,6 +369,13 @@ if (isset($_POST['editBooking'])) {
 	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 	foreach ($_POST['categories'] as $cat) {
 		$stmt->execute(array($exId, $cat));
+	}
+
+	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
+	
+	$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+	foreach ($_POST['options'] as $opt) {
+		$stmt->execute(array($exId, $opt));
 	}
 	
 	//$pos->set('status', 1);
@@ -425,6 +454,7 @@ if (isset($_POST['preliminary'])) {
 				$pb->set('fair', $fair->get('id'));
 				$pb->set('position', $position->get('id'));
 				$pb->set('categories', implode('|', $_POST['categories'][$index]));
+				$pb->set("options", implode("|", $_POST["options"][$index]));
 				$pb->set('commodity', $_POST['commodity'][$index]);
 				$pb->set('arranger_message', $_POST['message'][$index]);
 				$pb->set('booking_time', time());
@@ -440,6 +470,15 @@ if (isset($_POST['preliminary'])) {
 				}
 
 				$categories = implode(', ', $categories);
+
+				$options = array();
+				foreach ($_POST['options'][$index] as $option_id) {
+					$ex_option = new FairExtraOption();
+					$ex_option->load($option_id, 'id');
+					$options[] = $ex_option->get('option');
+				}
+
+				$options = implode(', ', $options);
 
 				$mail_organizer = new Mail($organizer->get('email'), 'new_preliminary_booking');
 				$mail_organizer->setMailVar('position_name', $position->get('name'));
@@ -620,7 +659,7 @@ if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 
 		if ($fair_map->wasLoaded() && userCanAdminFair($fair_map->get('fair'), $fair_map->get('id'))) {
 
-			$stmt = $globalDB->prepare("SELECT id, user, categories, position, commodity, arranger_message, booking_time FROM preliminary_booking WHERE position = ?");
+			$stmt = $globalDB->prepare("SELECT id, user, categories, options, position, commodity, arranger_message, booking_time FROM preliminary_booking WHERE position = ?");
 			$stmt->execute(array($position->get('id')));
 			$result = array();
 

@@ -159,6 +159,15 @@
 		
 		<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<input type="text" class="dialogueInput" name="commodity" id="reserve_commodity_input" />
+
+		<label for="reserve_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
+		<div id="reserve_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+			<?php foreach($fair->get('options') as $opt): ?>
+				<p style="margin:0; width:100%; float:left;">
+					<input type="checkbox" name="options[]" value="<?php echo $opt->get('id') ?>" /><?php echo $opt->get('text') ?>
+				</p>
+			<?php endforeach; ?>
+		</div>
 		
 		<label for="reserve_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 		<textarea name="arranger_message" id="reserve_message_input"></textarea>
@@ -200,6 +209,15 @@
 		
 		<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<input type="text" class="dialogueInput" name="commodity" id="book_commodity_input" />
+
+		<label for="book_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
+		<div id="book_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+			<?php foreach($fair->get('options') as $opt): ?>
+			<p style="margin:0; width:100%; float:left;">
+				<input type="checkbox" name="options[]" value="<?php echo $opt->get('id') ?>" /><?php echo $opt->get('text') ?>
+			</p>
+			<?php endforeach; ?>
+		</div>
 
 		<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 		<textarea name="arranger_message" id="book_message_input"></textarea>
@@ -544,6 +562,7 @@
 						</a>
 					</td>
 					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
+					<td style="display: none"><?php echo $pos["options"]; ?></td>
 				</tr>
 			<?php endforeach;?>
 			</tbody>

@@ -62,12 +62,27 @@ class User extends Model {
 						}
 					}
 				}
+
+				$option_ids = explode("|", $r["options"]);
+				//Get options for prel booking
+				$r["option_list"] = array();
+				foreach ($option_ids as $optid) {
+					$stmt = $this->db->prepare("SELECT * FROM fair_extra_option WHERE `id` = ?");
+					$stmt->execute(array($optid));
+					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					if ($result > 0) {
+						foreach ($result as $row) {
+							$r["option_list"][] = $row['text'];
+						}
+					}
+				}
 				$r["presentation"] = $this->get("presentation");
 				$r["website"] = $this->get("website");
 				$r["company"] = $this->get("company");
 				$prels[] = $r;
 			}
 		}
+
 		return $prels;
 	}
 

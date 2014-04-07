@@ -4,6 +4,7 @@ class Exhibitor extends User {
 
 	protected $fairs;
 	protected $exhibitor_categories = array();
+	protected $exhibitor_options = array();
 
 	public function __construct() {
 		parent::__construct();
@@ -45,6 +46,15 @@ class Exhibitor extends User {
 			if ($result > 0) {
 				foreach ($result as $res) {
 					$this->exhibitor_categories[] = $res['category'];
+				}
+			}
+
+			$stmt = $this->db->prepare("SELECT * FROM exhibitor_option_rel WHERE exhibitor = ?");
+			$stmt->execute(array($this->exhibitor_id));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if ($result > 0) {
+				foreach ($result as $res) {
+					$this->exhibitor_options[] = $res['option'];
 				}
 			}
 
