@@ -409,15 +409,15 @@ class FairController extends Controller {
 				}
 
 				/* Hämta alla preliminärbokningar */
-				$statement = $this->db->prepare('SELECT * FROM preliminary_booking WHERE fair = ?');
+				/*$statement = $this->db->prepare('SELECT * FROM preliminary_booking WHERE fair = ?');
 				$statement->execute(array($this->Fair->get('id')));
 				$preliminary_booking = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 				foreach ($preliminary_booking as $booking) {
-					/* Kopiera bokningen */
+					/* Kopiera bokningen *//*
 					$statement = $this->db->prepare("INSERT INTO preliminary_booking (user, fair, position, categories, commodity, arranger_message, booking_time) VALUES (?, ?, ?, ?, ?, ?, ?)");
 					$statement->execute(array($booking['user'], $fair_clone_id, $position_ids[$booking['position']], $booking['categories'], $booking['commodity'], $booking['arranger_message'], $booking['booking_time']));
-				}
+				}*/
 
 				/* Hämta alla utställarkategorier */
 				$statement = $this->db->prepare('SELECT * FROM exhibitor_category WHERE fair = ?');
