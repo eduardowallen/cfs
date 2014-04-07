@@ -75,6 +75,11 @@ a:hover {
 	float:right;
 	cursor:pointer;
 }
+input[type="button"].closeDialogue {
+	float: none;
+	display: block;
+	margin: auto;	
+}
 
 #nouser_dialogue {
 	margin-left: -300px;

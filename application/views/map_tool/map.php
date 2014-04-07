@@ -391,7 +391,8 @@ function makeUserOptions3($sel=0, $fair) {
 
 <div id="preliminaryConfirm" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-	<p><?php echo uh($translator->{"Thank you for your preliminary booking! A receipt of your booking has been sent to your inbox and it is now up to the Organizer to do the rest of the work. You can preliminary book more stand spaces if you want in the same manner."}); ?></p>
+	<p><?php echo $translator->{"Thank you for your preliminary booking! A receipt of your booking has been sent to your inbox and it is now up to the Organizer to do the rest of the work. You can preliminary book more stand spaces if you want in the same manner."}; ?></p>
+	<input type="button" class="closeDialogue" value="Ok" />
 </div>
 
 <div id="edit_position_dialogue" class="dialogue">
