@@ -287,10 +287,12 @@ class ExhibitorController extends Controller {
       }
     }
 
-		if($tbl == 1) : // Exportera tabellen 'bokade' till Excel
+
+		$exhibitors = array();
+		$connected = array();
+
+		if ($tbl == 1) { // Exportera tabellen 'bokade' till Excel
 			/* Samla tabellinfo till array */
-			$exhibitors = array();
-			$connected = array();
 			$fairs = 0;
 			$currentFair = 0;
 			foreach ($result as $res) {
@@ -311,7 +313,7 @@ class ExhibitorController extends Controller {
 					}
 				}
 			}	
-		elseif($tbl == 2) : // Exportera tabellen 'anslutna' till Excel 
+		} else if ($tbl == 2) { // Exportera tabellen 'anslutna' till Excel 
 			/* Samla tabellinfo till array */
 			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time, user.id FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
 			$stmt->execute(array($_SESSION['user_fair'], 1));
@@ -330,7 +332,7 @@ class ExhibitorController extends Controller {
 					$exhibitors[] = $ex;
 				}
 			}
-		endif;
+		}
 
 		/* Har nu tabellinformationen i en array, 
 		sätt in informationen i ett exceldokument 

@@ -63,7 +63,7 @@ function bookPopup(row, link, action) {
 	
 	var data = row.children(), 
 		catArr = data.eq(7).text().split("|"),
-		optArr = data.eq(15).text().split("|"), 
+		optArr = data.eq(14).text().split("|"), 
 		i;
 
 	$('#book_category_scrollbox input').prop('checked', false);
@@ -307,7 +307,7 @@ function prepareTable(tbl, checkboxes){
 	} else if(tbl == "prem"){
 		exportTableToExcel(rowArray, colArray, 3);
 	} else if (tbl === "connected") {
-		exportTableToExcel(rowArray, colArray, 4);
+		exportTableToExcel(rowArray, colArray, 2);
 	}
 	
 

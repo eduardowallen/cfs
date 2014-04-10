@@ -309,9 +309,13 @@ class AdministratorController extends Controller {
 			$this->translate->{'Trade'}, 
 			$this->translate->{'Time of booking'}, 
 			$this->translate->{'Message to organizer'}, 
-			$this->translate->{'Reserved until'}, 
-			$this->translate->{'Last edited'}
+			$this->translate->{'Reserved until'}
 		);
+
+		//Prelbooking does not have `Last edited`
+		if ($tbl !== 3) {
+			$column_names[] = $this->translate->{'Last edited'};
+		}
 
 		// The variabel $cols contains the INDEXES of the column "names" to show!
 		foreach ($cols as $i => $column_idx) {
@@ -335,7 +339,7 @@ class AdministratorController extends Controller {
 					date('d-m-Y H:i:s', $arrChild['booking_time']), 
 					$arrChild['arranger_message'], 
 					(isset($arrChild['expires']) ? $arrChild['expires'] : ''), 
-					($arrChild['edit_time'] > 0 ? date('d-m-Y H:i:s', $arrChild['edit_time']) : '')
+					(isset($arrChild["edit_time"]) && $arrChild['edit_time'] > 0 ? date('d-m-Y H:i:s', $arrChild['edit_time']) : '')
 				);
 
 				foreach ($cols as $i => $column_idx) {

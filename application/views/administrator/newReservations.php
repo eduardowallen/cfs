@@ -561,8 +561,8 @@
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 					<td style="display: none"><?php echo $pos["options"]; ?></td>
+					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 				</tr>
 			<?php endforeach;?>
 			</tbody>
