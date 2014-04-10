@@ -475,7 +475,7 @@ if (isset($_POST['preliminary'])) {
 				foreach ($_POST['options'][$index] as $option_id) {
 					$ex_option = new FairExtraOption();
 					$ex_option->load($option_id, 'id');
-					$options[] = $ex_option->get('option');
+					$options[] = $ex_option->get('text');
 				}
 
 				$options = implode(', ', $options);
