@@ -57,7 +57,7 @@
 <h1><?php echo $clone_headline; ?></h1>
 
 <form action="fair/makeclone/<?php echo $edit_id; ?>" method="post" id="fair_clone_form">
-	<div class="form_column">
+	<div class="form_column floatleft">
 		<label for="name"><?php echo $name_label; ?> *</label>
 		<input autocomplete="off" type="text" name="name" id="name" />
 		<label style="font-style:italic; width:400px;" id="name_preview"><?php echo BASE_URL ?><span></span></label>
@@ -78,5 +78,31 @@
 		<textarea name="contact_info" id="contact_info"><?php echo $fair->get('contact_info'); ?></textarea>
 
 		<p><input type="submit" name="save" value="<?php echo $clone_label; ?>"/></p>
+	</div>
+	<div class="optionsWhenBooking">
+		<h2><?php echo $options_when_booking_label; ?></h2>
+		<label for="new_option_input"><?php echo $new_option_label; ?></label>
+		<input type="text" id="new_option_input" data-fair="new" />
+		<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo ""; ?>" />
+		<input type="button" id="new_option_button" value="Ok" />
+		<ul id="optionList">
+			<?php
+			if (!empty($options_when_booking)) {
+				foreach ($options_when_booking as $option) {
+					if (strlen($option["text"]) > 18) {
+						$text = substr($option["text"], 0, 15) . "...";
+					} else {
+						$text = $option["text"];
+					}
+					echo "<li>
+						<span title=\"{$option["text"]}\" class=\"optionText\">{$text}</span>
+						</span><input type=\"hidden\" value=\"{$option["text"]}\" name=\"options[]\" class=\"optionTextHidden\" />
+						<img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\"new\" />
+						<img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\"new\" />
+					</li>";
+				}
+			}
+			?>
+		</ul>
 	</div>
 </form>

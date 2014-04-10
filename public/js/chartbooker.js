@@ -319,6 +319,133 @@ function getHorizontalCenter($parent, $child) {
 	return ($parent.width() / 2) - ($child.width() / 2);
 }
 
+var bookingOptions = {
+	createNewOption: function (e) {
+		e.preventDefault();
+
+		console.log(this);
+
+		var $input = $("#new_option_input");
+		var value = $input.val();
+		var fairId = $input.data("fair");
+
+		console.log(value);
+
+		if (value !== "") {
+			//Can't insert into database if fair does not already exsist
+			if (fairId === "new") {
+				bookingOptions.appendToList(value);
+			} else {
+				$.ajax({
+					url: "ajax/fair.php",
+					type: "POST",
+					data: {
+						"newOption": fairId,
+						"value": value
+					},
+					dataType: "json",
+					success: function (response) {
+						bookingOptions.appendToList(value, response);
+					}
+				});
+			}
+		}
+	},
+
+	appendToList: function (value, response) {
+		if (typeof response ===  "undefined") {
+			response = {
+				id: "new"
+			};
+		}
+		var $optionList = $("#optionList");
+		var html = "<li><span class=\"optionText\">"
+			+ value + 
+			"</span><input type=\"hidden\" value=\""
+			+ value +
+			"\" name=\"options[]\" class=\"optionTextHidden\" /><img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\""
+			+ response.id + 
+			"\" /><img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\""
+			+ response.id +
+			"\" />";
+
+		$optionList.html($optionList.html() + html);
+	},
+
+	deleteExtraOption: function (e) {
+		e.preventDefault();
+
+		var li = this.parentNode;
+		var id = $(this).data("id");
+
+		if (id === "new") {
+			li.parentNode.removeChild(li);
+		} else {
+			$.ajax({
+				url: "ajax/fair.php",
+				type: "POST",
+				data: {
+					deleteOption: id
+				},
+				success: function (response) {
+					li.parentNode.removeChild(li);
+				}
+			});
+		}
+	},
+
+	editExtraOption: function (e) {
+		e.preventDefault();
+
+		var $this = $(this);
+		var $span = $this.parent().children(".optionText");
+		var text = $span.text();
+
+		$span.html("<input type=\"text\" value=\"" + text + "\" class=\"optionTextInput\" data-old-value=\"" + text + "\" />");
+
+		this.src = "images/icons/save_32x32.png";
+
+		$this.removeClass("editExtraOption");
+		$this.addClass("saveExtraOption");
+	},
+
+	saveExtraOption: function (e) {
+		e.preventDefault();
+
+		var $this = $(this);
+		var id = $this.data("id");
+		var $parent = $this.parent();
+		var $span = $parent.children(".optionText");
+		var $hiddenInput = $parent.children(".optionTextHidden");
+		var value = $span.children(".optionTextInput").val();
+
+		if (value === "") {
+			value = $span.children(".optionTextInput").data("old-value");
+		} else {
+			if (id !== "new") {
+				$.ajax({
+					url: "ajax/fair.php",
+					type: "POST",
+					data: {
+						saveOption: $this.data("id"),
+						value: value
+					},
+					success: function (response) {
+					}
+				});
+			}
+		}
+
+		$span.html(value);
+		$hiddenInput.val(value);
+
+		this.src = "images/icons/pencil.png";
+
+		$this.removeClass("saveExtraOption");
+		$this.addClass("editExtraOption");
+	}
+};
+
 $(document).ready(function() {
 	$('.datepicker.date').datepicker();
 	$('.datepicker.date').datepicker('option', 'dateFormat', 'dd-mm-yy');
@@ -612,7 +739,12 @@ $(document).ready(function() {
 		var link = $(this);
 		e.preventDefault();
 		reservePopup(link.parent().parent(), link.attr('href'), 'edit');
-	}).on("click", ".showProfileLink", showUser);
+	}).on("click", ".showProfileLink", showUser)
+
+	.on("click", "#new_option_button", bookingOptions.createNewOption)
+	.on("click", ".deleteExtraOption", bookingOptions.deleteExtraOption)
+	.on("click", ".editExtraOption", bookingOptions.editExtraOption)
+	.on("click", ".saveExtraOption", bookingOptions.saveExtraOption);
 	
 	$(document).ready(function() {
 	$("#copy").change(function() {

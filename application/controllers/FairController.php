@@ -384,6 +384,16 @@ class FairController extends Controller {
 				$fair_clone->set('hidden', $this->Fair->get('hidden'));
 				$fair_clone_id = $fair_clone->save();
 
+				//Save options
+				foreach ($_POST["options"] as $option) {
+					$fairOption = new FairExtraOption();
+					$fairOption->load($option, "text", $fair_clone_id, "fair");
+
+					$fairOption->set("text", $option);
+					$fairOption->set("fair", $fair_clone_id);
+					$fairOption->save();
+				}
+
 				/* Hämta alla kartor */
 				$statement = $this->db->prepare('SELECT * FROM fair_map WHERE fair = ?');
 				$statement->execute(array($this->Fair->get('id')));
@@ -511,6 +521,12 @@ class FairController extends Controller {
 			$this->set('contact_label', 'Contact information');
 			$this->set('clone_label', 'Complete cloning');
 			$this->set('dialog_clone_complete_info', 'In connection with completing the cloning of your event, you will be billed according to the agreed contractual.');
+			$this->set("options_when_booking_label", "Options when booking");
+			$this->set("new_option_label", "New option");
+
+			$stmt = $this->db->query("SELECT `text` FROM `fair_extra_option` WHERE `fair` = " . $id);
+			$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$this->setNoTranslate("options_when_booking", $options);
 		}
 	}
 
