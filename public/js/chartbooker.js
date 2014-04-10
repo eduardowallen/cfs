@@ -328,7 +328,12 @@ $(document).ready(function() {
 		$(this).datepicker('setDate', $(this).attr('value'));
 	});
 	$('.datepicker.datetime').each(function() {
-		$(this).datetimepicker('setDate', $.datepicker.parseDateTime("dd-mm-yy", "HH:mm", $(this).attr('value')));
+		var $this = $(this),
+			value = $this.attr("value");
+
+		if (typeof value !== "undefined") {
+			$this.datetimepicker('setDate', $.datepicker.parseDateTime("dd-mm-yy", "HH:mm", value));
+		}
 	});
 
 	$('#languages a.selected').attr('href', 'javascript:void(0)').append('&nbsp;&nbsp;<img src="images/arrow_down.png" alt=""/>').prependTo('#languages');	
