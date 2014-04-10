@@ -398,33 +398,45 @@ if (isset($_POST['editBooking'])) {
 	$categories = implode(', ', $categories);
 	$time_now = date('d-m-Y H:i');
 
-	$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
-	$mail_organizer->setMailVar('position_name', $pos->get('name'));
-	$mail_organizer->setMailVar('position_information', $pos->get('information'));
-	$mail_organizer->setMailVar('edit_time', $time_now);
-	$mail_organizer->setMailVar('arranger_message', $_POST['message']);
-	$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
-	$mail_organizer->setMailVar('exhibitor_category', $categories);
+	$mailSetting = $mail_type . "Edited";
 
-	if ($mail_type == 'reservation') {
-		$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+	//Check mail settings and send only if setting is set
+	if ($fair->wasLoaded()) {
+		$mailSettings = json_decode($fair->get("mail_settings"));
+		if (is_array($mailSettings->$mailSetting)) {
+			if (in_array("0", $mailSettings->$mailSetting)) {
+				$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
+				$mail_organizer->setMailVar('position_name', $pos->get('name'));
+				$mail_organizer->setMailVar('position_information', $pos->get('information'));
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_organizer->setMailVar('exhibitor_category', $categories);
+
+				if ($mail_type == 'reservation') {
+					$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+				}
+
+				$mail_organizer->send();
+			}
+
+			if (in_array("1", $mailSettings->$mailSetting)) {
+				$mail_user = new Mail($ex->get('email'), $mail_type . '_edited_receipt');
+				$mail_user->setMailVar('position_name', $pos->get('name'));
+				$mail_user->setMailVar('position_information', $pos->get('information'));
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->setMailVar('arranger_message', $_POST['message']);
+				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+				$mail_user->setMailVar('exhibitor_category', $categories);
+
+				if ($mail_type == 'reservation') {
+					$mail_user->setMailVar('date_expires', $_POST['expires']);
+				}
+
+				$mail_user->send();
+			}
+		}
 	}
-
-	$mail_organizer->send();
-
-	$mail_user = new Mail($ex->get('email'), $mail_type . '_edited_receipt');
-	$mail_user->setMailVar('position_name', $pos->get('name'));
-	$mail_user->setMailVar('position_information', $pos->get('information'));
-	$mail_user->setMailVar('edit_time', $time_now);
-	$mail_user->setMailVar('arranger_message', $_POST['message']);
-	$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
-	$mail_user->setMailVar('exhibitor_category', $categories);
-
-	if ($mail_type == 'reservation') {
-		$mail_user->setMailVar('date_expires', $_POST['expires']);
-	}
-
-	$mail_user->send();
 
 	exit;
 	

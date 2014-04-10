@@ -32,6 +32,7 @@ class FairController extends Controller {
 		$this->set('th_admins', 'Administrators');
 		$this->set('th_exhibitors', 'Exhibitors');
 		$this->set('th_settings', 'Settings');
+		$this->set('th_mailSettings', 'Mail settings');
 		$this->set('th_delete', 'Delete');
 		$this->set('th_clone', 'Clone');
 		$this->set('app_yes', 'Yes');
@@ -587,7 +588,38 @@ class FairController extends Controller {
 
 	}
 
+	public function event_mail($id = NULL) {
+		setAuthLevel(3);
 
+		$fair = new Fair();
+		$fair->load($id, "id");
+
+		if ($fair->wasLoaded()) {
+			if (isset($_POST["save"])) {
+				unset($_POST["save"]);
+				$fair->set("mail_settings", json_encode($_POST));
+				$fair->save();
+			}
+
+			$this->set("heading", "Automatically send a mail when I:");
+			$this->set("toMyself", "To myself");
+			$this->set("toExhibitor", "To the Exhibitor");
+			$this->set("editBooking", "Edit a booking");
+			$this->set("editReservation", "Edit a reservation");
+			$this->set("cancelBooking", "Cancel a booking");
+			$this->set("cancelPreliminaryBooking", "Cancel a preliminary booking");
+			$this->set("cancelReservation", "Cancel a reservation");
+			$this->set("save", "Save");
+
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (!is_object($mailSettings)) {
+				$mailSettings = new stdClass();
+			}
+
+			$this->setNoTranslate("mailSettings", $mailSettings);
+			$this->setNoTranslate("id", $id);
+		}
+	}
 }
 
 ?>

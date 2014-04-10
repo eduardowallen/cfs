@@ -433,8 +433,14 @@ class AdministratorController extends Controller {
 			$u = new User;
 			$u->load($pb->get('user'), 'id');
 			
-			$mail = new Mail($u->get('email'), 'reservation_cancelled');
-			$mail->send();
+			//Check mail settings and send only if setting is set
+			if ($fair->wasLoaded()) {
+				$mailSettings = json_decode($fair->get("mail_settings"));
+				if (is_array($mailSettings->reservationCancelled) && in_array("1", $mailSettings->reservationCancelled)) {
+					$mail = new Mail($u->get('email'), 'reservation_cancelled');
+					$mail->send();
+				}
+			}
 			
 			$pb->delete();
 			header("Location: ".BASE_URL."administrator/newReservations");
@@ -505,23 +511,32 @@ class AdministratorController extends Controller {
 				$ex_user = new User();
 				$ex_user->load($ex->get('user'), 'id');
 
-				$mail_organizer = new Mail($organizer->get('email'), 'booking_edited_confirm');
-				$mail_organizer->setMailVar('position_name', $pos->get('name'));
-				$mail_organizer->setMailVar('position_information', $pos->get('information'));
-				$mail_organizer->setMailVar('edit_time', $time_now);
-				$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
-				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
-				$mail_organizer->setMailVar('exhibitor_category', $categories);
-				$mail_organizer->send();
-
-				$mail_user = new Mail($ex_user->get('email'), 'booking_edited_confirm');
-				$mail_user->setMailVar('position_name', $pos->get('name'));
-				$mail_user->setMailVar('position_information', $pos->get('information'));
-				$mail_user->setMailVar('edit_time', $time_now);
-				$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
-				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
-				$mail_user->setMailVar('exhibitor_category', $categories);
-				$mail_user->send();
+				//Check mail settings and send only if setting is set
+				if ($fair->wasLoaded()) {
+					$mailSettings = json_decode($fair->get("mail_settings"));
+					if (is_array($mailSettings->bookingEdited)) {
+						if (in_array("0", $mailSettings->bookingEdited)) {
+							$mail_organizer = new Mail($organizer->get('email'), 'booking_edited_confirm');
+							$mail_organizer->setMailVar('position_name', $pos->get('name'));
+							$mail_organizer->setMailVar('position_information', $pos->get('information'));
+							$mail_organizer->setMailVar('edit_time', $time_now);
+							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+							$mail_organizer->setMailVar('exhibitor_category', $categories);
+							$mail_organizer->send();
+						}
+						if (in_array("1", $mailSettings->bookingEdited)) {
+							$mail_user = new Mail($ex_user->get('email'), 'booking_edited_receipt');
+							$mail_user->setMailVar('position_name', $pos->get('name'));
+							$mail_user->setMailVar('position_information', $pos->get('information'));
+							$mail_user->setMailVar('edit_time', $time_now);
+							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+							$mail_user->setMailVar('exhibitor_category', $categories);
+							$mail_user->send();
+						}
+					}
+				}
 			}
 			
 			if (isset($_POST["redirect"])) {
@@ -1017,29 +1032,43 @@ class AdministratorController extends Controller {
 
 		$current_date = date('d-m-Y H:i');
 
-		$mail_exhibitor = new Mail($u->get('email'), $mail_type . '_cancelled');
-		$mail_exhibitor->setMailVar('position_name', $position->get('name'));
-		$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
-		$mail_exhibitor->setMailVar('event_name', $fair->get('name'));
-		$mail_exhibitor->setMailVar('edit_time', $current_date);
-		$mail_exhibitor->setMailVar('comment', $comment);
-		$mail_exhibitor->send();
+		$mailSetting = $mail_type . "Cancelled";
 
-		$mail_user = new Mail($current_user->get('email'), $mail_type . '_cancelled_confirm');
-		$mail_user->setMailVar('position_name', $position->get('name'));
-		$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
-		$mail_user->setMailVar('event_name', $fair->get('name'));
-		$mail_user->setMailVar('edit_time', $current_date);
-		$mail_user->setMailVar('comment', $comment);
-		$mail_user->send();
+		//Check mail settings and send only if setting is set
+		if ($fair->wasLoaded()) {
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (is_array($mailSettings->$mailSetting)) {
+				if (in_array("1", $mailSettings->$mailSetting)) {
+					$mail_exhibitor = new Mail($u->get('email'), $mail_type . '_cancelled');
+					$mail_exhibitor->setMailVar('position_name', $position->get('name'));
+					$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
+					$mail_exhibitor->setMailVar('event_name', $fair->get('name'));
+					$mail_exhibitor->setMailVar('edit_time', $current_date);
+					$mail_exhibitor->setMailVar('comment', $comment);
+					$mail_exhibitor->send();
+				}
 
-		$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_cancelled_confirm');
-		$mail_organizer->setMailVar('position_name', $position->get('name'));
-		$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
-		$mail_organizer->setMailVar('event_name', $fair->get('name'));
-		$mail_organizer->setMailVar('edit_time', $current_date);
-		$mail_organizer->setMailVar('comment', $comment);
-		$mail_organizer->send();
+				if (in_array("0", $mailSettings->$mailSetting)) {
+					$mail_user = new Mail($current_user->get('email'), $mail_type . '_cancelled_confirm');
+					$mail_user->setMailVar('position_name', $position->get('name'));
+					$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
+					$mail_user->setMailVar('event_name', $fair->get('name'));
+					$mail_user->setMailVar('edit_time', $current_date);
+					$mail_user->setMailVar('comment', $comment);
+					$mail_user->send();
+				}
+
+				if (in_array("0", $mailSettings->$mailSetting)) {
+					$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_cancelled_confirm');
+					$mail_organizer->setMailVar('position_name', $position->get('name'));
+					$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
+					$mail_organizer->setMailVar('event_name', $fair->get('name'));
+					$mail_organizer->setMailVar('edit_time', $current_date);
+					$mail_organizer->setMailVar('comment', $comment);
+					$mail_organizer->send();
+				}
+			}
+		}
 
 		if (!isset($_POST["ajax"])){
 			header('Location: '.BASE_URL.'administrator/newReservations');
@@ -1124,33 +1153,45 @@ class AdministratorController extends Controller {
 				$categories = implode(', ', $categories);
 				$time_now = date('d-m-Y H:i');
 
-				$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
-				$mail_organizer->setMailVar('position_name', $pos->get('name'));
-				$mail_organizer->setMailVar('position_information', $pos->get('information'));
-				$mail_organizer->setMailVar('edit_time', $time_now);
-				$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
-				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
-				$mail_organizer->setMailVar('exhibitor_category', $categories);
+				$mailSetting = $mail_type . "Edited";
 
-				if ($mail_type == 'reservation') {
-					$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+				//Check mail settings and send only if setting is set
+				if ($fair->wasLoaded()) {
+					$mailSettings = json_decode($fair->get("mail_settings"));
+					if (is_array($mailSettings->$mailSetting)) {
+						if (in_array("0", $mailSettings->$mailSetting)) {
+							$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
+							$mail_organizer->setMailVar('position_name', $pos->get('name'));
+							$mail_organizer->setMailVar('position_information', $pos->get('information'));
+							$mail_organizer->setMailVar('edit_time', $time_now);
+							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+							$mail_organizer->setMailVar('exhibitor_category', $categories);
+
+							if ($mail_type == 'reservation') {
+								$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+							}
+
+							$mail_organizer->send();
+						}
+
+						if (in_array("1", $mailSettings->$mailSetting)) {
+							$mail_user = new Mail($exhibitor->get('email'), $mail_type . '_edited_receipt');
+							$mail_user->setMailVar('position_name', $pos->get('name'));
+							$mail_user->setMailVar('position_information', $pos->get('information'));
+							$mail_user->setMailVar('edit_time', $time_now);
+							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+							$mail_user->setMailVar('exhibitor_category', $categories);
+
+							if ($mail_type == 'reservation') {
+								$mail_user->setMailVar('date_expires', $_POST['expires']);
+							}
+
+							$mail_user->send();
+						}
+					}
 				}
-
-				$mail_organizer->send();
-
-				$mail_user = new Mail($exhibitor->get('email'), $mail_type . '_edited_receipt');
-				$mail_user->setMailVar('position_name', $pos->get('name'));
-				$mail_user->setMailVar('position_information', $pos->get('information'));
-				$mail_user->setMailVar('edit_time', $time_now);
-				$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
-				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
-				$mail_user->setMailVar('exhibitor_category', $categories);
-
-				if ($mail_type == 'reservation') {
-					$mail_user->setMailVar('date_expires', $_POST['expires']);
-				}
-
-				$mail_user->send();
 
 				$pos->save();
 			}
@@ -1244,25 +1285,34 @@ class AdministratorController extends Controller {
 				$exhib_user = new User();
 				$exhib_user->load($exhib->get('user'), 'id');
 
-				$mail_organizer = new Mail($organizer->get('email'), 'reservation_edited_confirm');
-				$mail_organizer->setMailVar('position_name', $pos->get('name'));
-				$mail_organizer->setMailVar('position_information', $pos->get('information'));
-				$mail_organizer->setMailVar('edit_time', $time_now);
-				$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
-				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
-				$mail_organizer->setMailVar('exhibitor_category', $categories);
-				$mail_organizer->setMailVar('date_expires', $_POST['expires']);
-				$mail_organizer->send();
-
-				$mail_user = new Mail($exhib_user->get('email'), 'reservation_edited_confirm');
-				$mail_user->setMailVar('position_name', $pos->get('name'));
-				$mail_user->setMailVar('position_information', $pos->get('information'));
-				$mail_user->setMailVar('edit_time', $time_now);
-				$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
-				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
-				$mail_user->setMailVar('exhibitor_category', $categories);
-				$mail_user->setMailVar('date_expires', $_POST['expires']);
-				$mail_user->send();
+				//Check mail settings and send only if setting is set
+				if ($fair->wasLoaded()) {
+					$mailSettings = json_decode($fair->get("mail_settings"));
+					if (is_array($mailSettings->reservationEdited)) {
+						if (in_array("0", $mailSettings->reservationEdited)) {
+							$mail_organizer = new Mail($organizer->get('email'), 'reservation_edited_confirm');
+							$mail_organizer->setMailVar('position_name', $pos->get('name'));
+							$mail_organizer->setMailVar('position_information', $pos->get('information'));
+							$mail_organizer->setMailVar('edit_time', $time_now);
+							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
+							$mail_organizer->setMailVar('exhibitor_category', $categories);
+							$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+							$mail_organizer->send();
+						}
+						if (in_array("1", $mailSettings->reservationEdited)) {
+							$mail_user = new Mail($exhib_user->get('email'), 'reservation_edited_confirm');
+							$mail_user->setMailVar('position_name', $pos->get('name'));
+							$mail_user->setMailVar('position_information', $pos->get('information'));
+							$mail_user->setMailVar('edit_time', $time_now);
+							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
+							$mail_user->setMailVar('exhibitor_category', $categories);
+							$mail_user->setMailVar('date_expires', $_POST['expires']);
+							$mail_user->send();
+						}
+					}
+				}
 			}
 		}
 

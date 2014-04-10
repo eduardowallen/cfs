@@ -75,6 +75,7 @@
 							<span class="td_button"><a href="administrator/overview/<?php echo $fair->get('id'); ?>"><?php echo $th_admins ?></a></span>
 							<span class="td_button"><a href="exhibitor/exhibitors/<?php echo $fair->get('id'); ?>"><?php echo $th_exhibitors ?></a></span>
 							<span class="td_button"><a href="fair/edit/<?php echo $fair->get('id'); ?>"><?php echo $th_settings ?></a></span>
+							<span class="td_button"><a href="fair/event_mail/<?php echo $fair->get('id'); ?>"><?php echo $th_mailSettings; ?></a></span>
 							<?php if(/*$fair->get('approved') != 2 && */userLevel() == 4) : ?>
 							<span class="td_button"><a	href="fair/delete/<?php echo $fair->get('id'); ?>"><?php echo $th_delete ?></a></span>
 							<?php endif; ?>

@@ -429,3 +429,7 @@ img#logo {
 .contactInfoWrapper {
 	clear: left;
 }
+
+.tableNoBorder td {
+	padding-right: 20px;
+}
