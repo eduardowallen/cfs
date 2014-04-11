@@ -15,6 +15,8 @@ class MapToolController extends Controller {
 		}
 		//contextmenu
 		
+		$saveVisit = true;
+
 		$this->setNoTranslate('accessible_maps', array());
 		if( userLevel() == 2 ){
 			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
@@ -22,19 +24,23 @@ class MapToolController extends Controller {
 			$prep->execute(array($_SESSION['user_id'], $fairId));
 			$result = $prep->fetch();
 			$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
-			if(!$result)
+			if (!$result) {
 				$this->setNoTranslate('hasRights', false);
-			else
+				$saveVisit = false;
+			} else {
 				$this->setNoTranslate('hasRights', true);
+			}
 		}elseif( userLevel()  == 3 ){
 			$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
 			$prep = $this->db->prepare($sql);
 			$prep->execute(array($_SESSION['user_id'], $fairId));
 			$result = $prep->fetchAll();
-			if(!$result)
+			if (!$result) {
 				$this->setNoTranslate('hasRights', false);
-			else
+				$saveVisit = false;
+			} else {
 				$this->setNoTranslate('hasRights', true);
+			}
 		} else if (userLevel() == 4) {
 			$this->setNoTranslate('hasRights', true);
 		} else {
@@ -57,7 +63,7 @@ class MapToolController extends Controller {
 				$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
 
 				//Save latest visited fair
-				if (!empty($_SESSION["user_id"])) {
+				if (!empty($_SESSION["user_id"]) && $saveVisit) {
 					setcookie($_SESSION["user_id"] . "_last_fair", $_SESSION["user_fair"], time() + 3600 * 24 * 365, "/");
 				}
 				
