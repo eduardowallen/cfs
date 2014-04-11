@@ -121,7 +121,7 @@
 		<h2><?php echo $options_when_booking_label; ?></h2>
 		<label for="new_option_input"><?php echo $new_option_label; ?></label>
 		<input type="text" id="new_option_input" data-fair="<?php echo $fair_id; ?>" />
-		<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo ""; ?>" />
+		<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'With this feature you can add as many extra options as you want. These options are then available to check for the Exhibitor when they do their booking on this particular event.'}); ?>" />
 		<input type="button" id="new_option_button" value="Ok" />
 		<ul id="optionList">
 			<?php
