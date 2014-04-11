@@ -468,7 +468,7 @@ maptool.showContextMenu = function(position, marker) {
 		//$(".contextmenu li").off("click");
 		
 		//click handlers for context menu
-		if(maptool.map.userlevel > 0 && ((hasRights) || maptool.map.userlevel == 4)) {
+		if(maptool.map.userlevel > 0 && (maptool.map.userlevel == 1 || (hasRights || maptool.map.userlevel == 4))) {
 			$("#mapHolder").prepend(contextMenu);
 			$(".contextmenu li").click(function(e) {
 				var positionId = $(this).parent().attr("id").replace("cm-", "");
