@@ -902,7 +902,7 @@ class ExhibitorController extends Controller {
 			$stmtPreliminary->execute(array($u->get("id")));
 
 		} else {
-			$stmt = $u->db->preppare("SELECT
+			$stmt = $u->db->prepare("SELECT
 				`exhibitor`.`id` AS exhibitor_id,
 				`exhibitor`.`commodity`,
 				`exhibitor`.`arranger_message`,
