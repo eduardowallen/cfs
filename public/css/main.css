@@ -433,3 +433,33 @@ img#logo {
 .tableNoBorder td {
 	padding-right: 20px;
 }
+
+#exportToExcelDialogue {
+	top: 10%;
+	margin-top: 0;
+	max-height: 80%;
+	width: 1000px;
+	margin-left: -500px;
+	position: fixed;
+}
+
+.excelCheckboxTd {
+	display: none;
+}
+
+#exportToExcelDialogue .excelHeader {
+	padding-bottom: 5px !important;
+}
+
+#exportToExcelDialogue table {
+	width: 97%;
+}
+
+.excelHeader input[type="checkbox"] {
+	display: block;
+	margin: 15px auto 0;
+}
+
+.excelCheckboxes {
+	display: none;
+}

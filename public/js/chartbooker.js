@@ -239,51 +239,48 @@ function showUser(e) {
 	});
 }
 
-function positionExcelCheckboxes() {
-	var $checkboxContainers = $(".excelCheckboxes");
+function positionExcelCheckboxes($checkboxes, $table) {
+	var $tableHeaders = $table.find(".excelHeader");
 
-	$checkboxContainers.each(function () {
-		var $checkboxContainer = $(this),
-			$checkboxes = $checkboxContainer.find("input[type='checkbox']"),
-			$table = $("#" + $checkboxContainer.data("for")),
-			$tableHeaders = $table.find(".excelHeader");
+	$checkboxes.each(function (i) {
+		var $checkbox = $(this),
+			$th = $tableHeaders.eq(i);
 
-		$checkboxes.each(function (i) {
-			var $checkbox = $(this),
-				$th = $tableHeaders.eq(i),
-				thOffset = $th.offset(),
-				center = getHorizontalCenter($th, $checkbox);
+		$th.append($checkbox);
+			//thOffset = $th.position(),
+			//center = getHorizontalCenter($th, $checkbox);
 
-			$checkbox.css({
-				position: "absolute",
-				left: thOffset.left + center + "px",
-				top: thOffset.top + $th.parent().height() - 40 + "px"
-			});
-		});
-
-		$table.parent().on("scroll", function () {
-			if (this.scrollTop > 0) {
-				$checkboxContainer.hide();
-			} else {
-				$checkboxContainer.show();
-			}
-		});
+		/*$checkbox.css({
+			position: "absolute",
+			left: thOffset.left + center + "px",
+			top: thOffset.top + $th.parent().height() - 40 + "px"
+		});*/
 	});
+
+	/*$table.parent().on("scroll", function () {
+		if (this.scrollTop > 0) {
+			$checkboxContainer.hide();
+		} else {
+			$checkboxContainer.show();
+		}
+	});*/
 }
 
-function multiCheck(checkbox, box){
+function multiCheck(checkbox, box) {
 	$('#'+box+' > tbody > tr').children(':last-child').children().prop('checked', $(checkbox).prop('checked'));
 }
 
 /* A function to collect data from a specified HTML table (the inparameter takes the ID of the table) */
-function prepareTable(tbl, checkboxes){
+function prepareTable() {
 	var rowArray = new Array();
 	var colArray = new Array();
 
-	var table = $('#'+tbl);
+	var tableId = $(this).data("table");
+
+	var table = $('#' + tableId);
 	var rows = 0;
 
-	$("#" + checkboxes).children("input").each(function () {
+	$("#" + tableId).find("th input").each(function () {
 		var $this = $(this);
 
 		if ($this.prop("checked")) {
@@ -300,16 +297,15 @@ function prepareTable(tbl, checkboxes){
 		}
 	});
 	
-	if(tbl == "booked"){
+	if(tableId == "popupbooked"){
 		exportTableToExcel(rowArray, colArray, 1);
-	} else if(tbl == "reserved"){
+	} else if(tableId == "popupreserved"){
 		exportTableToExcel(rowArray, colArray, 2);
-	} else if(tbl == "prem"){
+	} else if(tableId == "popupprem"){
 		exportTableToExcel(rowArray, colArray, 3);
-	} else if (tbl === "connected") {
+	} else if (tableId === "popupconnected") {
 		exportTableToExcel(rowArray, colArray, 2);
 	}
-	
 
 	rowArray = [];
 	colArray = [];
@@ -450,6 +446,42 @@ var bookingOptions = {
 		$this.addClass("editExtraOption");
 	}
 };
+
+function showExportPopup(e) {
+	e.preventDefault();
+
+	var $this = $(this);
+	var $dialogue = $("#exportToExcelDialogue");
+	var tableId = $this.data("table");
+	var $table = $("#" + tableId);
+	var $popupTable = $table.clone(false);
+	var $popupTableWrapper = $dialogue.find(".tableWrapper");
+	var $popupCheckboxes = $("#popupCheckboxes");
+	var $checkboxes = $("#checkboxes" + tableId.charAt(0).toUpperCase() + tableId.slice(1)).children().clone(false);
+	var popupId = "popup" + tableId;
+
+	$popupTable.attr("id", popupId);
+
+	$("#exportToExcel").data("table", popupId);
+
+	$(".closeDialogue").one("click", function (e) {
+		e.preventDefault();
+
+		$dialogue.hide();
+	});
+
+	$popupTable.find(".excelCheckboxTd").removeClass("excelCheckboxTd");
+
+	$popupCheckboxes.html("");
+	$popupCheckboxes.append($checkboxes);
+
+	positionExcelCheckboxes($checkboxes, $popupTable);
+
+	$popupTableWrapper.html("");
+	$popupTableWrapper.append($popupTable);
+
+	$dialogue.show();
+}
 
 $(document).ready(function() {
 	$('.datepicker.date').datepicker();
@@ -749,7 +781,12 @@ $(document).ready(function() {
 	.on("click", "#new_option_button", bookingOptions.createNewOption)
 	.on("click", ".deleteExtraOption", bookingOptions.deleteExtraOption)
 	.on("click", ".editExtraOption", bookingOptions.editExtraOption)
-	.on("click", ".saveExtraOption", bookingOptions.saveExtraOption);
+	.on("click", ".saveExtraOption", bookingOptions.saveExtraOption)
+	.on("click", ".showExportPopup", showExportPopup)
+	.on("click", "#exportToExcel", function (e) {
+		e.preventDefault();
+		prepareTable.call(this);
+	});
 	
 	$(document).ready(function() {
 	$("#copy").change(function() {
