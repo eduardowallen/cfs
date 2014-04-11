@@ -870,9 +870,9 @@ class ExhibitorController extends Controller {
 
 		$u = new User;
 		$u->load($id, 'id');
-		
-		//Masters get the full list of positions, lower levels get the ones for their fair
-		if (userLevel() == 4) {
+
+		//Masters and exhibitors looking at their own profile get the full list of positions, lower levels get the ones for their fair
+		if (userLevel() == 4 || $_SESSION["user_id"] == $id) {
 			$stmt = $u->db->prepare("SELECT
 				`exhibitor`.`id` AS exhibitor_id,
 				`exhibitor`.`commodity`,
@@ -901,6 +901,94 @@ class ExhibitorController extends Controller {
 			");
 			$stmtPreliminary->execute(array($u->get("id")));
 
+		//Administrators and Organizers can see the bookings linked to the events they have administrative privilegies to
+		} else if (userLevel() == 2) {
+			/*$sql = "SELECT `map_access` FROM fair_user_relation WHERE user = ? AND fair = ?";
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(array($_SESSION['user_id'], $fairId));
+			$result = $stmt->fetch();
+			$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
+			if ($result) {
+				$hasRights = true;
+			}*/
+			
+			$stmt = $u->db->prepare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor`
+				INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id`
+				INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id`
+				INNER JOIN `fair_user_relation` ON `fair_map`.`fair` = `fair_user_relation`.`fair`
+				WHERE `exhibitor`.`user` = ? AND `fair_user_relation`.`user` = ?
+			");
+			$stmt->execute(array($u->get('id'), $_SESSION['user_id']));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking`
+				INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair`
+				INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id`
+				INNER JOIN `fair_user_relation` ON `fair_map`.`fair` = `fair_user_relation`.`fair`
+				WHERE `preliminary_booking`.`user` = ? AND `fair_user_relation`.`user` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_id"]));
+		} else if (userLevel() == 3) {
+			$stmt = $u->db->prepare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor`
+				INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id`
+				INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id`
+				INNER JOIN `fair` ON `fair_map`.`fair` = `fair`.`id`
+				WHERE `exhibitor`.`user` = ? AND `fair`.`created_by` = ?
+			");
+			$stmt->execute(array($u->get('id'), $_SESSION['user_id']));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking`
+				INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair`
+				INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id`
+				INNER JOIN `fair` ON `fair_map`.`fair` = `fair`.`id`
+				WHERE `preliminary_booking`.`user` = ? AND `fair`.`created_by` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
 		} else {
 			$stmt = $u->db->prepare("SELECT
 				`exhibitor`.`id` AS exhibitor_id,
