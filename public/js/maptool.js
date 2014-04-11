@@ -1426,7 +1426,8 @@ maptool.editBooking = function(positionObject) {
 }
 
 maptool.cancelBooking = function(positionObject) {
-	$.ajax({
+	if (confirm(lang.cancel_booking_confirm_text)) {
+		$.ajax({
 			url: 'ajax/maptool.php',
 			type: 'POST',
 			data: 'cancelBooking=' + positionObject.id,
@@ -1434,6 +1435,7 @@ maptool.cancelBooking = function(positionObject) {
 				maptool.update();
 			}
 		});
+	}
 }
 var count;
 /*

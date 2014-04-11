@@ -536,14 +536,35 @@ if (isset($_POST['cancelBooking'])) {
 
 	if (userLevel() > 1) {
 
-		$pos = new FairMapPosition($db);
+		$pos = new FairMapPosition();
 		$pos->load($_POST['cancelBooking'], 'id');
 		$pos->set('status', 0);
 		$pos->save();
 
+		$stmt = $pos->db->prepare("SELECT `user` FROM `exhibitor` WHERE `position` = ? LIMIT 0, 1");
+		$stmt->execute(array($_POST["cancelBooking"]));
+		$row = $stmt->fetch(PDO::FETCH_ASSOC);
+
 		$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
 		$stmt->execute(array($_POST['cancelBooking']));
 
+		$user = new User();
+		$user->load($row["user"], "id");
+		$email = $user->get("email");
+
+		//Get mail settings for fair
+		$stmt = $pos->db->prepare("SELECT `mail_settings` FROM `fair` INNER JOIN `fair_map` AS map ON `fair`.`id` = `map`.`fair` INNER JOIN `fair_map_position` AS pos ON `map`.`id` = `pos`.`map` WHERE `pos`.`id` = ? LIMIT 0, 1");
+		$stmt->execute(array($_POST["cancelBooking"]));
+		$row = $stmt->fetch();
+
+		//Check mail settings and send only if setting is set
+		if (is_array($row) && !empty($row)) {
+			$mailSettings = json_decode($row["mail_settings"]);
+			if (is_array($mailSettings->bookingCancelled) && in_array("1", $mailSettings->bookingCancelled)) {
+				$mail = new Mail($email, 'booking_cancelled');
+				$mail->send();
+			}
+		}
 	}
 
 	exit;
