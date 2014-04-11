@@ -71,6 +71,19 @@
 
 			// Initial state: hide dialog and note's textareas
 			$('.reminder-note').hide();
+
+			$(document.body).on("keydown", function (e) {
+				//Disable enter
+				if (e.which === 13) {
+					e.preventDefault();
+
+					if (e.target.id === "new_option_input") {
+						bookingOptions.createNewOption();
+					} else if ($(e.target).hasClass("optionTextInput")) {
+						bookingOptions.saveExtraOption.call($(e.target).closest("li").children(".saveExtraOption")[0]);
+					}
+				}
+			});
 		}());
 	});
 </script>

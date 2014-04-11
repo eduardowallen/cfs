@@ -321,21 +321,20 @@ function getHorizontalCenter($parent, $child) {
 
 var bookingOptions = {
 	createNewOption: function (e) {
-		e.preventDefault();
-
-		console.log(this);
+		if (e) {
+			e.preventDefault();
+		}
 
 		var $input = $("#new_option_input");
 		var value = $input.val();
 		var fairId = $input.data("fair");
-
-		console.log(value);
 
 		if (value !== "") {
 			//Can't insert into database if fair does not already exsist
 			if (fairId === "new") {
 				bookingOptions.appendToList(value);
 			} else {
+				$input.val("");
 				$.ajax({
 					url: "ajax/fair.php",
 					type: "POST",
@@ -401,6 +400,8 @@ var bookingOptions = {
 		var $span = $this.parent().children(".optionText");
 		var text = $span.text();
 
+		$span.attr("title", "");
+
 		$span.html("<input type=\"text\" value=\"" + text + "\" class=\"optionTextInput\" data-old-value=\"" + text + "\" />");
 
 		this.src = "images/icons/save_32x32.png";
@@ -410,7 +411,9 @@ var bookingOptions = {
 	},
 
 	saveExtraOption: function (e) {
-		e.preventDefault();
+		if (e) {
+			e.preventDefault();
+		}
 
 		var $this = $(this);
 		var id = $this.data("id");
@@ -422,6 +425,8 @@ var bookingOptions = {
 		if (value === "") {
 			value = $span.children(".optionTextInput").data("old-value");
 		} else {
+			$span.attr("title", value);
+
 			if (id !== "new") {
 				$.ajax({
 					url: "ajax/fair.php",
