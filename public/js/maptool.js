@@ -1816,14 +1816,27 @@ maptool.positionInfo = function(positionObject) {
 		info.append('<p><strong>' + lang.reservedUntil + ':</strong> ' + positionObject.expires + '</p>');
 	}
 	if (positionObject.exhibitor) {		
-		var categoryString = '';
-		for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
-			categoryString += ', ' + positionObject.exhibitor.categories[i].name;
+		var categories = [], 
+			options = [], 
+			i;
+
+		for (i = 0; i < positionObject.exhibitor.categories.length; i++) {
+			categories.push(positionObject.exhibitor.categories[i].name);
 		}
-		categoryString = categoryString.substring(2);
-		
+
+		if (hasRights) {
+			for (i = 0; i < positionObject.exhibitor.options.length; i++) {
+				options.push(positionObject.exhibitor.options[i].text);
+			}
+		}
+
 		$('#more_info_dialogue h4').text(lang.presentation + ":");
-		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
+		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categories.join(', ') + '</p>');
+
+		if (hasRights) {
+			info.append('<p><strong>' + lang.extra_options + ':</strong> ' + options.join(', ') + '</p>');
+		}
+
 		$("#more_info_dialogue .presentation").empty();
 		$('#more_info_dialogue .presentation').css('display', 'block');
 		if(positionObject.exhibitor.presentation.length < 1){
@@ -1845,16 +1858,12 @@ maptool.positionInfo = function(positionObject) {
 		info.append('<p><strong>' + lang.StatusText(positionObject.statusText).charAt(0).toUpperCase() + lang.StatusText(positionObject.statusText).substr(1) + ' ' + lang.by + ':</strong> ' + preliminary.company + '</p>');
 		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + preliminary.commodity + '</p>');
 
-		var categoryString = '';
-		
-		for (i = 0; i < preliminary.category_list.length; i++) {
-			categoryString += ', ' + preliminary.category_list[i];
+		if (preliminary.category_list.length) {
+			info.append("<p><strong>" + lang.category + ":</strong> " + preliminary.category_list.join(', ') + "</p>");
 		}
 
-		if (categoryString.length) {
-			categoryString = categoryString.substring(2);
-
-			info.append("<p><strong>" + lang.category + ":</strong> " + categoryString + "</p>");
+		if (preliminary.option_list.length) {
+			info.append("<p><strong>" + lang.extra_options + ":</strong> " + preliminary.option_list.join(', ') + "</p>");
 		}
 
 		if (preliminary.presentation.length) {

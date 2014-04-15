@@ -249,6 +249,7 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.website = '<?php echo ujs($translator->{"Website"}); ?>';
 	lang.print = '<?php echo ujs($translator->{"Print"}); ?>';
 	lang.category = '<?php echo ujs($translator->{"Categories"}); ?>';
+	lang.extra_options = '<?php echo ujs($translator->{"Extra options"}); ?>';
 	lang.noPlaceRights = '<?php echo ujs($translator->{"You do not have administrative rights on this map"}); ?>';
 	lang.clickToViewMoreInfo = '<?php echo ujs($translator->{"Click to view more information"}); ?>';
 	lang.noPresentationText = '<?php echo ujs($translator->{"The company has not specified any information."}); ?>';
