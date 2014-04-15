@@ -29,11 +29,17 @@ function reservePopup(row, link, action) {
 
 	var data = row.children(), 
 		catArr = data.eq(7).text().split("|"), 
+		optArr = data.eq(8).text().split("|"), 
 		i;
 
 	$('#reserve_category_scrollbox input').prop('checked', false);
 	for (i = 0; i < catArr.length; i++) {
 		$('#reserve_category_scrollbox input[value=' + catArr[i] + ']').prop('checked', true);
+	}
+
+	$('#reserve_option_scrollbox input').prop('checked', false);
+	for (i = 0; i < optArr.length; i++) {
+		$('#reserve_option_scrollbox input[value=\'' + optArr[i] + '\']').prop('checked', true);
 	}
 
 	$('form', dialogue).prop('action', link);
@@ -44,7 +50,7 @@ function reservePopup(row, link, action) {
 	$('#reserve_message_input').val(data.eq(6).prop('title'));
 
 	if (action == 'edit') {
-		$('#reserve_expires_input').val(data.eq(8).text().replace(/ GMT[+-]\d*/, ''));
+		$('#reserve_expires_input').val(data.eq(9).text().replace(/ GMT[+-]\d*/, ''));
 	}
 
 	positionDialogue(dialogueId, -310);
@@ -63,7 +69,7 @@ function bookPopup(row, link, action) {
 	
 	var data = row.children(), 
 		catArr = data.eq(7).text().split("|"),
-		optArr = data.eq(14).text().split("|"), 
+		optArr = data.eq(8).text().split("|"), 
 		i;
 
 	$('#book_category_scrollbox input').prop('checked', false);

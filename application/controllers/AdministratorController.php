@@ -554,78 +554,81 @@ class AdministratorController extends Controller {
 		$u = new User;
 		$u->load($_SESSION['user_id'], 'id');
 
+		/* Boookings */
 		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.map FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 2));
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$positions_unfinished = $result;
-
-	
+		$positions_unfinished = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$positions = array();
 
-		foreach($positions_unfinished as $pos):
-			$exCat = null;
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor=?');
-
+		foreach ($positions_unfinished as $pos) {
+			/* Get categories */
+			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
 			$stmt->execute(array($pos['id']));
 			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$c = 0;
-			if(count($poscats) > 0) : 
-				foreach($poscats as $cat):
-					if($cat['category'] != 0) : 
-						if($c > 0):
-							$exCat.= '|'.$cat['category'];
-						else:
-							$exCat= $cat['category'];
-							$c++;
-						endif;	
-					endif;
-					
-				endforeach;
 
-				$catarray = array('categories'=>$exCat);
-				$pos = array_merge($pos, $catarray);
-			endif;
+			$categories = array();
+			if (count($poscats) > 0) {
+				foreach ($poscats as $cat) {
+					$categories[] = $cat['category'];
+				}
+			}
 
+			$pos['categories'] = implode('|', $categories);
+
+			/* Get extra options */
+			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
+			$stmt->execute(array($pos['id']));
+			$posoptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			$options = array();
+			if (count($posoptions) > 0) {
+				foreach ($posoptions as $option) {
+					$options[] = $option['option'];
+				}
+			}
+
+			$pos['options'] = implode('|', $options);
 			$positions[$pos['position']] = $pos;
-		endforeach;
-		
+		}
 
-
+		/* Reservations */
 		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.map, ex.id AS posid, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 1));
-		
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$rpositions_unfinished = $result;
+		$rpositions_unfinished = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$rpositions = array();
 
-		foreach($rpositions_unfinished  as $pos) : 
-			$exCat = null;
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor=?');
-
+		foreach ($rpositions_unfinished  as $pos) {
+			/* Get categories */
+			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
 			$stmt->execute(array($pos['id']));
 			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			$c = 0;
-			if(count($poscats) > 0) : 
-				foreach($poscats as $cat):
-					if($cat['category'] != 0) : 
-						if($c > 0):
-							$exCat.= '|'.$cat['category'];
-						else:
-							$exCat= $cat['category'];
-							$c++;
-						endif;	
-					endif;
-					
-				endforeach;
 
-				$catarray = array('categories'=>$exCat);
-				$pos = array_merge($pos, $catarray);
-			endif;
+			$categories = array();
+			if (count($poscats) > 0) {
+				foreach ($poscats as $cat) {
+					$categories[] = $cat['category'];
+				}
+			}
 
+			$pos['categories'] = implode('|', $categories);
+
+			/* Get extra options */
+			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
+			$stmt->execute(array($pos['id']));
+			$posoptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			$options = array();
+			if (count($posoptions) > 0) {
+				foreach ($posoptions as $option) {
+					$options[] = $option['option'];
+				}
+			}
+
+			$pos['options'] = implode('|', $options);
 			$rpositions[$pos['position']] = $pos;
-		endforeach;
+		}
 
-
+		/* Preliminary bookings */
 		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, pos.map, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
 		$stmt->execute(array($_SESSION['user_fair']));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -1116,13 +1119,17 @@ class AdministratorController extends Controller {
 					}
 				}
 
+				// Remove old options for this booking
+				$stmt = $this->db->prepare("DELETE FROM exhibitor_option_rel WHERE exhibitor = ?");
+				$stmt->execute(array($exhibitor->get('exhibitor_id')));
+
 				// Set new options for this booking
 				$options = array();
 				if (isset($_POST['options']) && is_array($_POST['options'])) {
 					$stmt = $this->db->prepare("INSERT INTO exhibitor_option_rel (exhibitor, `option`) VALUES (?, ?)");
 
 					foreach ($_POST['options'] as $option_id) {
-						$stmt->execute(array($exhibitor->get('option_id'), $option_id));
+						$stmt->execute(array($exhibitor->get('exhibitor_id'), $option_id));
 
 						$ex_option = new FairExtraOption();
 						$ex_option->load($option_id, 'id');

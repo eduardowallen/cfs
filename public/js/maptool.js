@@ -754,16 +754,9 @@ maptool.bookPosition = function(positionObject) {
 
 		var options = positionObject.exhibitor.options;
 
-		$('#book_option_scrollbox > p > input').prop('checked', false);
-		for (var i = 0; i < options.length; i++) {
-			$('#book_option_scrollbox > p').each(function() {
-				var value = $(this).children().val();
-				var optionId = (typeof options[i] === "string") ? options[i] : options[i].category_id;
-
-				if (value == optionId) {
-					$(this).children().prop('checked', true);
-				}
-			});
+		$('#book_option_scrollbox input').prop('checked', false);
+		for (i = 0; i < options.length; i++) {
+			$('#book_option_scrollbox input[value=\'' + options[i].option_id + '\']').prop('checked', true);
 		}
 	} else {
 		$("#book_commodity_input, #book_message_input").val("");

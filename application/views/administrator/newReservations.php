@@ -320,7 +320,8 @@
 						</a>
 <?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']?></td>
+					<td style="display:none;"><?php echo $pos['categories']; ?></td>
+					<td style="display:none;"><?php echo $pos['options']; ?></td>
 					<td>
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -403,7 +404,8 @@
 							</a>
 	<?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']?></td>
+					<td style="display:none;"><?php echo $pos['categories']; ?></td>
+					<td style="display:none;"><?php echo $pos['options']; ?></td>
 					<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?></td>
 					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
 					<td class="center">
@@ -490,7 +492,8 @@
 						</a>
 <?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']?></td>
+					<td style="display: none;"><?php echo $pos['categories']; ?></td>
+					<td style="display: none;"><?php echo $pos["options"]; ?></td>
 					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'; ?></td>
 					<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'; ?></td>
 					<td class="center">
@@ -515,7 +518,6 @@
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>
-					<td style="display: none"><?php echo $pos["options"]; ?></td>
 					<td class="excelCheckboxTd"><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
 				</tr>
 			<?php endforeach;?>
