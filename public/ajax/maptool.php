@@ -529,6 +529,8 @@ if (isset($_POST['preliminary'])) {
 				$mail_organizer->send();
 
 				$mail_user = new Mail($user->get('email'), 'receipt_preliminary_booking');
+				$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
+				$mail_user->setMailVar('event_name', $fair->get('name'));
 				$mail_user->setMailVar('position_name', $position->get('name'));
 				$mail_user->setMailVar('position_information', $position->get('information'));
 				$mail_user->setMailVar('booking_time', $time_now);
