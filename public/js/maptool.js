@@ -113,8 +113,14 @@ maptool.closeDialogues = function() {
 		maptool.endMovePosition();
 	}
 
-	$(".dialogue").hide(0, function() {
-		$("#overlay").hide();
+	// Hide the last visible dialog
+	$(".dialogue:visible").last().hide(0, function() {
+
+		// Hide the overlay if no more dialogs are visible
+		if ($(".dialogue:visible").length === 0) {
+			$("#overlay").hide();
+		}
+
 		$("#popupform").remove();
 		$("#popupform_register").remove();
 		$('#popupformTwo').remove();
@@ -1974,7 +1980,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].standSpace.area + 
 						'</td><td><a href="/exhibitor/profile/'
 							+ response[i].user
-						+ '">'
+						+ '" class="showProfileLink" data-id="' + response[i].user + '">'
 							+ response[i].company +
 						'</a></td><td>'
 							+ response[i].commodity +

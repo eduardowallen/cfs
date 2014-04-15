@@ -226,7 +226,7 @@ function showUser(e) {
 
 			dialogue.innerHTML = response;
 
-			document.getElementById("content").appendChild(dialogue);
+			document.body.appendChild(dialogue);
 
 			dialogue.style.display = "block";
 
@@ -234,7 +234,7 @@ function showUser(e) {
 				dialogue.style.display = "none";
 			});
 
-			positionDialogue(id, -350);
+			positionDialogue(id, -200);
 		}
 	});
 }
