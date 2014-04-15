@@ -215,26 +215,22 @@ function showUser(e) {
 			getProfile: userId
 		},
 		success: function (response) {
-			var id = "showUserDialogue";
-			var dialogue = document.getElementById(id);
-			if (!dialogue) {
-				dialogue = document.createElement("diV");
-
-				dialogue.id = id;
-				dialogue.className = "dialogue";
+			var dialogue = $('#showUserDialogue');
+			if (dialogue.length === 0) {
+				dialogue = $('<div class="dialogue" id="showUserDialogue"></div>');
+				$('body').append(dialogue);
 			}
 
-			dialogue.innerHTML = response;
+			dialogue.html(response);
+			dialogue.show();
 
-			document.body.appendChild(dialogue);
-
-			dialogue.style.display = "block";
+			open_dialogue = dialogue;
 
 			$(".closeDialogue").on("click", function () {
-				dialogue.style.display = "none";
+				dialogue.hide();
 			});
 
-			positionDialogue(id, -200);
+			positionDialogue('showUserDialogue', -200);
 		}
 	});
 }
