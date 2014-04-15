@@ -579,17 +579,26 @@ if (isset($_POST['cancelBooking'])) {
 		$email = $user->get("email");
 
 		//Get mail settings for fair
-		$stmt = $pos->db->prepare("SELECT `mail_settings` FROM `fair` INNER JOIN `fair_map` AS map ON `fair`.`id` = `map`.`fair` INNER JOIN `fair_map_position` AS pos ON `map`.`id` = `pos`.`map` WHERE `pos`.`id` = ? LIMIT 0, 1");
-		$stmt->execute(array($_POST["cancelBooking"]));
-		$row = $stmt->fetch();
+		$fairMap = new FairMap();
+		$fairMap->load($pos->get("map"), "id");
+
+		$fair = new Fair();
+		$fair->load($fairMap->get('fair'), 'id');
 
 		//Check mail settings and send only if setting is set
-		if (is_array($row) && !empty($row)) {
-			$mailSettings = json_decode($row["mail_settings"]);
-			if (is_array($mailSettings->bookingCancelled) && in_array("1", $mailSettings->bookingCancelled)) {
-				$mail = new Mail($email, 'booking_cancelled');
-				$mail->send();
-			}
+		$mailSettings = json_decode($fair->get("mail_settings"));
+		if (is_array($mailSettings->bookingCancelled) && in_array("1", $mailSettings->bookingCancelled)) {
+
+			$current_user = new User();
+			$current_user->load($_SESSION['user_id'], 'id');
+
+			$mail = new Mail($email, 'booking_cancelled');
+			$mail->setMailVar('position_name', $pos->get('name'));
+			$mail->setMailVar('cancelled_name', $current_user->get('name'));
+			$mail->setMailVar('event_name', $fair->get('name'));
+			$mail->setMailVar('edit_time', date('d-m-Y H:i'));
+			$mail->setMailVar('comment', $_POST['comment']);
+			$mail->send();
 		}
 	}
 
