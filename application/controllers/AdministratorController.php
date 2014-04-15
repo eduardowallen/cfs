@@ -1253,7 +1253,6 @@ class AdministratorController extends Controller {
 					}
 				}
 
-				$categories = array();
 				if (isset($_POST['options']) && is_array($_POST['options'])) {
 
 					$stmt = $exhib->db->prepare("INSERT INTO exhibitor_option_rel (exhibitor, `option`) VALUES (?, ?)");
