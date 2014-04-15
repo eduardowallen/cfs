@@ -233,6 +233,7 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.cancelPreliminaryBooking = '<?php echo ujs($translator->{"Cancel preliminary booking"}); ?>';
 	lang.editBooking = '<?php echo ujs($translator->{"Edit booking"}); ?>';
 	lang.cancelBooking = '<?php echo ujs($translator->{"Cancel booking"}); ?>';
+	lang.cancelBookingComment = '<?php echo ujs($translator->{"Enter comment about deletion"}); ?>';
 	lang.pasteExhibitor = '<?php echo ujs($translator->{"Paste exhibitor"}); ?>';
 	lang.notes = '<?php echo ujs($translator->{"Notes"}); ?>';
 	lang.moreInfo = '<?php echo ujs($translator->{"More info"}); ?>';

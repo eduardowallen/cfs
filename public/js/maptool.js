@@ -1429,7 +1429,7 @@ maptool.cancelBooking = function(positionObject) {
 		$.ajax({
 			url: 'ajax/maptool.php',
 			type: 'POST',
-			data: 'cancelBooking=' + positionObject.id,
+			data: 'cancelBooking=' + positionObject.id + '&comment=' + prompt(lang.cancelBookingComment, ''),
 			success: function(response) {
 				maptool.update();
 			}
