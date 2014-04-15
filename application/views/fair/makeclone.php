@@ -92,7 +92,7 @@
 
 		<p><input type="submit" name="save" value="<?php echo $clone_label; ?>"/></p>
 	</div>
-	<div class="optionsWhenBooking">
+	<?php /*<div class="optionsWhenBooking">
 		<h2><?php echo $options_when_booking_label; ?></h2>
 		<label for="new_option_input"><?php echo $new_option_label; ?></label>
 		<input type="text" id="new_option_input" data-fair="new" />
@@ -117,5 +117,5 @@
 			}
 			?>
 		</ul>
-	</div>
+	</div>*/ ?>
 </form>

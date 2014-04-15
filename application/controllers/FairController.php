@@ -385,10 +385,17 @@ class FairController extends Controller {
 				$fair_clone->set('auto_close', strtotime($_POST['auto_close']));
 				$fair_clone->set('max_positions', $this->Fair->get('max_positions'));
 				$fair_clone->set('hidden', $this->Fair->get('hidden'));
+				$fair_clone->set('reminder_day1', $this->Fair->get('reminder_day1'));
+				$fair_clone->set('reminder_note1', $this->Fair->get('reminder_note1'));
+				$fair_clone->set('reminder_day2', $this->Fair->get('reminder_day2'));
+				$fair_clone->set('reminder_note2', $this->Fair->get('reminder_note2'));
+				$fair_clone->set('reminder_day3', $this->Fair->get('reminder_day3'));
+				$fair_clone->set('reminder_note3', $this->Fair->get('reminder_note3'));
+				$fair_clone->set('mail_settings', $this->Fair->get('mail_settings'));
 				$fair_clone_id = $fair_clone->save();
 
 				//Save options
-				if (isset($_POST['options']) && is_array($_POST['options'])) {
+				/*if (isset($_POST['options']) && is_array($_POST['options'])) {
 					foreach ($_POST["options"] as $option) {
 						$fairOption = new FairExtraOption();
 						$fairOption->load($option, "text", $fair_clone_id, "fair");
@@ -397,7 +404,7 @@ class FairController extends Controller {
 						$fairOption->set("fair", $fair_clone_id);
 						$fairOption->save();
 					}
-				}
+				}*/
 
 				/* Hämta alla kartor */
 				$statement = $this->db->prepare('SELECT * FROM fair_map WHERE fair = ?');
@@ -468,8 +475,21 @@ class FairController extends Controller {
 					$ex_cat_ids[$category['id']] = $this->db->lastInsertId();
 				}
 
-				/* Hämta alla utställare */
-				$statement = $this->db->prepare('SELECT * FROM exhibitor WHERE fair = ?');
+				/* Hämta alla extra tillvaö */
+				$statement = $this->db->prepare('SELECT * FROM fair_extra_option WHERE fair = ?');
+				$statement->execute(array($this->Fair->get('id')));
+				$fair_options = $statement->fetchAll(PDO::FETCH_ASSOC);
+				$ex_option_ids = array();
+
+				foreach ($fair_options as $option) {
+					/* Kopiera tillvalet */
+					$statement = $this->db->prepare("INSERT INTO fair_extra_option (text, fair) VALUES (?, ?)");
+					$statement->execute(array($option['text'], $fair_clone_id));
+					$ex_option_ids[$option['id']] = $this->db->lastInsertId();
+				}
+
+				/* Hämta de utställare som är BOKADE på eventet */
+				$statement = $this->db->prepare('SELECT ex.* FROM exhibitor AS ex INNER JOIN fair_map_position AS fmp ON fmp.id = ex.position WHERE ex.fair = ? AND fmp.status = 2');
 				$statement->execute(array($this->Fair->get('id')));
 				$exhibitors = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -489,6 +509,19 @@ class FairController extends Controller {
 						if (isset($ex_cat_ids[$relation['category']])) {
 							$statement = $this->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 							$statement->execute(array($exhibitor_clone_id, $ex_cat_ids[$relation['category']]));
+						}
+					}
+
+					/* Hämta alla kopplingar mellan utställare och extra tillval */
+					$statement = $this->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ?');
+					$statement->execute(array($exhibitor['id']));
+					$ex_option_relations = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+					foreach ($ex_option_relations as $relation) {
+						/* Kopiera kopplingen */
+						if (isset($ex_option_ids[$relation['option']])) {
+							$statement = $this->db->prepare("INSERT INTO exhibitor_option_rel (`exhibitor`, `option`) VALUES (?, ?)");
+							$statement->execute(array($exhibitor_clone_id, $ex_option_ids[$relation['option']]));
 						}
 					}
 				}
