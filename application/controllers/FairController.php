@@ -233,13 +233,15 @@ class FairController extends Controller {
 
 				$fId = $this->Fair->save();
 
-				foreach ($_POST["options"] as $option) {
-					$fairOption = new FairExtraOption();
-					$fairOption->load($option, "text", $fId, "fair");
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+					foreach ($_POST["options"] as $option) {
+						$fairOption = new FairExtraOption();
+						$fairOption->load($option, "text", $fId, "fair");
 
-					$fairOption->set("text", $option);
-					$fairOption->set("fair", $fId);
-					$fairOption->save();
+						$fairOption->set("text", $option);
+						$fairOption->set("fair", $fId);
+						$fairOption->save();
+					}
 				}
 				
 				if ($id == 'new') {
@@ -386,13 +388,15 @@ class FairController extends Controller {
 				$fair_clone_id = $fair_clone->save();
 
 				//Save options
-				foreach ($_POST["options"] as $option) {
-					$fairOption = new FairExtraOption();
-					$fairOption->load($option, "text", $fair_clone_id, "fair");
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+					foreach ($_POST["options"] as $option) {
+						$fairOption = new FairExtraOption();
+						$fairOption->load($option, "text", $fair_clone_id, "fair");
 
-					$fairOption->set("text", $option);
-					$fairOption->set("fair", $fair_clone_id);
-					$fairOption->save();
+						$fairOption->set("text", $option);
+						$fairOption->set("fair", $fair_clone_id);
+						$fairOption->save();
+					}
 				}
 
 				/* Hämta alla kartor */
