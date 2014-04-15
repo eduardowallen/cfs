@@ -426,6 +426,7 @@ class AdministratorController extends Controller {
 		if (!$hasRights)
 			return;
 
+		// Jag tror att den här koden inte används längre...
 		if ($action == 'deny') {
 			$pb = new PreliminaryBooking;
 			$pb->load($param, 'id');
@@ -444,7 +445,7 @@ class AdministratorController extends Controller {
 			
 			$pb->delete();
 			header("Location: ".BASE_URL."administrator/newReservations");
-			exit;
+			exit;// Slutar här
 		} else if ($action == 'approve' && isset($_POST['id'])) {
 
 			$pb = new PreliminaryBooking;
