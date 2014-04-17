@@ -418,6 +418,7 @@ if (isset($_POST['editBooking'])) {
 		if (is_array($mailSettings->$mailSetting)) {
 			if (in_array("0", $mailSettings->$mailSetting)) {
 				$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
+				$mail_organizer->setMailVar('event_name', $fair->get('name'));
 				$mail_organizer->setMailVar('position_name', $pos->get('name'));
 				$mail_organizer->setMailVar('position_information', $pos->get('information'));
 				$mail_organizer->setMailVar('edit_time', $time_now);
@@ -434,6 +435,7 @@ if (isset($_POST['editBooking'])) {
 
 			if (in_array("1", $mailSettings->$mailSetting)) {
 				$mail_user = new Mail($ex->get('email'), $mail_type . '_edited_receipt');
+				$mail_user->setMailVar('event_name', $fair->get('name'));
 				$mail_user->setMailVar('position_name', $pos->get('name'));
 				$mail_user->setMailVar('position_information', $pos->get('information'));
 				$mail_user->setMailVar('edit_time', $time_now);
