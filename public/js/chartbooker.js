@@ -742,27 +742,6 @@ $(document).ready(function() {
 		
 	});
 
-	if ($('#arranger_message_popup').length) {
-
-		var arranger_message_popup = $('#arranger_message_popup');
-		$('.close-popup', arranger_message_popup).click(closeDialogue);
-
-		$('.open-arranger-message').click(function(e) {
-			e.preventDefault();
-			var link = $(this);
-
-			$.ajax({
-				url: link.attr('href'),
-				method: 'get',
-				success: function(response) {
-					$('#arranger_message_text').text(response.message);
-					arranger_message_popup.show();
-					open_dialogue = arranger_message_popup;
-				}
-			});
-		});
-	}
-
 	$(window).on('keyup', function(e) {
 		if (e.keyCode == 27 && open_dialogue !== null) {
 			closeDialogue();
@@ -788,6 +767,31 @@ $(document).ready(function() {
 	.on("click", "#exportToExcel", function (e) {
 		e.preventDefault();
 		prepareTable.call(this);
+	})
+	.on('click', '.open-arranger-message', function(e) {
+		e.preventDefault();
+		var link = $(this), 
+			arranger_message_popup = $('#arranger_message_popup');
+
+		if (arranger_message_popup.length === 0) {
+			arranger_message_popup = $('<div id="arranger_message_popup" class="dialogue"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+				+ '<h3>' + lang.messageToOrganizer + '</h3>'
+				+ '<p id="arranger_message_text"></p><p class="center">'
+				+ '<a href="#" class="link-button close-popup">' + lang.ok + '</a></p></div>');
+
+			$('body').append(arranger_message_popup);
+			$('.close-popup', arranger_message_popup).click(closeDialogue);
+		}
+
+		$.ajax({
+			url: link.attr('href'),
+			method: 'get',
+			success: function(response) {
+				$('#arranger_message_text').text(response.message);
+				arranger_message_popup.show();
+				open_dialogue = arranger_message_popup;
+			}
+		});
 	});
 	
 	$(document).ready(function() {

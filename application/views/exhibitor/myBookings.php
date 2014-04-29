@@ -15,18 +15,6 @@
 	});
 </script>
 
-<div id="arranger_message_popup" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
-
-	<h3><?php echo $tr_message; ?></h3>
-
-	<p id="arranger_message_text"></p>
-
-	<p class="center">
-		<a href="#" class="link-button close-popup"><?php echo $ok_label; ?></a>
-	</p>
-</div>
-
 <h1><?php echo $headline; ?></h1>
 
 <?php if (count($positions) > 0): ?>

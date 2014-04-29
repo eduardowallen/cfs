@@ -67,6 +67,8 @@
 	lang.copy_label = '<?php echo ujs($translator->{"Copy from company details"}); ?>';
 	lang.email_exists_label = '<?php echo ujs($translator->{"The email address already exists in our system"}); ?>';
 	lang.timezone = '<?php echo TIMEZONE; ?>';
+	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer"}); ?>';
+	lang.ok = '<?php echo ujs($translator->{"OK"}); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">

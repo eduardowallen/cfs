@@ -70,10 +70,12 @@
 	lang.copy_label = '<?php echo ujs($translator->{"Copy from company details"}); ?>';
 	lang.email_exists_label = '<?php echo ujs($translator->{"The email address already exists in our system"}); ?>';
 	lang.alias_exists_label = '<?php echo ujs($translator->{"The username already exists in our system"}); ?>';
-  lang.timezone = '<?php echo TIMEZONE; ?>';
-  lang.cancel_booking_confirm_text = "<?php echo ujs($translator->{'Are you sure you want to cancel your booking?'}); ?>";
+	lang.timezone = '<?php echo TIMEZONE; ?>';
+	lang.cancel_booking_confirm_text = "<?php echo ujs($translator->{'Are you sure you want to cancel your booking?'}); ?>";
+	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer"}); ?>';
+	lang.ok = '<?php echo ujs($translator->{"OK"}); ?>';
 
-  form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
+	form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">
