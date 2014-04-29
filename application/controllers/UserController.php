@@ -686,7 +686,7 @@ class UserController extends Controller {
         
 			} else if (!$this->validAlias($_POST["alias"])) {
 
-				$error .= "The username can only consist of numbers and lowercase letters.";
+				$error.= 'The username can only consist of numbers and lowercase letters.';
 			} else {
       
 				if (strlen($_POST['alias']) > 3) {

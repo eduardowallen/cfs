@@ -346,7 +346,7 @@ textarea {
 	height: 32px;
 }
 
-.onlyfive{max-height:313px;}
+.onlyfive{max-height:313px; overflow-y:auto;}
 .onlythirteen{max-height:697px;}
 
 h2.tblsite{

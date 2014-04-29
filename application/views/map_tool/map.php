@@ -1,6 +1,6 @@
 <?php
 if ($notfound)
-	die('Fair not found');
+	die($translator->{'Fair not found'});
 
 
 
