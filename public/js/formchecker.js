@@ -180,7 +180,7 @@ function prepFormChecker() {
 					}
 
 					//Alias input
-					if (input.attr("name") == "alias" && !input.data('valid')) {
+					if (input.attr("name") == "alias" && !input.data('valid') && !input.prop('disabled')) {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
