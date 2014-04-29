@@ -93,8 +93,8 @@ function makeUserOptions3($sel=0, $fair) {
 <?php if ($hasRights): ?>
 		<div id="maptoolbox">
 			<h3 id="maptoolbox_header">
-				<?php echo htmlspecialchars($translator->{'Map tools'}); ?>
-				<a href="#" id="maptoolbox_minimize" title="<?php echo htmlspecialchars($translator->{'Minimize'}); ?>"></a>
+				<?php echo uh($translator->{'Map tools'}); ?>
+				<a href="#" id="maptoolbox_minimize" title="<?php echo uh($translator->{'Minimize'}); ?>"></a>
 			</h3>
 
 			<p id="zoombar">
@@ -105,40 +105,40 @@ function makeUserOptions3($sel=0, $fair) {
 			<div id="maptoolbox_controls">
 				<label>
 					<input type="checkbox" id="maptool_grid_activated" />
-					<?php echo htmlspecialchars($translator->{"Grid activated"}); ?>
-					<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'If this is unchecked, the grid will not be generated.'}); ?>" />
+					<?php echo uh($translator->{"Grid activated"}); ?>
+					<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'If this is unchecked, the grid will not be generated.'}); ?>" />
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_visible_x" />
-					<?php echo htmlspecialchars($translator->{'Show X-axis'}); ?>
+					<?php echo uh($translator->{'Show X-axis'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_visible_y" />
-					<?php echo htmlspecialchars($translator->{'Show Y-axis'}); ?>
+					<?php echo uh($translator->{'Show Y-axis'}); ?>
 				</label>
 				<label>
-					<?php echo htmlspecialchars($translator->{'Opacity'}); ?>:
+					<?php echo uh($translator->{'Opacity'}); ?>:
 					<input type="range" id="maptool_grid_opacity" min="1" max="100" value="100" />
 					<input type="text" id="maptool_grid_opacity_num" value="100" class="spinner" />
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_white" />
-					<?php echo htmlspecialchars($translator->{'White grid'}); ?>
+					<?php echo uh($translator->{'White grid'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_snap_markers_x" />
-					<?php echo htmlspecialchars($translator->{'Snap stand spaces to X-axis'}); ?>
+					<?php echo uh($translator->{'Snap stand spaces to X-axis'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_snap_markers_y" />
-					<?php echo htmlspecialchars($translator->{'Snap stand spaces to Y-axis'}); ?>
+					<?php echo uh($translator->{'Snap stand spaces to Y-axis'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_is_moving" />
-					<?php echo htmlspecialchars($translator->{'Move grid'}); ?>
+					<?php echo uh($translator->{'Move grid'}); ?>
 				</label>
 				<span class="maptoolbox-label-row">
-					<?php echo htmlspecialchars($translator->{'Coordinates'}); ?>:
+					<?php echo uh($translator->{'Coordinates'}); ?>:
 					<label>
 						X
 						<input type="text" id="maptool_grid_coord_x" value="0" class="spinner" />
@@ -149,26 +149,26 @@ function makeUserOptions3($sel=0, $fair) {
 					</label>
 				</span>
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'X-axis gap'}); ?>:</span>
+					<span class="maptoolbox-label"><?php echo uh($translator->{'X-axis gap'}); ?>:</span>
 					<input type="text" id="maptool_grid_height" value="20" class="spinner" />
 				</label>
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Y-axis gap'}); ?>:</span>
+					<span class="maptoolbox-label"><?php echo uh($translator->{'Y-axis gap'}); ?>:</span>
 					<input type="text" id="maptool_grid_width" value="20" class="spinner" />
 				</label>
 				<!--<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'W x H per cell'}); ?>:</span>
+					<span class="maptoolbox-label"><?php echo uh($translator->{'W x H per cell'}); ?>:</span>
 					<input type="text" id="maptool_grid_width_rat" value="20" class="spinner" />
 					x
 					<input type="text" id="maptool_grid_height_rat" value="20" class="spinner" />
 				</label>-->
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Save grid for this event'}); ?>:</span>
-					<input type="button" id="maptool_grid_save" value="<?php echo htmlspecialchars($translator->{'Save grid'}); ?>" />
+					<span class="maptoolbox-label"><?php echo uh($translator->{'Save grid for this event'}); ?>:</span>
+					<input type="button" id="maptool_grid_save" value="<?php echo uh($translator->{'Save grid'}); ?>" />
 				</label>
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Reset grid to original size'}); ?>:</span>
-					<input type="button" id="maptool_grid_reset" value="<?php echo htmlspecialchars($translator->{'Reset'}); ?>" />
+					<span class="maptoolbox-label"><?php echo uh($translator->{'Reset grid to original size'}); ?>:</span>
+					<input type="button" id="maptool_grid_reset" value="<?php echo uh($translator->{'Reset'}); ?>" />
 				</label>
 			</div>
 		</div>
@@ -497,19 +497,19 @@ function makeUserOptions3($sel=0, $fair) {
 
 <div id="preliminary_bookings_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-	<h3><?php echo htmlspecialchars($translator->{"Preliminary bookings"}); ?></h3>
+	<h3><?php echo uh($translator->{"Preliminary bookings"}); ?></h3>
 	<table class="std_table">
 		<thead>
 			<tr>
-				<th><?php echo htmlspecialchars($translator->{"Stand space"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Area"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{'Booked by'}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Trade"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{'Time of booking'}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Message to organizer"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Deny"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Approve"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{'Reserve stand space'}); ?></th>
+				<th><?php echo uh($translator->{"Stand space"}); ?></th>
+				<th><?php echo uh($translator->{"Area"}); ?></th>
+				<th><?php echo uh($translator->{'Booked by'}); ?></th>
+				<th><?php echo uh($translator->{"Trade"}); ?></th>
+				<th><?php echo uh($translator->{'Time of booking'}); ?></th>
+				<th><?php echo uh($translator->{"Message to organizer"}); ?></th>
+				<th><?php echo uh($translator->{"Deny"}); ?></th>
+				<th><?php echo uh($translator->{"Approve"}); ?></th>
+				<th><?php echo uh($translator->{'Reserve stand space'}); ?></th>
 			</tr>
 		</thead>
 		<tbody>
