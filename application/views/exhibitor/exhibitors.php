@@ -134,127 +134,11 @@
 		};
 		$(".closeDialogue").click(closePopup);
 		$("#button_cancel").click(closePopup);
-    
-    // if(countCol > 0){
-    
-      // document.location.href='exhibitor/export/<?php echo $fairId;?>'+data+rows;
-      
-    // } else {
-    
-      // alert('<?php echo $col_export_err?>');
-    // }
-  };
-  
-	function sendRequest(){
-		var count = 0;
-		var rows = '/';
-		$('tbody:last > tr').each(function(i){
-			var checkBox = $(this).children(':last').children(':first');
-			
-			if(checkBox.prop('checked')){
-				var cBoxId = checkBox.attr('id').replace("exp_row_","");
-				rows+=cBoxId+';';
-				count++;
-			}	
-		});
-		if(count < 1){
-			alert('<?php echo $row_export_err?>');
-		} else {
-			var countCol = 0;
-			var data = '';
-
-			if($('#exp_st').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-
-			if($('#exp_nm').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if($('#exp_cp').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if($('#exp_ad').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if($('#exp_br').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if($('#exp_ph').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if($('#exp_co').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if($('#exp_em').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if($('#exp_we').prop('checked')){
-				data = data + "/1"; countCol++;
-			} else {
-				data = data + "/0";
-			}
-			if(countCol > 0){
-				document.location.href='exhibitor/export/<?php echo $fairId;?>'+data+rows;
-			} else {
-				alert('<?php echo $col_export_err?>');
-			}
-		}
-	}
-  // function requestExport(e) {
-		// e.preventDefault();
-		// e.stopPropagation();
-		// $('#overlay').show();
-// #####
-		// var url = $(this).attr('href');
-		// var html = '<form action="exhibitor/export/<?php echo $fairId;?>" method="post" id="popupform">'
-				// +   '<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>'
-        
-        // +   '<div class="form_column">'
-        // +     '<input type="checkbox" id="copy"/>'
-        // +     '<label class="inline-block" for="copy"><?php echo $translator->{'Copy from company details'}; ?></label>'
-        // +   '</div>'
-        
-				// +   '<p><input type="submit" id="button_cancel" value="<?php echo $translator->{'Cancel'};?>"/><input type="submit" name="export" value="<?php echo $translator->{'Export as Excel document'};?>"/></p></div>'
-				// + '</form>';
-		
-		// $('body').prepend(html);
-    
-    // var closePopup = function(e) {
-      // e.preventDefault();
-      // e.stopPropagation();
-			// $('#popupform').remove();
-			// $('#overlay').hide();
-		// };
-		// $(".closeDialogue").click(closePopup);
-		// $("#button_cancel").click(closePopup);
-		
-		// return false;
-		
-	// });
+	};
 </script>
 
 
 <?php endif; ?>
-<style>
-	.std_table tbody{border-top:0px;}
-	.std_table tr.special th{background:#fff; border-left:1px solid #000; border-right:1px solid #000;}
-</style>
 
 
 <!--<?php if(count($exhibitors) > 0): ?>
@@ -269,28 +153,10 @@
 		$count++;
 	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>-->
 
-		<input type="button" value="<?php echo $export_button ?>" style="float:right; margin-right:13%;" onclick="confirmRequest();"/>
+	<input type="button" value="<?php echo $export_button ?>" style="float:right; margin-right:13%;" onclick="confirmRequest();"/>
 <div class="tbld" style="max-width:90%; max-height:500px; overflow-y:auto; overflow-x:auto;">
 
 	<table class="std_table">
-		<?php if (userLevel() > 2): ?>
-		<tr class="special">
-			<th style="border:0px;"><input type="checkbox" id="expc_posstatus" value="1" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_posname" value="2" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_company" value="3" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_address" value="5" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_commodity" value="6" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_phone1" value="7" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_name" value="8" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_email" value="9" checked="checked" /></th>
-			<th><input type="checkbox" id="expc_website" value="10" checked="checked" /></th>
-			<th></th>
-			<?php if (userLevel() > 0): ?>
-			<th></th>
-			<th><input type="checkbox" id="markAll" checked="checked" /></th>
-			<?php endif; ?>
-		</tr>
-		<?php endif; ?>
 		<thead>
 			<tr>
 				<th><?php echo $th_status; ?></th>
