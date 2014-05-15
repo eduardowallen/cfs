@@ -704,7 +704,7 @@ class ExhibitorController extends Controller {
 		foreach ($_POST as $postname => $postval) {
 			$postname = str_replace("field_", "", $postname);
 
-			if ($column_names[$postname]) {
+			if ($postname != 'rows' && $column_names[$postname]) {
 				$stplace = $alpha[$count];
 				$xls->getActiveSheet()->SetCellValue($stplace.'1', $column_names[$postname]);
 				$count++;
@@ -719,7 +719,7 @@ class ExhibitorController extends Controller {
 			foreach ($_POST as $postname => $postval) {
 				$postname = str_replace("field_", "", $postname);
 
-				if ($column_names[$postname]) {
+				if ($postname != 'rows' && $column_names[$postname]) {
 					// Special case taken from existing front-end code
 					if ($postname == "commodity" && empty($row[$postname])) {
 						$postname = "excommodity";
