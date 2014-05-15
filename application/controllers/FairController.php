@@ -475,7 +475,7 @@ class FairController extends Controller {
 					$ex_cat_ids[$category['id']] = $this->db->lastInsertId();
 				}
 
-				/* Hämta alla extra tillvaö */
+				/* Hämta alla extra tillval */
 				$statement = $this->db->prepare('SELECT * FROM fair_extra_option WHERE fair = ?');
 				$statement->execute(array($this->Fair->get('id')));
 				$fair_options = $statement->fetchAll(PDO::FETCH_ASSOC);

@@ -53,7 +53,7 @@
 			echo "&bcc=".$user->get('email');
 		endif;
 		$count++;
-	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>
+	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p><br />
 <div class="scrolltbl onlythirteen">
 	<table class="std_table">
 		<thead>

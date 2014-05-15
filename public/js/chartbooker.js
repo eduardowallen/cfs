@@ -25,6 +25,7 @@ function reservePopup(row, link, action) {
 	$('.' + action, dialogue).show();
 	$('.closeDialogue', dialogue).click(closeDialogue);
 	dialogue.css('display', 'block');
+	$('#overlay').show();
 	open_dialogue = dialogue;
 
 	var data = row.children(), 
@@ -66,6 +67,7 @@ function bookPopup(row, link, action) {
 	$('.closeDialogue', dialogue).click(closeDialogue);
 	dialogue.css('display', 'block');
 	open_dialogue = dialogue;
+	$('#overlay').show();
 	
 	var data = row.children(), 
 		catArr = data.eq(7).text().split("|"),
@@ -100,6 +102,7 @@ function closeDialogue(e) {
 	if (open_dialogue !== null) {
 		open_dialogue.hide();
 		open_dialogue = null;
+		$('#overlay').hide();
 	}
 }
 
@@ -177,7 +180,7 @@ function positionDialogue(id, marginTop) {
 	var presentation = $dialogue.find(".presentation")[0];
 	var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 	var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-	var popupMaxWidth = Math.max(448, viewportWidth * .52);
+	var popupMaxWidth = Math.max(448, viewportWidth * .47);
 	var popupMaxHeight = Math.max(328, viewportHeight * .90);
 	var popupWidth =  0;
 	var popupHeight = 0;
@@ -211,6 +214,7 @@ function positionDialogue(id, marginTop) {
 
 function showUser(e) {
 	e.preventDefault();
+	$('#overlay').show();
 
 	var userId = $(this).data("id");
 
@@ -234,9 +238,10 @@ function showUser(e) {
 
 			$(".closeDialogue").on("click", function () {
 				dialogue.hide();
+				$('#overlay').hide();
 			});
 
-			positionDialogue('showUserDialogue', -200);
+			positionDialogue('showUserDialogue', -230);
 		}
 	});
 }
@@ -544,7 +549,7 @@ $(document).ready(function() {
 			url : link,
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupformTwo" style="height:auto; min-width:400px; width:auto; padding:20px; top:50px;"></div>';
+			var html = '<div id="popupformTwo" style="max-height:80%; overflow-y:auto; min-width:400px; width:auto; padding:20px; top:50px;"></div>';
 
 			$('body').append(html);
 			var popupform = $('#popupformTwo');
@@ -577,7 +582,7 @@ $(document).ready(function() {
 			url : 'page/help',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupformTwo" style="padding:20px; margin:0 auto; top:30px;"></div>';
+			var html = '<div id="popupformTwo" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
 			$('body').append(html);
 			var popupform = $('#popupformTwo');	
 			
@@ -607,7 +612,7 @@ $(document).ready(function() {
 			url : 'page/help_organizer',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupform" style="width:500px; height:auto; padding:20px; margin:0 0 0 -250px; top:50px; height:none;"></div>';
+			var html = '<div id="popupform" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
 			$('body').append(html);
 			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
 			$('#popupform > p').css('text-align', 'left');
@@ -745,17 +750,20 @@ $(document).ready(function() {
 	$(window).on('keyup', function(e) {
 		if (e.keyCode == 27 && open_dialogue !== null) {
 			closeDialogue();
+			$('#overlay').hide();
 		}
 	});
 
 	$(document.body).on('click', '.open-edit-booking', function(e) {
 		var link = $(this);
 		e.preventDefault();
+		$('#overlay').show();
 		bookPopup(link.parent().parent(), link.attr('href'), 'edit');
 
 	}).on('click', '.open-edit-reservation', function(e) {
 		var link = $(this);
 		e.preventDefault();
+		$('#overlay').show();
 		reservePopup(link.parent().parent(), link.attr('href'), 'edit');
 	}).on("click", ".showProfileLink", showUser)
 
@@ -770,6 +778,7 @@ $(document).ready(function() {
 	})
 	.on('click', '.open-arranger-message', function(e) {
 		e.preventDefault();
+		$('#overlay').show();
 		var link = $(this), 
 			arranger_message_popup = $('#arranger_message_popup');
 

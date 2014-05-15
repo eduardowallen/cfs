@@ -153,7 +153,7 @@
         <label for="presentation"><?php echo $presentation_label; ?></label>
         <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation')?> 
         <!--textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea-->
-			<div style="width: 800px; max-height: 350px; overflow-x: auto;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></div>
+			<div style="width: 800px; max-height: 350px; overflow-x: auto; overflow-y: auto; max-width: 700px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></div>
       </div>
       
 
@@ -206,7 +206,7 @@
   <tbody>
   <?php foreach($positions as $pos): ?>
   	<tr>
-  		<td><a href="/mapTool/map/<?php echo $pos['fair']; ?>/<?php echo $pos['id']; ?>/<?php $pos['map']; ?>"><?php echo $pos['fair_map_name']; ?></a></td>
+  		<td><a target="_blank" href="/mapTool/map/<?php echo $pos['fair']; ?>/<?php echo $pos['id']; ?>/<?php $pos['map']; ?>"><?php echo $pos['fair_map_name']; ?> </a></td>
   		<td><?php echo $pos['name']; ?></td>
   		<td class="center"><?php echo $pos['area']; ?></td>
   		<td class="center"><?php echo $pos['company']; ?></td>

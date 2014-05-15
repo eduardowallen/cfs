@@ -666,12 +666,6 @@ if (isset($_POST['emailExists'])) {
 	exit;
 }
 
-if (isset($_POST["aliasExists"])) {
-	$user = new User();
-	$user->load($_POST["alias"], "alias");
-	echo json_encode(array("aliasExists" => $user->wasLoaded()));
-}
-
 if (isset($_POST['connectToFair'])) {
 	$trans = new Translator((isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng');
 	$response = array();

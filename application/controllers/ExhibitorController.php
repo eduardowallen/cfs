@@ -34,6 +34,49 @@ class ExhibitorController extends Controller {
 		}
 
 	}
+	public function exfind() {
+		
+		setAuthLevel(2);
+		
+		$stmt = $this->Exhibitor->db->prepare("SELECT user.id, exhibitor.fair FROM user LEFT JOIN exhibitor ON user.id = exhibitor.user WHERE user.level = ? ORDER BY ?");
+		$stmt->execute(array(1, 'exhibitor.fair'));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$exhibitors = array();
+				
+		foreach ($result as $res) {
+			if (intval($res['id']) > 0) {
+				$ex = new User;
+				$ex->load($res['id'], 'id');
+								
+				$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
+				$stmt2->execute(array($res['id']));
+				$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+				$ex->set('fair_count', $result2['fair_count']);
+				
+				$exhibitors[] = $ex;
+				if ($res['fair'] != $currentFair) {
+					$fairs++;
+					$currentFair = $res['fair'];
+				}
+
+			}
+		}
+
+		
+		$unique = array();
+		for ($i=0; $i<count($exhibitors); $i++) {
+			$exhibitors[$i]->set('ex_count', $counter[$exhibitors[$i]->get('id')]);
+			if (!array_key_exists($exhibitors[$i]->get('id'), $unique))
+				$unique[$exhibitors[$i]->get('id')] = $exhibitors[$i];
+		}
+		
+		$this->set('headline', 'Find Exhibitors');
+		$this->set('th_company', 'Company');
+		$this->set('th_orgnr', 'Organization number');
+		$this->set('th_name', 'Name');
+		$this->set('th_phone', 'Phone 1');
+		$this->setNoTranslate('users', $unique);		
+	}
 	
 	public function all() {
 		

@@ -109,8 +109,6 @@ if (isset($_GET["getProfile"])) {
 
     <div class="form_column">
       <h3>' . $translator->{"Contact"} . '</h3>
-      <label for="alias">' . $translator->{"Username"} . ' *</label>
-			<div type="text" name="alias" id="alias" disabled="disabled">' . $u->get('alias') . '</div>
 
       <label for="name">' . $translator->{"Contact person"} . ' *</label>
 			<div type="text" name="name" id="name">' . $u->get('name') . '</div>
@@ -186,7 +184,7 @@ if (isset($_GET["getProfile"])) {
 				  foreach($positions as $pos) {
 				  	$bookingTime = ($pos->get('booking_time') != "") ? date('d-m-Y H:i:s', $pos->get('booking_time')) : "";
 					  echo '<tr>
-				  		<td><a href="/mapTool/map/' . $pos->map->get('fair') . '/' . $pos->get('id') . '/' . $pos->map->get('id') . '">' . $pos->map->get('name') . '</a></td>
+				  		<td><a target="_blank" href="/mapTool/map/' . $pos->map->get('fair') . '/' . $pos->get('id') . '/' . $pos->map->get('id') . '">' . $pos->map->get('name') . '</a></td>
 				  		<td>' . $pos->get('name') . '</td>
 				  		<td class="center">' . $pos->get('area') . '</td>
 				  		<td class="center">' . $pos->get('company') . '</td>

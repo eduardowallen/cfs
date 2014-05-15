@@ -309,7 +309,8 @@ class AdministratorController extends Controller {
 			$this->translate->{'Trade'}, 
 			$this->translate->{'Time of booking'}, 
 			$this->translate->{'Message to organizer'}, 
-			$this->translate->{'Reserved until'}
+			$this->translate->{'Reserved until'}, 
+			$this->translate->{'Last edited'}
 		);
 
 		//Prelbooking does not have `Last edited`

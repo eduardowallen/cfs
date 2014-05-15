@@ -82,8 +82,8 @@
     var countCol = 0;
     var data = '';
     
-    var html = '<form action="exhibitor/export2/<?php echo $fairId;?>" method="POST" id="popupform_register" style="width: 650px;">'
-      + '<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>'
+    var html = '<form action="exhibitor/export2/<?php echo $fairId;?>" method="POST" id="popupform_register" style="width: 650px; height: 480px">'
+      + '<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin-right: 20px;"/>'
       + '<h1><?php echo $translator->{'Please choose other fields to export if necessary:'}; ?></h1><br class="clear">';
     
     <?php
@@ -106,7 +106,7 @@
       html += '</div>';
     <?php endforeach; ?>
         
-      html += '<p class="clear" style="text-align: right;">'
+      html += '<p class="clear" style="text-align: right; margin-right: 30px;" >'
         + '<input type="submit" id="button_cancel" value="<?php echo uh($translator->{"Cancel"}); ?>"/>'
         + '<input type="submit" id="button_export" value="<?php echo uh($translator->{"Export as Excel document"}); ?>"/></p>'
         + '<input type="hidden" name="rows" value="'+rows+'"/>';
@@ -257,7 +257,7 @@
 </style>
 
 
-<?php if(count($exhibitors) > 0): ?>
+<!--<?php if(count($exhibitors) > 0): ?>
 <p><a class="button add" href="mailto:<?php
 	$count=0;
 	foreach ($exhibitors as $user): 
@@ -267,9 +267,11 @@
 			echo "&bcc=".$user['email'];
 		endif;
 		$count++;
-	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>
-<div class="tbld" style="">
-	<input type="button" value="<?php echo $export_button ?>" style="float:right;" onclick="confirmRequest();"/>
+	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>-->
+
+		<input type="button" value="<?php echo $export_button ?>" style="float:right; margin-right:13%;" onclick="confirmRequest();"/>
+<div class="tbld" style="max-width:90%; max-height:500px; overflow-y:auto; overflow-x:auto;">
+
 	<table class="std_table">
 		<?php if (userLevel() > 2): ?>
 		<tr class="special">
