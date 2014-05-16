@@ -76,12 +76,13 @@ $prelbookings_columns = array(
 $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info);
 ?>
 <style>
-	button{position:relative; top:-5px;}
 	#content{max-width:1280px;}
+	form, .std_table { clear: both; }
 </style>
 
 <script type="text/javascript" src="js/tablesearch.js"></script>
-<h1 style="float: left; margin-right: 60px;"><?php echo $fair->get('name'); ?></h1>
+
+<h1><?php echo $fair->get('name'); ?></h1>
 
 <?php if (isset($fairs_admin)): // If a list of accessible fairs is found, display a drop-down list to choose from ?>
   <label class="inline-block"><?php echo uh($translator->{'Switch to event: '}); ?></label>
@@ -117,99 +118,19 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 		}
 	}
 
-	function hider(btn,elem){
-		var element = $('#'+elem);
-		var helement = $('#h'+elem);
+	function hider(btn, elem){
+		var element = $('#'+elem).parent();
 	
-		if($(btn).attr('hid') == "0"){
-			element.css('display','none');
-			helement.css('display','none');
-			$(btn).attr('hid', '1');
-			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/utv.png";?>');
-		} else{
-			element.css('display','table');
-			helement.css('display','block');
-			$(btn).attr('hid', '0');
+		if (element.css('display') == 'none') {
+			element.css('display','block');
 			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/min.png";?>');
-		}	
-	}
-
-	$(document).ready(function(){
-		setTimeout(function(){
-			anpassaTabeller();
-			positionExcelCheckboxes();
-			
-			for(var i = 0; i<3; i++){
-				var tblarr = new Array('booked', 'reserved', 'prem');
-				var header = $('#h'+tblarr[i]+' > ul');
-				var headertmp = $('#'+tblarr[i]+' > thead > tr');
-			
-				var headerarr = new Array();
-				
-				headertmp.children().each(function(i){
-					headerarr[i] = $(this).width();
-				
-				});
-			
-				header.children().each(function(i){
-					$(this).css('width', headerarr[i]);
-				});
-
-				var height = $('#'+tblarr[i]+' > thead').height();
-				height = height * -1;
-
-				//$('#'+tblarr[i]).css('margin-top', height);
-				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
-
-				if(i == 2){header.css('display', 'block');}
-			}
-		}, 500);
-	});
-
-	/* Takes an array and sends it to the desired controller in order to export. */
-	function exportTableToExcel(rowArray, colArray, tbl){
-		/* Make the array passable in a url */
-		var urlForColumns = "/dataColumns|";
-		var urlForRows = "/dataRows|";
-		if(colArray.length > 0){
-		$(colArray).each(function(i){
-				if(i == 0){
-					urlForColumns = urlForColumns + colArray[i];
-				} else if(i < (colArray.length - 1)){
-					urlForColumns = urlForColumns + "|"+colArray[i];
-				
-				}
-			});
 		} else {
-			alert('<?php echo $col_export_err?>');
-			return 0;
+			element.css('display','none');
+			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/utv.png";?>');
 		}
 
-		if(rowArray.length > 0){
-			$(rowArray).each(function(i){
-				if(i == 0){
-					urlForRows = urlForRows + rowArray[i];
-				} else {
-					urlForRows = urlForRows + "|"+rowArray[i];
-				}
-			});
-		} else {
-			alert('<?php echo $row_export_err?>');
-			return 0;
-		}
-		var finishedUrl = '/' + tbl  + urlForColumns + urlForRows;
-		window.location = '<?php echo BASE_URL."administrator/exportNewReservations"?>'+finishedUrl;
+		return false;
 	}
-
-	function anpassaTabeller(){
-		var tbl1width = $('#booked').width();
-		var tbl2width = $('#reserved').width();
-		var tbl3width = $('#prem').width();
-
-		$('.tbl1').css('width', tbl1width);
-		$('.tbl2').css('width', tbl2width);
-		$('.tbl3').css('width', tbl3width);
-	}*/
 
 	var export_fields = {
 		booked: <?php echo json_encode($bookings_columns); ?>,
@@ -322,14 +243,12 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 
 
 
-<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
-<div class="tbld tbl1">
+<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a href="#" onclick="return hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
 <?php if(count($positions) > 0){ ?>
 
 	<form action="administrator/exportNewReservations/1" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right; margin-right:13%;"><?php echo uh($export); ?></button>
 
-	<div class="scrolltbl onlyfive">
 		<table class="std_table" id="booked">
 			<thead>
 				<tr>
@@ -407,24 +326,20 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 			<?php endforeach; ?>
 			</tbody>
 		</table>
-	</div>
-</div>
-</form>
+	</form>
 <?php } else { ?>
-	<p style="width:100%; float:left;"> <?php echo $booked_notfound?> </p>
+	<p> <?php echo $booked_notfound?> </p>
 <?php }?>
 
 
 
-	<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>	
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>
 
-<div class="tbld tbl2">
 	<?php if(count($rpositions) > 0){?>
 
 	<form action="administrator/exportNewReservations/2" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved" style="float:right; margin-right:13%;"><?php echo uh($export); ?></button>
 
-	<div class="scrolltbl onlyfive">
 		<table class="std_table" id="reserved">
 			<thead>
 				<tr>
@@ -490,23 +405,20 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 			<?php endforeach; ?>
 			</tbody>
 		</table>
-	</div>
-</div>
-</form>
+	</form>
 
 <?php } else { ?>
-<p style="width:100%; float:left;"> <?php echo $reserv_notfound?> </p>
+	<p> <?php echo $reserv_notfound?> </p>
 <?php }?>
 
 
 
-<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
-<div class="tbld tbl3">
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+
 <?php if(count($prelpos) > 0){ ?>
 	<form action="administrator/exportNewReservations/3" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="prem" style="float:right; margin-right:13%;"><?php echo uh($export); ?></button>
 
-	<div class="scrolltbl onlyfive">
 		<table class="std_table" id="prem">
 			<thead>
 				<tr>
@@ -570,11 +482,9 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 			<?php endforeach;?>
 			</tbody>
 		</table>
-	</div>
-</div>
-</form>
+	</form>
 <?php } else { ?>
-	<p style="width:100%; float:left;"> <?php echo $prel_notfound?> </p>
+	<p> <?php echo $prel_notfound?> </p>
 <?php }?>
 <?php else: ?>
 	<p>Du är inte behörig att administrera den här mässan.</p>

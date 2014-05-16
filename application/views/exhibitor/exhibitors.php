@@ -42,8 +42,8 @@ $column_info = array(
 	)
 );
 ?>
-<script type="text/javascript" src="js/tablesearch.js"></script>
-<h1><?php echo $headline; ?></h1>
+	<script type="text/javascript" src="js/tablesearch.js"></script>
+	<h1><?php echo $headline; ?></h1>
 
 <?php if (userLevel() > 2): ?>
 	<script type="text/javascript">
@@ -55,8 +55,8 @@ $column_info = array(
 <?php endif; ?>
 
 
-<!--<?php if(count($exhibitors) > 0): ?>
-<p><a class="button add" href="mailto:<?php
+<?php if(count($exhibitors) > 0): ?>
+	<!--<p><a class="button add" href="mailto:<?php
 	$count=0;
 	foreach ($exhibitors as $user): 
 		if($count == 0):
@@ -70,7 +70,7 @@ $column_info = array(
 	<form action="exhibitor/export2/<?php echo $fairId; ?>" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="exhibitors_list" style="float:right; margin-right:13%;"><?php echo uh($export_button); ?></button>
 
-		<table class="std_table use-scrolltable use-exportable" id="exhibitors_list">
+		<table class="std_table" id="exhibitors_list">
 			<thead>
 				<tr>
 					<th><?php echo $th_status; ?></th>
