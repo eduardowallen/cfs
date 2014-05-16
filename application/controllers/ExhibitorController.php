@@ -607,152 +607,148 @@ class ExhibitorController extends Controller {
 		
 	}
   
-  // Created a new function in case the old export is used somewhere else, which is likely
+	// Created a new function in case the old export is used somewhere else, which is likely
 	public function export2($fairId=0) {
-
-		$rows = explode(";", $_POST['rows']);
 
 		setAuthLevel(3);
 		$this->setNoTranslate('noView', true);
 
-		$fair = new Fair;
+		if (isset($_POST['rows']) && is_array($_POST['rows'])) {
+			$fair = new Fair;
 
-		if (!$fairId == 0) {
-			$fair->load($fairId, 'id');
-		} else {
-			if (isset($_SESSION['user_fair']))
-				$fair->load($_SESSION['user_fair'], 'id');
-			else if (isset($_SESSION['outside_fair_url']))
-				$fair->load($_SESSION['outside_fair_url'], 'url');
-		}
-
-		$sql = "SELECT user.*, 
-					exhibitor.position AS position, 
-					exhibitor.fair AS fair, 
-					exhibitor.commodity AS excommodity, 
-					pos.name AS posname, 
-					pos.status AS posstatus, 
-					pos.map AS posmap 
-				FROM exhibitor, user, fair_map_position AS pos 
-				WHERE exhibitor.fair = ?
-					AND exhibitor.position = pos.id
-					AND exhibitor.user = user.id
-					AND position IN (".implode(",",explode(";", $_POST['rows'])).")
-		";
-
-		$stmt = $this->db->prepare($sql);
-		$stmt->execute(array($fairId));
-		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-		global $translator;
-		$column_names = array(
-			//$translator->{"Select all:"}." ".$translator->{"Company"} => array(
-			'orgnr' => $translator->{'Organization number'},
-			'company' => $translator->{'Company'},
-			'commodity' => $translator->{'Commodity'},
-			// 'customer_nr' => $translator->{'Customer number'},
-			'address' => $translator->{'Address'},
-			'zipcode' => $translator->{'Zip code'},
-			'city' => $translator->{'City'},
-			'country' => $translator->{'Country'},
-			'phone1' => $translator->{'Phone 1'},
-			'phone2' => $translator->{'Phone 2'},
-			'fax' => $translator->{'Fax number'},
-			'email' => $translator->{'E-mail'},
-			'website' => $translator->{'Website'},
-			//'presentation' => $translator->{'Presentation'},
-			//  ),
-			//$translator->{"Select all:"}." ".$translator->{"Billing address"} => array(
-			'invoice_company' => $translator->{'Company'},
-			'invoice_address' => $translator->{'Address'},
-			'invoice_zipcode' => $translator->{'Zip code'},
-			'invoice_city' => $translator->{'City'},
-			'invoice_country' => $translator->{'Country'},
-			'invoice_email' => $translator->{'E-mail'},
-			//  ),
-			//$translator->{"Select all:"}." ".$translator->{"Contact person"} => array(
-			//'alias' => $translator->{'Username'},
-			'name' => $translator->{'Contact person'},
-			'contact_phone' => $translator->{'Contact Phone'},
-			'contact_phone2' => $translator->{'Contact Phone 2'},
-			'contact_email' => $translator->{'Contact Email'},
-			//  )
-			'posstatus' => $translator->{'Status'},
-			'posname' => $translator->{'Stand space'},
-		);
-
-		$label_booked = $translator->{'booked'};
-		$label_reserved = $translator->{'reserved'};
-
-		$filename = "exhibitors.xlsx";
-		header("Pragma: public");
-		header("Expires: 0");
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
-		header("Content-Type: application/force-download");
-		header("Content-Type: application/octet-stream");
-		header("Content-Type: application/download");
-		header("Content-Disposition: attachment;filename=".$filename);
-		header("Content-Transfer-Encoding: binary");
-		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
-
-		$xls = new PHPExcel();
-		$xls->setActiveSheetIndex(0);
-
-		$count = 0;
-		$alpha = range('A', 'Z');
-		// Create column headers
-		foreach ($_POST as $postname => $postval) {
-			$postname = str_replace("field_", "", $postname);
-
-			if ($postname != 'rows' && $column_names[$postname]) {
-				$stplace = $alpha[$count];
-				$xls->getActiveSheet()->SetCellValue($stplace.'1', $column_names[$postname]);
-				$count++;
+			if (!$fairId == 0) {
+				$fair->load($fairId, 'id');
+			} else {
+				if (isset($_SESSION['user_fair']))
+					$fair->load($_SESSION['user_fair'], 'id');
+				else if (isset($_SESSION['outside_fair_url']))
+					$fair->load($_SESSION['outside_fair_url'], 'url');
 			}
-		}
 
-		$i = 2;
-		// Loop through data from database
-		foreach ($data as $row) {
+			$sql = "SELECT user.*, 
+						exhibitor.position AS position, 
+						exhibitor.fair AS fair, 
+						exhibitor.commodity AS excommodity, 
+						pos.name AS posname, 
+						pos.status AS posstatus, 
+						pos.map AS posmap 
+					FROM exhibitor, user, fair_map_position AS pos 
+					WHERE exhibitor.fair = ?
+						AND exhibitor.position = pos.id
+						AND exhibitor.user = user.id
+						AND position IN (".implode(',', $_POST['rows']).")
+			";
+
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(array($fairId));
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			global $translator;
+			$column_names = array(
+				//$translator->{"Select all:"}." ".$translator->{"Company"} => array(
+				'orgnr' => $translator->{'Organization number'},
+				'company' => $translator->{'Company'},
+				'commodity' => $translator->{'Commodity'},
+				// 'customer_nr' => $translator->{'Customer number'},
+				'address' => $translator->{'Address'},
+				'zipcode' => $translator->{'Zip code'},
+				'city' => $translator->{'City'},
+				'country' => $translator->{'Country'},
+				'phone1' => $translator->{'Phone 1'},
+				'phone2' => $translator->{'Phone 2'},
+				'fax' => $translator->{'Fax number'},
+				'email' => $translator->{'E-mail'},
+				'website' => $translator->{'Website'},
+				//'presentation' => $translator->{'Presentation'},
+				//  ),
+				//$translator->{"Select all:"}." ".$translator->{"Billing address"} => array(
+				'invoice_company' => $translator->{'Company'},
+				'invoice_address' => $translator->{'Address'},
+				'invoice_zipcode' => $translator->{'Zip code'},
+				'invoice_city' => $translator->{'City'},
+				'invoice_country' => $translator->{'Country'},
+				'invoice_email' => $translator->{'E-mail'},
+				//  ),
+				//$translator->{"Select all:"}." ".$translator->{"Contact person"} => array(
+				//'alias' => $translator->{'Username'},
+				'name' => $translator->{'Contact person'},
+				'contact_phone' => $translator->{'Contact Phone'},
+				'contact_phone2' => $translator->{'Contact Phone 2'},
+				'contact_email' => $translator->{'Contact Email'},
+				//  )
+				'posstatus' => $translator->{'Status'},
+				'posname' => $translator->{'Stand space'},
+			);
+
+			$label_booked = $translator->{'booked'};
+			$label_reserved = $translator->{'reserved'};
+
+			$filename = "exhibitors.xlsx";
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+			header("Content-Type: application/force-download");
+			header("Content-Type: application/octet-stream");
+			header("Content-Type: application/download");
+			header("Content-Disposition: attachment;filename=".$filename);
+			header("Content-Transfer-Encoding: binary");
+			require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
+
+			$xls = new PHPExcel();
+			$xls->setActiveSheetIndex(0);
+
 			$count = 0;
-
-			foreach ($_POST as $postname => $postval) {
-				$postname = str_replace("field_", "", $postname);
-
-				if ($postname != 'rows' && $column_names[$postname]) {
-					// Special case taken from existing front-end code
-					if ($postname == "commodity" && empty($row[$postname])) {
-						$postname = "excommodity";
-
-					} else if ($postname == "posstatus") {
-						if ($row[$postname] == 2) {
-							$value = $label_booked;
-						} else {
-							$value = $label_reserved;
-						}
-
-					} else {
-						$value = $row[$postname];
-					}
-
+			$alpha = range('A', 'Z');
+			// Create column headers
+			foreach ($_POST['field'] as $fieldname => $humbug) {
+				if ($column_names[$fieldname]) {
 					$stplace = $alpha[$count];
-					$xls->getActiveSheet()->setCellValueExplicit($stplace.$i, $value);
+					$xls->getActiveSheet()->SetCellValue($stplace.'1', $column_names[$fieldname]);
 					$count++;
 				}
 			}
 
-			$i++;
+			$i = 2;
+			// Loop through data from database
+			foreach ($data as $row) {
+				$count = 0;
+
+				foreach ($_POST['field'] as $fieldname => $humbug) {
+					if ($column_names[$fieldname]) {
+						// Special case taken from existing front-end code
+						if ($fieldname == "commodity" && empty($row[$fieldname])) {
+							$fieldname = "excommodity";
+
+						} else if ($fieldname == "posstatus") {
+							if ($row[$fieldname] == 2) {
+								$value = $label_booked;
+							} else {
+								$value = $label_reserved;
+							}
+
+						} else {
+							$value = $row[$fieldname];
+						}
+
+						$stplace = $alpha[$count];
+						$xls->getActiveSheet()->setCellValueExplicit($stplace.$i, $value);
+						$count++;
+					}
+				}
+
+				$i++;
+			}
+
+			$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
+				'font' => array('bold' => true)
+			));
+
+			//$xls->getActiveSheet()->getStyle('A' . $i . ':Z' . $i)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
+
+			$objWriter = new PHPExcel_Writer_Excel2007($xls);
+			//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+			$objWriter->save('php://output');
 		}
-
-		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
-			'font' => array('bold' => true)
-		));
-
-		//$xls->getActiveSheet()->getStyle('A' . $i . ':Z' . $i)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
-
-		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
-		$objWriter->save('php://output');
 	}
 
 	public function deleteExhibitor($id, $confirmed='', $from='') {
