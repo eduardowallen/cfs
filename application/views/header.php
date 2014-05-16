@@ -72,6 +72,7 @@
 	lang.cancel = '<?php echo ujs($translator->{"Cancel"}); ?>';
 	lang.export_headline = '<?php echo ujs($translator->{'Please choose other fields to export if necessary:'}); ?>';
 	lang.export_excel = '<?php echo ujs($translator->{'Export as Excel document'}); ?>';
+	lang.select_all = '<?php echo ujs($translator->{'Select all'}); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">

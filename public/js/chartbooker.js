@@ -484,9 +484,10 @@ function showExportPopup(e) {
 
 	for (i in field_groups) {
 		html += '<div class="export-group"><strong>' + i;
+		html += '<label><input type="checkbox" class="check-all" data-group="excexpgrp-' + i + '" /> ' + lang.select_all + '</label>';
 
 		for (j in field_groups[i]) {
-			html += '<label><input type="checkbox" name="field[' + j + ']" /> ' + field_groups[i][j] + '</label>';
+			html += '<label><input type="checkbox" name="field[' + j + ']" class="excexpgrp-' + i + '" /> ' + field_groups[i][j] + '</label>';
 		}
 
 		html += '</strong></div>';
