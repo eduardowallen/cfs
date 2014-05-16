@@ -828,8 +828,7 @@ $(document).ready(function() {
 			}
 		});
 	});
-	
-	$(document).ready(function() {
+
 	$("#copy").change(function() {
 		if ($(this).is(":checked")) {
 			$('#invoice_company').val($('#company').val());
@@ -847,6 +846,5 @@ $(document).ready(function() {
 			$('#invoice_email').val("");
 		}
 	});
-});
 	
 });
