@@ -226,7 +226,7 @@ function showUser(e) {
 				$('body').append(dialogue);
 			}
 
-			dialogue.html(response);
+			dialogue.html('<img src="images/icons/close_dialogue.png" class="closeDialogue" />' + response);
 			dialogue.show();
 
 			open_dialogue = dialogue;
