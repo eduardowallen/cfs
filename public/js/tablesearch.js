@@ -55,7 +55,7 @@ function filterTableTable(table, str, results) {
 	results.text(hit_count + ' matching rows.');
 }
 
-	function resizeNewRes(){
+	/*function resizeNewRes(){
 		var headerd = $('.tblHeader');
 		if(headerd.length > 0){
 		headerd.css('display', 'none');
@@ -103,7 +103,7 @@ function filterTableTable(table, str, results) {
 			if(i == 2){headerd.css('display', 'block');}
 			}
 		}
-	}
+	}*/
 	$(document).ready(function() {
 	var html = '<div style="width:400px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
 			 + '<input type="button" class="search_button" id="search_button" value="Search" /><span id="search_results" style="padding-left:10px;"></span>';	
@@ -133,12 +133,12 @@ function filterTableTable(table, str, results) {
 			searchfield.find("#search_button").click(function() {
 				filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
 
-				if(site == "forFair"){
+				/*if(site == "forFair"){
 					resizeForFair();
 				}
 				if(site == "newRes"){
 					resizeNewRes();
-				}
+				}*/
 			});
 
 			searchfield.find("#search_input").keydown(function(e) {
@@ -147,13 +147,13 @@ function filterTableTable(table, str, results) {
 
 					filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
 
-					if(site == "forFair"){
+					/*if(site == "forFair"){
 						resizeForFair();
 					}
 
 					if(site == "newRes"){
 						resizeNewRes();
-					}
+					}*/
 				}
 			});
 		});
