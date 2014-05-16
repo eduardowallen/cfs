@@ -69,6 +69,9 @@
 	lang.timezone = '<?php echo TIMEZONE; ?>';
 	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer"}); ?>';
 	lang.ok = '<?php echo ujs($translator->{"OK"}); ?>';
+	lang.cancel = '<?php echo ujs($translator->{"Cancel"}); ?>';
+	lang.export_headline = '<?php echo ujs($translator->{'Please choose other fields to export if necessary:'}); ?>';
+	lang.export_excel = '<?php echo ujs($translator->{'Export as Excel document'}); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">

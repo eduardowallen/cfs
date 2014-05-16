@@ -454,40 +454,65 @@ var bookingOptions = {
 	}
 };
 
+/*function findScrolltables() {
+	$('.use-scrolltable').each(function() {
+		var table = $(this);
+
+		table
+			.removeClass('use-scrolltable')
+			.wrap('<div class="scrolltable-wrap"><div class="scrolltable"></div></div>');
+
+		$('thead th', table).each(function() {
+			$(this).wrapInner('<span class="th"></span>');
+		});
+	});
+}*/
+
 function showExportPopup(e) {
 	e.preventDefault();
 
-	var $this = $(this);
-	var $dialogue = $("#exportToExcelDialogue");
-	var tableId = $this.data("table");
-	var $table = $("#" + tableId);
-	var $popupTable = $table.clone(false);
-	var $popupTableWrapper = $dialogue.find(".tableWrapper");
-	var $popupCheckboxes = $("#popupCheckboxes");
-	var $checkboxes = $("#checkboxes" + tableId.charAt(0).toUpperCase() + tableId.slice(1)).children().clone(false);
-	var popupId = "popup" + tableId;
+	if ($('#export_popup').length > 0) {
+		$('#export_popup').remove();
+	}
 
-	$popupTable.attr("id", popupId);
+	var html = '<div id="export_popup" class="dialogue" style="width: 500px;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+		+ '<h3>' + lang.export_headline + '</h3>', 
+		export_popup, 
+		button = $(e.target), 
+		field_groups = export_fields[button.data('for')], 
+		i, j;
 
-	$("#exportToExcel").data("table", popupId);
+	for (i in field_groups) {
+		html += '<div class="export-group"><strong>' + i;
 
-	$(".closeDialogue").one("click", function (e) {
-		e.preventDefault();
+		for (j in field_groups[i]) {
+			html += '<label><input type="checkbox" name="field[' + j + ']" /> ' + field_groups[i][j] + '</label>';
+		}
 
-		$dialogue.hide();
+		html += '</strong></div>';
+	}
+
+	html += '<p class="right"><a href="#" class="link-button close-popup">' + lang.cancel + '</a> <input type="submit" value="' + lang.export_excel + '" /></p></div>';
+
+	export_popup = $(html);
+	export_popup.show();
+	open_dialogue = export_popup;
+
+	$(button).before(export_popup);
+	$('.close-popup', export_popup).click(closeDialogue);
+}
+
+function checkAll(e) {
+	var check_all = $(e.target), 
+		checkbox;
+
+	$('input[type=checkbox]').each(function() {
+		checkbox = $(this);
+
+		if (checkbox.hasClass(check_all.data('group'))) {
+			checkbox.prop('checked', check_all.prop('checked'));
+		}
 	});
-
-	$popupTable.find(".excelCheckboxTd").removeClass("excelCheckboxTd");
-
-	$popupCheckboxes.html("");
-	$popupCheckboxes.append($checkboxes);
-
-	positionExcelCheckboxes($checkboxes, $popupTable);
-
-	$popupTableWrapper.html("");
-	$popupTableWrapper.append($popupTable);
-
-	$dialogue.show();
 }
 
 $(document).ready(function() {
@@ -771,7 +796,8 @@ $(document).ready(function() {
 	.on("click", ".deleteExtraOption", bookingOptions.deleteExtraOption)
 	.on("click", ".editExtraOption", bookingOptions.editExtraOption)
 	.on("click", ".saveExtraOption", bookingOptions.saveExtraOption)
-	.on("click", ".showExportPopup", showExportPopup)
+	.on('click', '.open-excel-export', showExportPopup)
+	.on('click', '.check-all', checkAll)
 	.on("click", "#exportToExcel", function (e) {
 		e.preventDefault();
 		prepareTable.call(this);
