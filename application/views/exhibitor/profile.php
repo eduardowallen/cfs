@@ -214,7 +214,7 @@
   		<td><?php echo ($pos['booking_time'] != '') ? date('d-m-Y H:i:s', $pos['booking_time']) : ''; ?></td>
   		<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
   <?php if (strlen($pos['arranger_message']) > 0): ?>
-  						<a href="administrator/arrangerMessage/<?php echo ($pos['preliminary'] ? 'preliminary' : 'exhibitor') . '/' . $pos['exhibitor_id']; ?>" class="open-arranger-message">
+  						<a href="administrator/arrangerMessage/<?php echo (isset($pos['preliminary']) ? 'preliminary' : 'exhibitor') . '/' . $pos['exhibitor_id']; ?>" class="open-arranger-message">
   							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
   						</a>
   <?php endif; ?>
