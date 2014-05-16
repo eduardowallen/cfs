@@ -216,14 +216,9 @@ function showUser(e) {
 	e.preventDefault();
 	$('#overlay').show();
 
-	var userId = $(this).data("id");
-
 	$.ajax({
-		url: "ajax/exhibitor.php",
+		url: $(this).prop('href'),
 		type: "GET",
-		data: {
-			getProfile: userId
-		},
 		success: function (response) {
 			var dialogue = $('#showUserDialogue');
 			if (dialogue.length === 0) {

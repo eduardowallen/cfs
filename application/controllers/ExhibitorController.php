@@ -1088,42 +1088,42 @@ class ExhibitorController extends Controller {
 		$this->set('headline', 'Exhibitor profile');
 
 		$this->set('company_section', 'Company');
-    $this->set('orgnr_label', 'Organization number');
-    $this->set('company_label', 'Company');
-    $this->set('commodity_label', 'Commodity');
-    $this->set('address_label', 'Address');
-    $this->set('zipcode_label', 'Zip code');
-    $this->set('city_label', 'City');
-    $this->set('country_label', 'Country');
-    $this->set('phone1_label', 'Phone 1');
-    $this->set('phone2_label', 'Phone 2');
-    $this->set('fax_label', 'Fax number');
-    $this->set('email_label', 'E-mail');
-    $this->set('website_label', 'Website');
-    
+		$this->set('orgnr_label', 'Organization number');
+		$this->set('company_label', 'Company');
+		$this->set('commodity_label', 'Commodity');
+		$this->set('address_label', 'Address');
+		$this->set('zipcode_label', 'Zip code');
+		$this->set('city_label', 'City');
+		$this->set('country_label', 'Country');
+		$this->set('phone1_label', 'Phone 1');
+		$this->set('phone2_label', 'Phone 2');
+		$this->set('fax_label', 'Fax number');
+		$this->set('email_label', 'E-mail');
+		$this->set('website_label', 'Website');
+
 		$this->set('invoice_section', 'Billing address');
-    $this->set('copy_label', 'Copy from company details');
-    $this->set('invoice_company_label', 'Company');
-    $this->set('invoice_address_label', 'Address');
-    $this->set('invoice_zipcode_label', 'Zip code');
-    $this->set('invoice_city_label', 'City');
-    $this->set('invoice_email_label', 'E-mail');
-    $this->set('presentation_label', 'Presentation');
+		$this->set('copy_label', 'Copy from company details');
+		$this->set('invoice_company_label', 'Company');
+		$this->set('invoice_address_label', 'Address');
+		$this->set('invoice_zipcode_label', 'Zip code');
+		$this->set('invoice_city_label', 'City');
+		$this->set('invoice_email_label', 'E-mail');
+		$this->set('presentation_label', 'Presentation');
     
 		$this->set('contact_section', 'Contact person');
-    $this->set('alias_label', 'Alias');
-    $this->set('contact_label', 'Contact person');
-    $this->set('phone3_label', 'Contact Phone');
-    $this->set('phone4_label', 'Contact Phone 2');
-    $this->set('contact_email', 'Contact Email');
-    $this->set('contact_country', 'Contact Country');
+		$this->set('alias_label', 'Alias');
+		$this->set('contact_label', 'Contact person');
+		$this->set('phone3_label', 'Contact Phone');
+		$this->set('phone4_label', 'Contact Phone 2');
+		$this->set('contact_email', 'Contact Email');
+		$this->set('contact_country', 'Contact Country');
 
-    $this->set('password_label', 'Password');
-    $this->set('password_repeat_label', 'Password again (repeat to confirm)');
-    //$this->set('save_label', 'Save');
+		$this->set('password_label', 'Password');
+		$this->set('password_repeat_label', 'Password again (repeat to confirm)');
+		//$this->set('save_label', 'Save');
 		//$this->set('save_label', 'Save');
 		
-    $this->set('customer_nr_label', 'Customer number');
+		$this->set('customer_nr_label', 'Customer number');
 		$this->set('customer_id', 'Customer Number');
 		$this->set('save_customer_id', 'Save Customer Number');
 		//$this->set('ban_section_header', 'Ban user');
@@ -1140,6 +1140,10 @@ class ExhibitorController extends Controller {
 		$this->set('tr_message', 'Message to organizer');
 		$this->set('ok_label', 'OK');
 		$this->set('no_bookings_label', 'This exhibitor has not made any bookings yet.');
+
+		if ($this->is_ajax) {
+			$this->setNoTranslate('onlyContent', true);
+		}
 	}
 
 	function myBookings() {

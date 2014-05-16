@@ -297,7 +297,7 @@
 				<tr>
 					<td><?php echo $pos['name']; ?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink" data-id="<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
@@ -381,7 +381,7 @@
 				<tr data-id="<?php echo $pos['id']; ?>">
 					<td><?php echo $pos['name']; ?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink" data-id="<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
@@ -469,7 +469,7 @@
 				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?> data-id="<?php echo $pos['id']; ?>">
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink" data-id="<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td style="display:none;"></td>

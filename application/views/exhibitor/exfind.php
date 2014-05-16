@@ -17,7 +17,7 @@
 		<tbody>
 			<?php foreach ($users as $user): ?>
 			<tr>
-				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink" data-id="<?php echo $user->get('id'); ?>"><?php echo $user->get('company'); ?></a></td>
+				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('company'); ?></a></td>
 				<td><?php echo $user->get('orgnr'); ?></td>
 				<td><?php echo $user->get('name'); ?></a></td>
 				<td><?php echo $user->get('phone1'); ?></td>

@@ -121,8 +121,8 @@
 			<tbody>
 				<?php foreach ($users as $user): ?>
 					<tr>
-						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink" data-id="<?php echo $user->get('id'); ?>"><?php echo $user->get('company'); ?></a></td>
-						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink" data-id="<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('company'); ?></a></td>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('name'); ?></a></td>
 						<td class="center"><?php echo $user->get('fair_count');?></td>
 						<td class="center"><?php echo $user->get('ex_count');?></td>
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login'));?></td>
@@ -172,8 +172,8 @@
 			<tbody>
 				<?php foreach ($connected as $user): ?>
 					<tr>
-						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink" data-id="<?php echo $user->get('id'); ?>"><?php echo $user->get('company'); ?></a></td>
-						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink" data-id="<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('company'); ?></a></td>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('name'); ?></a></td>
 						<td class="center"><?php echo $user->get('fair_count'); ?></td>
 						<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>

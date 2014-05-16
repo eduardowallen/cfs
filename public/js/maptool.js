@@ -1973,7 +1973,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].standSpace.area + 
 						'</td><td><a href="/exhibitor/profile/'
 							+ response[i].user
-						+ '" class="showProfileLink" data-id="' + response[i].user + '">'
+						+ '" class="showProfileLink">'
 							+ response[i].company +
 						'</a></td><td>'
 							+ response[i].commodity +
