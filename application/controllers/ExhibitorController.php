@@ -643,45 +643,44 @@ class ExhibitorController extends Controller {
 			$stmt->execute(array($fairId));
 			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-			global $translator;
 			$column_names = array(
-				//$translator->{"Select all:"}." ".$translator->{"Company"} => array(
-				'orgnr' => $translator->{'Organization number'},
-				'company' => $translator->{'Company'},
-				'commodity' => $translator->{'Commodity'},
-				// 'customer_nr' => $translator->{'Customer number'},
-				'address' => $translator->{'Address'},
-				'zipcode' => $translator->{'Zip code'},
-				'city' => $translator->{'City'},
-				'country' => $translator->{'Country'},
-				'phone1' => $translator->{'Phone 1'},
-				'phone2' => $translator->{'Phone 2'},
-				'fax' => $translator->{'Fax number'},
-				'email' => $translator->{'E-mail'},
-				'website' => $translator->{'Website'},
-				//'presentation' => $translator->{'Presentation'},
+				//$this->translate->{"Select all:"}." ".$this->translate->{"Company"} => array(
+				'orgnr' => $this->translate->{'Organization number'},
+				'company' => $this->translate->{'Company'},
+				'commodity' => $this->translate->{'Commodity'},
+				// 'customer_nr' => $this->translate->{'Customer number'},
+				'address' => $this->translate->{'Address'},
+				'zipcode' => $this->translate->{'Zip code'},
+				'city' => $this->translate->{'City'},
+				'country' => $this->translate->{'Country'},
+				'phone1' => $this->translate->{'Phone 1'},
+				'phone2' => $this->translate->{'Phone 2'},
+				'fax' => $this->translate->{'Fax number'},
+				'email' => $this->translate->{'E-mail'},
+				'website' => $this->translate->{'Website'},
+				//'presentation' => $this->translate->{'Presentation'},
 				//  ),
-				//$translator->{"Select all:"}." ".$translator->{"Billing address"} => array(
-				'invoice_company' => $translator->{'Company'},
-				'invoice_address' => $translator->{'Address'},
-				'invoice_zipcode' => $translator->{'Zip code'},
-				'invoice_city' => $translator->{'City'},
-				'invoice_country' => $translator->{'Country'},
-				'invoice_email' => $translator->{'E-mail'},
+				//$this->translate->{"Select all:"}." ".$this->translate->{"Billing address"} => array(
+				'invoice_company' => $this->translate->{'Company'},
+				'invoice_address' => $this->translate->{'Address'},
+				'invoice_zipcode' => $this->translate->{'Zip code'},
+				'invoice_city' => $this->translate->{'City'},
+				'invoice_country' => $this->translate->{'Country'},
+				'invoice_email' => $this->translate->{'E-mail'},
 				//  ),
-				//$translator->{"Select all:"}." ".$translator->{"Contact person"} => array(
-				//'alias' => $translator->{'Username'},
-				'name' => $translator->{'Contact person'},
-				'contact_phone' => $translator->{'Contact Phone'},
-				'contact_phone2' => $translator->{'Contact Phone 2'},
-				'contact_email' => $translator->{'Contact Email'},
+				//$this->translate->{"Select all:"}." ".$this->translate->{"Contact person"} => array(
+				//'alias' => $this->translate->{'Username'},
+				'name' => $this->translate->{'Contact person'},
+				'contact_phone' => $this->translate->{'Contact Phone'},
+				'contact_phone2' => $this->translate->{'Contact Phone 2'},
+				'contact_email' => $this->translate->{'Contact Email'},
 				//  )
-				'posstatus' => $translator->{'Status'},
-				'posname' => $translator->{'Stand space'},
+				'posstatus' => $this->translate->{'Status'},
+				'posname' => $this->translate->{'Stand space'},
 			);
 
-			$label_booked = $translator->{'booked'};
-			$label_reserved = $translator->{'reserved'};
+			$label_booked = $this->translate->{'booked'};
+			$label_reserved = $this->translate->{'reserved'};
 
 			$filename = "exhibitors.xlsx";
 			header("Pragma: public");
