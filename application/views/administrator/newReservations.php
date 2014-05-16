@@ -247,7 +247,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 <?php if(count($positions) > 0){ ?>
 
 	<form action="administrator/exportNewReservations/1" method="post">
-		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right; margin-right:13%;"><?php echo uh($export); ?></button>
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right;"><?php echo uh($export); ?></button>
 
 		<table class="std_table" id="booked">
 			<thead>
@@ -338,7 +338,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 	<?php if(count($rpositions) > 0){?>
 
 	<form action="administrator/exportNewReservations/2" method="post">
-		<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved" style="float:right; margin-right:13%;"><?php echo uh($export); ?></button>
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved" style="float:right;"><?php echo uh($export); ?></button>
 
 		<table class="std_table" id="reserved">
 			<thead>
@@ -417,7 +417,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 
 <?php if(count($prelpos) > 0){ ?>
 	<form action="administrator/exportNewReservations/3" method="post">
-		<button type="submit" class="open-excel-export" name="export_excel" data-for="prem" style="float:right; margin-right:13%;"><?php echo uh($export); ?></button>
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="prem" style="float:right;"><?php echo uh($export); ?></button>
 
 		<table class="std_table" id="prem">
 			<thead>
