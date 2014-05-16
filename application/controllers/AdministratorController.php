@@ -251,7 +251,7 @@ class AdministratorController extends Controller {
 		setAuthLevel(2);
 		$this->setNoTranslate('noView', true);
 
-		if (isset($_POST['rows']) && is_array($_POST['rows'])) {
+		if (isset($_POST['rows'], $_POST['field']) && is_array($_POST['rows']) && is_array($_POST['field'])) {
 
 			/* Samla relevant information till en array
 			beroende på vilken tabell som är vald */

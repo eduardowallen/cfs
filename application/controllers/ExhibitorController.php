@@ -613,7 +613,7 @@ class ExhibitorController extends Controller {
 		setAuthLevel(3);
 		$this->setNoTranslate('noView', true);
 
-		if (isset($_POST['rows']) && is_array($_POST['rows'])) {
+		if (isset($_POST['rows'], $_POST['field']) && is_array($_POST['rows']) && is_array($_POST['field'])) {
 			$fair = new Fair;
 
 			if (!$fairId == 0) {
@@ -626,22 +626,22 @@ class ExhibitorController extends Controller {
 			}
 
 			$sql = "SELECT user.*, 
-						exhibitor.position AS position, 
-						exhibitor.fair AS fair, 
-						exhibitor.commodity AS excommodity, 
-						pos.name AS posname, 
-						pos.status AS posstatus, 
-						pos.map AS posmap 
+						exhibitor.*, 
+						pos.name AS position, 
+						pos.status, 
+						pos.area
 					FROM exhibitor, user, fair_map_position AS pos 
 					WHERE exhibitor.fair = ?
 						AND exhibitor.position = pos.id
 						AND exhibitor.user = user.id
-						AND position IN (".implode(',', $_POST['rows']).")
+						AND pos.id IN (".implode(',', $_POST['rows']).")
 			";
 
 			$stmt = $this->db->prepare($sql);
-			$stmt->execute(array($fairId));
+			$stmt->execute(array($fair->get('id')));
 			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			$stmt_options = $this->db->prepare("SELECT GROUP_CONCAT(feo.text SEPARATOR ', ') AS texts FROM fair_extra_option AS feo INNER JOIN exhibitor_option_rel AS eor ON eor.option = feo.id WHERE exhibitor = ?");
 
 			$column_names = array(
 				//$this->translate->{"Select all:"}." ".$this->translate->{"Company"} => array(
@@ -677,6 +677,14 @@ class ExhibitorController extends Controller {
 				//  )
 				'posstatus' => $this->translate->{'Status'},
 				'posname' => $this->translate->{'Stand space'},
+				'status' => $this->translate->{'Status'},
+				'position' => $this->translate->{'Stand'},
+				'area' => $this->translate->{'Area'},
+				'commodity' => $this->translate->{'Trade'},
+				'extra_options' => $this->translate->{'Extra options'},
+				'booking_time' => $this->translate->{'Time of booking'},
+				'edit_time' => $this->translate->{'Last edited'},
+				'arranger_message' => $this->translate->{'Message to organizer'}
 			);
 
 			$label_booked = $this->translate->{'booked'};
@@ -698,6 +706,12 @@ class ExhibitorController extends Controller {
 
 			$count = 0;
 			$alpha = range('A', 'Z');
+			if (count($_POST['field']) > count($alpha)) {
+				foreach ($alpha as $letter) {
+					$alpha[] = 'A' . $letter;
+				}
+			}
+
 			// Create column headers
 			foreach ($_POST['field'] as $fieldname => $humbug) {
 				if ($column_names[$fieldname]) {
@@ -715,14 +729,26 @@ class ExhibitorController extends Controller {
 				foreach ($_POST['field'] as $fieldname => $humbug) {
 					if ($column_names[$fieldname]) {
 						// Special case taken from existing front-end code
-						if ($fieldname == "commodity" && empty($row[$fieldname])) {
-							$fieldname = "excommodity";
+						if ($fieldname == 'booking_time') {
+						$value = date('d-m-Y H:i:s', $row['booking_time']);
 
-						} else if ($fieldname == "posstatus") {
-							if ($row[$fieldname] == 2) {
+						} else if ($fieldname == 'edit_time') {
+							$value = ($row['edit_time'] > 0 ? date('d-m-Y H:i:s', $row['edit_time']) : '');
+
+						} else if ($fieldname == 'status') {
+							if ($row['status'] == 2) {
 								$value = $label_booked;
 							} else {
 								$value = $label_reserved;
+							}
+
+						} else if ($fieldname == 'extra_options') {
+							$value = '';
+
+							$stmt_options->execute(array($row['id']));
+							$options = $stmt_options->fetchObject();
+							if ($options) {
+								$value = $options->texts;
 							}
 
 						} else {
@@ -738,7 +764,7 @@ class ExhibitorController extends Controller {
 				$i++;
 			}
 
-			$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
+			$xls->getActiveSheet()->getStyle('A1:AZ1')->applyFromArray(array(
 				'font' => array('bold' => true)
 			));
 

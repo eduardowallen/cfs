@@ -2,6 +2,16 @@
 global $translator;
 
 $column_info = array(
+	'' => array(
+		'status' => $translator->{'Status'},
+		'position' => $translator->{'Stand'},
+		'area' => $translator->{'Area'},
+		'commodity' => $translator->{'Trade'},
+		'extra_options' => $translator->{'Extra options'},
+		'booking_time' => $translator->{'Time of booking'},
+		'edit_time' => $translator->{'Last edited'},
+		'arranger_message' => $translator->{'Message to organizer'}
+	),
 	$translator->{"Company"} => array(
 		'orgnr' => $translator->{'Organization number'},
 		'company' => $translator->{'Company'},
