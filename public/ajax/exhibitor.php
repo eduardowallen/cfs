@@ -1,5 +1,5 @@
 <?php
-$parts = explode('/', dirname(dirname(__FILE__)));
+/*$parts = explode('/', dirname(dirname(__FILE__)));
 $parts = array_slice($parts, 0, -1);
 define('ROOT', implode('/', $parts).'/');
 
@@ -217,8 +217,7 @@ if (isset($_GET["getProfile"])) {
 			unset($positions);
 
 //echo $html;
-	
-	/*
+
 	if (isset($_POST['ban_save'])) {
 		
 		$stmt = $u->db->prepare("DELETE FROM user_ban WHERE user = ? AND organizer = ?");
