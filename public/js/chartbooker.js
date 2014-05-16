@@ -465,6 +465,7 @@ var bookingOptions = {
 
 function showExportPopup(e) {
 	e.preventDefault();
+	window.scrollTo(0, 0);
 
 	if ($('#export_popup').length > 0) {
 		$('#export_popup').remove();
