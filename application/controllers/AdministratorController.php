@@ -247,119 +247,181 @@ class AdministratorController extends Controller {
 
 
 	/* Exportering till Excel för sidan newReservations */
-	public function exportNewReservations($tbl, $cols, $rows){
+	public function exportNewReservations($tbl){
 		setAuthLevel(2);
-
 		$this->setNoTranslate('noView', true);
-		$cols = explode('|', $cols);
-		$rows = explode('|', $rows);
-		unset($cols[0]);
 
-		/* Samla relevant information till en array
-		beroende på vilken tabell som är vald */
-		$u = new User;
-		$u->load($_SESSION['user_id'], 'id');
+		if (isset($_POST['rows']) && is_array($_POST['rows'])) {
 
-		if ($tbl == 1) {
-			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
-			$stmt->execute(array($_SESSION['user_fair'], 2));
-			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			/* Samla relevant information till en array
+			beroende på vilken tabell som är vald */
+			$u = new User;
+			$u->load($_SESSION['user_id'], 'id');
 
-		} else if ($tbl == 2) {
-			$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
-			$stmt->execute(array($_SESSION['user_fair'], 1));
-			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if ($tbl == 1) {
+				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt->execute(array($_SESSION['user_fair'], 2));
+				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-		} else if ($tbl == 3) {
-			$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
-			$stmt->execute(array($_SESSION['user_fair']));
-			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		}
+			} else if ($tbl == 2) {
+				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt->execute(array($_SESSION['user_fair'], 1));
+				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-		/* Har nu tabellinformationen i en array, 
-		sätt in informationen i ett exceldokument 
-		och skicka i headern */
-		
-		if ($tbl == 1)
-			$filename = "BookedStandSpaces.xlsx";
-		else if ($tbl == 2)
-			$filename = "ReservedStandSpaces.xlsx";
-		else if ($tbl == 3)
-			$filename = "PreliminaryBookings.xlsx";
+			} else if ($tbl == 3) {
+				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.name AS position, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt->execute(array($_SESSION['user_fair']));
+				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			}
 
-		header("Pragma: public");
-		header("Expires: 0");
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
-		header("Content-Type: application/force-download");
-		header("Content-Type: application/octet-stream");
-		header("Content-Type: application/download");
-		header("Content-Disposition: attachment;filename=".$filename);
-		header("Content-Transfer-Encoding: binary");
+			/* Har nu tabellinformationen i en array, 
+			sätt in informationen i ett exceldokument 
+			och skicka i headern */
+			
+			if ($tbl == 1) {
+				$filename = "BookedStandSpaces.xlsx";
+				$label_status = $this->translate->{'Booked'};
+			} else if ($tbl == 2) {
+				$filename = "ReservedStandSpaces.xlsx";
+				$label_status = $this->translate->{'Reserved'};
+			} else if ($tbl == 3) {
+				$filename = "PreliminaryBookings.xlsx";
+				$label_status = $this->translate->{'Preliminary booked'};
+			}
 
-		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
+			if ($tbl < 3) {
+				$stmt_options = $this->db->prepare("SELECT GROUP_CONCAT(feo.text SEPARATOR ', ') AS texts FROM fair_extra_option AS feo INNER JOIN exhibitor_option_rel AS eor ON eor.option = feo.id WHERE exhibitor = ?");
+			}
 
-		$xls = new PHPExcel();
-		$xls->setActiveSheetIndex(0);
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+			header("Content-Type: application/force-download");
+			header("Content-Type: application/octet-stream");
+			header("Content-Type: application/download");
+			header("Content-Disposition: attachment;filename=".$filename);
+			header("Content-Transfer-Encoding: binary");
 
-		$alpha = range('A', 'Z');		
-		$column_names = array(
-			1 => $this->translate->{'Stand'}, 
-			$this->translate->{'Area'}, 
-			$this->translate->{'Booked by'}, 
-			$this->translate->{'Trade'}, 
-			$this->translate->{'Time of booking'}, 
-			$this->translate->{'Message to organizer'}, 
-			$this->translate->{'Reserved until'}, 
-			$this->translate->{'Last edited'}
-		);
+			require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
 
-		//Prelbooking does not have `Last edited`
-		if ($tbl !== 3) {
-			$column_names[] = $this->translate->{'Last edited'};
-		}
+			$xls = new PHPExcel();
+			$xls->setActiveSheetIndex(0);
 
-		// The variabel $cols contains the INDEXES of the column "names" to show!
-		foreach ($cols as $i => $column_idx) {
-			$xls->getActiveSheet()->SetCellValue($alpha[$i - 1] . '1', $column_names[$column_idx]);
-		}
+			$alpha = range('A', 'Z');
+			if (count($_POST['field']) > count($alpha)) {
+				foreach ($alpha as $letter) {
+					$alpha[] = 'A' . $letter;
+				}
+			}
 
-		// Row 1 in the sheet is now done, continue with data on row 2
-		$row = 2;
+			$column_names = array(
+				'orgnr' => $this->translate->{'Organization number'},
+				'company' => $this->translate->{'Company'},
+				'commodity' => $this->translate->{'Commodity'},
+				'address' => $this->translate->{'Address'},
+				'zipcode' => $this->translate->{'Zip code'},
+				'city' => $this->translate->{'City'},
+				'country' => $this->translate->{'Country'},
+				'phone1' => $this->translate->{'Phone 1'},
+				'phone2' => $this->translate->{'Phone 2'},
+				'fax' => $this->translate->{'Fax number'},
+				'email' => $this->translate->{'E-mail'},
+				'website' => $this->translate->{'Website'},
+				'invoice_company' => $this->translate->{'Company'},
+				'invoice_address' => $this->translate->{'Address'},
+				'invoice_zipcode' => $this->translate->{'Zip code'},
+				'invoice_city' => $this->translate->{'City'},
+				'invoice_country' => $this->translate->{'Country'},
+				'invoice_email' => $this->translate->{'E-mail'},
+				'name' => $this->translate->{'Contact person'},
+				'contact_phone' => $this->translate->{'Contact Phone'},
+				'contact_phone2' => $this->translate->{'Contact Phone 2'},
+				'contact_email' => $this->translate->{'Contact Email'},
+				'status' => $this->translate->{'Status'},
+				'position' => $this->translate->{'Stand'},
+				'area' => $this->translate->{'Area'},
+				'commodity' => $this->translate->{'Trade'},
+				'extra_options' => $this->translate->{'Extra options'},
+				'booking_time' => $this->translate->{'Time of booking'},
+				'edit_time' => $this->translate->{'Last edited'},
+				'arranger_message' => $this->translate->{'Message to organizer'},
+				'expires' => $this->translate->{'Reserved until'}
+			);
 
-		// Start outputing the actual booking data into the spreadsheet
-		foreach ($data_rows as $arrChild) {
+			//Prelbooking does not have `Last edited`
+			if ($tbl !== 3) {
+				$column_names[] = $this->translate->{'Last edited'};
+			}
 
-			// Is this row selected for print out?
-			if (in_array($arrChild['id'], $rows)) {
+			$i = 0;
+			foreach ($_POST['field'] as $fieldname => $humbug) {
+				$xls->getActiveSheet()->SetCellValue($alpha[$i] . '1', $column_names[$fieldname]);
+				++$i;
+			}
 
-				$data = array(
-					1 => $arrChild['name'], 
-					$arrChild['area'], 
-					$arrChild['company'], 
-					$arrChild['commodity'], 
-					date('d-m-Y H:i:s', $arrChild['booking_time']), 
-					$arrChild['arranger_message'], 
-					(isset($arrChild['expires']) ? $arrChild['expires'] : ''), 
-					(isset($arrChild["edit_time"]) && $arrChild['edit_time'] > 0 ? date('d-m-Y H:i:s', $arrChild['edit_time']) : '')
-				);
+			// Row 1 in the sheet is now done, continue with data on row 2
+			$row_idx = 2;
 
-				foreach ($cols as $i => $column_idx) {
-					$xls->getActiveSheet()->SetCellValue($alpha[$i - 1] . $row, $data[$column_idx]);
+			// Start outputing the actual booking data into the spreadsheet
+			foreach ($data_rows as $row) {
+
+				$i = 0;
+
+				foreach ($_POST['field'] as $fieldname => $humbug) {
+
+					if ($fieldname == 'booking_time') {
+						$value = date('d-m-Y H:i:s', $row['booking_time']);
+
+					} else if ($fieldname == 'edit_time') {
+						$value = ($row['edit_time'] > 0 ? date('d-m-Y H:i:s', $row['edit_time']) : '');
+
+					} else if ($fieldname == 'status') {
+						$value = $label_status;
+
+					} else if ($fieldname == 'extra_options') {
+						$value = '';
+						if ($tbl == 3) {
+							$option_texts = array();
+							$options = explode('|', $row['options']);
+
+							foreach ($options as $option_id) {
+								$option = new FairExtraOption($option_id);
+								if ($option->wasLoaded()) {
+									$option_texts[] = $option->get('text');
+								}
+							}
+
+							$value = implode(', ', $option_texts);
+
+						} else {
+							$stmt_options->execute(array($row['id']));
+							$options = $stmt_options->fetchObject();
+							if ($options) {
+								$value = $options->texts;
+							}
+						}
+
+					} else {
+						$value = $row[$fieldname];
+					}
+
+					$xls->getActiveSheet()->SetCellValue($alpha[$i] . $row_idx, $value);
+					++$i;
 				}
 
 				// Next row in spreadsheet
-				$row++; 
+				++$row_idx;
 			}
-		}
-		
 			
-		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
-			'font' => array('bold' => true)
-		));
-		
-		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		// $objWriter->save(str_replace('.php', '.xlsx', __FILE__));
-		$objWriter->save('php://output');
+				
+			$xls->getActiveSheet()->getStyle('A1:AZ1')->applyFromArray(array(
+				'font' => array('bold' => true)
+			));
+			
+			$objWriter = new PHPExcel_Writer_Excel2007($xls);
+			// $objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+			$objWriter->save('php://output');
+		}
 	}
 
   // Helper function, used in /newReservations when changing current fair
