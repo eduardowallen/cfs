@@ -422,7 +422,7 @@ max-width:700px !important;
 }
 
 #showUserDialogue table {
-	border-top: 1px solid;
+	margin-bottom: 20px;
 }
 
 .optionsWhenBooking {
