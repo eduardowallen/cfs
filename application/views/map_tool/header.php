@@ -74,6 +74,10 @@
 	lang.cancel_booking_confirm_text = "<?php echo ujs($translator->{'Are you sure you want to cancel your booking?'}); ?>";
 	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer"}); ?>';
 	lang.ok = '<?php echo ujs($translator->{"OK"}); ?>';
+	lang.search = '<?php echo ujs($translator->{"Search"}); ?>';
+	lang.edit = '<?php echo ujs($translator->{"Edit"}); ?>';
+	lang.delete = '<?php echo ujs($translator->{"Delete"}); ?>';
+	lang.validation_error = '<?php echo ujs($translator->{"There are # errors in the form. You have to enter information in all the fields marked with a *"}); ?>';
 
 	form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
 </script>

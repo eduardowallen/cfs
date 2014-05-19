@@ -137,8 +137,8 @@ php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disa
 					echo "<li>
 						<span title=\"{$option["text"]}\" class=\"optionText\">{$text}</span>
 						</span><input type=\"hidden\" value=\"{$option["text"]}\" name=\"options[]\" class=\"optionTextHidden\" />
-						<img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\"{$option["id"]}\" />
-						<img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\"{$option["id"]}\" />
+						<img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\"{$option["id"]}\" title=\"" . $edit_label . "\" />
+						<img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\"{$option["id"]}\" title=\"" . $delete_label . "\" />
 					</li>";
 				}
 			}
@@ -157,7 +157,7 @@ php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disa
 <?php	endfor; ?>
 			</select>
 			<textarea name="reminder_note<?php echo $i; ?>" id="reminder_note<?php echo $i; ?>" class="reminder-note no-editor" cols="50" rows="5"><?php echo htmlspecialchars($fair->get('reminder_note' . $i)); ?></textarea>
-			<a href="#" class="edit-reminder-text" data-id="<?php echo $i; ?>"><img src="images/icons/pencil.png" alt="<?php $edit_label; ?>" /></a>
+			<a href="#" class="edit-reminder-text" data-id="<?php echo $i; ?>"><img src="images/icons/pencil.png" alt="<?php echo $edit_label; ?>" title="<?php echo $edit_label; ?>" /></a>
 			<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Edit the message of the reminder'}); ?>" />
 		</p>
 <?php endfor; ?>

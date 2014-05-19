@@ -295,7 +295,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_email', 'E-mail');
 		$this->set('th_website', 'Website');
 		$this->set('th_view', 'View');
-		$this->set('th_profile', 'Details');
+		$this->set('th_profile', 'View profile');
 		$this->set('export_button', 'Export as excel');
 		$this->set('label_booked', 'booked');
 		$this->set('label_reserved', 'reserved');

@@ -311,14 +311,13 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 						</a>
 					</td>
 					<td class="center">
-						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-booking">
+						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-booking" title="<?php echo $tr_edit; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" alt="<?php echo $tr_edit; ?>" />
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
-		
-							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
+						<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
+							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 						</a>
 					</td>
 					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-1" checked="checked" /></td>
@@ -385,18 +384,18 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 					</td>
 
 					<td class="center">
-						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-reservation">
+						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-reservation" title="<?php echo $tr_edit; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" alt="<?php echo $tr_edit; ?>" />
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Reservation')">
+						<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Reservation')">
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 						</a>
 					</td>
 					<td class="center">
 						<?php //echo "href=".BASE_URL.'administrator/approveReservation/'.$pos['position'] ?><?php //echo " title=".$tr_approve; ?>
-						<a  style="cursor:pointer;"  onclick="showPopup('book',this)">
+						<a  style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book',this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 						</a>
 					</td>
@@ -461,19 +460,19 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Preliminary Booking')">
+						<a style="cursor:pointer;" title="<?php echo $tr_deny; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Preliminary Booking')">
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
 						</a>
 					</td>
 					<td class="center">
 						<?php //echo BASE_URL.'administrator/newReservations/approve/'.$pos['id'] ?><?php //echo $tr_approve; ?>
-						<a style="cursor:pointer;" onclick="showPopup('book',this)">
+						<a style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book',this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 						</a>
 					</td>
 					<td class="center">
 						<!-- <a href="<?php //echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id'] ?>" title="<?php //echo $tr_reserve; ?>"> -->
-						<a style="cursor:pointer;" onclick="showPopup('reserve',this)">
+						<a style="cursor:pointer;" title="<?php echo $tr_reserve; ?>" onclick="showPopup('reserve',this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>

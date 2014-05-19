@@ -36,8 +36,8 @@
 					<td class="center"><?php if ($user->get('last_login')) { echo date('d-m-Y H:i:s', $user->get('last_login')); } ?></td>
 					<td class="center"><?php echo $user->get('total_logins'); ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $user->get('created')); ?></td>
-					<td class="center"><a href="administrator/edit/<?php echo $user->get('id').'/'.$thisFair;?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
-					<td class="center"><a href="administrator/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="Delete"/></a></td>
+					<td class="center"><a href="administrator/edit/<?php echo $user->get('id').'/'.$thisFair;?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+					<td class="center"><a href="administrator/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 				</tr>
 				<?php endforeach; ?>
 			</tbody>

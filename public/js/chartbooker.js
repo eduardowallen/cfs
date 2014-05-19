@@ -362,9 +362,9 @@ var bookingOptions = {
 			+ value +
 			"\" name=\"options[]\" class=\"optionTextHidden\" /><img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\""
 			+ response.id + 
-			"\" /><img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\""
+			"\" title=\"" + lang.edit + "\" /><img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\""
 			+ response.id +
-			"\" />";
+			"\" title=\"" + lang.delete + "\" />";
 
 		$optionList.html($optionList.html() + html);
 	},
@@ -733,39 +733,6 @@ $(document).ready(function() {
 		
 			
 		return false;
-		
-	});
-	
-	$('a img').each(function() {
-		
-		var icon = $(this);
-		
-		if (icon.attr("src").indexOf('pencil') > 0)
-			var str = 'Edit';
-		else if (icon.attr("src").indexOf('delete') > 0)
-			var str = 'Delete';
-		else if (icon.attr("src").indexOf('map_go') > 0)
-			var str = 'View';
-		else if (icon.attr("src").indexOf('user') > 0)
-			var str = 'Details';
-		else if (icon.attr("src").indexOf('map_edit') > 0)
-			var str = 'Edit';
-		else if (icon.attr("src").indexOf('print') > 0)
-			var str = 'Print';
-		else
-			var str = '';
-		
-		if (str != '') {
-			$.ajax({
-				url: 'ajax/translate.php',
-				type: 'POST',
-				dataType : 'html',
-				data: {'query':str},
-				success: function(result){
-					icon.attr('title', result);
-				}
-			});
-		}
 		
 	});
 

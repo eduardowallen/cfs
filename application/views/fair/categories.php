@@ -32,8 +32,8 @@
 				<?php foreach ($categories as $cat): ?>
 				<tr>
 					<td><?php echo $cat->get('name'); ?></td>
-					<td class="center"><a href="fair/categories/<?php echo $fair_id; ?>/edit/<?php echo $cat->get('id'); ?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
-					<td class="center"><a onclick="return confirm('<?php echo $confirm_delete; ?>')" href="fair/categories/<?php echo $fair_id; ?>/delete/<?php echo $cat->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="Delete"/></a></td>
+					<td class="center"><a href="fair/categories/<?php echo $fair_id; ?>/edit/<?php echo $cat->get('id'); ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+					<td class="center"><a onclick="return confirm('<?php echo $confirm_delete; ?>')" href="fair/categories/<?php echo $fair_id; ?>/delete/<?php echo $cat->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 				</tr>
 				<?php endforeach; ?>
 			</tbody>

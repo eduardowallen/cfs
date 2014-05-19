@@ -70,6 +70,10 @@
 	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer"}); ?>';
 	lang.ok = '<?php echo ujs($translator->{"OK"}); ?>';
 	lang.cancel = '<?php echo ujs($translator->{"Cancel"}); ?>';
+	lang.search = '<?php echo ujs($translator->{"Search"}); ?>';
+	lang.edit = '<?php echo ujs($translator->{"Edit"}); ?>';
+	lang.delete = '<?php echo ujs($translator->{"Delete"}); ?>';
+	lang.validation_error = '<?php echo ujs($translator->{"There are # errors in the form. You have to enter information in all the fields marked with a *"}); ?>';
 	lang.export_headline = '<?php echo ujs($translator->{'Please choose other fields to export if necessary:'}); ?>';
 	lang.export_excel = '<?php echo ujs($translator->{'Export as Excel document'}); ?>';
 	lang.select_all = '<?php echo ujs($translator->{'Select all'}); ?>';

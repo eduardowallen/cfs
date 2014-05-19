@@ -327,6 +327,7 @@ class FairController extends Controller {
 			$this->set('reminder_3_label', '3rd reminder');
 			$this->set('no_reminder_label', 'No reminder');
 			$this->set('edit_label', 'Edit');
+			$this->set('delete_label', 'Delete');
 			$this->set('edit_note_1_label', 'Edit message for 1st reminder');
 			$this->set('edit_note_2_label', 'Edit message for 2nd reminder');
 			$this->set('edit_note_3_label', 'Edit message for 3rd reminder');

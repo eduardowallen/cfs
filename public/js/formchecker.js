@@ -220,18 +220,7 @@ function prepFormChecker() {
 		
 		if (errors.length > 0) {
 			thisForm.data('valid', false);
-			var str = "There are # errors in the form. You have to enter information in all the fields marked with a *";
-
-			$.ajax({
-				url: 'ajax/translate.php',
-				type: 'POST',
-				data: {'query':str},
-				success: function(result){
-					str = result;
-					var err = str.replace('#', errors.length);
-					alert(err);
-				}
-			});
+			alert(lang.validation_error.replace('#', errors.length));
 			return false;
 		} else {
 			return true;

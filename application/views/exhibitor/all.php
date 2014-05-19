@@ -84,9 +84,9 @@
 				<td class="center"><?php echo $user->get('ex_count'); ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $user->get('created')); ?></td>
-				<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
-				<td class="center"><a href="exhibitor/deleteExhibitor/<?php echo $user->get('id'); ?>/no/all"><img src="images/icons/delete.png" alt=""/></a></td>
-				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>, '<?php echo htmlspecialchars($user->get('name')); ?>')"> <img src="images/icons/delete.png" alt=""/></a></td>
+				<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>"/></a></td>
+				<td class="center"><a href="exhibitor/deleteExhibitor/<?php echo $user->get('id'); ?>/no/all"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
+				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>, '<?php echo htmlspecialchars($user->get('name')); ?>')"><img src="images/icons/delete.png" alt="" title="<?php echo $th_resend; ?>" /></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

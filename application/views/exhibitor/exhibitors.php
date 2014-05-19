@@ -84,7 +84,7 @@ $column_info = array(
 					<th><?php echo $th_website; ?></th>
 					<th data-sorter="false"><?php echo $th_view; ?></th>
 					<?php if (userLevel() > 0): ?>
-					<th data-sorter="false"></th>
+					<th data-sorter="false"><?php echo $th_profile; ?></th>
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows" checked="checked" /></th>
 					<?php endif; ?>
 				
@@ -107,9 +107,9 @@ $column_info = array(
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><?php echo $pos['name']; ?></a></td>
 					<td class="center"><?php echo $pos['email']; ?></td>
 					<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>
-					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt=""/></a></td>
+					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt="" title="<?php echo $th_view; ?>" /></a></td>
 					<?php if (userLevel() > 0): ?>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt=""/></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>
 				
 					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" checked="checked" /></td>
 					<?php endif; ?>
