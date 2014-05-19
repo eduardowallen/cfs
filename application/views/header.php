@@ -2,25 +2,25 @@
 <html>
 <head>
 <?php
-	$unique = substr(md5(date('YmdHis')), -10);
+	$unique = '?ver=' . APP_VERSION;
 ?>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=1300, initial-scale=0.7, maximum-scale=1.2">
 <title><?php echo (isset($_SESSION['fair_windowtitle'])) ? $_SESSION['fair_windowtitle'].' - ' : ''; ?>ChartBooker</title>
 <base href="<?php echo BASE_URL; ?>" />
-<link rel="stylesheet" type="text/css" href="css/generic.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="css/main.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" media="print" href="css/print.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css?u=<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="css/jquery-ui.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="css/generic.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="css/main.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" media="print" href="css/print.css<?php echo $unique?>" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
-<script type="text/javascript" src="js/jquery-1.9.1.min.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/jquery-ui-1.10.1.min.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/formchecker.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/passwd_meter.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/jquery.tablesorter.min.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/chartbooker.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/tiny_mce/tiny_mce.js?u=<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/jquery-1.9.1.min.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/jquery-ui-1.10.1.min.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/formchecker.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/passwd_meter.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/jquery.tablesorter.min.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/chartbooker.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
 
 <script type="text/javascript">
 	$(document).ready(function() {
