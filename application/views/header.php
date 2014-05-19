@@ -8,13 +8,13 @@
 <meta name="viewport" content="width=1300, initial-scale=0.7, maximum-scale=1.2">
 <title><?php echo (isset($_SESSION['fair_windowtitle'])) ? $_SESSION['fair_windowtitle'].' - ' : ''; ?>ChartBooker</title>
 <base href="<?php echo BASE_URL; ?>" />
-<link rel="stylesheet" type="text/css" href="css/jquery-ui.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
 <link rel="stylesheet" type="text/css" href="css/generic.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/main.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" media="print" href="css/print.css<?php echo $unique?>" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
-<script type="text/javascript" src="js/jquery-1.9.1.min.js<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/jquery-ui-1.10.1.min.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/formchecker.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/passwd_meter.js<?php echo $unique?>"></script>
