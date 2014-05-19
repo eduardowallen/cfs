@@ -174,42 +174,25 @@ function ajaxLoginForm(form) {
 	}
 }
 
-function positionDialogue(id, marginTop) {
-	var dialogue = document.getElementById(id);
-	var $dialogue = $(dialogue);
-	var presentation = $dialogue.find(".presentation")[0];
+function positionDialogue(id) {
+	var dialogue = $('#' + id);
 	var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 	var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 	var popupMaxWidth = Math.max(448, viewportWidth * .47);
 	var popupMaxHeight = Math.max(328, viewportHeight * .90);
-	var popupWidth =  0;
-	var popupHeight = 0;
-	var presentationHeight = popupMaxHeight * .55;
 
 	if (id === "showUserDialogue") {
-		popupMaxWidth = Math.max(448, viewportWidth * .70);
+		popupMaxWidth = Math.max(950, viewportWidth * .70);
 		popupMaxHeight = Math.max(328, viewportHeight * .90);
-		dialogue.style.width = "950px";
 	}
 
-	if (typeof marginTop !== "number") {
-		marginTop = -200;
-	}
-
-	dialogue.style.maxWidth = popupMaxWidth + "px";
-	dialogue.style.maxHeight = popupMaxHeight + "px";
-
-	dialogue.style.width = "auto";
-
-	if (presentation) {
-		presentation.style.maxHeight = presentationHeight + "px";
-	}
-
-	popupHeight = $dialogue.outerHeight();
-	popupWidth = $dialogue.outerWidth();
-
-	dialogue.style.marginLeft = -(popupWidth / 2) + "px";
-	dialogue.style.marginTop = marginTop + window.scrollY + "px";
+	dialogue.css({
+		'top': window.scrollY + (popupMaxHeight / 2) + 'px',
+		'width': popupMaxWidth + 'px',
+		'max-height': popupMaxHeight + 'px',
+		'margin-left': '-' + (popupMaxWidth / 2) + 'px',
+		'margin-top': '-' + ((popupMaxHeight - 48) / 2) + 'px'
+	});
 };
 
 function showUser(e) {
@@ -236,7 +219,7 @@ function showUser(e) {
 				$('#overlay').hide();
 			});
 
-			positionDialogue('showUserDialogue', -230);
+			positionDialogue('showUserDialogue');
 		}
 	});
 }

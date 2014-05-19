@@ -348,42 +348,7 @@
 #more_info_dialogue .info {
 	max-width: 70%;
 }
-	
-.dialogue {
-	display:none;
-	position:absolute;
-	z-index:10000;
-	width:400px;
-	top:30%;
-	left:50%;
-	margin-left:-222px;
-	margin-top:-200px;
-	padding:20px;
-	background:#ffffff;
-	border:4px solid #333333;
-	-moz-border-radius:8px;
-	-webkit-border-radius:8px;
-	border-radius:8px;
-	overflow:auto;
-}
 
-#arranger_message_popup.dialogue {
-	display:none;
-	position:absolute;
-	z-index:10001;
-	width:400px;
-	top:30%;
-	left:50%;
-	margin-left:-222px;
-	margin-top:-200px;
-	padding:20px;
-	background:#ffffff;
-	border:4px solid #333333;
-	-moz-border-radius:8px;
-	-webkit-border-radius:8px;
-	border-radius:8px;
-	overflow:auto;
-}
 .standSpaceName{ 
 	display:inline;
 }

@@ -99,6 +99,7 @@ maptool.openDialogue = function(id) {
 			height: $(document).height() + 'px'
 		});
 		$("#" + id).show();
+		positionDialogue(id);
 	});
 
 	$('input, textarea').placeholder();
