@@ -130,7 +130,6 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 					<!--<th><?php echo $th_bookings ?></th>-->
 					<th><?php echo $th_last_login ?></th>
 					<th><?php echo $th_connect_time ?></th>
-					<th><?php echo $th_copy; ?></th>
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
 				</tr>
 			</thead>
@@ -143,7 +142,6 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 						<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
 						<td><?php if ($user->get('connected_time')) echo date('d-m-Y H:i:s', $user->get('connected_time')); else echo 'n/a'; ?></td>
-						<td class="center"><a href="exhibitor/forFair/copy/<?php echo $user->get('id'); ?>"><img src="images/icons/user_go.png" alt=""/></a></td>
 						<td><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" checked="checked" /></td>
 					</tr>
 				<?php endforeach; ?>
