@@ -206,7 +206,7 @@
   <tbody>
   <?php foreach($positions as $pos): ?>
   	<tr>
-  		<td><a target="_blank" href="/mapTool/map/<?php echo $pos['fair']; ?>/<?php echo $pos['id']; ?>/<?php $pos['map']; ?>"><?php echo $pos['fair_map_name']; ?> </a></td>
+  		<td><a target="_blank" href="/mapTool/map/<?php echo $pos['fair']; ?>/<?php echo $pos['id']; ?>/<?php echo $pos['map']; ?>"><?php echo $pos['fair_map_name']; ?> </a></td>
   		<td><?php echo $pos['name']; ?></td>
   		<td class="center"><?php echo $pos['area']; ?></td>
   		<td class="center"><?php echo $pos['company']; ?></td>
