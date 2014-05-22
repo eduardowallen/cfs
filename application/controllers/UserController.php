@@ -709,6 +709,7 @@ class UserController extends Controller {
 							require_once ROOT.'application/models/FairMapPosition.php';
 							require_once ROOT.'application/models/PreliminaryBooking.php';
 							require_once ROOT.'application/models/FairUserRelation.php';
+							require_once ROOT.'application/models/FairExtraOption.php';
               
 							$fair = new Fair;
 							$fair->load($fairUrl, 'url');
