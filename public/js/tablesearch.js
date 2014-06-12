@@ -4,6 +4,10 @@ function filterTable(table, str, results) {
 		return;
 	}
 
+	if (table.hasClass('scrolltable')) {
+		table.floatThead('reflow');
+	}
+
 	var hits = new Array;
 	var hit_count = 0;
 
@@ -110,51 +114,53 @@ function filterTableTable(table, str, results) {
 		$('.std_table').each(function() {
 			var parstd_table = $(this);
 			var std_table = parstd_table;
-			searchfield = $('<p></p>');
-			searchfield = searchfield.prepend(html);
-			var url = document.URL;
-			var site = "";
+			if (!std_table.parent().hasClass('floatThead-container')) {
+				searchfield = $('<p></p>');
+				searchfield = searchfield.prepend(html);
+				var url = document.URL;
+				var site = "";
 
-			
-			if(url.indexOf('newReservations') > 0){
-				site = "newRes";
-			}
-			if(url.indexOf('forFair')  > 0){
-				site = "forFair";
-			}
-			
-			if ($(this).parent().hasClass('scrolltbl')) {
-				$(this).parent().prev().before(searchfield);
-
-			} else {
-				$(this).before(searchfield);
-			}
-			
-			searchfield.find("#search_button").click(function() {
-				filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
-
-				/*if(site == "forFair"){
-					resizeForFair();
+				
+				if(url.indexOf('newReservations') > 0){
+					site = "newRes";
 				}
-				if(site == "newRes"){
-					resizeNewRes();
-				}*/
-			});
+				if(url.indexOf('forFair')  > 0){
+					site = "forFair";
+				}
+				
+				if (parstd_table.hasClass('scrolltable')) {
+					parstd_table.parent().parent().before(searchfield);
 
-			searchfield.find("#search_input").keydown(function(e) {
-				if (e.keyCode == 13) {
-					e.preventDefault();
-
-					filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
+				} else {
+					parstd_table.before(searchfield);
+				}
+				
+				searchfield.find("#search_button").click(function() {
+					filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
 
 					/*if(site == "forFair"){
 						resizeForFair();
 					}
-
 					if(site == "newRes"){
 						resizeNewRes();
 					}*/
-				}
-			});
+				});
+
+				searchfield.find("#search_input").keydown(function(e) {
+					if (e.keyCode == 13) {
+						e.preventDefault();
+
+						filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
+
+						/*if(site == "forFair"){
+							resizeForFair();
+						}
+
+						if(site == "newRes"){
+							resizeNewRes();
+						}*/
+					}
+				});
+			}
 		});
 });

@@ -343,71 +343,17 @@ textarea {
 	background-image:url("../images/icons/zoom_neutral.png");
 }
 
-/*.tbld{
-	max-width:1280px;
-	float:left;
+.scrolltable-wrap {
+	position: relative;
+	overflow: auto;
+	max-height: 400px;
+	border-bottom: 1px solid #000;
+	width: 100%;
 }
 
-.tblHeader ul{
-	border-collapse:collapse;
-	font-size:11px;
-	border-right:1px solid #000;
-	float:left;
-	margin:0;
-	padding:0;
-	border-top:1px solid #000;
-	text-align:center;
-	font-weight:bold;
-	overflow:hidden;
+.floatThead-table {
+	background: #fff;
 }
-
-.tblHeader ul li{
-	display:inline;
-	float:left;
-	border-left:1px solid #000;
-	padding:0px 5px 0px 5px;
-}
-
-.tblrow1{
-	height:35px;
-}
-
-.scrolltbl{
-	max-height:325px;
-	overflow-y: scroll;
-	float:left;
-
-}
-
-.scrolltbl .std_table thead tr {
-	height: 32px;
-}
-
-.onlyfive{max-height:313px; overflow-y:auto;}
-.onlythirteen{max-height:697px;}
-
-h2.tblsite{
-	float:left; width:100%;
-	margin-top:20px;
-}
-
-.article_row{
-	float:left;
-	width:100%;
-}
-
-.article_row{
-	float:left;
-	width:100%;
-}
-
-.article_row p {
-	width:20%;
-	float:left;
-	display:inline;
-	margin:0;
-	padding:0;
-}*/
 
 p.pricetag{width:150px;}
 p.pricetag{margin:0; padding:0;}
@@ -420,10 +366,6 @@ p.pricetag input{margin:0; padding:0; margin-top:2px; height:23px; width:120px;}
 	width: 100%;
 	min-width:400px;
 }
-
-/*.scrolltbl .std_table, .scrolltbl .std_table table{
-	min-width:400px;
-}*/
 
 .std_table th {
 	padding:0 5px 0 5px;
@@ -451,18 +393,8 @@ p.pricetag input{margin:0; padding:0; margin-top:2px; height:23px; width:120px;}
 
 .std_table tbody{border-top:1px solid #000;}
 
-/*.std_table tr th.header{border-top:1px solid #000; border-left:1px solid #000;}*/
 .std_table tr{border-right:1px solid #000; border-left:1px solid #000;}
 
-/*ul.tablehead{
-	display:inline;
-	padding:0;
-}
-
-ul.tablehead li{
-	display:inline;
-	padding:0;
-}*/
 .pager p{
 	display:inline;
 	padding:0px 5px 0px 0px; float:left;

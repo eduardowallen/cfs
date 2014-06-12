@@ -27,7 +27,6 @@
 <script language="javascript" type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('.std_table').tablesorter();
     $( document ).tooltip(); // Initialize jQueryUI tooltips
 	});
 	var lang = {};

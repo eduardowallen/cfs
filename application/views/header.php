@@ -19,12 +19,12 @@
 <script type="text/javascript" src="js/formchecker.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/passwd_meter.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/jquery.floatThead.min.js"></script>
 <script type="text/javascript" src="js/chartbooker.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
 
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('.std_table').tablesorter();
     $( document ).tooltip(); // Initialize jQueryUI tooltips
 	});
 	var lang = {};

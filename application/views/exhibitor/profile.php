@@ -190,8 +190,7 @@
 
 <h3><?php echo $bookings_section; ?></h3>
 <?php if (count($positions) > 0): ?>
-<div class="scrolltbl onlyfive">
-  <table class="std_table">
+<table class="std_table use-scrolltable" id="profileBookings">
   <thead>
   	<tr>
   		<th><?php echo $tr_event; ?></th>
@@ -222,8 +221,7 @@
   	</tr>
   <?php endforeach; ?>
   </tbody>
-  </table>
-</div>
+</table>
 <?php else: ?>
 <p><?php echo $no_bookings_label; ?></p>
 <?php endif; ?>

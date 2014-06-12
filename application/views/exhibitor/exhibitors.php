@@ -70,7 +70,7 @@ $column_info = array(
 	<form action="exhibitor/export2/<?php echo $fairId; ?>" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="exhibitors_list" style="float:right;;"><?php echo uh($export_button); ?></button>
 
-		<table class="std_table" id="exhibitors_list">
+		<table class="std_table use-scrolltable" id="exhibitors_list">
 			<thead>
 				<tr>
 					<th><?php echo $th_status; ?></th>

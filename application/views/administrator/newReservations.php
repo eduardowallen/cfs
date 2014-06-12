@@ -249,7 +249,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 	<form action="administrator/exportNewReservations/1" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right;"><?php echo uh($export); ?></button>
 
-		<table class="std_table" id="booked">
+		<table class="std_table use-scrolltable" id="booked">
 			<thead>
 				<tr>
 					<th>
@@ -289,7 +289,14 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 			</thead>
 			<tbody>
 			<?php foreach($positions as $pos):?>
-				<tr>
+				<tr
+					data-categories="<?php echo $pos['categories']; ?>"
+					data-options="<?php echo $pos['options']; ?>"
+					data-posname="<?php echo $pos['name']; ?>"
+					data-company="<?php echo $pos['company']; ?>"
+					data-commodity="<?php echo $pos['commodity']; ?>"
+					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+				>
 					<td><?php echo $pos['name']; ?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
@@ -303,8 +310,6 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 						</a>
 <?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']; ?></td>
-					<td style="display:none;"><?php echo $pos['options']; ?></td>
 					<td>
 					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -339,7 +344,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 	<form action="administrator/exportNewReservations/2" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved" style="float:right;"><?php echo uh($export); ?></button>
 
-		<table class="std_table" id="reserved">
+		<table class="std_table use-scrolltable" id="reserved">
 			<thead>
 				<tr>
 					<th><?php echo $tr_pos; ?></th>
@@ -354,12 +359,22 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 					<th data-sorter="false"><?php echo $tr_edit; ?></th>
 					<th data-sorter="false"><?php echo $tr_deny; ?></th>
 					<th data-sorter="false"><?php echo $tr_approve; ?></th>
-					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
+					<th data-sorter="false" colspan="3"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
 				</tr>
 			</thead>
 			<tbody>
 			<?php foreach($rpositions as $pos): ?>
-				<tr data-id="<?php echo $pos['id']; ?>">
+				<tr
+					data-id="<?php echo $pos['id']; ?>"
+					data-categories="<?php echo $pos['categories']; ?>"
+					data-options="<?php echo $pos['options']; ?>"
+					data-posname="<?php echo $pos['name']; ?>"
+					data-company="<?php echo $pos['company']; ?>"
+					data-commodity="<?php echo $pos['commodity']; ?>"
+					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+					data-expires="<?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?>"
+					data-approveurl="<?php echo BASE_URL.'administrator/approveReservation/'; ?>"
+				>
 					<td><?php echo $pos['name']; ?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
@@ -373,10 +388,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 							</a>
 	<?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']; ?></td>
-					<td style="display:none;"><?php echo $pos['options']; ?></td>
 					<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?></td>
-					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -400,6 +412,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 						</a>
 					</td>
 					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-2" checked="checked" /></td>
+					<!--<td class="approve" style="display:none;"></td>-->
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
@@ -418,7 +431,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 	<form action="administrator/exportNewReservations/3" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="prem" style="float:right;"><?php echo uh($export); ?></button>
 
-		<table class="std_table" id="prem">
+		<table class="std_table use-scrolltable" id="prem">
 			<thead>
 				<tr>
 					<th><?php echo $tr_pos; ?></th>
@@ -436,13 +449,23 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 			</thead>
 			<tbody>
 			<?php foreach($prelpos as $pos): ?>
-				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?> data-id="<?php echo $pos['id']; ?>">
+				<tr
+					id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?>
+					data-id="<?php echo $pos['id']; ?>"
+					data-approveurl="<?php echo BASE_URL.'administrator/newReservations/approve/'; ?>"
+					data-reserveurl="<?php echo BASE_URL.'administrator/reservePrelBooking/'; ?>"
+					data-categories="<?php echo $pos['categories']; ?>"
+					data-options="<?php echo $pos['options']; ?>"
+					data-posname="<?php echo $pos['name']; ?>"
+					data-company="<?php echo $pos['company']; ?>"
+					data-commodity="<?php echo $pos['commodity']; ?>"
+					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+				>
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
-					<td style="display:none;"></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -450,10 +473,6 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 						</a>
 <?php endif; ?>
 					</td>
-					<td style="display: none;"><?php echo $pos['categories']; ?></td>
-					<td style="display: none;"><?php echo $pos["options"]; ?></td>
-					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'; ?></td>
-					<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'; ?></td>
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -466,7 +485,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 					</td>
 					<td class="center">
 						<?php //echo BASE_URL.'administrator/newReservations/approve/'.$pos['id'] ?><?php //echo $tr_approve; ?>
-						<a style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book',this)">
+						<a style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book', this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 						</a>
 					</td>

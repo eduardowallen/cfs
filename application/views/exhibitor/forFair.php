@@ -69,6 +69,12 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 	};
 </script>
 
+<style>
+	#content {
+		max-width: 1280px;
+	}
+</style>
+
 <h1><?php echo $headline; ?></h1>
 <p><a class="button add" href="administrator/newExhibitor"><?php echo $create_link; ?></a></p>
 
@@ -79,7 +85,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 	<form action="exhibitor/exportForFair/1" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right;"><?php echo uh($export); ?></button>
 
-		<table class="std_table" id="booked">
+		<table class="std_table use-scrolltable" id="booked">
 		<?php if (userLevel() > 2): ?>
 
 		<?php endif; ?>
@@ -121,7 +127,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 	<form action="exhibitor/exportForFair/2" method="post">
 		<button type="submit" class="open-excel-export" name="export_excel" data-for="connected" style="float:right;"><?php echo uh($export); ?></button>
 
-		<table class="std_table" id="connected">
+		<table class="std_table use-scrolltable" id="connected">
 			<thead>
 				<tr>
 					<th><?php echo $th_company ?></th>

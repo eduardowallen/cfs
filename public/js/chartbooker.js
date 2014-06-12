@@ -2,22 +2,22 @@
 var open_dialogue = null;
 
 function showPopup(type, activator){
-	
+
 	var row = $(activator).parent().parent();
 
 	if(type == "reserve"){
-		var link = row.find('.reserve').text();
+		var link = row.data("reserveurl");
 		reservePopup(row, link, 'confirm');
 	}
 
 	if(type == "book"){
-		var link = row.find('.approve').text();
+		var link = row.data("approveurl");
 		bookPopup(row, link, 'confirm');
 		
 	}
 }
 
-function reservePopup(row, link, action) {
+function reservePopup($row, link, action) {
 	var dialogueId = "reserve_position_dialogue";
 	var dialogue = $('#' + dialogueId);
 
@@ -28,10 +28,9 @@ function reservePopup(row, link, action) {
 	$('#overlay').show();
 	open_dialogue = dialogue;
 
-	var data = row.children(), 
-		catArr = data.eq(7).text().split("|"), 
-		optArr = data.eq(8).text().split("|"), 
-		i;
+	var catArr = ($row.data("categories") + "").split("|");
+	var optArr = ($row.data("options") + "").split("|");
+	var i;
 
 	$('#reserve_category_scrollbox input').prop('checked', false);
 	for (i = 0; i < catArr.length; i++) {
@@ -44,20 +43,20 @@ function reservePopup(row, link, action) {
 	}
 
 	$('form', dialogue).prop('action', link);
-	$('.position-name', dialogue).text(data.eq(0).text());
-	$('#reserve_id').val(row.data('id'));
-	$('#reserve_user').text(data.eq(2).text());
-	$('#reserve_commodity_input').val(data.eq(3).text());
-	$('#reserve_message_input').val(data.eq(6).prop('title'));
+	$('.position-name', dialogue).text($row.data("posname"));
+	$('#reserve_id').val($row.data('id'));
+	$('#reserve_user').text($row.data("company"));
+	$('#reserve_commodity_input').val($row.data("commodity"));
+	$('#reserve_message_input').val($row.data("message"));
 
 	if (action == 'edit') {
-		$('#reserve_expires_input').val(data.eq(9).text().replace(/ GMT[+-]\d*/, ''));
+		$('#reserve_expires_input').val($row.data("expires").replace(/ GMT[+-]\d*/, ''));
 	}
 
 	positionDialogue(dialogueId, -310);
 }
 
-function bookPopup(row, link, action) {
+function bookPopup($row, link, action) {
 	var dialogueId = "book_position_dialogue";
 
 	var dialogue = $('#' + dialogueId);
@@ -68,11 +67,10 @@ function bookPopup(row, link, action) {
 	dialogue.css('display', 'block');
 	open_dialogue = dialogue;
 	$('#overlay').show();
-	
-	var data = row.children(), 
-		catArr = data.eq(7).text().split("|"),
-		optArr = data.eq(8).text().split("|"), 
-		i;
+
+	var catArr = ($row.data("categories") + "").split("|");
+	var optArr = ($row.data("options") + "").split("|");
+	var i;
 
 	$('#book_category_scrollbox input').prop('checked', false);
 	for (i = 0; i < catArr.length; i++) {
@@ -85,11 +83,11 @@ function bookPopup(row, link, action) {
 	}
 
 	$('form', dialogue).prop('action', link);
-	$('.position-name', dialogue).text(data.eq(0).text());
-	$('#book_id').val(row.data('id'));
-	$('#book_user').text(data.eq(2).text());
-	$('#book_commodity_input').val(data.eq(3).text());
-	$('#book_message_input').val(data.eq(6).prop('title'));	
+	$('.position-name', dialogue).text($row.data("posname"));
+	$('#book_id').val($row.data('id'));
+	$('#book_user').text($row.data("company"));
+	$('#book_commodity_input').val($row.data("commodity"));
+	$('#book_message_input').val($row.data("message"));	
 
 	positionDialogue(dialogueId, -310);
 }
@@ -229,6 +227,8 @@ function showUser(e) {
 			});
 
 			positionDialogue('showUserDialogue');
+
+			useScrolltable(dialogue.find("#profileBookings"));
 		}
 	});
 }
@@ -241,23 +241,7 @@ function positionExcelCheckboxes($checkboxes, $table) {
 			$th = $tableHeaders.eq(i);
 
 		$th.append($checkbox);
-			//thOffset = $th.position(),
-			//center = getHorizontalCenter($th, $checkbox);
-
-		/*$checkbox.css({
-			position: "absolute",
-			left: thOffset.left + center + "px",
-			top: thOffset.top + $th.parent().height() - 40 + "px"
-		});*/
 	});
-
-	/*$table.parent().on("scroll", function () {
-		if (this.scrollTop > 0) {
-			$checkboxContainer.hide();
-		} else {
-			$checkboxContainer.show();
-		}
-	});*/
 }
 
 function multiCheck(checkbox, box) {
@@ -441,20 +425,6 @@ var bookingOptions = {
 	}
 };
 
-/*function findScrolltables() {
-	$('.use-scrolltable').each(function() {
-		var table = $(this);
-
-		table
-			.removeClass('use-scrolltable')
-			.wrap('<div class="scrolltable-wrap"><div class="scrolltable"></div></div>');
-
-		$('thead th', table).each(function() {
-			$(this).wrapInner('<span class="th"></span>');
-		});
-	});
-}*/
-
 function showExportPopup(e) {
 	e.preventDefault();
 
@@ -503,6 +473,41 @@ function checkAll(e) {
 			checkbox.prop('checked', check_all.prop('checked'));
 		}
 	});
+}
+
+function useScrolltable(table) {
+	table
+		.removeClass('use-scrolltable')
+		.addClass('scrolltable')
+		.wrap('<div class="scrolltable-wrap"></div>')
+		
+		.floatThead({
+			scrollContainer: function(table) {
+				return table.parent();
+			}
+		});
+
+	// Fix tablesorter
+	table.parent().siblings('.floatThead-container').find('thead').on('click', 'th', function(e) {
+		var target = $(e.target);
+
+		if (typeof target.data('sorter') === 'undefined') {
+			table.find('th:eq(' + target.index() + ')').trigger('sort');
+		}
+	});
+
+	table.tablesorter()
+		.on("sortStart", function () {
+			var wrapper = this.parentNode;
+
+			window.setTimeout(function () {
+				wrapper.style.maxHeight = "399px";
+
+				window.setTimeout(function () {
+					wrapper.style.maxHeight = "400px";
+				}, 10);
+			}, 10);
+		});
 }
 
 $(document).ready(function() {
@@ -738,6 +743,7 @@ $(document).ready(function() {
 
 	$(document.body).on('click', '.open-edit-booking', function(e) {
 		var link = $(this);
+
 		e.preventDefault();
 		$('#overlay').show();
 		bookPopup(link.parent().parent(), link.attr('href'), 'edit');
@@ -803,5 +809,11 @@ $(document).ready(function() {
 			$('#invoice_email').val("");
 		}
 	});
+
+	$('.use-scrolltable').each(function() {
+		useScrolltable($(this));
+	});
+
+	$('.std_table:not(.scrolltable)').tablesorter();
 	
 });
