@@ -181,9 +181,18 @@ function positionDialogue(id) {
 	var popupMaxWidth = Math.max(448, viewportWidth * .47);
 	var popupMaxHeight = Math.max(328, viewportHeight * .90);
 
-	if (id === "showUserDialogue") {
-		popupMaxWidth = Math.max(950, viewportWidth * .70);
-		popupMaxHeight = Math.max(328, viewportHeight * .90);
+	//Exeptions to width and height
+	switch (id) {
+		case "showUserDialogue":
+			popupMaxWidth = Math.max(950, viewportWidth * .70);
+			popupMaxHeight = Math.max(328, viewportHeight * .90);
+			break;
+		case "edit_position_dialogue":
+		case "book_position_dialogue":
+		case "reserve_position_dialogue":
+		case "more_info_dialogue":
+			popupMaxWidth = 400;
+			break;
 	}
 
 	dialogue.css({
