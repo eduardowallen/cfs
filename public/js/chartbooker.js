@@ -448,7 +448,6 @@ var bookingOptions = {
 
 function showExportPopup(e) {
 	e.preventDefault();
-	window.scrollTo(0, 0);
 
 	if ($('#export_popup').length > 0) {
 		$('#export_popup').remove();
@@ -480,6 +479,8 @@ function showExportPopup(e) {
 
 	$(button).before(export_popup);
 	$('.close-popup', export_popup).click(closeDialogue);
+
+	positionDialogue("export_popup");
 }
 
 function checkAll(e) {
