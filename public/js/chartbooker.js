@@ -187,7 +187,7 @@ function positionDialogue(id) {
 	}
 
 	dialogue.css({
-		'top': window.scrollY + (popupMaxHeight / 2) + 'px',
+		'top': window.pageYOffset + (popupMaxHeight / 2) + 'px',
 		'width': popupMaxWidth + 'px',
 		'max-height': popupMaxHeight + 'px',
 		'margin-left': '-' + (popupMaxWidth / 2) + 'px',
