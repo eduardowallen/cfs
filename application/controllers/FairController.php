@@ -245,32 +245,32 @@ class FairController extends Controller {
 				}
 				
 				if ($id == 'new') {
+					$userLevel = userLevel();
+
 					$_SESSION['user_fair'] = $fId;
-					$user = new User;
-					$user->load($_SESSION['user_id'], 'id');
+					$user = new User();
 
-					if((strlen($fairmail) > 1)):
-						Alias::addNew($fairmail, array('info'));
-					endif;
-
-					if (userLevel() == 3) {
-						
-						/* Alias */
-						/*					
-						$organizermail = $user->get('email');
-						$fairmail = $_POST['name'];
-						require('lib/classes/Alias.php');
-
-						if((strlen($organizermail) > 1) && (strlen($fairmail) > 1)):
-							Alias::addNew($fairmail, $organizermail);
-						endif;
-						*/
-
-					    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-					    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
-					    $mail->setMailVar('company', $user->get('company'));
-					    $mail->send();
+					if ($userLevel === "4") {
+						$user->load($_POST['arranger'], 'id');
+					} else if ($userLevel === "3") {
+						$user->load($_SESSION['user_id'], 'id');
 					}
+						
+					/* Alias */
+					$organizermail = $user->get('email');
+					$fairmail = $_POST['name'];
+
+					if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
+						Alias::addNew($fairmail, array($organizermail));
+					}
+
+					if ($userLevel === "3") {
+				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
+				    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+				    $mail->setMailVar('company', $user->get('company'));
+				    $mail->send();
+				  }
+
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
 				} else {
@@ -528,17 +528,25 @@ class FairController extends Controller {
 				}
 
 				$_SESSION['user_fair'] = $fair_clone_id;
-				$user = new User;
-				$user->load($_SESSION['user_id'], 'id');
+				$user = new User();
+
+				$userLevel = userLevel();
 
 				/* Alias */					
-				$fairmail = $_POST['name'];
-
-				if ((strlen($fairmail) > 1)) {
-					Alias::addNew($fairmail, array($user->get('email')));
+				if ($userLevel === "4") {
+					$user->load($this->Fair->get('created_by'), 'id');
+				} else if ($userLevel === "3") {
+					$user->load($_SESSION['user_id'], 'id');
 				}
 
-				if (userLevel() == 3) {
+				$organizermail = $user->get('email');
+				$fairmail = $_POST['name'];
+
+				if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
+					Alias::addNew($fairmail, array($organizermail));
+				}
+
+				if ($userLevel === "3") {
 				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
 				    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
 				    $mail->setMailVar('company', $user->get('company'));
