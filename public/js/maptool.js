@@ -2162,6 +2162,8 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 			}
 		});
 	});
+
+	positionDialogue("reserve_position_dialogue");
 };
 
 //Zoom to 0
