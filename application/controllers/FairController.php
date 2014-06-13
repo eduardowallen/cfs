@@ -666,6 +666,15 @@ class FairController extends Controller {
 			$this->setNoTranslate("id", $id);
 		}
 	}
+	public function updateAliases() {
+			$result = $this->Fair->db->query("SELECT `fair`.`url`, `user`.`email` FROM `fair` INNER JOIN `user` ON `fair`.`created_by` = `user`.`id` ");
+
+			Alias::clear();
+
+			while (($fair = $result->fetch(PDO::FETCH_ASSOC))) {
+				Alias::addNew($fair["url"], array($fair["email"]));
+			}
+		}
 }
 
 ?>

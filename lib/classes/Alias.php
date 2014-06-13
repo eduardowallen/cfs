@@ -92,6 +92,14 @@ class Alias {
         
         Alias::write($filecontents);
     }
+
+    public static function clear() {
+        $list = Alias::asList();
+
+        foreach ($list as $key => $value) {
+            Alias::remove($key);
+        }
+    }
     
     public static function commit() {
         //system('../c/suidmakehash hash ' . MAIL_ALIASES . '.db < ' . MAIL_ALIASES, $ret);
