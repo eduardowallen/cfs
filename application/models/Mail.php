@@ -4,6 +4,7 @@ class Mail extends Model {
 	
   protected $to;
   protected $from;
+  protected $fromName;
   protected $subject;
   protected $content;
 	protected $variables = array();
