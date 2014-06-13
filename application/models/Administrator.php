@@ -43,7 +43,7 @@ class Administrator extends User {
 			$me = new User;
 			$me->load($_SESSION['user_id'], 'id');
 			
-			$mail = new Mail($_POST['email'], 'administrator_new_account');
+			$mail = new Mail($_POST['email'], 'administrator_new_account', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 			$mail->setMailVar('url', BASE_URL.$_SESSION['outside_fair_url']);
 			$mail->setMailVar('alias', $this->alias);
 			$mail->setMailVar('password', $str);

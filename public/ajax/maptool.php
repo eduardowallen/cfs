@@ -417,7 +417,7 @@ if (isset($_POST['editBooking'])) {
 		$mailSettings = json_decode($fair->get("mail_settings"));
 		if (is_array($mailSettings->$mailSetting)) {
 			if (in_array("0", $mailSettings->$mailSetting)) {
-				$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
+				$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 				$mail_organizer->setMailVar('event_name', $fair->get('name'));
 				$mail_organizer->setMailVar('position_name', $pos->get('name'));
 				$mail_organizer->setMailVar('position_information', $pos->get('information'));
@@ -434,7 +434,7 @@ if (isset($_POST['editBooking'])) {
 			}
 
 			if (in_array("1", $mailSettings->$mailSetting)) {
-				$mail_user = new Mail($ex->get('email'), $mail_type . '_edited_receipt');
+				$mail_user = new Mail($ex->get('email'), $mail_type . '_edited_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 				$mail_user->setMailVar('event_name', $fair->get('name'));
 				$mail_user->setMailVar('position_name', $pos->get('name'));
 				$mail_user->setMailVar('position_information', $pos->get('information'));
@@ -520,7 +520,7 @@ if (isset($_POST['preliminary'])) {
 
 				$options = implode(', ', $options);
 
-				$mail_organizer = new Mail($organizer->get('email'), 'new_preliminary_booking');
+				$mail_organizer = new Mail($organizer->get('email'), 'new_preliminary_booking', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 				$mail_organizer->setMailVar('position_name', $position->get('name'));
 				$mail_organizer->setMailVar('position_information', $position->get('information'));
 				$mail_organizer->setMailVar('booking_time', $time_now);
@@ -530,7 +530,7 @@ if (isset($_POST['preliminary'])) {
 				$mail_organizer->setMailVar('exhibitor_name', $user->get('name'));
 				$mail_organizer->send();
 
-				$mail_user = new Mail($user->get('email'), 'receipt_preliminary_booking');
+				$mail_user = new Mail($user->get('email'), 'receipt_preliminary_booking', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 				$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
 				$mail_user->setMailVar('event_name', $fair->get('name'));
 				$mail_user->setMailVar('position_name', $position->get('name'));
@@ -596,7 +596,7 @@ if (isset($_POST['cancelBooking'])) {
 			$current_user = new User();
 			$current_user->load($_SESSION['user_id'], 'id');
 
-			$mail = new Mail($email, 'booking_cancelled');
+			$mail = new Mail($email, 'booking_cancelled', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 			$mail->setMailVar('position_name', $pos->get('name'));
 			$mail->setMailVar('cancelled_name', $current_user->get('name'));
 			$mail->setMailVar('event_name', $fair->get('name'));

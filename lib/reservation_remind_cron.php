@@ -48,7 +48,8 @@ $statement = $globalDB->prepare("SELECT fmp.id,
 								u.email AS exhibitor_email, 
 								u.name AS user_name, 
 								uc.email AS organizer_email, 
-								f.url, 
+								f.url,
+								f.name AS fair_name,
 								DATEDIFF(fmp.expires, ?) AS diff, 
 								fmp.expires, 
 								reminder_day1, 
@@ -87,7 +88,7 @@ foreach ($expiring_positions as $position) {
 		$to = 'example@chartbooker.com';
 	}
 
-	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com');
+	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com', $position->fair_name);
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
 	$mail->setMailVar('name', $position->user_name);
 	$mail->setMailVar('stand_space_name', $position->position_name);
@@ -101,7 +102,7 @@ foreach ($expiring_positions as $position) {
 		$to = 'example@chartbooker.com';
 	}
 
-	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . '@chartbooker.com');
+	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . '@chartbooker.com', $position->fair_name);
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
 	$mail->setMailVar('name', $position->user_name);
 	$mail->setMailVar('stand_space_name', $position->position_name);
