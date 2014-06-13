@@ -9,6 +9,8 @@ class Alias {
             throw new Exception('can not write to alias database, permission problem?');
         }
         file_put_contents(MAIL_ALIASES, $data, LOCK_EX);
+
+        Alias::commit();
     }
 
     public static function asList() {
@@ -93,14 +95,16 @@ class Alias {
     
     public static function commit() {
         //system('../c/suidmakehash hash ' . MAIL_ALIASES . '.db < ' . MAIL_ALIASES, $ret);
-        system('./suidnewaliases', $ret);
+        //system('./suidnewaliases', $ret);
+        system("newaliases", $ret);
+        /*
         switch($ret) {
             case 64:
                 throw new Exception('Kunde inte starta program, parameterfel');
             case 127:
                 throw new Exception('Kunde inte starta program, filen finns inte');
             default:
-        }
+        }*/
     }
 }
 
