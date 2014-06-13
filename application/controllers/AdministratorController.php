@@ -590,10 +590,13 @@ class AdministratorController extends Controller {
 							$mail_organizer->send();
 						}
 						if (in_array("1", $mailSettings->bookingEdited)) {
-							$mail_user = new Mail($ex_user->get('email'), 'booking_edited_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+							$mail_user = new Mail($ex_user->get('email'), 'preliminary_to_booked', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+							$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
+							$mail_user->setMailvar("event_name", $fair->get("name"));
 							$mail_user->setMailVar('position_name', $pos->get('name'));
+							$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+							$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
 							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('edit_time', $time_now);
 							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
 							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_user->setMailVar('exhibitor_category', $categories);
@@ -1373,14 +1376,17 @@ class AdministratorController extends Controller {
 							$mail_organizer->send();
 						}
 						if (in_array("1", $mailSettings->reservationEdited)) {
-							$mail_user = new Mail($exhib_user->get('email'), 'reservation_edited_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+							$mail_user = new Mail($exhib_user->get('email'), 'preliminary_to_reserved', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+
+							$mail_user->setMailvar("exhibitor_name", $exhib_user->get("name"));
+							$mail_user->setMailvar("event_name", $fair->get("name"));
 							$mail_user->setMailVar('position_name', $pos->get('name'));
+							$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($exhib->get("booking_time"))));
+							$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
 							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('edit_time', $time_now);
 							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
 							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_user->setMailVar('exhibitor_category', $categories);
-							$mail_user->setMailVar('date_expires', $_POST['expires']);
 							$mail_user->send();
 						}
 					}

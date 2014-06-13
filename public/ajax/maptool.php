@@ -255,9 +255,17 @@ if (isset($_POST['bookPosition'])) {
 	$ex->set('edit_time', 0);
 	$exId = $ex->save();
 
+	$categoryNames = array();
+
 	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 		$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 		foreach ($_POST['categories'] as $cat) {
+			$category = new ExhibitorCategory();
+			$category->load($cat, "id");
+			if ($category->wasLoaded()) {
+				$categoryNames[] = $category->get("name");
+			}
+
 			$stmt->execute(array($exId, $cat));
 		}
 	}
@@ -271,6 +279,26 @@ if (isset($_POST['bookPosition'])) {
 
 	$pos->set('status', 2);
 	$pos->save();
+
+	$fair = new Fair();
+	$fair->load($map->get("fair"), "id");
+
+	$user = new User();
+	$user->load($_POST["user"], "id");
+
+	if ($fair->wasLoaded()) {
+		$mail = new Mail($user->get("email"), "preliminary_to_reserved", $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+		$mail->setMailvar("exhibitor_name", $user->get("name"));
+		$mail->setMailvar("event_name", $fair->get("name"));
+		$mail->setMailVar("position_name", $pos->get("name"));
+		$mail->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+		$mail->setMailVar("url", BASE_URL . $fair->get("url"));
+		$mail->setMailVar("position_information", $pos->get("information"));
+		$mail->setMailVar("exhibitor_commodity", $ex->get("commodity"));
+		$mail->setMailVar("exhibitor_category", implode(", ", $categoryNames));
+		$mail->setMailVar("arranger_message", $ex->get("arranger_message"));
+		$mail->send();
+	}
 
 	exit;
 
@@ -312,9 +340,16 @@ if (isset($_POST['reservePosition'])) {
 	$ex->set('edit_time', 0);
 	$exId = $ex->save();
 
+	$categoryNames = array();
+
 	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 		$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 		foreach ($_POST['categories'] as $cat) {
+			$category = new ExhibitorCategory();
+			$category->load($cat, "id");
+			if ($category->wasLoaded()) {
+				$categoryNames[] = $category->get("name");
+			}
 			$stmt->execute(array($exId, $cat));
 		}
 	}
@@ -325,10 +360,29 @@ if (isset($_POST['reservePosition'])) {
 			$stmt->execute(array($exId, $opt));
 		}
 	}
-	
 	$pos->set('status', 1);
 	$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 	$pos->save();
+
+	$user = new User();
+	$user->load($_POST["user"], "id");
+
+	$fair = new Fair();
+	$fair->load($map->get("fair"), "id");
+
+	if ($fair->wasLoaded()) {
+		$mail = new Mail($user->get("email"), "preliminary_to_reserved", $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+		$mail->setMailvar("exhibitor_name", $user->get("name"));
+		$mail->setMailvar("event_name", $fair->get("name"));
+		$mail->setMailVar("position_name", $pos->get("name"));
+		$mail->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+		$mail->setMailVar("url", BASE_URL . $fair->get("url"));
+		$mail->setMailVar("position_information", $pos->get("information"));
+		$mail->setMailVar("exhibitor_commodity", $ex->get("commodity"));
+		$mail->setMailVar("exhibitor_category", implode(", ", $categoryNames));
+		$mail->setMailVar("arranger_message", $ex->get("arranger_message"));
+		$mail->send();
+	}
 
 	exit;
 
