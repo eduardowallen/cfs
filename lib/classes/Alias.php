@@ -96,7 +96,7 @@ class Alias {
     public static function commit() {
         //system('../c/suidmakehash hash ' . MAIL_ALIASES . '.db < ' . MAIL_ALIASES, $ret);
         //system('./suidnewaliases', $ret);
-        system("newaliases", $ret);
+        system("sudo newaliases", $ret);
         /*
         switch($ret) {
             case 64:
