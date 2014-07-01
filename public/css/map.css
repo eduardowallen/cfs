@@ -357,6 +357,9 @@
 	margin-top:-192px;
 }
 
+#preliminaryConfirm p {
+	text-align: center;
+}
 
 h1.inline-block {
 	display:inline-block;
