@@ -630,23 +630,38 @@ $(document).ready(function() {
 		});	
 	});
 
+	
 	$('.helpOrgLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : 'page/help_organizer',
+			url : 'page/help',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupform" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
+			var html = '<div id="popupformTwo" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
 			$('body').append(html);
-			$('#popupform').html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
+			var popupform = $('#popupformTwo');	
+			
+			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
+			var closeButton = $('.closeDialogue');
 			$('#popupform > p').css('text-align', 'left');
 			$('.closeDialogue').click(function(){
 				$(this).off('click');
-				$('#popupform').remove();
+				$(this).remove();
+				$('#popupformTwo').remove();
 				$('#overlay').hide();
 			});
+			if(popupform.width() > 760){
+				popupform.css('width', 760);		
+			}
+			popupform.css('left', '50%');
+			popupform.css('margin-left', (popupform.width() + 48)/-2);
+			var d = popupform.width() - 15;
+			closeButton.css('left', d);
+
 		});	
 	});
+
+	
 
 
 	$('.registerlink').click(function(e) {
