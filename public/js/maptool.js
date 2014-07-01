@@ -939,7 +939,7 @@ maptool.bookPosition = function(positionObject) {
 				}
 			});
 		} else {
-			$('#book_category_scrollbox').css('border', '1px solid #f00');
+			$('#book_category_scrollbox').css('border', '2px solid #f00');
 		}
 	});
 }
@@ -979,7 +979,7 @@ maptool.markForApplication = function(positionObject) {
 		}
 
 		if (cats.length == 0) {
-			$('#apply_category_scrollbox').css('border', '1px solid #f00');
+			$('#apply_category_scrollbox').css('border', '2px solid #f00');
 			return;
 		}
 		
@@ -1015,7 +1015,7 @@ maptool.markForApplication = function(positionObject) {
 		});
 
 		if (count == 0) {
-			$('#apply_category_scrollbox').css('border', '1px solid #f00');
+			$('#apply_category_scrollbox').css('border', '2px solid #f00');
 			return;
 		}
 
@@ -1160,7 +1160,7 @@ maptool.applyForPosition = function(positionObject) {
 				}
 			});
 		}  else {
-			$('#apply_category_scrollbox').css('border', '1px solid #f00');
+			$('#apply_category_scrollbox').css('border', '2px solid #f00');
 		}
 	});
 }
@@ -1419,7 +1419,7 @@ maptool.editBooking = function(positionObject) {
 				}
 			});
 		} else {
-			$('#'+prefix+'_category_scrollbox').css('border', '1px solid #f00');
+			$('#'+prefix+'_category_scrollbox').css('border', '2px solid #f00');
 		}
 	});
 	
@@ -1715,7 +1715,7 @@ maptool.reservePosition = function(positionObject) {
 				}
 			});
 		}  else {
-			$('#reserve_category_scrollbox').css('border', '1px solid #f00');
+			$('#reserve_category_scrollbox').css('border', '2px solid #f00');
 		}
 
 	});
