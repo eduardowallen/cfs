@@ -920,6 +920,10 @@ maptool.bookPosition = function(positionObject) {
 			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
 		}
 
+		if (positionObject.exhibitor.preliminary_booking) {
+			dataString += '&prel_booking=' + positionObject.exhibitor.preliminary_booking;
+		}
+
 		if(catStr.length != 0){
 			$.ajax({
 				url: 'ajax/maptool.php',
@@ -2021,6 +2025,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 						positions[i].exhibitor.options = positions[i].exhibitor.options.split("|");
 					}
 
+					positions[i].exhibitor.preliminary_booking = maptool.prel_bookings_data[$(this).data('index')].id;
 					maptool.bookPosition(positions[i]);
 					dialogue.hide();
 				}

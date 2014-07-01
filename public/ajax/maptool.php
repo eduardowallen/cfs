@@ -287,6 +287,16 @@ if (isset($_POST['bookPosition'])) {
 	$pos->set('expires', 0);
 	$pos->save();
 
+	// If this is derived from a preliminary booking, then delete that booking
+	if (isset($_POST['prel_booking'])) {
+		$prel_booking = new PreliminaryBooking();
+		$prel_booking->load($_POST['prel_booking'], 'id');
+
+		if ($prel_booking->wasLoaded()) {
+			$prel_booking->delete();
+		}
+	}
+
 	$fair = new Fair();
 	$fair->load($map->get("fair"), "id");
 
@@ -307,11 +317,8 @@ if (isset($_POST['bookPosition'])) {
 		$mail->send();
 	}
 
-	exit;
-
-
 	// Send mail
-	$categories = implode(', ', $categories);
+	$categories = implode(', ', $categoryNames);
 	$options = implode(', ', $options);
 	$time_now = date('d-m-Y H:i');
 	
@@ -517,9 +524,9 @@ if (isset($_POST['editBooking'])) {
 			$ex_option = new FairExtraOption();
 			$ex_option->load($opt, 'id');
 			$options[] = $ex_option->get('text');			
-			}
 		}
-	
+	}
+
 	// If this is a reservation (status is 1), then also set the expiry date
 	if (isset($_POST['expires'])) {
 		$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
@@ -927,9 +934,6 @@ if (isset($_POST['approve_preliminary'])) {
 		$position->save();
 
 		$prel_booking->delete();
-		
-		$stmt = $prel_booking->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
-		$stmt->execute(array($position->get('id')));
 	}
 }
 
