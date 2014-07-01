@@ -518,6 +518,7 @@ class AdministratorController extends Controller {
 				$pos = new FairMapPosition;
 				$pos->load($pb->get('position'), 'id');
 				$pos->set('status', 2);
+				$pos->set('expires', '0000-00-00 00:00:00');
 
 				$ex = new Exhibitor;
 				$ex->set('user', $pb->get('user'));

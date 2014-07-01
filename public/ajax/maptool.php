@@ -182,6 +182,7 @@ if (isset($_POST['pasteExhibitor'])) {
 	$pos = new FairMapPosition;
 	$pos->load($_POST['pasteExhibitor'], 'id');
 	$pos->set('status', 2);
+	$pos->set('expires', '0000-00-00 00:00:00');
 	$pos->save();
 
 	if (preg_match('/uid/', $_SESSION['copied_exhibitor'])) {
@@ -284,7 +285,7 @@ if (isset($_POST['bookPosition'])) {
 	}
 
 	$pos->set('status', 2);
-	$pos->set('expires', 0);
+	$pos->set('expires', '0000-00-00 00:00:00');
 	$pos->save();
 
 	// If this is derived from a preliminary booking, then delete that booking
