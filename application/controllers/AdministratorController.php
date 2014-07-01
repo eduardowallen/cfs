@@ -1179,7 +1179,7 @@ class AdministratorController extends Controller {
 
 			if ($exhibitor->wasLoaded()) {
 				$exhibitor->set('commodity', $_POST['commodity']);
-				$exhibitor->set('arranger_message', $_POST['message']);
+				$exhibitor->set('arranger_message', $_POST['arranger_message']);
 				$exhibitor->save();
 
 				// Remove old categories for this booking
@@ -1254,7 +1254,7 @@ class AdministratorController extends Controller {
 							$mail_organizer->setMailVar('position_name', $pos->get('name'));
 							$mail_organizer->setMailVar('position_information', $pos->get('information'));
 							$mail_organizer->setMailVar('edit_time', $time_now);
-							$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
 							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_organizer->setMailVar('exhibitor_category', $categories);
 							$mail_organizer->setMailVar('exhibitor_options', $options);
@@ -1297,7 +1297,7 @@ class AdministratorController extends Controller {
 							$mail_user->setMailVar('position_name', $pos->get('name'));
 							$mail_user->setMailVar('position_information', $pos->get('information'));
 							$mail_user->setMailVar('edit_time', $time_now);
-							$mail_user->setMailVar('arranger_message', $_POST['message']);
+							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
 							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_user->setMailVar('exhibitor_category', $categories);
 							$mail_user->setMailVar('exhibitor_options', $options);							
