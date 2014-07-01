@@ -189,7 +189,11 @@ function positionDialogue(id) {
 		case "book_position_dialogue":
 		case "reserve_position_dialogue":
 		case "more_info_dialogue":
+		case "apply_mark_dialogue":
 			popupMaxWidth = 400;
+			break;
+		case "preliminaryConfirm":
+			popupMaxWidth = Math.max(550, viewportWidth * .30);
 			break;
 	}
 
