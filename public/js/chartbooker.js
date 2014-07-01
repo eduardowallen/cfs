@@ -495,7 +495,7 @@ function useScrolltable(table) {
 	table.parent().siblings('.floatThead-container').find('thead').on('click', 'th', function(e) {
 		var target = $(e.target);
 
-		if (typeof target.data('sorter') === 'undefined') {
+		if (typeof target.data('sorter') === 'undefined' && typeof target.parent().data('sorter') === 'undefined') {
 			table.find('th:eq(' + target.index() + ')').trigger('sort');
 		}
 	});
