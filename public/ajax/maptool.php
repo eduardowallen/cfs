@@ -424,7 +424,8 @@ if (isset($_POST['reservePosition'])) {
 		$mail->setMailVar("position_information", $pos->get("information"));
 		$mail->setMailVar("exhibitor_commodity", $ex->get("commodity"));
 		$mail->setMailVar("exhibitor_category", implode(", ", $categoryNames));
-		$mail->setMailVar("arranger_message", $ex->get("arranger_message"));
+		$mail->setMailVar('exhibitor_options', $options);
+		$mail->setMailVar('arranger_message', $_POST['message']);
 		$mail->send();
 	}
 
