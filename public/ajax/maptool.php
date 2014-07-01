@@ -7,7 +7,10 @@ define('ROOT', implode('/', $parts).'/');
 session_start();
 require_once ROOT.'config/config.php';
 require_once ROOT.'lib/functions.php';
-require_once ROOT.'lib/classes/Translator.php';
+
+$lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
+define('LANGUAGE', $lang);
+$translator = new Translator($lang);
 
 $globalDB = new Database;
 global $globalDB;
@@ -20,9 +23,6 @@ function __autoload($className) {
 		require_once(ROOT.'application/models/'.$className.'.php');
 	}
 }
-
-$lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
-define('LANGUAGE', $lang);
 
 function userHasAccess() {
 	
@@ -349,8 +349,8 @@ if (isset($_POST['bookPosition'])) {
 				$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
 				$mail_organizer->setMailVar("position_information", $pos->get("information"));
 				$mail_organizer->setMailVar("exhibitor_commodity", $_POST['commodity']);
-				$mail_organizer->setMailVar("exhibitor_category", implode(", ", $categoryNames));
-				$mail_organizer->setMailVar('exhibitor_options', implode(", ", $options));
+				$mail_organizer->setMailVar("exhibitor_category", $categories);
+				$mail_organizer->setMailVar('exhibitor_options', $options);
 				$mail_organizer->setMailVar('arranger_message', $_POST['message']);
 				$mail_organizer->setMailVar('edit_time', $time_now);
 				$mail_organizer->send();
@@ -364,8 +364,8 @@ if (isset($_POST['bookPosition'])) {
 				$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
 				$mail_user->setMailVar("position_information", $pos->get("information"));
 				$mail_user->setMailVar("exhibitor_commodity", $_POST['commodity']);
-				$mail_user->setMailVar("exhibitor_category", implode(", ", $categoryNames));
-				$mail_user->setMailVar('exhibitor_options', implode(", ", $options));
+				$mail_user->setMailVar("exhibitor_category", $categories);
+				$mail_user->setMailVar('exhibitor_options', $options);
 				$mail_user->setMailVar('arranger_message', $_POST['message']);
 				$mail_user->setMailVar('edit_time', $time_now);
 				$mail_user->send();
@@ -815,7 +815,6 @@ if (isset($_POST['emailExists'])) {
 }
 
 if (isset($_POST['connectToFair'])) {
-	$trans = new Translator((isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng');
 	$response = array();
 	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
 		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`, `connected_time`) VALUES (?,?,?)";
@@ -823,10 +822,10 @@ if (isset($_POST['connectToFair'])) {
 		$stmt->execute(array($_POST['fairId'], $_SESSION['user_id'], time()));
 		$fair = new Fair;
 		$fair->load($_POST['fairId'], 'id');
-		$response['message'] = $trans->{'Connected to fair'}.' '.$fair->get('name');
+		$response['message'] = $translator->{'Connected to fair'}.' '.$fair->get('name');
 		$response['success'] = true;
 	} else {
-		$response['message'] = $trans->{'Unable to connect to fair.'};
+		$response['message'] = $translator->{'Unable to connect to fair.'};
 		$response['success'] = false;
 	}
 	echo json_encode($response);
@@ -919,22 +918,90 @@ if (isset($_POST['approve_preliminary'])) {
 		$exhibitor->set('arranger_message', $_POST['message']);
 		$exhibitor->set('edit_time', time());
 		$exhibitor_id = $exhibitor->save();
-		
+
+		$time_now = date('d-m-Y H:i');
+		$categories = array();
+		$options = array();
+
 		$stmt = $position->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 		foreach ($_POST['categories'] as $cat) {
 			$stmt->execute(array($exhibitor_id, $cat));
+
+			$ex_category = new ExhibitorCategory();
+			$ex_category->load($cat, 'id');
+			$categories[] = $ex_category->get('name');
 		}
 
 		$stmt = $position->db->prepare("INSERT INTO exhibitor_option_rel (exhibitor, option) VALUES (?, ?)");
 		foreach ($_POST['options'] as $opt) {
 			$stmt->execute(array($exhibitor_id, $opt));
+
+			$ex_option = new FairExtraOption();
+			$ex_option->load($opt, 'id');
+			$options[] = $ex_option->get('text');
 		}
+
+		$categories = implode(', ', $categories);
+		$options = implode(', ', $options);
 		
 		$position->set('status', 1);
 		$position->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 		$position->save();
 
 		$prel_booking->delete();
+
+		$fair = new Fair();
+		$fair->load($prel_booking->get('fair'), 'id');
+
+		$organizer = new User();
+		$organizer->load($fair->get('created_by'), 'id');
+
+		$me = new User();
+		$me->load($_SESSION['user_id'], 'id');
+
+		//Check mail settings and send only if setting is set
+		if ($fair->wasLoaded()) {
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (is_array($mailSettings->reservationEdited)) {
+				if (in_array("0", $mailSettings->reservationEdited)) {
+					$mail_organizer = new Mail($organizer->get('email'), 'preliminary_to_reserved', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+					$mail_organizer->setMailvar("exhibitor_name", $exhibitor->get("name"));
+					$mail_organizer->setMailvar("event_name", $fair->get("name"));
+					$mail_organizer->setMailVar("position_name", $position->get("name"));
+					$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($exhibitor->get("booking_time"))));
+					$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
+					$mail_organizer->setMailVar("position_information", $position->get("information"));
+					$mail_organizer->setMailVar("exhibitor_commodity", $_POST['commodity']);
+					$mail_organizer->setMailVar("exhibitor_category", $categories);
+					$mail_organizer->setMailVar('exhibitor_options', $options);
+					$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+					$mail_organizer->setMailVar('edit_time', $time_now);
+					$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+					$mail_organizer->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail_organizer->setMailVar('creator_name', $me->get('name'));
+					$mail_organizer->send();
+				}
+
+				if (in_array("1", $mailSettings->reservationEdited)) {
+					$mail_user = new Mail($exhibitor->get('email'), 'preliminary_to_reserved', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+					$mail_user->setMailvar("exhibitor_name", $exhibitor->get("name"));
+					$mail_user->setMailvar("event_name", $fair->get("name"));
+					$mail_user->setMailVar("position_name", $position->get("name"));
+					$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($exhibitor->get("booking_time"))));
+					$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
+					$mail_user->setMailVar("position_information", $position->get("information"));
+					$mail_user->setMailVar("exhibitor_commodity", $_POST['commodity']);
+					$mail_user->setMailVar("exhibitor_category", $categories);
+					$mail_user->setMailVar('exhibitor_options', $options);
+					$mail_user->setMailVar('arranger_message', $_POST['message']);
+					$mail_user->setMailVar('edit_time', $time_now);
+					$mail_user->setMailVar('date_expires', $_POST['expires']);
+					$mail_user->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail_user->setMailVar('creator_name', $me->get('name'));
+					$mail_user->send();
+				}
+			}
+		}
 	}
 }
 
