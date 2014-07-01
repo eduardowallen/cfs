@@ -1,3 +1,5 @@
+var aliasTimer;
+
 function isValidEmailAddress(emailAddress) {
 	var pattern = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i);
 	return pattern.test(emailAddress);
@@ -42,6 +44,43 @@ function prepFormChecker() {
 			$(this).css('border', '1px solid #FF0000');
 			$(this).data('valid', false);
 		}
+	});
+
+	$("#alias").on("keyup", function () {
+		var $input = $(this);
+
+		$input.data('valid', true);
+		$input.tooltip();
+
+		if (typeof aliasTimer !== "undefined") {
+			window.clearTimeout(aliasTimer);
+		}
+
+		//Wait 250ms in case of more inputs
+		aliasTimer = window.setTimeout(function () {
+			$.ajax({
+				url: "ajax/maptool.php",
+				type: "POST",
+				data: {
+					aliasExists: 1,
+					alias: $input.val()
+				},
+				dataType: "json",
+				success: function (response) {
+					if (response.aliasExists) {
+						$input.prop("title", lang.alias_exists_label);
+						$input.tooltip("open");
+						$input.css("border", "1px solid red");
+						$input.data("valid", false);
+					} else {
+						$input.tooltip("disable");
+						$input.css('border', '1px solid #00FF00');
+						$input.data('valid', true);
+					}
+				}
+			});
+
+		}, 250);
 	});
 
 	$("form #invoice_email").data('valid', true);
@@ -140,6 +179,12 @@ function prepFormChecker() {
 						errors.push($(this).attr("for"));
 					}
 
+					//Alias input
+					if (input.attr("name") == "alias" && !input.data('valid') && !input.prop('disabled')) {
+						$(this).css("color", "red");
+						errors.push($(this).attr("for"));
+					}
+
 					//Date inputs
 					if (input.hasClass('date') && !input.val().match(/^(\d\d-\d\d-\d\d\d\d)$/)) {
 						$(this).css("color", "red");
@@ -175,18 +220,7 @@ function prepFormChecker() {
 		
 		if (errors.length > 0) {
 			thisForm.data('valid', false);
-			var str = "There are # errors in the form. You have to enter information in all the fields marked with a *";
-
-			$.ajax({
-				url: 'ajax/translate.php',
-				type: 'POST',
-				data: {'query':str},
-				success: function(result){
-					str = result;
-					var err = str.replace('#', errors.length);
-					alert(err);
-				}
-			});
+			alert(lang.validation_error.replace('#', errors.length));
 			return false;
 		} else {
 			return true;

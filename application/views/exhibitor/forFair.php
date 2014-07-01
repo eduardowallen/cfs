@@ -6,143 +6,86 @@
 <?php
     return;
   endif;
+
+$general_column_info = array(
+	$translator->{"Company"} => array(
+		'orgnr' => $translator->{'Organization number'},
+		'company' => $translator->{'Company'},
+		'commodity' => $translator->{'Commodity'},
+		'address' => $translator->{'Address'},
+		'zipcode' => $translator->{'Zip code'},
+		'city' => $translator->{'City'},
+		'country' => $translator->{'Country'},
+		'phone1' => $translator->{'Phone 1'},
+		'phone2' => $translator->{'Phone 2'},
+		'fax' => $translator->{'Fax number'},
+		'email' => $translator->{'E-mail'},
+		'website' => $translator->{'Website'}
+	),
+	$translator->{"Billing address"} => array(
+		'invoice_company' => $translator->{'Company'},
+		'invoice_address' => $translator->{'Address'},
+		'invoice_zipcode' => $translator->{'Zip code'},
+		'invoice_city' => $translator->{'City'},
+		'invoice_country' => $translator->{'Country'},
+		'invoice_email' => $translator->{'E-mail'}
+	),
+	$translator->{"Contact person"} => array(
+		'name' => $translator->{'Contact person'},
+		'contact_phone' => $translator->{'Contact Phone'},
+		'contact_phone2' => $translator->{'Contact Phone 2'},
+		'contact_email' => $translator->{'Contact Email'}
+	)
+);
+
+$bookings_columns = array(
+	'' => array(
+		'status' => $translator->{'Status'},
+		'fair_count' => $th_fairs,
+		'ex_count' => $th_bookings,
+		'last_login' => $th_last_login
+	)
+);
+$bookings_columns = array_merge($bookings_columns, $general_column_info);
+
+$connected_columns = array(
+	'' => array(
+		'status' => $translator->{'Status'},
+		'fair_count' => $th_fairs,
+		'last_login' => $th_last_login,
+		'connected_time' => $th_connect_time
+	)
+);
+$connected_columns = array_merge($connected_columns, $general_column_info);
 ?>
 
 <script type="text/javascript" src="js/tablesearch.js"></script>
 <script type="text/javascript">
-	$(document).ready(function(){
-		var headerd = $('.tblHeader');
-		headerd.css('display', 'none');
-		setTimeout(function(){
-			anpassaTabeller();
-			for(var i = 0; i<3; i++){
-				var tblarr = new Array('booked', 'connected', 'canceled');
-				var header = $('#h'+tblarr[i]+' > ul');
-				var headertmp = $('#'+tblarr[i]+' > thead > tr');
-			
-				var headerarr = new Array();
-				
-				headertmp.children().each(function(i){
-					headerarr[i] = $(this).width();
-				});
-			
-				header.children().each(function(i){
-					$(this).css('width', headerarr[i]);
-				});
+	var export_fields = {
+		booked: <?php echo json_encode($bookings_columns); ?>,
 
-				var height = $('#'+tblarr[i]+' > thead').height();
-				height = height * -1;
-				$('#'+tblarr[i]).css('margin-top', height);
-				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
-				if(i == 2){headerd.css('display', 'block');}
-			}
-		}, 500);
-	});
+		connected: <?php echo json_encode($connected_columns); ?>
 
-	function multiCheck(box){
-		$('#'+box+' > tbody > tr').children(':last-child').children().prop('checked', $('#h'+box+' > ul > li:last-child > input:last-child').prop('checked'));
-	}
-
-	/* A function to collect data from a specified HTML table (the inparameter takes the ID of the table) */
-	function prepareTable(tbl){
-		var rowArray = new Array();
-		var colArray = new Array();
-
-		var table = $('#'+tbl);
-		var rows = 0;
-
-		$('#h'+tbl+' > ul > li').each(function(){
-			if($(this).children('input').prop('checked')){
-				colArray.push($(this).children('input').val());
-			}
-		});
-
-		table.children(':last-child').children().each(function(){
-			var thisRow = $(this);
-			var thisRowCheckBox = thisRow.children(':last-child').children();
-
-			if(thisRowCheckBox.prop('checked') == true){
-				rowArray.push(thisRowCheckBox.attr('id'));
-			}
-		});
-		
-		
-		if(tbl == "booked"){
-			exportTableToExcel(rowArray, colArray, 1);
-		} else if(tbl == "connected"){
-			exportTableToExcel(rowArray, colArray, 2);
-		}  else if(tbl == "canceled"){
-			exportTableToExcel(rowArray, colArray, 3);
-		}
-		
-
-		rowArray = [];
-		colArray = [];
-	}
-
-	/* Takes an array and sends it to the desired controller in order to export. */
-	function exportTableToExcel(rowArray, colArray, tbl){
-		/* Make the array passable in a url */
-		var urlForColumns = "/dataColumns|";
-		var urlForRows = "/dataRows|";
-		if(colArray.length > 0){
-			$(colArray).each(function(i){
-				if(i == 0){
-					urlForColumns = urlForColumns + colArray[i];
-				} else if(i < (colArray.length - 1)){
-					urlForColumns = urlForColumns + "|"+colArray[i];
-				
-				}
-			});
-		} else {
-			alert('<?php echo (isset($col_export_err) ? $col_export_err : ''); ?>');
-			return 0;
-		}
-
-		if(rowArray.length > 0){
-			$(rowArray).each(function(i){
-				if(i == 0){
-					urlForRows = urlForRows + rowArray[i];
-				} else {
-					urlForRows = urlForRows + "|"+rowArray[i];
-				}
-			});
-		} else {
-			alert('<?php echo (isset($row_export_err) ? $row_export_err : ''); ?>');
-			return 0;
-		}
-		var finishedUrl = '/' + tbl  + urlForColumns + urlForRows;
-		window.location = '<?php echo BASE_URL."exhibitor/exportForFair"?>'+finishedUrl;
-	}
-	
-	function anpassaTabeller(){
-		var tbl1width = $('#booked').width();
-		var tbl2width = $('#connected').width();
-		var tbl3width = $('#canceled').width();
-
-		$('.tbl1').css('max-width', tbl1width);
-		$('.tbl2').css('max-width', tbl2width);
-		$('.tbl3').css('max-width', tbl3width);
-	}
+	};
 </script>
+
+<style>
+	#content {
+		max-width: 1280px;
+	}
+</style>
+
 <h1><?php echo $headline; ?></h1>
 <p><a class="button add" href="administrator/newExhibitor"><?php echo $create_link; ?></a></p>
+
 <h2 class="tblsite"><?php echo $table_exhibitors ?></h2>
-<?php if(count($users) > 0) : ?>
-<div class="tbld tbl1">
-	<div class="tblHeader" id="hbooked">
-		<a onclick="prepareTable('booked')"><button style="width: 97%;"><?php echo $export?></button></a>
-		<ul class="special">
-			<li><div class="tblrow1"><?php echo $th_company;?></div><input type="checkbox" value="1" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $th_name; ?></div><input type="checkbox" value="2" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $th_fairs; ?></div><input type="checkbox" value="3" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $th_bookings; ?></div><input type="checkbox" value="4" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $th_last_login; ?></div><input type="checkbox" value="5" checked="checked" /></li>
-			<li><div class="tblrow1"></div><input onclick="multiCheck('booked')" type="checkbox" checked="checked" /></li>
-		</ul>
-	</div>
-	<div class="scrolltbl">
-		<table class="std_table" id="booked">
+
+<?php if (count($users) > 0): ?>
+
+	<form action="exhibitor/exportForFair/1" method="post">
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right;"><?php echo uh($export); ?></button>
+
+		<table class="std_table use-scrolltable" id="booked">
 		<?php if (userLevel() > 2): ?>
 
 		<?php endif; ?>
@@ -153,81 +96,65 @@
 					<th><?php echo $th_fairs ?></th>
 					<th><?php echo $th_bookings ?></th>
 					<th><?php echo $th_last_login ?></th>
-					<th></th>
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-1" checked="checked" /></th>
 				</tr>
 			</thead>
 			<tbody>
 				<?php foreach ($users as $user): ?>
 					<tr>
-						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>"><?php echo $user->get('company'); ?></a></td>
-						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('company'); ?></a></td>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('name'); ?></a></td>
 						<td class="center"><?php echo $user->get('fair_count');?></td>
 						<td class="center"><?php echo $user->get('ex_count');?></td>
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login'));?></td>
-						<td><input type="checkbox" id="<?php echo $user->get('id'); ?>" checked="checked" /></td>
+						<td><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" checked="checked" /></td>
 						<!--<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
 						<td class="center"><a onclick="return confirm('<?php echo uh($translator->{'Really delete?'}); ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>-->
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
 		</table>
-	</div>
-</div>
+	</form>
+
 <?php else : ?>
-	<div class="tbld tbl2">
-		<p>Det finns inga inbokade utställare ännu.</p>
-	</div>
+	<p>Det finns inga inbokade utställare ännu.</p>
 <?php endif;?>
 
 <h2 class="tblsite"><?php echo $table_connected ?></h2>
-<?php if(count($connected) > 0 ) : ?>
-<div class="tbld tbl2">
-<div class="tblHeader" id="hconnected">
-	<a onclick="prepareTable('connected')"><button style="width: 97%;"><?php echo $export?></button></a>
-	<ul>
-		<li><div class="tblrow1"><?php echo $th_company; ?></div><input type="checkbox" value="1" checked="checked" /></li>
-		<li><div class="tblrow1"><?php echo $th_name; ?></div><input type="checkbox" value="2" checked="checked" /></li>
-		<li><div class="tblrow1"><?php echo $th_fairs; ?></div><input type="checkbox" value="3" checked="checked" /></li>
-		<li><div class="tblrow1"><?php echo $th_last_login ;?></div><input type="checkbox" value="4" checked="checked" /></li>
-		<li><div class="tblrow1"><?php echo $th_connect_time ;?></div><input type="checkbox" value="5" checked="checked" /></li>
-		<li><div class="tblrow1"></div><div style="padding-top:19px;"></div></li>
-		<li><div class="tblrow1"></div><input onclick="multiCheck('connected')" type="checkbox" checked="checked" /></li>
-	</ul>
-</div>
-<div class="scrolltbl">
-<table class="std_table"id="connected">
 
-	<thead>
-		<tr>
-			<th><?php echo $th_company ?></th>
-			<th><?php echo $th_name ?></th>
-			<th><?php echo $th_fairs ?></th>
-			<!--<th><?php echo $th_bookings ?></th>-->
-			<th><?php echo $th_last_login ?></th>
-			<th><?php echo $th_connect_time ?></th>
-			<th><?php echo $th_copy; ?></th>
-			<th></th>
-		</tr>
-	</thead>
-	<tbody>
-		<?php foreach ($connected as $user): ?>
-			<tr>
-				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>"><?php echo $user->get('company'); ?></a></td>
-				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>"><?php echo $user->get('name'); ?></a></td>
-				<td class="center"><?php echo $user->get('fair_count'); ?></td>
-				<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
-				<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
-				<td><?php if($user->get('connected_time')) echo date('d-m-Y H:i:s', $user->get('connected_time')); else echo 'n/a'; ?></td>
-				<td class="center"><a href="exhibitor/forFair/copy/<?php echo $user->get('id'); ?>"><img src="images/icons/user_go.png" alt=""/></a></td>
-				<td><input type="checkbox" id="<?php echo $user->get('id'); ?>" checked="checked" /></td>
-			</tr>
-		<?php endforeach; ?>
-	</tbody>
-</table>
-</div>
-</div>
+<?php if(count($connected) > 0 ) : ?>
+
+	<form action="exhibitor/exportForFair/2" method="post">
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="connected" style="float:right;"><?php echo uh($export); ?></button>
+
+		<table class="std_table use-scrolltable" id="connected">
+			<thead>
+				<tr>
+					<th><?php echo $th_company ?></th>
+					<th><?php echo $th_name ?></th>
+					<th><?php echo $th_fairs ?></th>
+					<!--<th><?php echo $th_bookings ?></th>-->
+					<th><?php echo $th_last_login ?></th>
+					<th><?php echo $th_connect_time ?></th>
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
+				</tr>
+			</thead>
+			<tbody>
+				<?php foreach ($connected as $user): ?>
+					<tr>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('company'); ?></a></td>
+						<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('name'); ?></a></td>
+						<td class="center"><?php echo $user->get('fair_count'); ?></td>
+						<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
+						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
+						<td><?php if ($user->get('connected_time')) echo date('d-m-Y H:i:s', $user->get('connected_time')); else echo 'n/a'; ?></td>
+						<td><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" checked="checked" /></td>
+					</tr>
+				<?php endforeach; ?>
+			</tbody>
+		</table>
+	</form>
+
 <?php else : ?>
-	<div class="tbld">
-		<p>Det finns inga anslutna utställare.</p>
-	</div>
+	<p>Det finns inga anslutna utställare.</p>
 <?php endif;?>

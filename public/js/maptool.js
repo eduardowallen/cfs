@@ -25,7 +25,7 @@ var config = {
 	panSpeed: 500, //animation speed for panning map
 	iconOffset: 7.5, //pixels to adjust icon position (half the width/height of the icon)
 	markerUpdateTime: 30, //marker update interval in seconds
-	positionTopOffset: 0
+	positionTopOffset: 30, //amount of pixels to separate the cursor from the tooltips for stand spaces
 };
 
 //Prepare maptool object
@@ -99,6 +99,7 @@ maptool.openDialogue = function(id) {
 			height: $(document).height() + 'px'
 		});
 		$("#" + id).show();
+		positionDialogue(id);
 	});
 
 	$('input, textarea').placeholder();
@@ -113,8 +114,14 @@ maptool.closeDialogues = function() {
 		maptool.endMovePosition();
 	}
 
-	$(".dialogue").hide(0, function() {
-		$("#overlay").hide();
+	// Hide the last visible dialog
+	$(".dialogue:visible").last().hide(0, function() {
+
+		// Hide the overlay if no more dialogs are visible
+		if ($(".dialogue:visible").length === 0) {
+			$("#overlay").hide();
+		}
+
 		$("#popupform").remove();
 		$("#popupform_register").remove();
 		$('#popupformTwo').remove();
@@ -461,14 +468,14 @@ maptool.showContextMenu = function(position, marker) {
 
 		contextMenu.css({
 			left: $("#pos-" + position).offset().left + config.iconOffset,
-			top: $("#pos-" + position).offset().top + config.iconOffset - 30
+			top: $("#pos-" + position).offset().top + config.iconOffset - 35
 		}).show();
 
 		//Clear click events
 		//$(".contextmenu li").off("click");
 		
 		//click handlers for context menu
-		if(maptool.map.userlevel > 0){
+		if(maptool.map.userlevel > 0 && (maptool.map.userlevel == 1 || (hasRights || maptool.map.userlevel == 4))) {
 			$("#mapHolder").prepend(contextMenu);
 			$(".contextmenu li").click(function(e) {
 				var positionId = $(this).parent().attr("id").replace("cm-", "");
@@ -505,9 +512,9 @@ maptool.showContextMenu = function(position, marker) {
 					maptool.showPreliminaryBookings(maptool.map.positions[objIndex]);
 				}
 			}); 		
-			} else {
-				maptool.positionInfo(maptool.map.positions[objIndex]);
-			}
+		} else {
+			maptool.positionInfo(maptool.map.positions[objIndex]);
+		}
 	}
 
 	var map = $('#mapHolder');
@@ -729,7 +736,7 @@ maptool.bookPosition = function(positionObject) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
 	
-	if (positionObject.status == 1) {
+	if (positionObject.status < 2 && positionObject.exhibitor) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
 		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
@@ -738,10 +745,19 @@ maptool.bookPosition = function(positionObject) {
 		for(var i = 0; i < categories.length; i++){
 			$('#book_category_scrollbox > p').each(function(){
 				var value = $(this).children().val();
-				if(value == categories[i].category_id){
+				var categoryId = (typeof categories[i] === "string") ? categories[i] : categories[i].category_id;
+
+				if (value == categoryId) {
 					$(this).children().prop('checked', true);
 				}
 			});
+		}
+
+		var options = positionObject.exhibitor.options;
+
+		$('#book_option_scrollbox input').prop('checked', false);
+		for (i = 0; i < options.length; i++) {
+			$('#book_option_scrollbox input[value=\'' + options[i].option_id + '\']').prop('checked', true);
 		}
 	} else {
 		$("#book_commodity_input, #book_message_input").val("");
@@ -861,7 +877,8 @@ maptool.bookPosition = function(positionObject) {
 
 	$('#book_post').unbind('click');
 	$("#book_post").click(function() {
-		var cats = new Array();
+		var cats = [];
+		var options = [];
 		var count = 0;
 		$('#book_category_scrollbox > p').each(function(){
 			var val = $(this).children('input:checked').val();
@@ -877,12 +894,32 @@ maptool.bookPosition = function(positionObject) {
 				catStr += '&categories[]=' + cats[j];
 			}
 		}
+
+		count = 0;
+		$('#book_option_scrollbox > p').each(function() {
+			var val = $(this).children('input:checked').val();
+			
+			if (val != "undefined") {
+				options[count] = val;
+				count++;
+			}
+		});
+		
+		var optStr = '';
+
+
+		for (var j = 0; j < options.length; j++) {
+			if (options[j] != undefined) {
+				optStr += '&options[]=' + options[j];
+			}
+		}
 		
 		var dataString = 'bookPosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#book_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#book_message_input").val())
 				   + '&map=' + maptool.map.id
-				   + catStr;
+				   + catStr
+				   + optStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
@@ -981,6 +1018,17 @@ maptool.markForApplication = function(positionObject) {
 			$('#apply_category_scrollbox').css('border', '1px solid #f00');
 			return;
 		}
+
+		var opts = [];
+		var count = 0;
+		$('#apply_option_scrollbox > p').each(function() {
+			var val = $(this).children('input:checked').val();
+			if(val != null){
+				opts[count] = val;
+				count = count+1;
+			}
+		});
+
 		var exists = false;
 		for (var i=0; i<markedAsBooked.length; i++) {
 			if (markedAsBooked[i].id == positionObject.id)
@@ -991,6 +1039,8 @@ maptool.markForApplication = function(positionObject) {
 			positionObject.user_commodity = $("#apply_commodity_input").val();
 			positionObject.user_message = $("#apply_message_input").val();
 			positionObject.user_categories = cats;
+			positionObject.user_options = opts;
+
 			markedAsBooked.push(positionObject);
 		}
 		
@@ -1025,6 +1075,7 @@ maptool.applyForPositions = function() {
 		var posStr = '';
 		var msgStr = '';
 		var catStr = '';
+		var optStr = '';
 		var comStr = '';
 		for (var i=0; i<markedAsBooked.length; i++) {
 			
@@ -1035,13 +1086,18 @@ maptool.applyForPositions = function() {
 			for (var j=0; j<markedAsBooked[i].user_categories.length; j++) {
 				catStr += 'categories[' + i + '][]=' + markedAsBooked[i].user_categories[j] + '&';
 			}
+
+			for (var j = 0; j < markedAsBooked[i].user_options.length; j++) {
+				optStr += 'options[' + i + '][]=' + markedAsBooked[i].user_options[j] + '&';
+			}
 		}
 		
 		var dataString = posStr
 				   + msgStr
 				   + comStr
 				   + 'map=' + maptool.map.id
-				   + '&' + catStr;
+				   + '&' + catStr
+				   + "&" + optStr;
 		
 		$.ajax({
 			url: 'ajax/maptool.php',
@@ -1052,6 +1108,9 @@ maptool.applyForPositions = function() {
 				maptool.closeDialogues();
 				$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
 				markedAsBooked = new Array;
+
+				maptool.openDialogue("preliminaryConfirm");
+				positionDialogue("preliminaryConfirm", 0);
 			}
 		});
 	}
@@ -1119,7 +1178,7 @@ maptool.cancelApplication = function(positionObject) {
 
 maptool.editBooking = function(positionObject) {
 
-	if (positionObject.status == 2) {
+	if (positionObject.status == 2 || positionObject.status == 0) {
 		//booked
 		//maptool.openDialogue('book_position_dialogue');
 		var prefix = 'book';
@@ -1139,8 +1198,32 @@ maptool.editBooking = function(positionObject) {
 		$('#'+prefix+'_category_scrollbox > p').each(function(){
 			var value = $(this).children().val();
 			
-			if(value == categories[i].category_id){
-					$(this).children().prop('checked', true);
+			if (typeof categories[i] === "string") {
+				 if (value == categories[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == categories[i].category_id){
+						$(this).children().prop('checked', true);
+				}
+			}
+		});
+	}
+
+	var options = positionObject.exhibitor.options;
+	$('#'+prefix+'_option_scrollbox > p > input').prop('checked', false);
+	for (var i = 0; i < options.length; i++){
+		$('#'+prefix+'_option_scrollbox > p').each(function() {
+			var value = $(this).children().val();
+			
+			if (typeof options[i] === "string") {
+				 if (value == options[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == options[i].option_id){
+						$(this).children().prop('checked', true);
+				}
 			}
 		});
 	}
@@ -1260,11 +1343,11 @@ maptool.editBooking = function(positionObject) {
 	
 	$('#' + prefix + '_category_input option').prop("selected", false);
 	var categories = positionObject.exhibitor.categories;
-	$('#' + prefix + '_category_scrollbox > p > input').prop('checked', false);
+	//$('#' + prefix + '_category_scrollbox > p > input').prop('checked', false);
 	for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
 		$('#'+prefix+'_category_scrollbox').children().each(function(j){
 			if(positionObject.exhibitor.categories[i].category_id == $(this).children('input').val()){
-				$(this).children('input').prop('checked', true);
+				//$(this).children('input').prop('checked', true);
 			}
 		});
 	}
@@ -1273,12 +1356,21 @@ maptool.editBooking = function(positionObject) {
 	$("#" + prefix + "_post").click(function() {
 		
 		var cats = new Array();
+		var opts = [];
 		var count = 0;
 
 		$('#'+prefix+'_category_scrollbox > p').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		$('#'+prefix+'_option_scrollbox > p').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				opts[count] = val;
 				count = count+1;
 			}
 		});
@@ -1290,12 +1382,20 @@ maptool.editBooking = function(positionObject) {
 			}
 		}
 
+		var optStr = '';
+		for (var j = 0; j < opts.length; j++) {
+			if (opts[j] != undefined){
+				optStr += '&options[]=' + opts[j];
+			}
+		}
+
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
 				   + '&message=' + $("#" + prefix + "_message_input").val()
 				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
 				   + '&map=' + maptool.map.id
-				   + catStr;
+				   + catStr
+				   + optStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + $("#" + prefix + "_user_input").val();
@@ -1326,14 +1426,16 @@ maptool.editBooking = function(positionObject) {
 }
 
 maptool.cancelBooking = function(positionObject) {
-	$.ajax({
+	if (confirm(lang.cancel_booking_confirm_text)) {
+		$.ajax({
 			url: 'ajax/maptool.php',
 			type: 'POST',
-			data: 'cancelBooking=' + positionObject.id,
+			data: 'cancelBooking=' + positionObject.id + '&comment=' + prompt(lang.cancelBookingComment, ''),
 			success: function(response) {
 				maptool.update();
 			}
 		});
+	}
 }
 var count;
 /*
@@ -1529,13 +1631,22 @@ maptool.reservePosition = function(positionObject) {
 	$("#reserve_post").unbind("click");
 	$("#reserve_post").click(function() {
 		var cats = new Array();
-
+		var options = [];
 
 		var count = 0;
 		$('#reserve_category_scrollbox > p').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		count = 0;
+		$('#reserve_option_scrollbox > p').each(function() {
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				options[count] = val;
 				count = count+1;
 			}
 		});
@@ -1569,12 +1680,20 @@ maptool.reservePosition = function(positionObject) {
 			}
 		}
 
+		var optStr = '';
+		for (var j = 0; j < options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
+			}
+		}
+
 		var dataString = 'reservePosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
 				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
 				   + '&map=' + maptool.map.id
-				   + catStr;
+				   + catStr
+				   + optStr;
 		
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
@@ -1697,14 +1816,27 @@ maptool.positionInfo = function(positionObject) {
 		info.append('<p><strong>' + lang.reservedUntil + ':</strong> ' + positionObject.expires + '</p>');
 	}
 	if (positionObject.exhibitor) {		
-		var categoryString = '';
-		for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
-			categoryString += ', ' + positionObject.exhibitor.categories[i].name;
+		var categories = [], 
+			options = [], 
+			i;
+
+		for (i = 0; i < positionObject.exhibitor.categories.length; i++) {
+			categories.push(positionObject.exhibitor.categories[i].name);
 		}
-		categoryString = categoryString.substring(2);
-		
+
+		if (hasRights) {
+			for (i = 0; i < positionObject.exhibitor.options.length; i++) {
+				options.push(positionObject.exhibitor.options[i].text);
+			}
+		}
+
 		$('#more_info_dialogue h4').text(lang.presentation + ":");
-		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categoryString + '</p>');
+		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categories.join(', ') + '</p>');
+
+		if (hasRights) {
+			info.append('<p><strong>' + lang.extra_options + ':</strong> ' + options.join(', ') + '</p>');
+		}
+
 		$("#more_info_dialogue .presentation").empty();
 		$('#more_info_dialogue .presentation').css('display', 'block');
 		if(positionObject.exhibitor.presentation.length < 1){
@@ -1726,16 +1858,12 @@ maptool.positionInfo = function(positionObject) {
 		info.append('<p><strong>' + lang.StatusText(positionObject.statusText).charAt(0).toUpperCase() + lang.StatusText(positionObject.statusText).substr(1) + ' ' + lang.by + ':</strong> ' + preliminary.company + '</p>');
 		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + preliminary.commodity + '</p>');
 
-		var categoryString = '';
-		
-		for (i = 0; i < preliminary.category_list.length; i++) {
-			categoryString += ', ' + preliminary.category_list[i];
+		if (preliminary.category_list.length) {
+			info.append("<p><strong>" + lang.category + ":</strong> " + preliminary.category_list.join(', ') + "</p>");
 		}
 
-		if (categoryString.length) {
-			categoryString = categoryString.substring(2);
-
-			info.append("<p><strong>" + lang.category + ":</strong> " + categoryString + "</p>");
+		if (preliminary.option_list.length) {
+			info.append("<p><strong>" + lang.extra_options + ":</strong> " + preliminary.option_list.join(', ') + "</p>");
 		}
 
 		if (preliminary.presentation.length) {
@@ -1769,30 +1897,8 @@ maptool.positionInfo = function(positionObject) {
 	}
 
 	maptool.openDialogue('more_info_dialogue');
-	maptool.positionDialogue("more_info_dialogue");
+	positionDialogue("more_info_dialogue");
 }
-
-maptool.positionDialogue = function (id) {
-	var dialogue = document.getElementById(id);
-	var $dialogue = $(dialogue);
-	var presentation = $dialogue.find(".presentation")[0];
-	var viewportWidth = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
-	var viewportHeight = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
-	var popupMaxWidth = Math.max(448, viewportWidth * .52);
-	var popupMaxHeight = Math.max(328, viewportHeight * .70);
-	var popupWidth =  0;
-	var popupHeight = 0;
-	var presentationHeight = popupMaxHeight * .55;
-
-	dialogue.style.maxWidth = popupMaxWidth + "px";
-	dialogue.style.maxHeight = popupMaxHeight + "px";
-	presentation.style.maxHeight = presentationHeight + "px";
-
-	popupHeight = $dialogue.outerHeight();
-	popupWidth = $dialogue.outerWidth();
-
-	dialogue.style.marginLeft = -(popupWidth / 2) + "px";
-};
 
 maptool.getNotes = function(positionObject){
 	$('#note_dialogue > textarea').text ="";
@@ -1868,21 +1974,23 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].standSpace.area + 
 						'</td><td><a href="/exhibitor/profile/'
 							+ response[i].user
-						+ '">'
+						+ '" class="showProfileLink">'
 							+ response[i].company +
 						'</a></td><td>'
 							+ response[i].commodity +
 						'</td><td>'
 							+ response[i].booking_time +
 						'</td><td style="display: none"></td><td class="center" title=\'' + response[i].arranger_message + '\'>'
-							+ response[i].arranger_message +
+							+ (response[i].arranger_message.length > 0 ? '<a href="administrator/arrangerMessage/preliminary/' + response[i].id + '" class="open-arranger-message">'
+								+ '<img src="images/icons/script.png" alt="' + lang.messageToOrganizer + '" />'
+							+ '</a>' : '') +
 						'</td><td style="display: none">' + response[i].categories + '</td>' + 
 						'<td class="center"><a style="cursor: pointer;" onclick="denyPrepPosition(\''
-							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\')"' +
+							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\', this)"' +
 						'</a><img src="'
 							+ response[i].denyImgUrl + 
 						'" /></td><td class="approve" style="display:none;">' + response[i].baseUrl + 'administrator/newReservations/approve/</td>'
-						+ '<td class="center"><a style="cursor: pointer" onclick="approveClick(this)"><img src="images/icons/add.png"' + 
+						+ '<td class="center"><a style="cursor: pointer" class="open-approve-form" data-index="' + i + '"><img src="images/icons/add.png"' + 
 						' alt="approve" /></a></td><td class="center"><a href="#" class="open-reservation-form" data-index="'
 							+ i
 							+ '"><img src="images/icons/add.png" alt="+" /></a></td></tr>'
@@ -1896,6 +2004,31 @@ maptool.showPreliminaryBookings = function(position_data) {
 				e.preventDefault();
 				maptool.reservePreliminaryBooking(position_data, maptool.prel_bookings_data[$(this).data('index')]);
 				dialogue.hide();
+			}).on('click', '.open-approve-form', function(e) {
+				e.preventDefault();
+
+				var positions = maptool.map.positions;
+
+				for (var i = positions.length - 1; i >= 0; i--) {
+					if (positions[i].id === position_data.id) {
+						break;
+					}
+				}
+
+				if (i !== -1) {
+					positions[i].exhibitor = response[$(this).data("index")];
+
+					if (typeof positions[i].exhibitor.categories === "string") {
+						positions[i].exhibitor.categories = positions[i].exhibitor.categories.split("|");
+					}
+
+					if (typeof positions[i].exhibitor.options === "string") {
+						positions[i].exhibitor.options = positions[i].exhibitor.options.split("|");
+					}
+
+					maptool.bookPosition(positions[i]);
+					dialogue.hide();
+				}
 			});
 		}
 	});
@@ -2029,6 +2162,8 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 			}
 		});
 	});
+
+	positionDialogue("reserve_position_dialogue");
 };
 
 //Zoom to 0
@@ -2630,7 +2765,11 @@ maptool.Grid = (function() {
 
 	function init() {
 		// Don't init if we already init'ed
-		if (maptoolboxHeader === null && $("#maptoolbox").length) {
+		if (grid === null) {
+			grid = $('#maptool_grid');
+			grid_frame = $('#maptool_grid_frame');
+			map_canvas = $('#mapHolder');
+
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
 
@@ -2643,11 +2782,14 @@ maptool.Grid = (function() {
 				}
 			});
 
-			// Toolbox events
-			for (var property in setting_listeners) {
-				if (setting_listeners.hasOwnProperty(property)) {
-					$('#maptool_grid_' + property).on('change', setting_listeners[property]);
-					setting_listeners[property]();
+			//Only run if tool box exists
+			if (maptoolbox) {
+				// Toolbox events
+				for (var property in setting_listeners) {
+					if (setting_listeners.hasOwnProperty(property)) {
+						$('#maptool_grid_' + property).on('change', setting_listeners[property]);
+						setting_listeners[property]();
+					}
 				}
 			}
 
@@ -2665,7 +2807,10 @@ maptool.Grid = (function() {
 			maptoolboxHeader.on("mousedown", toolboxStartMove);
 			maptoolboxHeader.on("mouseup", toolboxStopMove);
 
-			setMaptoolboxPosition();
+			//Only run if tool box exists
+			if (maptoolbox) {
+				setMaptoolboxPosition();
+			}
 
 			// Window resize events
 			$(window).on('resize', windowSizeChanged);
@@ -2986,9 +3131,6 @@ maptool.ownsMap = function() {
 
 //Initiate maptool, setting up on a specified map
 maptool.init = function(mapId) {
-	grid = $('#maptool_grid');
-	grid_frame = $('#maptool_grid_frame');
-	map_canvas = $('#mapHolder');
 	config.positionTopOffset = $("#header").outerHeight();
 
 	// Quick fix for map reloading without id sometimes.

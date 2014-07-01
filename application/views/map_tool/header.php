@@ -2,32 +2,31 @@
 <html>
 <head>
 <?php
-	$unique = substr(md5(date('YmdHis')), -10);
+	$unique = '?ver=' . APP_VERSION;
 ?>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=1300, initial-scale=0.7, maximum-scale=1.2">
 <title><?php echo (isset($_SESSION['fair_windowtitle'])) ? $_SESSION['fair_windowtitle'].' - ' : ''; ?>ChartBooker</title>
 <base href="<?php echo BASE_URL; ?>" />
-<link rel="stylesheet" type="text/css" href="css/generic.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="css/main.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="css/map.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" media="print" href="css/print.css?u=<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.1/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" type="text/css" href="css/generic.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="css/main.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="css/map.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" media="print" href="css/print.css<?php echo $unique?>" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
-<script type="text/javascript" src="js/jquery-1.9.1.min.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/jquery-ui-1.10.1.min.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/formchecker.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/passwd_meter.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/jquery.tablesorter.min.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/chartbooker.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/mobilecheck.js?u=<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/maptool.js?u=<?php echo $unique?>"></script>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="//code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/formchecker.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/passwd_meter.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/jquery.tablesorter.min.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/chartbooker.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/mobilecheck.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/maptool.js<?php echo $unique?>"></script>
 <script src="js/jquery.placeholder.js"></script>
-<script language="javascript" type="text/javascript" src="js/tiny_mce/tiny_mce.js?u=<?php echo $unique?>"></script>
+<script language="javascript" type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
 <script type="text/javascript">
 	$(document).ready(function() {
-		$('.std_table').tablesorter();
     $( document ).tooltip(); // Initialize jQueryUI tooltips
 	});
 	var lang = {};
@@ -69,8 +68,17 @@
 	lang.contact_email = '<?php echo ujs($translator->{"Contact Email"}); ?>';
 	lang.copy_label = '<?php echo ujs($translator->{"Copy from company details"}); ?>';
 	lang.email_exists_label = '<?php echo ujs($translator->{"The email address already exists in our system"}); ?>';
-  
-  form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
+	lang.alias_exists_label = '<?php echo ujs($translator->{"The username already exists in our system"}); ?>';
+	lang.timezone = '<?php echo TIMEZONE; ?>';
+	lang.cancel_booking_confirm_text = "<?php echo ujs($translator->{'Are you sure you want to cancel your booking?'}); ?>";
+	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer"}); ?>';
+	lang.ok = '<?php echo ujs($translator->{"OK"}); ?>';
+	lang.search = '<?php echo ujs($translator->{"Search"}); ?>';
+	lang.edit = '<?php echo ujs($translator->{"Edit"}); ?>';
+	lang.delete = '<?php echo ujs($translator->{"Delete"}); ?>';
+	lang.validation_error = '<?php echo ujs($translator->{"There are # errors in the form. You have to enter information in all the fields marked with a *"}); ?>';
+
+	form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">

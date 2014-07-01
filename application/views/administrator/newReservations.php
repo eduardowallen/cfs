@@ -1,11 +1,88 @@
-<?php global $translator; ?>
+<?php
+global $translator;
+
+$general_column_info = array(
+	$translator->{"Company"} => array(
+		'orgnr' => $translator->{'Organization number'},
+		'company' => $translator->{'Company'},
+		'commodity' => $translator->{'Commodity'},
+		'address' => $translator->{'Address'},
+		'zipcode' => $translator->{'Zip code'},
+		'city' => $translator->{'City'},
+		'country' => $translator->{'Country'},
+		'phone1' => $translator->{'Phone 1'},
+		'phone2' => $translator->{'Phone 2'},
+		'fax' => $translator->{'Fax number'},
+		'email' => $translator->{'E-mail'},
+		'website' => $translator->{'Website'}
+	),
+	$translator->{"Billing address"} => array(
+		'invoice_company' => $translator->{'Company'},
+		'invoice_address' => $translator->{'Address'},
+		'invoice_zipcode' => $translator->{'Zip code'},
+		'invoice_city' => $translator->{'City'},
+		'invoice_country' => $translator->{'Country'},
+		'invoice_email' => $translator->{'E-mail'}
+	),
+	$translator->{"Contact person"} => array(
+		'name' => $translator->{'Contact person'},
+		'contact_phone' => $translator->{'Contact Phone'},
+		'contact_phone2' => $translator->{'Contact Phone 2'},
+		'contact_email' => $translator->{'Contact Email'}
+	)
+);
+
+$bookings_columns = array(
+	'' => array(
+		'status' => $translator->{'Status'},
+		'position' => $translator->{'Stand'},
+		'area' => $translator->{'Area'},
+		'commodity' => $translator->{'Trade'},
+		'extra_options' => $translator->{'Extra options'},
+		'booking_time' => $translator->{'Time of booking'},
+		'edit_time' => $translator->{'Last edited'},
+		'arranger_message' => $translator->{'Message to organizer'}
+	)
+);
+$bookings_columns = array_merge($bookings_columns, $general_column_info);
+
+$reserved_columns = array(
+	'' => array(
+		'status' => $translator->{'Status'},
+		'position' => $translator->{'Stand'},
+		'area' => $translator->{'Area'},
+		'commodity' => $translator->{'Trade'},
+		'extra_options' => $translator->{'Extra options'},
+		'expires' => $translator->{'Reserved until'},
+		'booking_time' => $translator->{'Time of booking'},
+		'edit_time' => $translator->{'Last edited'},
+		'arranger_message' => $translator->{'Message to organizer'}
+	)
+);
+$reserved_columns = array_merge($reserved_columns, $general_column_info);
+
+$prelbookings_columns = array(
+	'' => array(
+		'status' => $translator->{'Status'},
+		'position' => $translator->{'Stand'},
+		'area' => $translator->{'Area'},
+		'commodity' => $translator->{'Trade'},
+		'extra_options' => $translator->{'Extra options'},
+		'booking_time' => $translator->{'Time of booking'},
+		//'edit_time' => $translator->{'Last edited'},
+		'arranger_message' => $translator->{'Message to organizer'}
+	)
+);
+$prelbookings_columns = array_merge($prelbookings_columns, $general_column_info);
+?>
 <style>
-	button{position:relative; top:-5px;}
 	#content{max-width:1280px;}
+	form, .std_table { clear: both; }
 </style>
 
 <script type="text/javascript" src="js/tablesearch.js"></script>
-<h1 style="float: left; margin-right: 60px;"><?php echo $fair->get('name'); ?></h1>
+
+<h1><?php echo $fair->get('name'); ?></h1>
 
 <?php if (isset($fairs_admin)): // If a list of accessible fairs is found, display a drop-down list to choose from ?>
   <label class="inline-block"><?php echo uh($translator->{'Switch to event: '}); ?></label>
@@ -41,139 +118,28 @@
 		}
 	}
 
-	function hider(btn,elem){
-		var element = $('#'+elem);
-		var helement = $('#h'+elem);
+	function hider(btn, elem){
+		var element = $('#'+elem).parent();
 	
-		if($(btn).attr('hid') == "0"){
-			element.css('display','none');
-			helement.css('display','none');
-			$(btn).attr('hid', '1');
-			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/utv.png";?>');
-		} else{
-			element.css('display','table');
-			helement.css('display','block');
-			$(btn).attr('hid', '0');
+		if (element.css('display') == 'none') {
+			element.css('display','block');
 			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/min.png";?>');
-		}	
-	}
-
-	$(document).ready(function(){
-		setTimeout(function(){
-			anpassaTabeller();
-			
-			for(var i = 0; i<3; i++){
-				var tblarr = new Array('booked', 'reserved', 'prem');
-				var header = $('#h'+tblarr[i]+' > ul');
-				var headertmp = $('#'+tblarr[i]+' > thead > tr');
-			
-				var headerarr = new Array();
-				
-				headertmp.children().each(function(i){
-					headerarr[i] = $(this).width();
-				
-				});
-			
-				header.children().each(function(i){
-					$(this).css('width', headerarr[i]);
-				});
-
-				var height = $('#'+tblarr[i]+' > thead').height();
-				height = height * -1;
-
-				$('#'+tblarr[i]).css('margin-top', height);
-				$('#h'+tblarr[i]+' > thead').css('visibility', 'hidden');
-
-				if(i == 2){header.css('display', 'block');}
-			}
-		}, 500);
-	});
-
-	function multiCheck(box){
-		$('#'+box+' > tbody > tr').children(':last-child').children().prop('checked', $('#h'+box+' > ul > li:last-child > input:last-child').prop('checked'));
-	}
-
-	/* A function to collect data from a specified HTML table (the inparameter takes the ID of the table) */
-	function prepareTable(tbl){
-		var rowArray = new Array();
-		var colArray = new Array();
-
-		var table = $('#'+tbl);
-		var rows = 0;
-
-		$('#h'+tbl+' > ul > li').each(function(){
-			if($(this).children('input').prop('checked')){
-				colArray.push($(this).children('input').val());
-			}
-		});
-
-		table.children(':last-child').children().each(function(){
-			var thisRow = $(this);
-			var thisRowCheckBox = thisRow.children(':last-child').children();
-
-			if(thisRowCheckBox.prop('checked') == true){
-				rowArray.push(thisRowCheckBox.attr('id'));
-			}
-		});
-		
-		
-		if(tbl == "booked"){
-			exportTableToExcel(rowArray, colArray, 1);
-		} else if(tbl == "reserved"){
-			exportTableToExcel(rowArray, colArray, 2);
-		} else if(tbl == "prem"){
-			exportTableToExcel(rowArray, colArray, 3);
-		}
-		
-
-		rowArray = [];
-		colArray = [];
-	}
-
-	/* Takes an array and sends it to the desired controller in order to export. */
-	function exportTableToExcel(rowArray, colArray, tbl){
-		/* Make the array passable in a url */
-		var urlForColumns = "/dataColumns|";
-		var urlForRows = "/dataRows|";
-		if(colArray.length > 0){
-		$(colArray).each(function(i){
-				if(i == 0){
-					urlForColumns = urlForColumns + colArray[i];
-				} else if(i < (colArray.length - 1)){
-					urlForColumns = urlForColumns + "|"+colArray[i];
-				
-				}
-			});
 		} else {
-			alert('<?php echo $col_export_err?>');
-			return 0;
+			element.css('display','none');
+			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/utv.png";?>');
 		}
 
-		if(rowArray.length > 0){
-			$(rowArray).each(function(i){
-				if(i == 0){
-					urlForRows = urlForRows + rowArray[i];
-				} else {
-					urlForRows = urlForRows + "|"+rowArray[i];
-				}
-			});
-		} else {
-			alert('<?php echo $row_export_err?>');
-			return 0;
-		}
-		var finishedUrl = '/' + tbl  + urlForColumns + urlForRows;
-		window.location = '<?php echo BASE_URL."administrator/exportNewReservations"?>'+finishedUrl;
+		return false;
 	}
 
-	function anpassaTabeller(){
-		var tbl1width = $('#booked').width();
-		var tbl2width = $('#reserved').width();
-		var tbl3width = $('#prem').width();
+	var export_fields = {
+		booked: <?php echo json_encode($bookings_columns); ?>,
 
-		$('.tbl1').css('width', tbl1width);
-		$('.tbl2').css('width', tbl2width);
-		$('.tbl3').css('width', tbl3width);
-	}
+		reserved: <?php echo json_encode($reserved_columns); ?>,
+
+		prem: <?php echo json_encode($prelbookings_columns); ?>
+
+	};
 </script>
 
 <?php if ($hasRights): ?>
@@ -199,6 +165,15 @@
 		
 		<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<input type="text" class="dialogueInput" name="commodity" id="reserve_commodity_input" />
+
+		<label for="reserve_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
+		<div id="reserve_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+			<?php foreach($fair->get('options') as $opt): ?>
+				<p style="margin:0; width:100%; float:left;">
+					<input type="checkbox" name="options[]" value="<?php echo $opt->get('id') ?>" /><?php echo $opt->get('text') ?>
+				</p>
+			<?php endforeach; ?>
+		</div>
 		
 		<label for="reserve_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 		<textarea name="arranger_message" id="reserve_message_input"></textarea>
@@ -241,6 +216,15 @@
 		<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<input type="text" class="dialogueInput" name="commodity" id="book_commodity_input" />
 
+		<label for="book_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
+		<div id="book_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+			<?php foreach($fair->get('options') as $opt): ?>
+			<p style="margin:0; width:100%; float:left;">
+				<input type="checkbox" name="options[]" value="<?php echo $opt->get('id') ?>" /><?php echo $opt->get('text') ?>
+			</p>
+			<?php endforeach; ?>
+		</div>
+
 		<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 		<textarea name="arranger_message" id="book_message_input"></textarea>
 
@@ -257,63 +241,65 @@
 	</form>
 </div>
 
-<div id="arranger_message_popup" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
-
-	<h3><?php echo $tr_message; ?></h3>
-
-	<p id="arranger_message_text"></p>
-
-	<p class="center">
-		<a href="#" class="link-button close-popup"><?php echo $ok_label; ?></a>
-	</p>
-</div>
 
 
-
-<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
-<div class="tbld tbl1">
+<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a href="#" onclick="return hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
 <?php if(count($positions) > 0){ ?>
-	
-	<div class="tblHeader" id="hbooked">
-		<a onclick="prepareTable('booked')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
-		<ul class="special">
-			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_last_edited; ?></div><input type="checkbox" value="8" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_edit; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('booked')" checked="checked" /></li>
-		</ul>
-	</div>
-	<div class="scrolltbl onlyfive">
-		<table class="std_table" id="booked" style="float:left; padding-right: 16px;">
+
+	<form action="administrator/exportNewReservations/1" method="post">
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right;"><?php echo uh($export); ?></button>
+
+		<table class="std_table use-scrolltable" id="booked">
 			<thead>
 				<tr>
-					<th><?php echo $tr_pos; ?></th>
-					<th><?php echo $tr_area; ?></th>
-					<th><?php echo $tr_booker; ?></th>
-					<th><?php echo $tr_field; ?></th>
-					<th><?php echo $tr_time; ?></th>
-					<th><?php echo $tr_last_edited; ?></th>
-					<th><?php echo $tr_message; ?></th>
-					<th><?php echo $tr_view; ?></th>
-					<th><?php echo $tr_edit; ?></th>
-					<th><?php echo $tr_delete; ?></th>
-					<th></th>
+					<th>
+						<?php echo $tr_pos; ?>
+					</th>
+					<th>
+						<?php echo $tr_area; ?>
+					</th>
+					<th>
+						<?php echo $tr_booker; ?>
+					</th>
+					<th>
+						<?php echo $tr_field; ?>
+					</th>
+					<th>
+						<?php echo $tr_time; ?>
+					</th>
+					<th>
+						<?php echo $tr_last_edited; ?>
+					</th>
+					<th>
+						<?php echo $tr_message; ?>
+					</th>
+					<th data-sorter="false">
+						<?php echo $tr_view; ?>
+					</th>
+					<th data-sorter="false">
+						<?php echo $tr_edit; ?>
+					</th>
+					<th data-sorter="false">
+						<?php echo $tr_delete; ?>
+					</th>
+					<th data-sorter="false">
+						<input type="checkbox" class="check-all" data-group="rows-1" checked="checked" />
+					</th>
 				</tr>
 			</thead>
 			<tbody>
 			<?php foreach($positions as $pos):?>
-				<tr>
+				<tr
+					data-categories="<?php echo $pos['categories']; ?>"
+					data-options="<?php echo $pos['options']; ?>"
+					data-posname="<?php echo $pos['name']; ?>"
+					data-company="<?php echo $pos['company']; ?>"
+					data-commodity="<?php echo $pos['commodity']; ?>"
+					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+				>
 					<td><?php echo $pos['name']; ?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
@@ -324,177 +310,162 @@
 						</a>
 <?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']?></td>
 					<td>
-					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
+					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 						</a>
 					</td>
 					<td class="center">
-						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-booking">
+						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-booking" title="<?php echo $tr_edit; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" alt="<?php echo $tr_edit; ?>" />
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
-		
-							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_view; ?>" />
+						<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
+							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-1" checked="checked" /></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
 		</table>
-	</div>
-</div>
+	</form>
 <?php } else { ?>
-	<p style="width:100%; float:left;"> <?php echo $booked_notfound?> </p>
+	<p> <?php echo $booked_notfound?> </p>
 <?php }?>
 
 
 
-	<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>	
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>
 
-<div class="tbld tbl2">
 	<?php if(count($rpositions) > 0){?>
-	<div class="tblHeader" id="hreserved">
-		<a onclick="prepareTable('reserved')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
-		<ul class="special">
-			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_last_edited; ?></div><input type="checkbox" value="8" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_reserved_until; ?></div><input type="checkbox" value="7" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_edit; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('reserved')" checked="checked" /></li>
-		</ul>
-	</div>
-	<div class="scrolltbl onlyfive">
-		<table class="std_table" id="reserved" style="float:left; padding-right: 16px;">
-		<thead>
-			<tr>
-				<th><?php echo $tr_pos; ?></th>
-				<th><?php echo $tr_area; ?></th>
-				<th><?php echo $tr_booker; ?></th>
-				<th><?php echo $tr_field; ?></th>
-				<th><?php echo $tr_time; ?></th>
-				<th><?php echo $tr_last_edited; ?></th>
-				<th><?php echo $tr_message; ?></th>
-				<th><?php echo $tr_reserved_until; ?></th>
-				<th><?php echo $tr_view; ?></th>
-				<th><?php echo $tr_edit; ?></th>
-				<th><?php echo $tr_deny; ?></th>
-				<th><?php echo $tr_approve; ?></th>
-				<th></th>
-			</tr>
-		</thead>
-		<tbody>
-		<?php foreach($rpositions as $pos): ?>
-			<tr data-id="<?php echo $pos['id']; ?>">
-				<td><?php echo $pos['name']; ?></td>
-				<td class="center"><?php echo $pos['area']; ?></td>
-				<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
-				<td class="center"><?php echo $pos['commodity']; ?></td>
-				<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
-				<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
-				<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
-<?php if (strlen($pos['arranger_message']) > 0): ?>
-						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
-							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
-						</a>
-<?php endif; ?>
-				</td>
-				<td style="display:none;"><?php echo $pos['categories']?></td>
-				<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?></td>
-				<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/approveReservation/'; ?></td>
-				<td class="center">
-					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
-						<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
-					</a>
-				</td>
 
-				<td class="center">
-					<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-reservation">
-						<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" alt="<?php echo $tr_edit; ?>" />
-					</a>
-				</td>
-				<td class="center">
-					<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Reservation')">
-						<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
-					</a>
-				</td>
-				<td class="center">
-					<?php //echo "href=".BASE_URL.'administrator/approveReservation/'.$pos['position'] ?><?php //echo " title=".$tr_approve; ?>
-					<a  style="cursor:pointer;"  onclick="showPopup('book',this)">
-						<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
-					</a>
-				</td>
-				<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
-			</tr>
-		<?php endforeach; ?>
-		</tbody>
+	<form action="administrator/exportNewReservations/2" method="post">
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved" style="float:right;"><?php echo uh($export); ?></button>
+
+		<table class="std_table use-scrolltable" id="reserved">
+			<thead>
+				<tr>
+					<th><?php echo $tr_pos; ?></th>
+					<th><?php echo $tr_area; ?></th>
+					<th><?php echo $tr_booker; ?></th>
+					<th><?php echo $tr_field; ?></th>
+					<th><?php echo $tr_time; ?></th>
+					<th><?php echo $tr_last_edited; ?></th>
+					<th><?php echo $tr_message; ?></th>
+					<th><?php echo $tr_reserved_until; ?></th>
+					<th data-sorter="false"><?php echo $tr_view; ?></th>
+					<th data-sorter="false"><?php echo $tr_edit; ?></th>
+					<th data-sorter="false"><?php echo $tr_deny; ?></th>
+					<th data-sorter="false"><?php echo $tr_approve; ?></th>
+					<th data-sorter="false" colspan="3"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
+				</tr>
+			</thead>
+			<tbody>
+			<?php foreach($rpositions as $pos): ?>
+				<tr
+					data-id="<?php echo $pos['id']; ?>"
+					data-categories="<?php echo $pos['categories']; ?>"
+					data-options="<?php echo $pos['options']; ?>"
+					data-posname="<?php echo $pos['name']; ?>"
+					data-company="<?php echo $pos['company']; ?>"
+					data-commodity="<?php echo $pos['commodity']; ?>"
+					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+					data-expires="<?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?>"
+					data-approveurl="<?php echo BASE_URL.'administrator/approveReservation/'; ?>"
+				>
+					<td><?php echo $pos['name']; ?></td>
+					<td class="center"><?php echo $pos['area']; ?></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
+					<td class="center"><?php echo $pos['commodity']; ?></td>
+					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
+					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
+					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+	<?php if (strlen($pos['arranger_message']) > 0): ?>
+							<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
+								<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+							</a>
+	<?php endif; ?>
+					</td>
+					<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?></td>
+					<td class="center">
+						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
+						</a>
+					</td>
+
+					<td class="center">
+						<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-reservation" title="<?php echo $tr_edit; ?>">
+							<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" alt="<?php echo $tr_edit; ?>" />
+						</a>
+					</td>
+					<td class="center">
+						<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Reservation')">
+							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
+						</a>
+					</td>
+					<td class="center">
+						<?php //echo "href=".BASE_URL.'administrator/approveReservation/'.$pos['position'] ?><?php //echo " title=".$tr_approve; ?>
+						<a  style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book',this)">
+							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
+						</a>
+					</td>
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-2" checked="checked" /></td>
+					<!--<td class="approve" style="display:none;"></td>-->
+				</tr>
+			<?php endforeach; ?>
+			</tbody>
 		</table>
-	</div>
-</div>
+	</form>
 
 <?php } else { ?>
-<p style="width:100%; float:left;"> <?php echo $reserv_notfound?> </p>
+	<p> <?php echo $reserv_notfound?> </p>
 <?php }?>
 
 
 
-<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a hid="0" style="cursor:pointer;" onclick="hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
-<div class="tbld tbl3">
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+
 <?php if(count($prelpos) > 0){ ?>
-	<div class="tblHeader" id="hprem">
-		<a onclick="prepareTable('prem')"><button style="float:left; width:98%;"><?php echo $export?></button></a>
-		<ul class="special">
-			<li><div class="tblrow1"><?php echo $tr_pos; ?></div><input type="checkbox" value="1" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_area; ?></div><input type="checkbox" value="2" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_booker; ?></div><input type="checkbox" value="3" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_field; ?></div><input type="checkbox" value="4" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_time; ?></div><input type="checkbox" value="5" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_message; ?></div><input type="checkbox" value="6" checked="checked" /></li>
-			<li><div class="tblrow1"><?php echo $tr_view; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_delete; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_approve; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"><?php echo $tr_reserve; ?></div><div style="padding-top:19px;"></div></li>
-			<li><div class="tblrow1"></div><input type="checkbox" onclick="multiCheck('prem')"  checked="checked" /></li>
-		</ul>
-	</div>
-	<div class="scrolltbl onlyfive">
-		<table class="std_table" id="prem" style="float:left; padding-right: 16px;">
-		<thead>
-			<tr>
-				<th><?php echo $tr_pos; ?></th>
-				<th><?php echo $tr_area; ?></th>
-				<th><?php echo $tr_booker; ?></th>
-				<th><?php echo $tr_field; ?></th>
-				<th><?php echo $tr_time; ?></th>
-				<th><?php echo $tr_message; ?></th>
-				<th><?php echo $tr_view; ?></th>
-				<th><?php echo $tr_deny; ?></th>
-				<th><?php echo $tr_approve; ?></th>
-				<th><?php echo $tr_reserve; ?></th>
-				<th></th>
-			</tr>
-		</thead>
+	<form action="administrator/exportNewReservations/3" method="post">
+		<button type="submit" class="open-excel-export" name="export_excel" data-for="prem" style="float:right;"><?php echo uh($export); ?></button>
+
+		<table class="std_table use-scrolltable" id="prem">
+			<thead>
+				<tr>
+					<th><?php echo $tr_pos; ?></th>
+					<th><?php echo $tr_area; ?></th>
+					<th><?php echo $tr_booker; ?></th>
+					<th><?php echo $tr_field; ?></th>
+					<th><?php echo $tr_time; ?></th>
+					<th><?php echo $tr_message; ?></th>
+					<th data-sorter="false"><?php echo $tr_view; ?></th>
+					<th data-sorter="false"><?php echo $tr_deny; ?></th>
+					<th data-sorter="false"><?php echo $tr_approve; ?></th>
+					<th data-sorter="false"><?php echo $tr_reserve; ?></th>
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-3" checked="checked" /></th>
+				</tr>
+			</thead>
 			<tbody>
 			<?php foreach($prelpos as $pos): ?>
-				<tr id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?> data-id="<?php echo $pos['id']; ?>">
+				<tr
+					id="prem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?>
+					data-id="<?php echo $pos['id']; ?>"
+					data-approveurl="<?php echo BASE_URL.'administrator/newReservations/approve/'; ?>"
+					data-reserveurl="<?php echo BASE_URL.'administrator/reservePrelBooking/'; ?>"
+					data-categories="<?php echo $pos['categories']; ?>"
+					data-options="<?php echo $pos['options']; ?>"
+					data-posname="<?php echo $pos['name']; ?>"
+					data-company="<?php echo $pos['company']; ?>"
+					data-commodity="<?php echo $pos['commodity']; ?>"
+					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+				>
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>"><?php echo $pos['company']; ?></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
-					<td style="display:none;"></td>
 					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -502,40 +473,36 @@
 						</a>
 <?php endif; ?>
 					</td>
-					<td style="display:none;"><?php echo $pos['categories']?></td>
-					<td class="approve" style="display:none;"><?php echo BASE_URL.'administrator/newReservations/approve/'; ?></td>
-					<td class="reserve" style="display:none;"><?php echo BASE_URL.'administrator/reservePrelBooking/'; ?></td>
 					<td class="center">
-						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" title="<?php echo $tr_view; ?>">
+						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 						</a>
 					</td>
 					<td class="center">
-						<a style="cursor:pointer;" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Preliminary Booking')">
+						<a style="cursor:pointer;" title="<?php echo $tr_deny; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Preliminary Booking')">
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_deny; ?>" />
 						</a>
 					</td>
 					<td class="center">
 						<?php //echo BASE_URL.'administrator/newReservations/approve/'.$pos['id'] ?><?php //echo $tr_approve; ?>
-						<a style="cursor:pointer;" onclick="showPopup('book',this)">
+						<a style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book', this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 						</a>
 					</td>
 					<td class="center">
 						<!-- <a href="<?php //echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id'] ?>" title="<?php //echo $tr_reserve; ?>"> -->
-						<a style="cursor:pointer;" onclick="showPopup('reserve',this)">
+						<a style="cursor:pointer;" title="<?php echo $tr_reserve; ?>" onclick="showPopup('reserve',this)">
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" id="<?php echo $pos['id']; ?>" checked="checked" /></td>
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-3" checked="checked" /></td>
 				</tr>
 			<?php endforeach;?>
 			</tbody>
 		</table>
-	</div>
-</div>
+	</form>
 <?php } else { ?>
-	<p style="width:100%; float:left;"> <?php echo $prel_notfound?> </p>
+	<p> <?php echo $prel_notfound?> </p>
 <?php }?>
 <?php else: ?>
 	<p>Du är inte behörig att administrera den här mässan.</p>

@@ -34,6 +34,49 @@ class ExhibitorController extends Controller {
 		}
 
 	}
+	public function exfind() {
+		
+		setAuthLevel(2);
+		
+		$stmt = $this->Exhibitor->db->prepare("SELECT user.id, exhibitor.fair FROM user LEFT JOIN exhibitor ON user.id = exhibitor.user WHERE user.level = ? ORDER BY ?");
+		$stmt->execute(array(1, 'exhibitor.fair'));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$exhibitors = array();
+				
+		foreach ($result as $res) {
+			if (intval($res['id']) > 0) {
+				$ex = new User;
+				$ex->load($res['id'], 'id');
+								
+				$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
+				$stmt2->execute(array($res['id']));
+				$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+				$ex->set('fair_count', $result2['fair_count']);
+				
+				$exhibitors[] = $ex;
+				if ($res['fair'] != $currentFair) {
+					$fairs++;
+					$currentFair = $res['fair'];
+				}
+
+			}
+		}
+
+		
+		$unique = array();
+		for ($i=0; $i<count($exhibitors); $i++) {
+			$exhibitors[$i]->set('ex_count', $counter[$exhibitors[$i]->get('id')]);
+			if (!array_key_exists($exhibitors[$i]->get('id'), $unique))
+				$unique[$exhibitors[$i]->get('id')] = $exhibitors[$i];
+		}
+		
+		$this->set('headline', 'Find Exhibitors');
+		$this->set('th_company', 'Company');
+		$this->set('th_orgnr', 'Organization number');
+		$this->set('th_name', 'Name');
+		$this->set('th_phone', 'Phone 1');
+		$this->setNoTranslate('users', $unique);		
+	}
 	
 	public function all() {
 		
@@ -252,7 +295,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_email', 'E-mail');
 		$this->set('th_website', 'Website');
 		$this->set('th_view', 'View');
-		$this->set('th_profile', 'Details');
+		$this->set('th_profile', 'View profile');
 		$this->set('export_button', 'Export as excel');
 		$this->set('label_booked', 'booked');
 		$this->set('label_reserved', 'reserved');
@@ -267,169 +310,138 @@ class ExhibitorController extends Controller {
 
 	}
 	
-	public function exportForFair($tbl, $cols, $rows){
+	public function exportForFair($tbl){
 		setAuthLevel(2);
 
 		$this->setNoTranslate('noView', true);
 
-		$cols = explode('|', $cols);
-		$rows = explode('|', $rows);
-    
-    // Data from first table required to populate $exIds array, used to filter table 2
-    $stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id, COUNT(user.id) AS ex_count FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
-    $stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
-    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    $exIds = array();
-    foreach ($result as $res) {
-      if (intval($res['id']) > 0) {
-        array_push($exIds, $res['id']);
-      }
-    }
+		if (isset($_POST['rows'], $_POST['field']) && is_array($_POST['rows']) && is_array($_POST['field'])) {
 
-		if($tbl == 1) : // Exportera tabellen 'bokade' till Excel
-			/* Samla tabellinfo till array */
-			$exhibitors = array();
-			$connected = array();
-			$fairs = 0;
-			$currentFair = 0;
-			foreach ($result as $res) {
-				if (intval($res['id']) > 0) {
-					$ex = new User;
-					$ex->load($res['id'], 'id');
-					$ex->set('ex_count', $res['ex_count']);
+			/* Samla relevant information till en array
+			beroende på vilken tabell som är vald */
+			$u = new User;
+			$u->load($_SESSION['user_id'], 'id');
 
-					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
-					$stmt2->execute(array($res['id']));
-					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-					$ex->set('fair_count', $result2['fair_count']);
-				
-					$exhibitors[] = $ex;
-					if ($res['fair'] != $currentFair) {
-						$fairs++;
-						$currentFair = $res['fair'];
-					}
-				}
-			}	
-		elseif($tbl == 2) : // Exportera tabellen 'anslutna' till Excel 
-			/* Samla tabellinfo till array */
-			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time, user.id FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
-			$stmt->execute(array($_SESSION['user_fair'], 1));
-			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			foreach ($result as $res) {
-				if (!in_array($res['user'], $exIds)) {
-					$ex = new User;
-					$ex->load($res['user'], 'id');
+			if ($tbl == 1) {
+				$stmt = $this->db->prepare("SELECT exhibitor.*, user.*, COUNT(user.id) AS ex_count, (SELECT COUNT(*) FROM fair_user_relation WHERE user = exhibitor.user) AS fair_count FROM user, exhibitor WHERE user.id = exhibitor.user AND user.level = 1 AND exhibitor.fair = ? AND exhibitor.user IN (" . implode(',', $_POST['rows']) . ") GROUP BY user.id ORDER BY fair, user.company");
+				$stmt->execute(array($_SESSION['user_fair']));
+				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-					$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
-					$stmt2->execute(array($res['user']));
-					$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-					$ex->set('fair_count', $result2['fair_count']);
-					$ex->set('connected_time', $res['connected_time']);
+			} else if ($tbl == 2) {
+				$stmt = $this->db->prepare("SELECT outr_fur.user, outr_fur.connected_time, user.*, (SELECT COUNT(*) FROM fair_user_relation WHERE user = outr_fur.user) AS fair_count FROM fair_user_relation AS outr_fur LEFT JOIN user ON outr_fur.user = user.id WHERE outr_fur.fair = ? AND user.level = 1 AND user.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY user.company");
+				$stmt->execute(array($_SESSION['user_fair']));
+				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			}
 
-					$exhibitors[] = $ex;
+			/* Har nu tabellinformationen i en array, 
+			sätt in informationen i ett exceldokument 
+			och skicka i headern */
+			
+			if ($tbl == 1) {
+				$filename = "BookedForFair.xlsx";
+				$label_status = $this->translate->{'Booked'};
+			} else if ($tbl == 2) {
+				$filename = "ConnectedToFair.xlsx";
+				$label_status = $this->translate->{'Connected'};
+			}
+
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+			header("Content-Type: application/force-download");
+			header("Content-Type: application/octet-stream");
+			header("Content-Type: application/download");
+			header("Content-Disposition: attachment;filename=".$filename);
+			header("Content-Transfer-Encoding: binary");
+
+			require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
+
+			$xls = new PHPExcel();
+			$xls->setActiveSheetIndex(0);
+
+			$alpha = range('A', 'Z');
+			if (count($_POST['field']) > count($alpha)) {
+				foreach ($alpha as $letter) {
+					$alpha[] = 'A' . $letter;
 				}
 			}
-		endif;
 
-		/* Har nu tabellinformationen i en array, 
-		sätt in informationen i ett exceldokument 
-		och skicka i headern */
-		
-		if($tbl == 1) : 
-			$filename = "booked.xlsx";
-		else :
-			$filename = "connected.xlsx";
-		endif;
+			$column_names = array(
+				'orgnr' => $this->translate->{'Organization number'},
+				'company' => $this->translate->{'Company'},
+				'commodity' => $this->translate->{'Commodity'},
+				'address' => $this->translate->{'Address'},
+				'zipcode' => $this->translate->{'Zip code'},
+				'city' => $this->translate->{'City'},
+				'country' => $this->translate->{'Country'},
+				'phone1' => $this->translate->{'Phone 1'},
+				'phone2' => $this->translate->{'Phone 2'},
+				'fax' => $this->translate->{'Fax number'},
+				'email' => $this->translate->{'E-mail'},
+				'website' => $this->translate->{'Website'},
+				'invoice_company' => $this->translate->{'Company'},
+				'invoice_address' => $this->translate->{'Address'},
+				'invoice_zipcode' => $this->translate->{'Zip code'},
+				'invoice_city' => $this->translate->{'City'},
+				'invoice_country' => $this->translate->{'Country'},
+				'invoice_email' => $this->translate->{'E-mail'},
+				'name' => $this->translate->{'Contact person'},
+				'contact_phone' => $this->translate->{'Contact Phone'},
+				'contact_phone2' => $this->translate->{'Contact Phone 2'},
+				'contact_email' => $this->translate->{'Contact Email'},
+				'status' => $this->translate->{'Status'},
+				'fair_count' => $this->translate->{'Fairs'},
+				'ex_count' => $this->translate->{'Bookings'},
+				'last_login' => $this->translate->{'Last login'},
+				'connected_time' => $this->translate->{'Connected to fair on'}
+			);
 
-		header("Pragma: public");
-		header("Expires: 0");
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
-		header("Content-Type: application/force-download");
-		header("Content-Type: application/octet-stream");
-		header("Content-Type: application/download");
-		header("Content-Disposition: attachment;filename=".$filename);
-		header("Content-Transfer-Encoding: binary");
+			$i = 0;
+			foreach ($_POST['field'] as $fieldname => $humbug) {
+				$xls->getActiveSheet()->SetCellValue($alpha[$i] . '1', $column_names[$fieldname]);
+				++$i;
+			}
 
-		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
-		
-		$xls = new PHPExcel();
-		
-		$xls->setActiveSheetIndex(0);
-		$count = 0;
-		$alpha = range('A', 'Z');
-		$numcols = 0;
-		
-		if($tbl == 1) :
-			$arr2 = array('d', $this->translate->{'Company'}, $this->translate->{'Name'}, $this->translate->{'Event'}, $this->translate->{'Bookings'}, $this->translate->{'Last login'});
-		else :
-			$arr2 = array('d', $this->translate->{'Company'}, $this->translate->{'Name'}, $this->translate->{'Event'}, $this->translate->{'Last login'}, $this->translate->{'Connected to fair on'});
-		endif;
+			// Row 1 in the sheet is now done, continue with data on row 2
+			$row_idx = 2;
 
-		if(!empty($cols[1])) : 
-			$xls->getActiveSheet()->SetCellValue('A1', $arr2[$cols[1]]);
-		endif;
+			// Start outputing the actual booking data into the spreadsheet
+			foreach ($data_rows as $row) {
 
-		if(!empty($cols[2])) : 
-			$xls->getActiveSheet()->SetCellValue('B1', $arr2[$cols[2]]);
-		endif;
+				$i = 0;
 
-		if(!empty($cols[3])) : 
-			$xls->getActiveSheet()->SetCellValue('C1', $arr2[$cols[3]]);
-		endif;
+				foreach ($_POST['field'] as $fieldname => $humbug) {
 
-		if(!empty($cols[4])) : 
-			$xls->getActiveSheet()->SetCellValue('D1', $arr2[$cols[4]]);
-		endif;
-		
-		if(!empty($cols[5])) :
-			$xls->getActiveSheet()->SetCellValue('E1', $arr2[$cols[5]]);
-		endif;
+					if ($fieldname == 'status') {
+						$value = $label_status;
 
-		$row = 2;
-		foreach($exhibitors as $connected) :
-			if(in_array($connected->get('id'), $rows)):
-				
-				$dt = date('d/m/y', $connected->get('last_login'));
-				
+					} else if ($fieldname == 'last_login') {
+						$value = ($row['last_login'] > 0 ? date('d-m-Y H:i:s', $row['last_login']) : '');
 
-				if($tbl == 1) :
-					$arr = array('d', $connected->get('company'), $connected->get('name'), $connected->get('fair_count'), $connected->get('ex_count'), $dt);
-				else:
-					$arr = array('d', $connected->get('company'), $connected->get('name'), $connected->get('fair_count'), $dt, ($connected->get('connected_time')?date('d/m/y', $connected->get('connected_time')):'n/a'));
-				endif;
+					} else if ($fieldname == 'connected_time') {
+						$value = ($row['connected_time'] > 0 ? date('d-m-Y H:i:s', $row['connected_time']) : 'n/a');
 
-				if(!empty($cols[1])) : 	
-					$xls->getActiveSheet()->SetCellValue('A'.$row, $arr[$cols[1]]); 
-				endif;
+					} else {
+						$value = $row[$fieldname];
+					}
 
-				if(!empty($cols[2])) : 
-					$xls->getActiveSheet()->SetCellValue('B'.$row, $arr[$cols[2]]);
-				endif;
+					$xls->getActiveSheet()->SetCellValue($alpha[$i] . $row_idx, $value);
+					++$i;
+				}
 
-				if(!empty($cols[3])) : 
-					$xls->getActiveSheet()->SetCellValue('C'.$row, $arr[$cols[3]]);
-				endif;
-
-				if(!empty($cols[4])) :  
-					$xls->getActiveSheet()->SetCellValue('D'.$row, $arr[$cols[4]]);
-				endif;
-
-				if(!empty($cols[5])) : 
-					$xls->getActiveSheet()->SetCellValue('E'.$row, $arr[$cols[5]]);
-				endif;
-				$row++; 
-			endif;
-		endforeach;
-		
+				// Next row in spreadsheet
+				++$row_idx;
+			}
 			
-		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
-			'font' => array('bold' => true)
-		));
-		
-		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
-		$objWriter->save('php://output');
+				
+			$xls->getActiveSheet()->getStyle('A1:AZ1')->applyFromArray(array(
+				'font' => array('bold' => true)
+			));
+			
+			$objWriter = new PHPExcel_Writer_Excel2007($xls);
+			// $objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+			$objWriter->save('php://output');
+		}
 	}
 
 	public function export($fairId=0, $st, $nm, $cp, $ad, $br, $ph, $co, $em, $wb, $selectedRows) {
@@ -562,152 +574,173 @@ class ExhibitorController extends Controller {
 		
 	}
   
-  // Created a new function in case the old export is used somewhere else, which is likely
+	// Created a new function in case the old export is used somewhere else, which is likely
 	public function export2($fairId=0) {
-
-		$rows = explode(";", $_POST['rows']);
 
 		setAuthLevel(3);
 		$this->setNoTranslate('noView', true);
 
-		$fair = new Fair;
+		if (isset($_POST['rows'], $_POST['field']) && is_array($_POST['rows']) && is_array($_POST['field'])) {
+			$fair = new Fair;
 
-		if (!$fairId == 0) {
-			$fair->load($fairId, 'id');
-		} else {
-			if (isset($_SESSION['user_fair']))
-				$fair->load($_SESSION['user_fair'], 'id');
-			else if (isset($_SESSION['outside_fair_url']))
-				$fair->load($_SESSION['outside_fair_url'], 'url');
-		}
-
-		$sql = "SELECT user.*, 
-					exhibitor.position AS position, 
-					exhibitor.fair AS fair, 
-					exhibitor.commodity AS excommodity, 
-					pos.name AS posname, 
-					pos.status AS posstatus, 
-					pos.map AS posmap 
-				FROM exhibitor, user, fair_map_position AS pos 
-				WHERE exhibitor.fair = ?
-					AND exhibitor.position = pos.id
-					AND exhibitor.user = user.id
-					AND position IN (".implode(",",explode(";", $_POST['rows'])).")
-		";
-
-		$stmt = $this->db->prepare($sql);
-		$stmt->execute(array($fairId));
-		$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-		global $translator;
-		$column_names = array(
-			//$translator->{"Select all:"}." ".$translator->{"Company"} => array(
-			'orgnr' => $translator->{'Organization number'},
-			'company' => $translator->{'Company'},
-			'commodity' => $translator->{'Commodity'},
-			// 'customer_nr' => $translator->{'Customer number'},
-			'address' => $translator->{'Address'},
-			'zipcode' => $translator->{'Zip code'},
-			'city' => $translator->{'City'},
-			'country' => $translator->{'Country'},
-			'phone1' => $translator->{'Phone 1'},
-			'phone2' => $translator->{'Phone 2'},
-			'fax' => $translator->{'Fax number'},
-			'email' => $translator->{'E-mail'},
-			'website' => $translator->{'Website'},
-			//'presentation' => $translator->{'Presentation'},
-			//  ),
-			//$translator->{"Select all:"}." ".$translator->{"Billing address"} => array(
-			'invoice_company' => $translator->{'Company'},
-			'invoice_address' => $translator->{'Address'},
-			'invoice_zipcode' => $translator->{'Zip code'},
-			'invoice_city' => $translator->{'City'},
-			'invoice_country' => $translator->{'Country'},
-			'invoice_email' => $translator->{'E-mail'},
-			//  ),
-			//$translator->{"Select all:"}." ".$translator->{"Contact person"} => array(
-			//'alias' => $translator->{'Username'},
-			'name' => $translator->{'Contact person'},
-			'contact_phone' => $translator->{'Contact Phone'},
-			'contact_phone2' => $translator->{'Contact Phone 2'},
-			'contact_email' => $translator->{'Contact Email'},
-			//  )
-			'posstatus' => $translator->{'Status'},
-			'posname' => $translator->{'Stand space'},
-		);
-
-		$label_booked = $translator->{'booked'};
-		$label_reserved = $translator->{'reserved'};
-
-		$filename = "exhibitors.xlsx";
-		header("Pragma: public");
-		header("Expires: 0");
-		header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
-		header("Content-Type: application/force-download");
-		header("Content-Type: application/octet-stream");
-		header("Content-Type: application/download");
-		header("Content-Disposition: attachment;filename=".$filename);
-		header("Content-Transfer-Encoding: binary");
-		require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
-
-		$xls = new PHPExcel();
-		$xls->setActiveSheetIndex(0);
-
-		$count = 0;
-		$alpha = range('A', 'Z');
-		// Create column headers
-		foreach ($_POST as $postname => $postval) {
-			$postname = str_replace("field_", "", $postname);
-
-			if ($column_names[$postname]) {
-				$stplace = $alpha[$count];
-				$xls->getActiveSheet()->SetCellValue($stplace.'1', $column_names[$postname]);
-				$count++;
+			if (!$fairId == 0) {
+				$fair->load($fairId, 'id');
+			} else {
+				if (isset($_SESSION['user_fair']))
+					$fair->load($_SESSION['user_fair'], 'id');
+				else if (isset($_SESSION['outside_fair_url']))
+					$fair->load($_SESSION['outside_fair_url'], 'url');
 			}
-		}
 
-		$i = 2;
-		// Loop through data from database
-		foreach ($data as $row) {
+			$sql = "SELECT user.*, 
+						exhibitor.*, 
+						pos.name AS position, 
+						pos.status, 
+						pos.area
+					FROM exhibitor, user, fair_map_position AS pos 
+					WHERE exhibitor.fair = ?
+						AND exhibitor.position = pos.id
+						AND exhibitor.user = user.id
+						AND pos.id IN (".implode(',', $_POST['rows']).")
+			";
+
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(array($fair->get('id')));
+			$data = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			$stmt_options = $this->db->prepare("SELECT GROUP_CONCAT(feo.text SEPARATOR ', ') AS texts FROM fair_extra_option AS feo INNER JOIN exhibitor_option_rel AS eor ON eor.option = feo.id WHERE exhibitor = ?");
+
+			$column_names = array(
+				//$this->translate->{"Select all:"}." ".$this->translate->{"Company"} => array(
+				'orgnr' => $this->translate->{'Organization number'},
+				'company' => $this->translate->{'Company'},
+				'commodity' => $this->translate->{'Commodity'},
+				// 'customer_nr' => $this->translate->{'Customer number'},
+				'address' => $this->translate->{'Address'},
+				'zipcode' => $this->translate->{'Zip code'},
+				'city' => $this->translate->{'City'},
+				'country' => $this->translate->{'Country'},
+				'phone1' => $this->translate->{'Phone 1'},
+				'phone2' => $this->translate->{'Phone 2'},
+				'fax' => $this->translate->{'Fax number'},
+				'email' => $this->translate->{'E-mail'},
+				'website' => $this->translate->{'Website'},
+				//'presentation' => $this->translate->{'Presentation'},
+				//  ),
+				//$this->translate->{"Select all:"}." ".$this->translate->{"Billing address"} => array(
+				'invoice_company' => $this->translate->{'Company'},
+				'invoice_address' => $this->translate->{'Address'},
+				'invoice_zipcode' => $this->translate->{'Zip code'},
+				'invoice_city' => $this->translate->{'City'},
+				'invoice_country' => $this->translate->{'Country'},
+				'invoice_email' => $this->translate->{'E-mail'},
+				//  ),
+				//$this->translate->{"Select all:"}." ".$this->translate->{"Contact person"} => array(
+				//'alias' => $this->translate->{'Username'},
+				'name' => $this->translate->{'Contact person'},
+				'contact_phone' => $this->translate->{'Contact Phone'},
+				'contact_phone2' => $this->translate->{'Contact Phone 2'},
+				'contact_email' => $this->translate->{'Contact Email'},
+				//  )
+				'posstatus' => $this->translate->{'Status'},
+				'posname' => $this->translate->{'Stand space'},
+				'status' => $this->translate->{'Status'},
+				'position' => $this->translate->{'Stand'},
+				'area' => $this->translate->{'Area'},
+				'commodity' => $this->translate->{'Trade'},
+				'extra_options' => $this->translate->{'Extra options'},
+				'booking_time' => $this->translate->{'Time of booking'},
+				'edit_time' => $this->translate->{'Last edited'},
+				'arranger_message' => $this->translate->{'Message to organizer'}
+			);
+
+			$label_booked = $this->translate->{'booked'};
+			$label_reserved = $this->translate->{'reserved'};
+
+			$filename = "exhibitors.xlsx";
+			header("Pragma: public");
+			header("Expires: 0");
+			header("Cache-Control: must-revalidate, post-check=0, pre-check=0"); 
+			header("Content-Type: application/force-download");
+			header("Content-Type: application/octet-stream");
+			header("Content-Type: application/download");
+			header("Content-Disposition: attachment;filename=".$filename);
+			header("Content-Transfer-Encoding: binary");
+			require_once ROOT.'lib/PHPExcel-1.7.8/Classes/PHPExcel.php';
+
+			$xls = new PHPExcel();
+			$xls->setActiveSheetIndex(0);
+
 			$count = 0;
+			$alpha = range('A', 'Z');
+			if (count($_POST['field']) > count($alpha)) {
+				foreach ($alpha as $letter) {
+					$alpha[] = 'A' . $letter;
+				}
+			}
 
-			foreach ($_POST as $postname => $postval) {
-				$postname = str_replace("field_", "", $postname);
-
-				if ($column_names[$postname]) {
-					// Special case taken from existing front-end code
-					if ($postname == "commodity" && empty($row[$postname])) {
-						$postname = "excommodity";
-
-					} else if ($postname == "posstatus") {
-						if ($row[$postname] == 2) {
-							$value = $label_booked;
-						} else {
-							$value = $label_reserved;
-						}
-
-					} else {
-						$value = $row[$postname];
-					}
-
+			// Create column headers
+			foreach ($_POST['field'] as $fieldname => $humbug) {
+				if ($column_names[$fieldname]) {
 					$stplace = $alpha[$count];
-					$xls->getActiveSheet()->setCellValueExplicit($stplace.$i, $value);
+					$xls->getActiveSheet()->SetCellValue($stplace.'1', $column_names[$fieldname]);
 					$count++;
 				}
 			}
 
-			$i++;
+			$i = 2;
+			// Loop through data from database
+			foreach ($data as $row) {
+				$count = 0;
+
+				foreach ($_POST['field'] as $fieldname => $humbug) {
+					if ($column_names[$fieldname]) {
+						// Special case taken from existing front-end code
+						if ($fieldname == 'booking_time') {
+						$value = date('d-m-Y H:i:s', $row['booking_time']);
+
+						} else if ($fieldname == 'edit_time') {
+							$value = ($row['edit_time'] > 0 ? date('d-m-Y H:i:s', $row['edit_time']) : '');
+
+						} else if ($fieldname == 'status') {
+							if ($row['status'] == 2) {
+								$value = $label_booked;
+							} else {
+								$value = $label_reserved;
+							}
+
+						} else if ($fieldname == 'extra_options') {
+							$value = '';
+
+							$stmt_options->execute(array($row['id']));
+							$options = $stmt_options->fetchObject();
+							if ($options) {
+								$value = $options->texts;
+							}
+
+						} else {
+							$value = $row[$fieldname];
+						}
+
+						$stplace = $alpha[$count];
+						$xls->getActiveSheet()->setCellValueExplicit($stplace.$i, $value);
+						$count++;
+					}
+				}
+
+				$i++;
+			}
+
+			$xls->getActiveSheet()->getStyle('A1:AZ1')->applyFromArray(array(
+				'font' => array('bold' => true)
+			));
+
+			//$xls->getActiveSheet()->getStyle('A' . $i . ':Z' . $i)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
+
+			$objWriter = new PHPExcel_Writer_Excel2007($xls);
+			//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+			$objWriter->save('php://output');
 		}
-
-		$xls->getActiveSheet()->getStyle('A1:Z1')->applyFromArray(array(
-			'font' => array('bold' => true)
-		));
-
-		//$xls->getActiveSheet()->getStyle('A' . $i . ':Z' . $i)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
-
-		$objWriter = new PHPExcel_Writer_Excel2007($xls);
-		//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
-		$objWriter->save('php://output');
 	}
 
 	public function deleteExhibitor($id, $confirmed='', $from='') {
@@ -868,46 +901,164 @@ class ExhibitorController extends Controller {
 
 		$u = new User;
 		$u->load($id, 'id');
-		
-		//Masters get the full list of positions, lower levels get the ones for their fair
-		if (userLevel() == 4) {
-			$stmt = $u->db->prepare("SELECT * FROM exhibitor WHERE user = ?");
+
+		//Masters and exhibitors looking at their own profile get the full list of positions, lower levels get the ones for their fair
+		if (userLevel() == 4 || $_SESSION["user_id"] == $id) {
+			$stmt = $u->db->prepare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ?");
 			$stmt->execute(array($u->get('id')));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `user` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id")));
+
+		//Administrators and Organizers can see the bookings linked to the events they have administrative privilegies to
+		} else if (userLevel() == 2) {
+			/*$sql = "SELECT `map_access` FROM fair_user_relation WHERE user = ? AND fair = ?";
+			$stmt = $this->db->prepare($sql);
+			$stmt->execute(array($_SESSION['user_id'], $fairId));
+			$result = $stmt->fetch();
+			$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
+			if ($result) {
+				$hasRights = true;
+			}*/
+			
+			$stmt = $u->db->prepare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor`
+				INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id`
+				INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id`
+				INNER JOIN `fair_user_relation` ON `fair_map`.`fair` = `fair_user_relation`.`fair`
+				WHERE `exhibitor`.`user` = ? AND `fair_user_relation`.`user` = ?
+			");
+			$stmt->execute(array($u->get('id'), $_SESSION['user_id']));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking`
+				INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair`
+				INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id`
+				INNER JOIN `fair_user_relation` ON `fair_map`.`fair` = `fair_user_relation`.`fair`
+				WHERE `preliminary_booking`.`user` = ? AND `fair_user_relation`.`user` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_id"]));
+		} else if (userLevel() == 3) {
+			$stmt = $u->db->prepare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor`
+				INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id`
+				INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id`
+				INNER JOIN `fair` ON `fair_map`.`fair` = `fair`.`id`
+				WHERE `exhibitor`.`user` = ? AND `fair`.`created_by` = ?
+			");
+			$stmt->execute(array($u->get('id'), $_SESSION['user_id']));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking`
+				INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id`
+				INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair`
+				INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id`
+				INNER JOIN `fair` ON `fair_map`.`fair` = `fair`.`id`
+				WHERE `preliminary_booking`.`user` = ? AND `fair`.`created_by` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
 		} else {
-			$stmt = $u->db->prepare("SELECT * FROM exhibitor WHERE user = ? AND fair = ?");
+			$stmt = $u->db->prepare("SELECT
+				`exhibitor`.`id` AS exhibitor_id,
+				`exhibitor`.`commodity`,
+				`exhibitor`.`arranger_message`,
+				`exhibitor`.`booking_time`,
+				`exhibitor`.`position`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ? AND `exhibitor`.`fair` = ?");
 			$stmt->execute(array($u->get('id'), $_SESSION['user_fair']));
+
+			$stmtPreliminary = $u->db->prepare("SELECT
+				`preliminary_booking`.`id` AS exhibitor_id,
+				`preliminary_booking`.`commodity`,
+				`preliminary_booking`.`booking_time`,
+				`preliminary_booking`.`arranger_message`,
+				`fair_map_position`.*,
+				`fair_map`.`id` AS fair_map_id,
+				`fair_map`.`fair`,
+				`fair_map`.`name` AS fair_map_name,
+				`user`.`company`
+				FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `preliminary_booking`.`user` = ? AND `preliminary_booking`.`fair` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
 		}
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 		$positions = array();
 
-		foreach($u->getPreliminaries() as $prel) {
-			$pos = new FairMapPosition;
-			$pos->load($prel['position'], 'id');
-			$pos->set('exhibitor_id', $prel['id']);
-			$pos->set('preliminary', true);
-			$pos->set('company', $u->get('company'));
-			$pos->set('booking_time', $prel['booking_time']);
-			$pos->set('commodity', $prel['commodity']);
-			$pos->set('arranger_message', $prel['arranger_message']);
-      $fairmap = new FairMap;
-      $fairmap->load($pos->get('map'), 'id');
-      $pos->set('map', $fairmap);
-			$positions[] = $pos;
+		//foreach($u->getPreliminaries() as $prel) {
+		while (($res = $stmtPreliminary->fetch(PDO::FETCH_ASSOC))) {
+			$positions[] = $res;
 		}
 
-		foreach ($result as $res) {
-			$pos = new FairMapPosition;
-			$pos->load($res['position'], 'id');
-			$pos->set('exhibitor_id', $res['id']);
-			$pos->set('preliminary', false);
-			$pos->set('commodity', $res['commodity']);
-			$pos->set('arranger_message', $res['arranger_message']);
-			$pos->set('company', $u->get('company'));
-			$pos->set('booking_time', $res['booking_time']);
-      $fairmap = new FairMap;
-      $fairmap->load($pos->get('map'), 'id');
-      $pos->set('map', $fairmap);
-			$positions[] = $pos;
+		while (($res = $stmt->fetch(PDO::FETCH_ASSOC))) {
+			$positions[] = $res;
 		}
 		
 		/*
@@ -930,42 +1081,42 @@ class ExhibitorController extends Controller {
 		$this->set('headline', 'Exhibitor profile');
 
 		$this->set('company_section', 'Company');
-    $this->set('orgnr_label', 'Organization number');
-    $this->set('company_label', 'Company');
-    $this->set('commodity_label', 'Commodity');
-    $this->set('address_label', 'Address');
-    $this->set('zipcode_label', 'Zip code');
-    $this->set('city_label', 'City');
-    $this->set('country_label', 'Country');
-    $this->set('phone1_label', 'Phone 1');
-    $this->set('phone2_label', 'Phone 2');
-    $this->set('fax_label', 'Fax number');
-    $this->set('email_label', 'E-mail');
-    $this->set('website_label', 'Website');
-    
+		$this->set('orgnr_label', 'Organization number');
+		$this->set('company_label', 'Company');
+		$this->set('commodity_label', 'Commodity');
+		$this->set('address_label', 'Address');
+		$this->set('zipcode_label', 'Zip code');
+		$this->set('city_label', 'City');
+		$this->set('country_label', 'Country');
+		$this->set('phone1_label', 'Phone 1');
+		$this->set('phone2_label', 'Phone 2');
+		$this->set('fax_label', 'Fax number');
+		$this->set('email_label', 'E-mail');
+		$this->set('website_label', 'Website');
+
 		$this->set('invoice_section', 'Billing address');
-    $this->set('copy_label', 'Copy from company details');
-    $this->set('invoice_company_label', 'Company');
-    $this->set('invoice_address_label', 'Address');
-    $this->set('invoice_zipcode_label', 'Zip code');
-    $this->set('invoice_city_label', 'City');
-    $this->set('invoice_email_label', 'E-mail');
-    $this->set('presentation_label', 'Presentation');
+		$this->set('copy_label', 'Copy from company details');
+		$this->set('invoice_company_label', 'Company');
+		$this->set('invoice_address_label', 'Address');
+		$this->set('invoice_zipcode_label', 'Zip code');
+		$this->set('invoice_city_label', 'City');
+		$this->set('invoice_email_label', 'E-mail');
+		$this->set('presentation_label', 'Presentation');
     
 		$this->set('contact_section', 'Contact person');
-    $this->set('alias_label', 'Alias');
-    $this->set('contact_label', 'Contact person');
-    $this->set('phone3_label', 'Contact Phone');
-    $this->set('phone4_label', 'Contact Phone 2');
-    $this->set('contact_email', 'Contact Email');
-    $this->set('contact_country', 'Contact Country');
+		$this->set('alias_label', 'Alias');
+		$this->set('contact_label', 'Contact person');
+		$this->set('phone3_label', 'Contact Phone');
+		$this->set('phone4_label', 'Contact Phone 2');
+		$this->set('contact_email', 'Contact Email');
+		$this->set('contact_country', 'Contact Country');
 
-    $this->set('password_label', 'Password');
-    $this->set('password_repeat_label', 'Password again (repeat to confirm)');
-    //$this->set('save_label', 'Save');
+		$this->set('password_label', 'Password');
+		$this->set('password_repeat_label', 'Password again (repeat to confirm)');
+		//$this->set('save_label', 'Save');
 		//$this->set('save_label', 'Save');
 		
-    $this->set('customer_nr_label', 'Customer number');
+		$this->set('customer_nr_label', 'Customer number');
 		$this->set('customer_id', 'Customer Number');
 		$this->set('save_customer_id', 'Save Customer Number');
 		//$this->set('ban_section_header', 'Ban user');
@@ -982,6 +1133,10 @@ class ExhibitorController extends Controller {
 		$this->set('tr_message', 'Message to organizer');
 		$this->set('ok_label', 'OK');
 		$this->set('no_bookings_label', 'This exhibitor has not made any bookings yet.');
+
+		if ($this->is_ajax) {
+			$this->setNoTranslate('onlyContent', true);
+		}
 	}
 
 	function myBookings() {

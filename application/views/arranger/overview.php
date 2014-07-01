@@ -36,8 +36,8 @@
 				<td class="center"><?php echo $spots[$user->get('id')]['open']; ?></td>
 				<td class="center"><?php echo $spots[$user->get('id')]['booked']; ?></td>
 				<td class="center"><?php if ($user->get('last_login')) { echo date('d-m-Y H:i:s', $user->get('last_login')); } ?></td>
-				<td class="center"><a href="arranger/edit/<?php echo $user->get('id'); ?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
-				<td class="center"><a onclick="confirmBox(event, 'Vill du verkligen ta bort arrangör <?php echo $user->get('name') ?>', 'arranger/delete/<?php echo $user->get('id'); ?>/confirmed')" href="arranger/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="Delete"/></a></td>
+				<td class="center"><a href="arranger/edit/<?php echo $user->get('id'); ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+				<td class="center"><a onclick="confirmBox(event, 'Vill du verkligen ta bort arrangör <?php echo $user->get('name') ?>', 'arranger/delete/<?php echo $user->get('id'); ?>/confirmed')" href="arranger/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

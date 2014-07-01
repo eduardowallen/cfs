@@ -126,7 +126,13 @@
 				</li>
 				
 	<?php /* The fourth button in the main menu */ ?>
-				<li><a class="helpLink"> <img src="images/icons/icon_help.png" alt=""/><?php echo uh($translator->{"Here's how"}); ?></a></li>
+				<li><span><img src="images/icons/icon_help.png" alt=""/><?php echo uh($translator->{'Support'}); ?></span>
+					<ul>
+						<li><a class="helpLink"><?php echo uh($translator->{'Help'}); ?></a></li>
+						<li><a class="contactLink <?php echo $_SESSION['user_fair'] ?>"><?php echo uh($translator->{'Contact us'}); ?></a></li>
+					</ul>
+				</li>
+
 
 				
 				

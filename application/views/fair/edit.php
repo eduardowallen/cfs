@@ -71,6 +71,19 @@
 
 			// Initial state: hide dialog and note's textareas
 			$('.reminder-note').hide();
+
+			$(document.body).on("keydown", function (e) {
+				//Disable enter
+				if (e.which === 13) {
+					e.preventDefault();
+
+					if (e.target.id === "new_option_input") {
+						bookingOptions.createNewOption();
+					} else if ($(e.target).hasClass("optionTextInput")) {
+						bookingOptions.saveExtraOption.call($(e.target).closest("li").children(".saveExtraOption")[0]);
+					}
+				}
+			});
 		}());
 	});
 </script>
@@ -95,7 +108,9 @@
 		<input <?php echo $disable; ?> type="text" name="windowtitle" id="windowtitle" value="<?php echo $fair->get('windowtitle'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'This is the title which will be shown as the title of the website for your visitors and exhibitors.'}); ?>" />
 		
-		<?php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disabled="true"'; } ?>
+<!--		
+php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disabled="true"'; }
+-->
 		<label for="auto_publish"><?php echo $auto_publish_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_publish" id="auto_publish" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('auto_publish')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date for when the event should become available for booking.'}); ?>" />
@@ -103,6 +118,51 @@
 		<label for="auto_close"><?php echo $auto_close_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
 		<input class="datetime datepicker" <?php echo $da; ?> type="text" name="auto_close" id="auto_close" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('auto_close')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date for when the booking should no longer be available.'}); ?>" />
+	</div>
+	<div class="optionsWhenBooking">
+		<h2><?php echo $options_when_booking_label; ?></h2>
+		<label for="new_option_input"><?php echo $new_option_label; ?></label>
+		<input type="text" id="new_option_input" data-fair="<?php echo $fair_id; ?>" />
+		<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'With this feature you can add as many extra options as you want. These options are then available to check for the Exhibitor when they do their booking on this particular event.'}); ?>" />
+		<input type="button" id="new_option_button" value="Ok" />
+		<ul id="optionList">
+			<?php
+			if (!empty($options_when_booking)) {
+				foreach ($options_when_booking as $option) {
+					if (strlen($option["text"]) > 18) {
+						$text = substr($option["text"], 0, 15) . "...";
+					} else {
+						$text = $option["text"];
+					}
+					echo "<li>
+						<span title=\"{$option["text"]}\" class=\"optionText\">{$text}</span>
+						</span><input type=\"hidden\" value=\"{$option["text"]}\" name=\"options[]\" class=\"optionTextHidden\" />
+						<img src=\"images/icons/pencil.png\" class=\"icon editExtraOption\" data-id=\"{$option["id"]}\" title=\"" . $edit_label . "\" />
+						<img src=\"images/icons/delete.png\" class=\"icon deleteExtraOption\" data-id=\"{$option["id"]}\" title=\"" . $delete_label . "\" />
+					</li>";
+				}
+			}
+			?>
+		</ul>
+	</div>
+	<div class="floatright">
+		<h2><?php echo $interval_reminders_label; ?> <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Select the amount of days that this reminder should be sent to the exhibitor, before the "reserved until"-date is reached for a reserved stand space.'}); ?>" /></h2>
+<?php for ($i = 1; $i <= 3; $i++): ?>
+		<p class="form-one-row">
+			<label for="reminder_day<?php echo $i; ?>"><?php echo ${'reminder_' . $i . '_label'}; ?></label>
+			<select name="reminder_day<?php echo $i; ?>" id="reminder_day<?php echo $i; ?>">
+				<option value="0"><?php echo $no_reminder_label; ?></option>
+<?php	for ($j = 1; $j <= 365; $j++): ?>
+				<option value="<?php echo $j; ?>"<?php if ($j == $fair->get('reminder_day' . $i)) echo ' selected="selected"'; ?>><?php echo $j; ?></option>
+<?php	endfor; ?>
+			</select>
+			<textarea name="reminder_note<?php echo $i; ?>" id="reminder_note<?php echo $i; ?>" class="reminder-note no-editor" cols="50" rows="5"><?php echo htmlspecialchars($fair->get('reminder_note' . $i)); ?></textarea>
+			<a href="#" class="edit-reminder-text" data-id="<?php echo $i; ?>"><img src="images/icons/pencil.png" alt="<?php echo $edit_label; ?>" title="<?php echo $edit_label; ?>" /></a>
+			<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Edit the message of the reminder'}); ?>" />
+		</p>
+<?php endfor; ?>
+	</div>
+	<div class="contactInfoWrapper">
 		
 		<!--
 		<label for="logo"><?php echo $logo_label; ?></label>
@@ -138,24 +198,6 @@
 			<option value="1"<?php echo $hidden_sel1; ?>><?php echo $true_label; ?></option>
 		</select>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Whether or not other users are able to access the event.'}); ?>" />
-	</div>
-
-	<div class="floatright">
-		<h2><?php echo $interval_reminders_label; ?> <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Select the amount of days that this reminder should be sent to the exhibitor, before the "reserved until"-date is reached for a reserved stand space.'}); ?>" /></h2>
-<?php for ($i = 1; $i <= 3; $i++): ?>
-		<p class="form-one-row">
-			<label for="reminder_day<?php echo $i; ?>"><?php echo ${'reminder_' . $i . '_label'}; ?></label>
-			<select name="reminder_day<?php echo $i; ?>" id="reminder_day<?php echo $i; ?>">
-				<option value="0"><?php echo $no_reminder_label; ?></option>
-<?php	for ($j = 1; $j <= 365; $j++): ?>
-				<option value="<?php echo $j; ?>"<?php if ($j == $fair->get('reminder_day' . $i)) echo ' selected="selected"'; ?>><?php echo $j; ?></option>
-<?php	endfor; ?>
-			</select>
-			<textarea name="reminder_note<?php echo $i; ?>" id="reminder_note<?php echo $i; ?>" class="reminder-note no-editor" cols="50" rows="5"><?php echo htmlspecialchars($fair->get('reminder_note' . $i)); ?></textarea>
-			<a href="#" class="edit-reminder-text" data-id="<?php echo $i; ?>"><img src="images/icons/pencil.png" alt="<?php $edit_label; ?>" /></a>
-			<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Edit the message of the reminder'}); ?>" />
-		</p>
-<?php endfor; ?>
 	</div>
 
 	<p class="clear"><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>

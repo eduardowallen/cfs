@@ -74,6 +74,8 @@ class MailController extends Controller {
 			$this->set('headline', 'Edit mails');
 			$this->set('th_mail', 'Mail');
 			$this->set('th_subject', 'Subject');
+			$this->set('edit_label', 'Edit');
+			$this->set('add_label', 'Add');
 			$this->set('newmail_label', 'New Mail Template');
 			
       // Fetch the available languages

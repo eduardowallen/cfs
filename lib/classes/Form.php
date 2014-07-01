@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 // Looks for and includes requested <form> files.
 class Form

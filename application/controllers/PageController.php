@@ -32,6 +32,7 @@ class PageController extends Controller {
 			
 			$this->set('headline', 'Edit pages');
 			$this->set('th_page', 'Page');
+			$this->set('edit_label', 'Edit');
 			
 			$stmt = $this->Page->db->prepare("SELECT * FROM language ORDER BY `default` DESC, id ASC");
 			$stmt->execute(array());

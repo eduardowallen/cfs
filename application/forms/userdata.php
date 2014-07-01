@@ -80,6 +80,13 @@
           
     <label for="website"><?php echo htmlspecialchars($translator->{'Website'}); ?></label>
     <input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
+	
+<?php if(userLevel() == 4): ?>
+	<label for="#"><?php echo htmlspecialchars($translator->{'Account locked'}); ?></label>
+	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo htmlspecialchars($translator->{'No'}); ?></label>
+	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo htmlspecialchars($translator->{'Yes'}); ?></label>
+<?php endif; ?>
+
   </div>
         
   <div class="form_column">
@@ -122,10 +129,18 @@
           <label for="presentation"><?php echo htmlspecialchars($translator->{'Presentation'}); ?></label>
           <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
         </div>
+		
+  <p>
+    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
+  </p>
     <?php else: ?>
         <label for="presentation"<?php echo (userLevel()==0?' style="margin-top:50px;"':''); ?>><?php echo htmlspecialchars($translator->{'Presentation'}); ?></label>
         <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation'); ?>
         <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
+  <p>
+    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
+  </p>		
+
     <?php endif; ?>
   </div>
           
@@ -151,24 +166,18 @@
 <?php if(userLevel() == 0): ?>
     <label for="password"><?php echo htmlspecialchars($translator->{'Password'}); ?> *</label>
     <input type="password" name="password" id="password" class="hasIndicator"/>
+	<img src="/images/icons/icon_help.png" class="helpicon_map" title="<?php echo htmlspecialchars($translator->{'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.'}); ?>" />
           
     <label for="password_repeat"><?php echo htmlspecialchars($translator->{'Password again (repeat to confirm)'}); ?> *</label>
     <input type="password" name="password_repeat" id="password_repeat"/>
-    <p style="position:relative; left:280px; bottom:95px; display:inline-block; width:180px; background:#efefef; border:1px solid #b1b1b1; padding:10px; margin-right:0px;">
-      <?php echo htmlspecialchars($translator->{'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.'}); ?>
+		  
+      
     </p>
 <?php endif; ?>
   </div>
   
-<?php if(userLevel() == 4): ?>
-	<label for="#"><?php echo htmlspecialchars($translator->{'Account locked'}); ?></label>
-	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo htmlspecialchars($translator->{'No'}); ?></label>
-	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo htmlspecialchars($translator->{'Yes'}); ?></label>
-<?php endif; ?>
 
-  <p>
-    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
-  </p>
+
 
 </form>
 

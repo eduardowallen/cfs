@@ -22,6 +22,7 @@ class Fair extends Model {
 				//$this->isLocked();
 			$this->fetchExternal('Exhibitor', 'exhibitors', 'fair', $this->id);
 			$this->fetchExternal('ExhibitorCategory', 'categories', 'fair', $this->id);
+			$this->fetchExternal("FairExtraOption", "options", "fair", $this->id);
 
 			$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE fair = ?");
 			$stmt->execute(array($this->id));
@@ -115,6 +116,8 @@ class Fair extends Model {
 		if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
 			unlink(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png');
 		}
+		
+		Alias::remove($this->get("url"));
 
 		parent::delete();
 

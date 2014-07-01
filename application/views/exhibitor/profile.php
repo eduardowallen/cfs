@@ -17,18 +17,6 @@
 	}
 </script>
 
-<div id="arranger_message_popup" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
-
-	<h3><?php echo $tr_message; ?></h3>
-
-	<p id="arranger_message_text"></p>
-
-	<p class="center">
-		<a href="#" class="link-button close-popup"><?php echo $ok_label; ?></a>
-	</p>
-</div>
-
 <h1><?php echo $headline; ?></h1>
 <form action="user/accountSettings" method="post">
 	<div class="form_column">
@@ -165,7 +153,7 @@
         <label for="presentation"><?php echo $presentation_label; ?></label>
         <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation')?> 
         <!--textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea-->
-			<div style="width: 565px; max-height: 1000px; overflow-x: scroll;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></div>
+			<div style="width: 800px; max-height: 350px; overflow-x: auto; overflow-y: auto; max-width: 700px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></div>
       </div>
       
 
@@ -202,37 +190,37 @@
 
 <h3><?php echo $bookings_section; ?></h3>
 <?php if (count($positions) > 0): ?>
-<table class="std_table">
-<thead>
-	<tr>
-		<th><?php echo $tr_event; ?></th>
-		<th><?php echo $tr_pos; ?></th>
-		<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
-		<th><?php echo $tr_booker; ?></th>
-		<th><?php echo $tr_field; ?></th>
-		<th><?php echo $tr_time; ?></th>
-		<th><?php echo $tr_message; ?></th>
-	</tr>
-</thead>
-<tbody>
-<?php foreach($positions as $pos): ?>
-	<tr>
-		<td><a href="/mapTool/map/<?php echo $pos->map->get('fair'); ?>/<?php echo $pos->get('id'); ?>/<?php echo $pos->map->get('id'); ?>"><?php echo $pos->map->get('name'); ?></a></td>
-		<td><?php echo $pos->get('name'); ?></td>
-		<td class="center"><?php echo $pos->get('area'); ?></td>
-		<td class="center"><?php echo $pos->get('company'); ?></td>
-		<td class="center"><?php echo $pos->get('commodity'); ?></td>
-		<td><?php echo ($pos->get('booking_time') != '') ? date('d-m-Y H:i:s', $pos->get('booking_time')) : ''; ?></td>
-		<td class="center" title="<?php echo htmlspecialchars($pos->get('arranger_message')); ?>">
-<?php if (strlen($pos->get('arranger_message')) > 0): ?>
-						<a href="administrator/arrangerMessage/<?php echo ($pos->get('preliminary') ? 'preliminary' : 'exhibitor') . '/' . $pos->get('exhibitor_id'); ?>" class="open-arranger-message">
-							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
-						</a>
-<?php endif; ?>
-		</td>
-	</tr>
-<?php endforeach; ?>
-</tbody>
+<table class="std_table use-scrolltable" id="profileBookings">
+  <thead>
+  	<tr>
+  		<th><?php echo $tr_event; ?></th>
+  		<th><?php echo $tr_pos; ?></th>
+  		<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+  		<th><?php echo $tr_booker; ?></th>
+  		<th><?php echo $tr_field; ?></th>
+  		<th><?php echo $tr_time; ?></th>
+  		<th><?php echo $tr_message; ?></th>
+  	</tr>
+  </thead>
+  <tbody>
+  <?php foreach($positions as $pos): ?>
+  	<tr>
+  		<td><a target="_blank" href="/mapTool/map/<?php echo $pos['fair']; ?>/<?php echo $pos['id']; ?>/<?php echo $pos['map']; ?>"><?php echo $pos['fair_map_name']; ?> </a></td>
+  		<td><?php echo $pos['name']; ?></td>
+  		<td class="center"><?php echo $pos['area']; ?></td>
+  		<td class="center"><?php echo $pos['company']; ?></td>
+  		<td class="center"><?php echo $pos['commodity']; ?></td>
+  		<td><?php echo ($pos['booking_time'] != '') ? date('d-m-Y H:i:s', $pos['booking_time']) : ''; ?></td>
+  		<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+  <?php if (strlen($pos['arranger_message']) > 0): ?>
+  						<a href="administrator/arrangerMessage/<?php echo (isset($pos['preliminary']) ? 'preliminary' : 'exhibitor') . '/' . $pos['exhibitor_id']; ?>" class="open-arranger-message">
+  							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+  						</a>
+  <?php endif; ?>
+  		</td>
+  	</tr>
+  <?php endforeach; ?>
+  </tbody>
 </table>
 <?php else: ?>
 <p><?php echo $no_bookings_label; ?></p>
