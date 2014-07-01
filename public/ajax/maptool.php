@@ -897,6 +897,9 @@ if (isset($_POST['approve_preliminary'])) {
 		$position->save();
 
 		$prel_booking->delete();
+		
+		$stmt = $pb->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
+		$stmt->execute(array($pos->get('id')));
 	}
 }
 
