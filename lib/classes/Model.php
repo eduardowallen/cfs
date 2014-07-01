@@ -54,9 +54,18 @@ class Model {
 		}
 	}
 
-	protected function fetchExternal($class, $attribute, $joinedOn, $key) {
+	protected function fetchExternal($class, $attribute, $joinedOn, $key, $order_by = null, $order_dir = null) {
 
-		$stmt = $this->db->prepare("SELECT id FROM ".$this->getTableName($class)." WHERE `".$joinedOn."` = ?");
+		$query = "SELECT id FROM ".$this->getTableName($class)." WHERE `".$joinedOn."` = ?";
+		if ($order_by !== null) {
+			$query .= " ORDER BY `" . $order_by . "`";
+
+			if ($order_dir !== null && ($order_dir == 'ASC' || $order_dir == 'DESC')) {
+				$query .= " " . $order_dir;
+			}
+		}
+
+		$stmt = $this->db->prepare($query);
 
 		$stmt->execute(array($key));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
