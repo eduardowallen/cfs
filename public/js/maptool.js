@@ -731,6 +731,8 @@ maptool.traceMouse = function(e) {
 maptool.bookPosition = function(positionObject) {
 	$('#book_category_input').css('border-color', '#666');
 	$('#book_category_scrollbox').css('border-color', '#000000');
+	$('#book_category_scrollbox input').prop('checked', false);
+	$('#book_option_scrollbox input').prop('checked', false);
 
 	if (maptool.map.userlevel < 2) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
@@ -740,24 +742,17 @@ maptool.bookPosition = function(positionObject) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
 		$('#book_user_input option[value="' + positionObject.exhibitor.user + '"]').prop("selected", true);
-		var categories = positionObject.exhibitor.categories;
-		$('#book_category_scrollbox > p > input').prop('checked', false);
-		for(var i = 0; i < categories.length; i++){
-			$('#book_category_scrollbox > p').each(function(){
-				var value = $(this).children().val();
-				var categoryId = (typeof categories[i] === "string") ? categories[i] : categories[i].category_id;
 
-				if (value == categoryId) {
-					$(this).children().prop('checked', true);
-				}
-			});
+		var categories = positionObject.exhibitor.categories, 
+			options = positionObject.exhibitor.options, 
+			i;
+
+		for (i = 0; i < categories.length; i++) {
+			$('#book_category_scrollbox input[value=' + (typeof categories[i] === 'object' ? categories[i].category_id : categories[i]) + ']').prop('checked', true);
 		}
 
-		var options = positionObject.exhibitor.options;
-
-		$('#book_option_scrollbox input').prop('checked', false);
 		for (i = 0; i < options.length; i++) {
-			$('#book_option_scrollbox input[value=\'' + options[i].option_id + '\']').prop('checked', true);
+			$('#book_option_scrollbox input[value=' + (typeof options[i] === 'object' ? options[i].option_id : options[i]) + ']').prop('checked', true);
 		}
 	} else {
 		$("#book_commodity_input, #book_message_input").val("");
@@ -2041,15 +2036,17 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 	$('#reserve_user_input').val(prel_booking_data.user);
 
 	var categories = prel_booking_data.categories.split('|'),
-		category_input,
+		options = prel_booking_data.options.split('|'),
 		i;
 
 	$('#reserve_category_scrollbox input').prop('checked', false);
 	for (i = 0; i < categories.length; i++) {
+		$('#reserve_category_scrollbox input[value=' + categories[i] + ']').prop('checked', true);
+	}
 
-		$('#reserve_category_scrollbox input[value=' + categories[i] + ']').each(function() {
-			$(this).prop('checked', true);
-		});
+	$('#reserve_option_scrollbox input').prop('checked', false);
+	for (i = 0; i < options.length; i++) {
+		$('#reserve_option_scrollbox input[value=' + options[i] + ']').prop('checked', true);
 	}
 
 	$('#reserve_position_dialogue').show();
@@ -2102,13 +2099,11 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 
 	$("#reserve_post").unbind("click");
 	$("#reserve_post").click(function() {
-		var cats = [];
+		var cats = [], 
+			opts = [];
 
-		$('#reserve_category_scrollbox > p').each(function(){
-			var val = $(this).children('input:checked').val();
-			if(val != "undefined"){
-				cats.push(val);
-			}
+		$('#reserve_category_scrollbox input:checked').each(function() {
+			cats.push($(this).val());
 		});
 
 		if (cats.length == 0) {
@@ -2116,6 +2111,17 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 			return;
 		} else {
 			$('#reserve_category_scrollbox').css('border-color', '#000000');
+		}
+
+		$('#reserve_option_scrollbox input:checked').each(function() {
+			opts.push($(this).val());
+		});
+
+		if (opts.length == 0) {
+			$('#reserve_option_scrollbox').css('border-color', 'red');
+			return;
+		} else {
+			$('#reserve_option_scrollbox').css('border-color', '#000000');
 		}
 
 		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
@@ -2132,19 +2138,12 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 			return;
 		}	
 
-		var catStr = '';
-		for (var j=0; j<cats.length; j++) {
-			if(cats[j] != undefined){
-				catStr += '&categories[]=' + cats[j];
-			}
-		}
-
 		var dataString = 'approve_preliminary=' + prel_booking_data.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
 				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
-				   + catStr;
-		
+				   + '&categories[]=' + cats.join('&categories[]=') + '&options[]=' + opts.join('&options[]=');
+
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
 		}

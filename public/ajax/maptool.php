@@ -275,18 +275,17 @@ if (isset($_POST['bookPosition'])) {
 	if (isset($_POST['options']) && is_array($_POST['options'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
 		foreach ($_POST['options'] as $opt) {
-			$stmt->execute(array($ex->get('exhibitor_id'), $opt));
-						
+			$stmt->execute(array($exId, $opt));
+
 			$ex_option = new FairExtraOption();
 			$ex_option->load($opt, 'id');
 			$options[] = $ex_option->get('text');			
-			}
 		}
-						
+	}
+
 	$pos->set('status', 2);
 	$pos->set('expires', 0);
 	$pos->save();
-		
 
 	$fair = new Fair();
 	$fair->load($map->get("fair"), "id");
@@ -917,6 +916,11 @@ if (isset($_POST['approve_preliminary'])) {
 		foreach ($_POST['categories'] as $cat) {
 			$stmt->execute(array($exhibitor_id, $cat));
 		}
+
+		$stmt = $position->db->prepare("INSERT INTO exhibitor_option_rel (exhibitor, option) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exhibitor_id, $opt));
+		}
 		
 		$position->set('status', 1);
 		$position->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
@@ -924,8 +928,8 @@ if (isset($_POST['approve_preliminary'])) {
 
 		$prel_booking->delete();
 		
-		$stmt = $pb->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
-		$stmt->execute(array($pos->get('id')));
+		$stmt = $prel_booking->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
+		$stmt->execute(array($position->get('id')));
 	}
 }
 
