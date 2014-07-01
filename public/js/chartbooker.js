@@ -637,9 +637,9 @@ $(document).ready(function() {
 			url : 'page/help',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupformTwo" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
+			var html = '<div id="popupform" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
 			$('body').append(html);
-			var popupform = $('#popupformTwo');	
+			var popupform = $('#popupform');
 			
 			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
 			var closeButton = $('.closeDialogue');
@@ -647,7 +647,7 @@ $(document).ready(function() {
 			$('.closeDialogue').click(function(){
 				$(this).off('click');
 				$(this).remove();
-				$('#popupformTwo').remove();
+				$('#popupform').remove();
 				$('#overlay').hide();
 			});
 			if(popupform.width() > 760){

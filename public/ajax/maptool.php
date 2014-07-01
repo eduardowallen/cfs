@@ -288,6 +288,27 @@ if (isset($_POST['bookPosition'])) {
 	$pos->save();
 		
 
+	$fair = new Fair();
+	$fair->load($map->get("fair"), "id");
+
+	$user = new User();
+	$user->load($_POST["user"], "id");
+
+	if ($fair->wasLoaded()) {
+		$mail = new Mail($user->get("email"), "preliminary_to_reserved", $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+		$mail->setMailvar("exhibitor_name", $user->get("name"));
+		$mail->setMailvar("event_name", $fair->get("name"));
+		$mail->setMailVar("position_name", $pos->get("name"));
+		$mail->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+		$mail->setMailVar("url", BASE_URL . $fair->get("url"));
+		$mail->setMailVar("position_information", $pos->get("information"));
+		$mail->setMailVar("exhibitor_commodity", $ex->get("commodity"));
+		$mail->setMailVar("exhibitor_category", implode(", ", $categoryNames));
+		$mail->setMailVar("arranger_message", $ex->get("arranger_message"));
+		$mail->send();
+	}
+
+	exit;
 
 
 	// Send mail
@@ -475,6 +496,15 @@ if (isset($_POST['editBooking'])) {
 			$stmt->execute(array($exId, $cat));
 		}
 	}
+
+	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
+
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exId, $opt));
+		}
+	}
 	// Remove old options for this booking	
 	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
 	
@@ -631,8 +661,6 @@ if (isset($_POST['preliminary'])) {
 				$options = implode(', ', $options);
 
 				$mail_organizer = new Mail($organizer->get('email'), 'new_preliminary_booking', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
-				$mail_organizer->setMailVar('url', BASE_URL . $fair->get('url'));
-				$mail_organizer->setMailVar('event_name', $fair->get('name'));
 				$mail_organizer->setMailVar('position_name', $position->get('name'));
 				$mail_organizer->setMailVar('position_information', $position->get('information'));
 				$mail_organizer->setMailVar('booking_time', $time_now);
@@ -695,7 +723,6 @@ if (isset($_POST['cancelBooking'])) {
 		$user = new User();
 		$user->load($row["user"], "id");
 		$email = $user->get("email");
-				
 		//Get mail settings for fair
 		$fairMap = new FairMap();
 		$fairMap->load($pos->get("map"), "id");
@@ -712,7 +739,6 @@ if (isset($_POST['cancelBooking'])) {
 
 			$mail = new Mail($email, 'booking_cancelled', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 			$mail->setMailVar('position_name', $pos->get('name'));
-			$mail->setMailVar("cancelled_exhibitor", $user->get("name"));
 			$mail->setMailVar('cancelled_name', $current_user->get('name'));
 			$mail->setMailVar('event_name', $fair->get('name'));
 			$mail->setMailVar('edit_time', date('d-m-Y H:i'));
