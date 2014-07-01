@@ -605,9 +605,47 @@ class FairController extends Controller {
 			$this->set('th_view', 'View');
 			$this->set('th_edit', 'Edit');
 			$this->set('th_delete', 'Delete');
+			$this->set('th_move_up', 'Move up');
+			$this->set('th_move_down', 'Move down');
 			$this->setNoTranslate('fair', $this->Fair);
 
 		}
+	}
+
+	public function move_map($direction = null, $fair_id = null, $map_id = null) {
+		setAuthLevel(3);
+
+		$this->Fair->load($fair_id, 'id');
+		if (!$this->Fair->wasLoaded()) {
+			header('Location: ' . BASE_URL . 'fair');
+			die();
+		}
+
+		$fair_map = null;
+		foreach ($this->Fair->get('maps') as $map) {
+			if ($map->get('id') == $map_id) {
+				$fair_map = $map;
+				break;
+			}
+		}
+
+		if ($fair_map === null) {
+			header('Location: ' . BASE_URL . 'fair');
+			die();
+		}
+
+		switch ($direction) {
+			case 'up':
+				$fair_map->moveUp();
+				break;
+
+			case 'down':
+				$fair_map->moveDown();
+				break;
+		}
+
+		header('Location: ' . BASE_URL . 'fair/maps/' . $this->Fair->get('id'));
+		die();
 	}
 
 	public function delete($id, $confirmed='') {

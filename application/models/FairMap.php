@@ -5,6 +5,8 @@ class FairMap extends Model {
 	protected $image;
 	protected $large_image;
 	protected $positions = array();
+	protected $before = null;
+	protected $after = null;
 	
 	public function load($key, $by) {
 		
@@ -20,6 +22,46 @@ class FairMap extends Model {
 			}
 		}
 		
+	}
+
+	public function setBefore($map) {
+		$this->before = $map;
+	}
+
+	public function setAfter($map) {
+		$this->after = $map;
+	}
+
+	public function canMoveUp() {
+		return ($this->before !== null);
+	}
+
+	public function canMoveDown() {
+		return ($this->after !== null);
+	}
+
+	public function moveUp() {
+		if ($this->canMoveUp()) {
+			$temp = $this->get('sortorder');
+
+			$this->set('sortorder', $this->before->get('sortorder'));
+			$this->save();
+
+			$this->before->set('sortorder', $temp);
+			$this->before->save();
+		}
+	}
+
+	public function moveDown() {
+		if ($this->canMoveDown()) {
+			$temp = $this->get('sortorder');
+
+			$this->set('sortorder', $this->after->get('sortorder'));
+			$this->save();
+
+			$this->after->set('sortorder', $temp);
+			$this->after->save();
+		}
 	}
 	
 	public function delete() {

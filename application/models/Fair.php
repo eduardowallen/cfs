@@ -12,12 +12,31 @@ class Fair extends Model {
 		
 		parent::load($key, $by);
 		if ($this->wasLoaded()) {
-			$this->fetchExternal('FairMap', 'maps', 'fair', $this->id);
+			$this->fetchExternal('FairMap', 'maps', 'fair', $this->id, 'sortorder');
+
+			// Set sorting data for maps
+			foreach ($this->maps as $index => $map) {
+				if ($index > 0) {
+					$map->setBefore($this->maps[$index - 1]);
+
+				}
+
+				if ($index < count($this->maps) - 1) {
+					$map->setAfter($this->maps[$index + 1]);
+				}
+
+				if ($this->maps[$index]->get('sortorder') == 0) {
+					$this->maps[$index]->set('sortorder', $index + 1);
+					$this->maps[$index]->save();
+				}
+			}
+
 			if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg')) {
 				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.jpg';
 			} else if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
 				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.png';
 			}
+
 			//if (!$disregardLocked)
 				//$this->isLocked();
 			$this->fetchExternal('Exhibitor', 'exhibitors', 'fair', $this->id);
