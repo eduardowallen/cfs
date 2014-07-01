@@ -5,7 +5,7 @@ define('APP_VERSION', '1.3.1');
 function setReporting() {
 	if (DEV == true) {
 		error_reporting(E_ALL);
-		ini_set('display_errors','false');
+		ini_set('display_errors','true');
 	} else {
 		error_reporting(0);
 		ini_set('display_errors','false');
