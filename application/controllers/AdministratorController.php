@@ -526,7 +526,7 @@ class AdministratorController extends Controller {
 				$ex->set('category', 0);
 				$ex->set('presentation', '');
 				$ex->set('commodity', $_POST['commodity']);
-				$ex->set('arranger_message', $_POST['arranger_message']);
+				$ex->set('arranger_message', $_POST['message']);
 				$ex->set('approved', 1);
 				$ex->set('edit_time', time());
 				
@@ -567,6 +567,7 @@ class AdministratorController extends Controller {
 
 				// Send mail
 				$categories = implode(', ', $categories);
+				$options = implode(', ', $options);
 				$time_now = date('d-m-Y H:i');
 
 				$organizer = new User();
@@ -580,13 +581,18 @@ class AdministratorController extends Controller {
 					$mailSettings = json_decode($fair->get("mail_settings"));
 					if (is_array($mailSettings->bookingEdited)) {
 						if (in_array("0", $mailSettings->bookingEdited)) {
-							$mail_organizer = new Mail($organizer->get('email'), 'booking_edited_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+							$mail_organizer = new Mail($organizer->get('email'), 'preliminary_to_booked_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+							$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
+							$mail_organizer->setMailvar("event_name", $fair->get("name"));
 							$mail_organizer->setMailVar('position_name', $pos->get('name'));
+							$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+							$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
 							$mail_organizer->setMailVar('position_information', $pos->get('information'));
-							$mail_organizer->setMailVar('edit_time', $time_now);
-							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_organizer->setMailVar('arranger_message', $_POST['message']);
 							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_organizer->setMailVar('exhibitor_category', $categories);
+							$mail_organizer->setMailVar('exhibitor_options', $options);
+							$mail_organizer->setMailVar('edit_time', $time_now);
 							$mail_organizer->send();
 						}
 						if (in_array("1", $mailSettings->bookingEdited)) {
@@ -597,9 +603,11 @@ class AdministratorController extends Controller {
 							$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
 							$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
 							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_user->setMailVar('arranger_message', $_POST['message']);
 							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_user->setMailVar('exhibitor_category', $categories);
+							$mail_user->setMailVar('exhibitor_options', $options);
+							$mail_user->setMailVar('edit_time', $time_now);
 							$mail_user->send();
 						}
 					}
@@ -1100,7 +1108,7 @@ class AdministratorController extends Controller {
 			}
 		}
 
-		$current_date = date('d-m-Y H:i');
+		$time_now = date('d-m-Y H:i');
 
 		$mailSetting = $mail_type . "Cancelled";
 
@@ -1111,30 +1119,36 @@ class AdministratorController extends Controller {
 				if (in_array("1", $mailSettings->$mailSetting)) {
 					$mail_exhibitor = new Mail($u->get('email'), $mail_type . '_cancelled', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 					$mail_exhibitor->setMailVar('position_name', $position->get('name'));
+					$mail_exhibitor->setMailVar('cancelled_exhibitor', $exhib->get('name'));
 					$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
 					$mail_exhibitor->setMailVar('event_name', $fair->get('name'));
-					$mail_exhibitor->setMailVar('edit_time', $current_date);
+					$mail_exhibitor->setMailVar('edit_time', $time_now);
 					$mail_exhibitor->setMailVar('comment', $comment);
+					$mail_exhibitor->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
 					$mail_exhibitor->send();
 				}
 
 				if (in_array("0", $mailSettings->$mailSetting)) {
 					$mail_user = new Mail($current_user->get('email'), $mail_type . '_cancelled_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 					$mail_user->setMailVar('position_name', $position->get('name'));
+					$mail_user->setMailVar('cancelled_exhibitor', $exhib->get('name'));
 					$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
 					$mail_user->setMailVar('event_name', $fair->get('name'));
-					$mail_user->setMailVar('edit_time', $current_date);
+					$mail_user->setMailVar('edit_time', $time_now);
 					$mail_user->setMailVar('comment', $comment);
+					$mail_user->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
 					$mail_user->send();
 				}
 
 				if (in_array("0", $mailSettings->$mailSetting)) {
 					$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_cancelled_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 					$mail_organizer->setMailVar('position_name', $position->get('name'));
+					$mail_organizer->setMailVar('cancelled_exhibitor', $exhib->get('name'));
 					$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
 					$mail_organizer->setMailVar('event_name', $fair->get('name'));
-					$mail_organizer->setMailVar('edit_time', $current_date);
+					$mail_organizer->setMailVar('edit_time', $time_now);
 					$mail_organizer->setMailVar('comment', $comment);
+					$mail_organizer->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
 					$mail_organizer->send();
 				}
 			}
@@ -1165,7 +1179,7 @@ class AdministratorController extends Controller {
 
 			if ($exhibitor->wasLoaded()) {
 				$exhibitor->set('commodity', $_POST['commodity']);
-				$exhibitor->set('arranger_message', $_POST['arranger_message']);
+				$exhibitor->set('arranger_message', $_POST['message']);
 				$exhibitor->save();
 
 				// Remove old categories for this booking
@@ -1225,8 +1239,9 @@ class AdministratorController extends Controller {
 				}
 
 				$categories = implode(', ', $categories);
+				$options = implode(', ', $options);				
 				$time_now = date('d-m-Y H:i');
-
+				
 				$mailSetting = $mail_type . "Edited";
 
 				//Check mail settings and send only if setting is set
@@ -1239,9 +1254,10 @@ class AdministratorController extends Controller {
 							$mail_organizer->setMailVar('position_name', $pos->get('name'));
 							$mail_organizer->setMailVar('position_information', $pos->get('information'));
 							$mail_organizer->setMailVar('edit_time', $time_now);
-							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_organizer->setMailVar('arranger_message', $_POST['message']);
 							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_organizer->setMailVar('exhibitor_category', $categories);
+							$mail_organizer->setMailVar('exhibitor_options', $options);
 
 							if ($mail_type == 'reservation') {
 								$mail_organizer->setMailVar('date_expires', $_POST['expires']);
@@ -1256,9 +1272,10 @@ class AdministratorController extends Controller {
 							$mail_user->setMailVar('position_name', $pos->get('name'));
 							$mail_user->setMailVar('position_information', $pos->get('information'));
 							$mail_user->setMailVar('edit_time', $time_now);
-							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_user->setMailVar('arranger_message', $_POST['message']);
 							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_user->setMailVar('exhibitor_category', $categories);
+							$mail_user->setMailVar('exhibitor_options', $options);							
 
 							if ($mail_type == 'reservation') {
 								$mail_user->setMailVar('date_expires', $_POST['expires']);
@@ -1308,7 +1325,7 @@ class AdministratorController extends Controller {
 				$exhib->set('category', 0);
 				$exhib->set('presentation', '');
 				$exhib->set('commodity', $_POST['commodity']);
-				$exhib->set('arranger_message', $_POST['arranger_message']);
+				$exhib->set('arranger_message', $_POST['message']);
 				$exhib->set('booking_time', $prel->get('booking_time'));
 				$exhib->set('approved', 1);
 				$exhib->set('edit_time', time());
@@ -1349,6 +1366,7 @@ class AdministratorController extends Controller {
 
 				// Send mail
 				$categories = implode(', ', $categories);
+				$options = implode(', ', $options);
 				$time_now = date('d-m-Y H:i');
 
 				$fair = new Fair();
@@ -1366,27 +1384,36 @@ class AdministratorController extends Controller {
 					if (is_array($mailSettings->reservationEdited)) {
 						if (in_array("0", $mailSettings->reservationEdited)) {
 							$mail_organizer = new Mail($organizer->get('email'), 'reservation_edited_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+							$mail_organizer->setMailvar("exhibitor_name", $exhib_user->get("name"));
+							$mail_organizer->setMailvar("event_name", $fair->get("name"));							
 							$mail_organizer->setMailVar('position_name', $pos->get('name'));
+							$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($exhib->get("booking_time"))));
+							$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
 							$mail_organizer->setMailVar('position_information', $pos->get('information'));
 							$mail_organizer->setMailVar('edit_time', $time_now);
-							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_organizer->setMailVar('arranger_message', $_POST['message']);
 							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_organizer->setMailVar('exhibitor_category', $categories);
+							$mail_organizer->setMailVar('exhibitor_options', $options);
 							$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+							$mail_organizer->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));			
 							$mail_organizer->send();
 						}
 						if (in_array("1", $mailSettings->reservationEdited)) {
-							$mail_user = new Mail($exhib_user->get('email'), 'preliminary_to_reserved', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
-
+							$mail_user = new Mail($exhib_user->get('email'), 'reservation_edited_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
 							$mail_user->setMailvar("exhibitor_name", $exhib_user->get("name"));
 							$mail_user->setMailvar("event_name", $fair->get("name"));
 							$mail_user->setMailVar('position_name', $pos->get('name'));
 							$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($exhib->get("booking_time"))));
 							$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
 							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
+							$mail_user->setMailVar('edit_time', $time_now);
+							$mail_user->setMailVar('arranger_message', $_POST['message']);
 							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_user->setMailVar('exhibitor_category', $categories);
+							$mail_user->setMailVar('exhibitor_options', $options);
+							$mail_user->setMailVar('date_expires', $_POST['expires']);
+							$mail_user->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));					
 							$mail_user->send();
 						}
 					}
