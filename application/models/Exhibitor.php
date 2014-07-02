@@ -84,7 +84,8 @@ class Exhibitor extends User {
 	}
 
 	public function delete() {
-		
+		$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ?");
+		$stmt->execute(array($this->exhibitor_id));
 	}
 
 
