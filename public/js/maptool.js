@@ -1979,7 +1979,7 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].commodity +
 						'</td><td>'
 							+ response[i].booking_time +
-						'</td><td style="display: none"></td><td class="center" title=\'' + response[i].arranger_message + '\'>'
+						'</td><td style="display: none"></td><td class="center" title=\'' + response[i].arranger_message.replace("'", '&#039;') + '\'>'
 							+ (response[i].arranger_message.length > 0 ? '<a href="administrator/arrangerMessage/preliminary/' + response[i].id + '" class="open-arranger-message">'
 								+ '<img src="images/icons/script.png" alt="' + lang.messageToOrganizer + '" />'
 							+ '</a>' : '') +
