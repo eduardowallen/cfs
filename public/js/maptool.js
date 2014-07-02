@@ -920,7 +920,7 @@ maptool.bookPosition = function(positionObject) {
 			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
 		}
 
-		if (positionObject.exhibitor.preliminary_booking) {
+		if (positionObject.exhibitor && positionObject.exhibitor.preliminary_booking) {
 			dataString += '&prel_booking=' + positionObject.exhibitor.preliminary_booking;
 		}
 
