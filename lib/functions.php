@@ -278,6 +278,21 @@ function accessLevelToText($level)
   endswitch;
 }
 
+function posStatusToText($status) {
+	global $translator;
+
+	switch ($status) {
+		case 0:
+			return $translator->{'available'};
+		case 1:
+			return $translator->{'reserved'};
+		case 2:
+			return $translator->{'booked'};
+		case 3:
+			return $translator->{'preliminary booked'};
+	}
+}
+
 function getGMToffset() {
 	$gmt = date('O');
 	$gmt_sign = substr($gmt, 0, 1);
