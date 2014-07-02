@@ -14,20 +14,14 @@ class Fair extends Model {
 		if ($this->wasLoaded()) {
 			$this->fetchExternal('FairMap', 'maps', 'fair', $this->id, 'sortorder');
 
-			// Set sorting data for maps
+			$last_map_index = count($this->maps) - 1;
 			foreach ($this->maps as $index => $map) {
 				if ($index > 0) {
-					$map->setBefore($this->maps[$index - 1]);
-
+					$map->can_move_up = true;
 				}
 
-				if ($index < count($this->maps) - 1) {
-					$map->setAfter($this->maps[$index + 1]);
-				}
-
-				if ($this->maps[$index]->get('sortorder') == 0) {
-					$this->maps[$index]->set('sortorder', $index + 1);
-					$this->maps[$index]->save();
+				if ($index < $last_map_index) {
+					$map->can_move_down = true;
 				}
 			}
 
@@ -56,6 +50,64 @@ class Fair extends Model {
 			}
 		}
 
+	}
+
+	private function getMapIndex($map_id) {
+		foreach ($this->maps as $index => $map) {
+			if ($map->get('id') == $map_id) {
+				return array(
+					'index' => $index, 
+					'map' => $map
+				);
+			}
+		}
+
+		return null;
+	}
+
+	private function saveMapSortorders() {
+		// Save new sortorders
+		$sortorder = 1;
+		foreach ($this->maps as $map) {
+			$map->set('sortorder', $sortorder);
+			$map->save();
+
+			++$sortorder;
+		}
+	}
+
+	public function moveMapUp($map_id) {
+		$map = $this->getMapIndex($map_id);
+
+		if ($map !== null) {
+			if ($map['map']->can_move_up) {
+				$previous_index = $map['index'] - 1;
+				$previous = $this->maps[$previous_index];
+
+				// Do the switch
+				$this->maps[$previous_index] = $map['map'];
+				$this->maps[$map['index']] = $previous;
+
+				$this->saveMapSortorders();
+			}
+		}
+	}
+
+	public function moveMapDown($map_id) {
+		$map = $this->getMapIndex($map_id);
+
+		if ($map !== null) {
+			if ($map['map']->can_move_down) {
+				$next_index = $map['index'] + 1;
+				$next = $this->maps[$next_index];
+
+				// Do the switch
+				$this->maps[$next_index] = $map['map'];
+				$this->maps[$map['index']] = $next;
+
+				$this->saveMapSortorders();
+			}
+		}
 	}
 	
 	public function publicView() {

@@ -21,12 +21,12 @@
 			<td><?php echo $map->get("file_name"); ?></td>
 			<td class="center"><a href="mapTool/map/<?php echo $fair->get('id'); ?>/none/<?php echo $map->get('id') ?>"><img src="images/icons/map_go.png" alt="" title="<?php echo $th_view; ?>" /></a></td>
 			<td class="center">
-<?php	if ($map->canMoveUp()): ?>
+<?php	if ($map->can_move_up): ?>
 				<a href="fair/move_map/up/<?php echo $map->get('fair'); ?>/<?php echo $map->get('id'); ?>"><img src="images/icons/pan_up.png" alt="" title="<?php echo $th_move_up; ?>" /></a>
 <?php	endif; ?>
 			</td>
 			<td class="center">
-<?php	if ($map->canMoveDown()): ?>
+<?php	if ($map->can_move_down): ?>
 				<a href="fair/move_map/down/<?php echo $map->get('fair'); ?>/<?php echo $map->get('id'); ?>"><img src="images/icons/pan_down.png" alt="" title="<?php echo $th_move_down; ?>" /></a>
 <?php	endif; ?>
 			</td>

@@ -621,26 +621,13 @@ class FairController extends Controller {
 			die();
 		}
 
-		$fair_map = null;
-		foreach ($this->Fair->get('maps') as $map) {
-			if ($map->get('id') == $map_id) {
-				$fair_map = $map;
-				break;
-			}
-		}
-
-		if ($fair_map === null) {
-			header('Location: ' . BASE_URL . 'fair');
-			die();
-		}
-
 		switch ($direction) {
 			case 'up':
-				$fair_map->moveUp();
+				$this->Fair->moveMapUp($map_id);
 				break;
 
 			case 'down':
-				$fair_map->moveDown();
+				$this->Fair->moveMapDown($map_id);
 				break;
 		}
 
