@@ -330,6 +330,7 @@ if (isset($_POST['bookPosition'])) {
 				$mail_organizer->setMailvar('previous_status', $previous_status);
 				$mail_organizer->setMailvar('status', $status);
 				$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_organizer->setMailvar("company_name", $ex_user->get("company"));
 				$mail_organizer->setMailvar("event_name", $fair->get("name"));
 				$mail_organizer->setMailVar("position_name", $pos->get("name"));
 				$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
@@ -347,6 +348,7 @@ if (isset($_POST['bookPosition'])) {
 				$mail_user->setMailvar('previous_status', $previous_status);
 				$mail_user->setMailvar('status', $status);
 				$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_user->setMailvar("company_name", $ex_user->get("company"));
 				$mail_user->setMailvar("event_name", $fair->get("name"));
 				$mail_user->setMailVar("position_name", $pos->get("name"));
 				$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));

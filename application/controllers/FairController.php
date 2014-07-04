@@ -267,6 +267,7 @@ class FairController extends Controller {
 					if ($userLevel === "3") {
 				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
 				    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+					$mail->setMailVar('event_name', $this->Fair->get('name'));
 				    $mail->setMailVar('company', $user->get('company'));
 				    $mail->send();
 				  }

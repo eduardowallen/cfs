@@ -1139,6 +1139,7 @@ class AdministratorController extends Controller {
 					$mail_exhibitor->setMailVar('exhibitor_name', $u->get('name'));
 					$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
 					$mail_exhibitor->setMailVar('event_name', $fair->get('name'));
+					$mail_exhibitor->setMailVar("url", BASE_URL . $fair->get("url"));
 					$mail_exhibitor->setMailVar('edit_time', $time_now);
 					$mail_exhibitor->setMailVar('comment', $comment);
 					$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
@@ -1153,6 +1154,7 @@ class AdministratorController extends Controller {
 					$mail_user->setMailVar('exhibitor_name', $u->get('name'));
 					$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
 					$mail_user->setMailVar('event_name', $fair->get('name'));
+					$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
 					$mail_user->setMailVar('edit_time', $time_now);
 					$mail_user->setMailVar('comment', $comment);
 					$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
@@ -1167,6 +1169,7 @@ class AdministratorController extends Controller {
 					$mail_organizer->setMailVar('exhibitor_name', $u->get('name'));
 					$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
 					$mail_organizer->setMailVar('event_name', $fair->get('name'));
+					$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
 					$mail_organizer->setMailVar('edit_time', $time_now);
 					$mail_organizer->setMailVar('comment', $comment);
 					$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
@@ -1285,11 +1288,12 @@ class AdministratorController extends Controller {
 							$mail_organizer->setMailvar('exhibitor_name', $exhibitor->get('name'));
 							$mail_organizer->setMailVar('position_name', $pos->get('name'));
 							$mail_organizer->setMailVar('position_information', $pos->get('information'));
-							$mail_organizer->setMailVar('edit_time', $time_now);
+							$mail_organizer->setMailVar('booking_time', $time_now);
 							$mail_organizer->setMailVar('url', BASE_URL . $fair->get('url'));
 							$mail_organizer->setMailVar('arranger_message', $_POST['arranger_message']);
 							$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
 							$mail_organizer->setMailVar('exhibitor_category', $categories);
+							$mail_organizer->setMailVar('exhibitor_options', $options);
 
 							if ($mail_type == 'reservation') {
 								$mail_organizer->setMailVar('previous_status', $previous_status);
@@ -1306,7 +1310,7 @@ class AdministratorController extends Controller {
 							$mail_user->setMailvar('exhibitor_name', $exhibitor->get('name'));
 							$mail_user->setMailVar('position_name', $pos->get('name'));
 							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('edit_time', $time_now);
+							$mail_user->setMailVar('booking_time', $time_now);
 							$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
 							$mail_user->setMailVar('arranger_message', $_POST['arranger_message']);
 							$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);

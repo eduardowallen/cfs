@@ -204,6 +204,7 @@ class UserController extends Controller {
 				$mail->setMailVar('accesslevel', $this->translate->{'Exhibitor'});
 				$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
 				$mail->setMailVar('creator_name', $me->get('name'));
+				$mail->setMailVar('accesslevel', $lvl);
 				$mail->send();
 			} else {
 				$mail = new Mail($_POST['email'], 'welcome');
@@ -440,7 +441,9 @@ class UserController extends Controller {
 			$this->set('info', "It has been more than a month since you last changed your password. It is recommended that you change it now.");
 		else
 			$this->setNoTranslate('info', '');
-
+			
+	$time_now = date('d-m-Y H:i');
+	
 		if (isset($_POST['save'])) {
 
 			if ($_POST['password'] == $_POST['password_repeat']) {
@@ -455,6 +458,8 @@ class UserController extends Controller {
 						$this->User->save();
 						$this->set('ok', 'Password changed');
             $mail = new Mail($this->User->email, 'password_changed');
+			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
+			$mail->setMailVar('edit_time', $time_now);
             $mail->send();
 					} else {
 						$this->set('error', 'Your current password was wrong.');
@@ -513,7 +518,7 @@ class UserController extends Controller {
         $mail = new Mail($this->User->email, 'password_reset2');
         $mail->setMailVar('alias', $this->User->get('alias'));
         $mail->setMailVar('password', $pass);
-		$mail->setMailVar('name', $this->User->get('name'));
+		$mail->setMailVar('exhibitor_name', $this->User->get('name'));
         $mail->send();
 				$_SESSION['m'] = $this->User->email;
 				header('Location: '.BASE_URL.'user/login/ok');
@@ -527,7 +532,7 @@ class UserController extends Controller {
           $mail = new Mail($this->User->email, 'password_reset2');
           $mail->setMailVar('alias', $this->User->alias);
           $mail->setMailVar('password', $pass);
-		  $mail->setMailVar('name', $this->User->name);
+		  $mail->setMailVar('exhibitor_name', $this->User->name);
           $mail->send();
 					$_SESSION['m'] = $this->User->email;
 					header('Location: '.BASE_URL.'user/login/ok');
@@ -697,6 +702,7 @@ class UserController extends Controller {
 						$hash = md5($this->User->get('email').BASE_URL.$userId);
 						$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
             $mail = new Mail($this->User->email, 'confirm_mail');
+			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
             $mail->setMailVar('url', $url);
             $mail->send();
             
@@ -858,7 +864,7 @@ class UserController extends Controller {
 
 			$mail = new Mail($this->User->get('email'), 'resend_details');
 			$mail->setMailVar('alias', $this->User->get('alias'));
-			$mail->setMailVar('name', $this->User->get('name'));
+			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
 			$mail->setMailVar('password', $str);
 			$mail->send();
 			$this->set('result', 'The user\'s password was reset and a mail was sent.');
