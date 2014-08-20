@@ -107,7 +107,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 						<td class="center"><?php echo $user->get('fair_count');?></td>
 						<td class="center"><?php echo $user->get('ex_count');?></td>
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login'));?></td>
-						<td><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" checked="checked" /></td>
+						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" class="rows-1" checked="checked" /></td>
 						<!--<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
 						<td class="center"><a onclick="return confirm('<?php echo uh($translator->{'Really delete?'}); ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>-->
 					</tr>
@@ -148,7 +148,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 						<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
 						<td><?php if ($user->get('connected_time')) echo date('d-m-Y H:i:s', $user->get('connected_time')); else echo 'n/a'; ?></td>
-						<td><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" checked="checked" /></td>
+						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" class="rows-2" checked="checked" /></td>
 					</tr>
 				<?php endforeach; ?>
 			</tbody>

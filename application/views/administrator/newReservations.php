@@ -33,7 +33,7 @@ $general_column_info = array(
 );
 
 $bookings_columns = array(
-	'' => array(
+	$translator->{"Booking"} => array(
 		'status' => $translator->{'Status'},
 		'position' => $translator->{'Stand'},
 		'area' => $translator->{'Area'},
@@ -41,13 +41,13 @@ $bookings_columns = array(
 		'extra_options' => $translator->{'Extra options'},
 		'booking_time' => $translator->{'Time of booking'},
 		'edit_time' => $translator->{'Last edited'},
-		'arranger_message' => $translator->{'Message to organizer'}
+		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
 );
 $bookings_columns = array_merge($bookings_columns, $general_column_info);
 
 $reserved_columns = array(
-	'' => array(
+	$translator->{"Reservation"} => array(
 		'status' => $translator->{'Status'},
 		'position' => $translator->{'Stand'},
 		'area' => $translator->{'Area'},
@@ -56,13 +56,13 @@ $reserved_columns = array(
 		'expires' => $translator->{'Reserved until'},
 		'booking_time' => $translator->{'Time of booking'},
 		'edit_time' => $translator->{'Last edited'},
-		'arranger_message' => $translator->{'Message to organizer'}
+		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
 );
 $reserved_columns = array_merge($reserved_columns, $general_column_info);
 
 $prelbookings_columns = array(
-	'' => array(
+	$translator->{"Preliminary booking"} => array(
 		'status' => $translator->{'Status'},
 		'position' => $translator->{'Stand'},
 		'area' => $translator->{'Area'},
@@ -70,7 +70,7 @@ $prelbookings_columns = array(
 		'extra_options' => $translator->{'Extra options'},
 		'booking_time' => $translator->{'Time of booking'},
 		//'edit_time' => $translator->{'Last edited'},
-		'arranger_message' => $translator->{'Message to organizer'}
+		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
 );
 $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info);
@@ -252,39 +252,17 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 		<table class="std_table use-scrolltable" id="booked">
 			<thead>
 				<tr>
-					<th>
-						<?php echo $tr_pos; ?>
-					</th>
-					<th>
-						<?php echo $tr_area; ?>
-					</th>
-					<th>
-						<?php echo $tr_booker; ?>
-					</th>
-					<th>
-						<?php echo $tr_field; ?>
-					</th>
-					<th>
-						<?php echo $tr_time; ?>
-					</th>
-					<th>
-						<?php echo $tr_last_edited; ?>
-					</th>
-					<th>
-						<?php echo $tr_message; ?>
-					</th>
-					<th data-sorter="false">
-						<?php echo $tr_view; ?>
-					</th>
-					<th data-sorter="false">
-						<?php echo $tr_edit; ?>
-					</th>
-					<th data-sorter="false">
-						<?php echo $tr_delete; ?>
-					</th>
-					<th data-sorter="false">
-						<input type="checkbox" class="check-all" data-group="rows-1" checked="checked" />
-					</th>
+					<th><?php echo $tr_pos; ?></th>
+					<th><?php echo $tr_area; ?></th>
+					<th><?php echo $tr_booker; ?></th>
+					<th><?php echo $tr_field; ?></th>
+					<th><?php echo $tr_time; ?></th>
+					<th><?php echo $tr_last_edited; ?></th>
+					<th><?php echo $tr_message; ?></th>
+					<th data-sorter="false"><?php echo $tr_view; ?></th>
+					<th data-sorter="false"><?php echo $tr_edit; ?></th>
+					<th data-sorter="false"><?php echo $tr_delete; ?></th>
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-1" checked="checked" /></th>
 				</tr>
 			</thead>
 			<tbody>

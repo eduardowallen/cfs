@@ -257,6 +257,10 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.insert_comment = '<?php echo ujs($translator->{"Insert comment"}); ?>';
 	lang.viewBooking = '<?php echo ujs($translator->{"View booking"}); ?>';
 	lang.showPreliminaryBookings = '<?php echo ujs($translator->{"View preliminary bookings"}); ?>';
+	lang.passwd_superstrong = '<?php echo ujs($translator->{"Super strong"}); ?>';
+	lang.passwd_strong = '<?php echo ujs($translator->{"Strong"}); ?>';
+	lang.passwd_medium = '<?php echo ujs($translator->{"Medium"}); ?>';
+	lang.passwd_weak = '<?php echo ujs($translator->{"Weak"}); ?>';
 	
 	lang.StatusText = function(str) {
 		if (str == 'open')
@@ -341,11 +345,7 @@ function makeUserOptions3($sel=0, $fair) {
 				<input type="text" name="user" id="user"/>
 				<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
 				<input type="password" name="pass" id="pass"/>
-				<p>
-          <a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>">
-        <span style="color:#116734; font-size:14px; font-weight:bold;">
-        <?php echo uh($translator->{"Forgot your password?"}); ?></a></span></p>
-				<p>
+					<p>
 						<input type="hidden" name="outside_fair_url" value="<?php echo $_SESSION["outside_fair_url"]; ?>" />
 						<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>" class="save-btn"/>
 					</p>
@@ -356,6 +356,10 @@ function makeUserOptions3($sel=0, $fair) {
 	<div class="floatright panel">
 		<p><a href="user/register" class="link-button registerlink"><span style="font-weight:bold;"><?php echo uh($translator->{'Register new account'}); ?></a></span></p>
 		<p></p>
+		<p>
+          <a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>">
+        <span style="color:#116734; font-size:14px; font-weight:bold;">
+        <?php echo uh($translator->{"Forgot your password?"}); ?></a></span></p>
 	</div>
 </div>
 
@@ -463,7 +467,8 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<label for="search_user_input"><?php echo uh($translator->{'Search'}); ?></label>
 	<input type="text" style="width:300px;" name="search_user_input" id="search_user_input" />
-
+	<img src="/images/icons/icon_help.png" class="helpicon_search_commodity" title="<?php echo htmlspecialchars($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>" />
+	
 	<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
 	<select  style="width:300px;" name="book_user_input" id="book_user_input">
 		<?php echo makeUserOptions1(0, $fair); ?>
@@ -494,7 +499,7 @@ function makeUserOptions3($sel=0, $fair) {
 				<th><?php echo uh($translator->{'Booked by'}); ?></th>
 				<th><?php echo uh($translator->{"Trade"}); ?></th>
 				<th><?php echo uh($translator->{'Time of booking'}); ?></th>
-				<th><?php echo uh($translator->{"Message to organizer"}); ?></th>
+				<th><?php echo uh($translator->{"Message to organizer in list"}); ?></th>
 				<th><?php echo uh($translator->{"Deny"}); ?></th>
 				<th><?php echo uh($translator->{"Approve"}); ?></th>
 				<th><?php echo uh($translator->{'Reserve stand space'}); ?></th>
@@ -563,7 +568,7 @@ function makeUserOptions3($sel=0, $fair) {
 	*/?>
 	
 	<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
-	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/>
+	<textarea rows="3" style="height:45px; resize:none;" input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/></textarea>
 
 	<label for="reserve_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
 	<div id="reserve_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
@@ -579,6 +584,7 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<label for="search_user_input"><?php echo uh($translator->{'Search'}); ?></label>
 	<input type="text" name="search_user_input" id="search_user_input" />
+	<img src="/images/icons/icon_help.png" class="helpicon_search_commodity" title="<?php echo htmlspecialchars($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>" />
 
 	<label for="reserve_user_input"><?php echo uh($translator->{'User'}); ?></label>
 	<select style="width:300px;" name="reserve_user_input" id="reserve_user_input">
@@ -616,7 +622,7 @@ function makeUserOptions3($sel=0, $fair) {
 	
 	<label for="apply_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 	<?php if(isset($me)) : ?>
-		<input type="text" name="apply_commodity_input" id="apply_commodity_input" value="<?php echo $me->get('commodity')?>"/>
+		<textarea rows="3" style="height:45px; resize:none;" input type="text" name="apply_commodity_input" id="apply_commodity_input" value="<?php echo $me->get('commodity')?>"/></textarea>
 	<?php else : ?>
 		<input type="text" name="apply_commodity_input" id="apply_commodity_input"/>
 	<?php endif; ?>

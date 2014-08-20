@@ -980,7 +980,7 @@ class ExhibitorController extends Controller {
 				INNER JOIN `fair_user_relation` ON `fair_map`.`fair` = `fair_user_relation`.`fair`
 				WHERE `preliminary_booking`.`user` = ? AND `fair_user_relation`.`user` = ?
 			");
-			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_id"]));
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
 		} else if (userLevel() == 3) {
 			$stmt = $u->db->prepare("SELECT
 				`exhibitor`.`id` AS exhibitor_id,

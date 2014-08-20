@@ -128,19 +128,19 @@
 <?php endif; ?>
 </head>
 <body>
-	<a href="http://www.chartbooker.com/"><img src="images/logo_chartbooker.png" alt="Chartbooker International" id="logo"/></a>
+	<a href="http://www.chartbooker.com/"><img src="images/logo_chartbooker.png" alt="Chartbooker International" id="logo"/></a><p id="logo-text">Fair system v1.3.6</p>
 	<?php
-	if (userLevel() > 0) {
+/*	if (userLevel() > 0) {
 		$me = new User;
 		$me->load($_SESSION['user_id'], 'id');
 		echo '<span id="loggedin_user"><a href="user/accountSettings"><img src="images/icons/icon_logga_in.png" alt=""/>'.reset(explode(' ', $me->get('name'))).'</a></span>';
-	}
+	}*/
 	?>
 	<p id="languages">
-		<a href="translate/language/eng"<?php if (LANGUAGE == 'eng') { echo ' class="selected"'; } ?>><img src="images/flag_gb.png" alt="English"/>&nbsp;&nbsp;English</a>
-		<a href="translate/language/sv"<?php if (LANGUAGE == 'sv') { echo ' class="selected"'; } ?>><img src="images/flag_swe.png" alt="Svenska"/>&nbsp;&nbsp;Svenska</a>
-		<a href="translate/language/de"<?php if (LANGUAGE == 'de') { echo ' class="selected"'; } ?>><img src="images/flag_ger.png" alt="Deutsch"/>&nbsp;&nbsp;Deutsch</a>
-		<a href="translate/language/es"<?php if (LANGUAGE == 'es') { echo ' class="selected"'; } ?>><img src="images/flag_esp.png" alt="Espanol"/>&nbsp;&nbsp;Español</a>
+		<a href="translate/language/eng"<?php if (LANGUAGE == 'eng') { echo ' class="selected"'; } ?>>English&nbsp;&nbsp;<img height="20" width="30" src="images/flag_english.png" alt="English"/></a>
+		<a href="translate/language/sv"<?php if (LANGUAGE == 'sv') { echo ' class="selected"'; } ?>>Svenska&nbsp;&nbsp;<img height="20" width="30" src="images/flag_swedish.png" alt="Svenska"/></a>
+		<a href="translate/language/de"<?php if (LANGUAGE == 'de') { echo ' class="selected"'; } ?>>Deutsch&nbsp;&nbsp;<img height="20" width="30" src="images/flag_german.png" alt="Deutsch"/></a>
+		<a href="translate/language/es"<?php if (LANGUAGE == 'es') { echo ' class="selected"'; } ?>>Español&nbsp;&nbsp;<img height="20" width="30" src="images/flag_spanish.png" alt="Espanol"/></a>
 	</p>
 	<div id="overlay"></div>
 	<div id="confirmBox">
@@ -166,11 +166,11 @@
 				$fairCount = '';
 	
 				if (userLevel() == 1) {
-					echo '<style>
+				/*	echo '<style>
 						#header ul li{background-color:#73d367;}
 						#header ul li a, #header ul li span{background:none; border:0;}
 						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#73d367; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
-					</style>';
+					</style>';*/
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -191,11 +191,11 @@
 					}
 				
 				} else if (userLevel() == 2) {
-					echo '<style>
+				/*	echo '<style>
 						#header ul li{background-color:#82cce4;}
 						#header ul li a, #header ul li span{background:none; border:0;}
 						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#82cce4; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
-					</style>';
+					</style>';*/
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -205,11 +205,11 @@
 						$opts.= '<li><a href="page/loggedin/setFair/'.$res['fair'].'">'.$res['name'].'</a></li>';
 					}
 				} else if (userLevel() == 3) {
-					echo '<style>
+				/*	echo '<style>
 						#header ul li{background-color:#f9c969;}
 						#header ul li a, #header ul li span{background:none; border:0;}
 						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#f9c969; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
-					</style>';
+					</style>';*/
 					$db = new Database;	
 					$stmt = $db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -219,11 +219,11 @@
 						$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['name'].'</a></li>';
 					}
 				} else if (userLevel() == 4) {
-					echo '<style>
+				/*	echo '<style>
 						#header ul li{background-color:#c7c7c7;}
 						#header ul li a, #header ul li span{background:none; border:0;}
 						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#c7c7c7; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
-					</style>';
+					</style>';*/
 					$db = new Database;
 					$stmt = $db->prepare("SELECT COUNT(*) AS fairs FROM fair WHERE approved = ?");
 					$stmt->execute(array(0));

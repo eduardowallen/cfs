@@ -1,24 +1,33 @@
 #header {
 	height:35px;
 	padding-top:9px;
-	background:url("../images/top_bar_slice.png") repeat-x;
+	background:#3c3c3c;
 	text-align:center;
 }
 img#logo {
 	position:absolute;
-	left:21px;
+	right:120px;
 	top:7px;
+}
+#logo-text {
+	display:inline-block;
+	float:right;
+	clear:right;
+	color:#FFFFFF;
+	font-weight:bold;
+	margin-top: 15px;
+	margin-right: 10px;
 }
 #loggedin_user {
 	position:absolute;
-	right:150px;
+	left:50px;
 	top:15px;
 	font-weight:bold;
 	width:150px;
 	text-align:right;
 }
 #loggedin_user a {
-	color:#000000;
+	color:#FFFFFF;
 	text-decoration:none;
 }
 #loggedin_user img {
@@ -34,18 +43,22 @@ img#logo {
 	margin:0;
 	height:31px;
 	overflow:hidden;
+	font-weight:bold;
+	display:inline-block;
+	margin-top: -7px;
 }
 #languages:hover {
 	height:124px;
 }
 #languages a {
+	font-size: 1.2em;
 	display:block;
 	height:23px;
 	padding-top:8px;
 	text-align:center;
-	width:110px;
-	color:#000000;
-	background:#e4e4e4;
+	width:120px;
+	color:#FFFFFF;
+	background:#3c3c3c;
 	text-decoration:none;
 	text-transform:uppercase;
 	cursor:pointer;
@@ -53,10 +66,10 @@ img#logo {
 #languages a:hover {
 	background:#cccccc;
 }
-#languages a:first-child {
+/*#languages a:first-child {
 	border-top-right-radius:7px;
 	border-top-left-radius:7px;
-}
+}*/
 #fair_select {
 	/*position:absolute;
 	left:50%;
@@ -87,14 +100,18 @@ img#logo {
 	padding-top:0px;
 	text-align:center;
 	width:150px;
-	border:1px solid #e4e4e4;
-	color:#000000;
-	background:#cfcfcf;
-	border-top-right-radius:7px;
-	border-top-left-radius:7px;
+	color:#FFFFFF;
+	background:#3c3c3c;
+	font-size: 1.2em;
+/*	border-top-right-radius:7px;
+	border-top-left-radius:7px;*/
+	font-weight:bold;
 	text-decoration:none;
 	text-transform:uppercase;
 	cursor:pointer;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 }
 #header ul li img {
 	vertical-align:middle;
@@ -103,6 +120,8 @@ img#logo {
 #header ul li a:hover, #header ul li span:hover {
 	background:#ffffff;
 	color:#168912;
+	text-overflow: clip;
+	position:relative;
 }
 #header ul li ul {
 	display:none;
@@ -384,6 +403,15 @@ max-width:700px !important;
   margin: 0;
   padding: 0;
   vertical-align: middle;
+}
+
+.helpicon_search_commodity{
+	margin-bottom:-5px;
+	margin-left: 5px;
+}
+
+.helpicon_map {
+	margin-bottom: -5px;
 }
 
 .languages {

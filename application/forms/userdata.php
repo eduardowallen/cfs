@@ -22,7 +22,7 @@
 
 
 <?php if(isset($popup)) : ?>
-  <img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:-17px 0 0 764px;"/>
+  <img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="position:absolute; margin-left:90.4%"/>
 <?php else: ?>
   <h1><?php echo $headline; ?></h1>
 
@@ -31,6 +31,9 @@
   
   <div class="form_column">
     <h3><?php echo htmlspecialchars($translator->{'Company'}); ?></h3>
+	
+    <label for="email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
+    <input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>	
     
     <label for="orgnr"><?php echo htmlspecialchars($translator->{'Organization number'}); ?> *</label>
     <input type="text" name="orgnr" id="orgnr" value="<?php echo $user->get('orgnr'); ?>"/>
@@ -75,9 +78,6 @@
     <label for="fax"><?php echo htmlspecialchars($translator->{'Fax number'}); ?></label>
     <input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
           
-    <label for="email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
-    <input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
-          
     <label for="website"><?php echo htmlspecialchars($translator->{'Website'}); ?></label>
     <input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
 	
@@ -95,6 +95,9 @@
             
     <input type="checkbox" id="copy"/>
     <label class="inline-block" for="copy"><?php echo htmlspecialchars($translator->{'Copy from company details'}); ?></label>
+	
+    <label for="invoice_email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
+    <input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>	
           
     <label for="invoice_company"><?php echo htmlspecialchars($translator->{'Company'}); ?> *</label>
     <input type="text" name="invoice_company" id="invoice_company" value="<?php echo $user->get('invoice_company'); ?>"/>
@@ -118,15 +121,12 @@
 			<?php endif?>
 		<?php endforeach; ?>
 		</select>
-          
-    <label for="invoice_email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
-    <input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
 
     <?php
       if(isset($popup)):
     ?>
         <div style="margin-top:40px;">
-          <label for="presentation"><?php echo htmlspecialchars($translator->{'Presentation'}); ?></label>
+          <label for="presentation"><?php echo htmlspecialchars($translator->{'Presentation (this is what will be shown to your customers)'}); ?></label>
           <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
         </div>
 		
@@ -134,7 +134,7 @@
     <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
   </p>
     <?php else: ?>
-        <label for="presentation"<?php echo (userLevel()==0?' style="margin-top:50px;"':''); ?>><?php echo htmlspecialchars($translator->{'Presentation'}); ?></label>
+        <label for="presentation"<?php echo (userLevel()==0?' style="margin-top:50px;"':''); ?>><?php echo htmlspecialchars($translator->{'Presentation (this is what will be shown to your customers)'}); ?></label>
         <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation'); ?>
         <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
   <p>

@@ -11,7 +11,7 @@ $(document).ready(function()  {
 function prepFormChecker() {
 	$("form #email").data('valid', true);
 	$("form #email").tooltip();
-	$("form #email").keyup(function() {
+	$("form #email").keydown(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
@@ -46,7 +46,7 @@ function prepFormChecker() {
 		}
 	});
 
-	$("#alias").on("keyup", function () {
+	$("#alias").on("keydown", function () {
 		var $input = $(this);
 
 		$input.data('valid', true);
@@ -85,7 +85,7 @@ function prepFormChecker() {
 
 	$("form #invoice_email").data('valid', true);
 	$("form #invoice_email").tooltip();
-	$("form #invoice_email").keyup(function() {
+	$("form #invoice_email").keydown(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
@@ -121,7 +121,7 @@ function prepFormChecker() {
 	});
 	
 	$("form #contact_email").data('valid', true);
-	$("form #contact_email").keyup(function() {
+	$("form #contact_email").keydown(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);

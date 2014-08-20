@@ -34,7 +34,7 @@ if (!function_exists('__autoload')) {
 }
 
 if (!defined('LANGUAGE')) {
-	define('LANGUAGE', 'eng');
+	define('LANGUAGE', 'sv');
 }
 
 $globalDB = new Database;
@@ -90,8 +90,10 @@ foreach ($expiring_positions as $position) {
 
 	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com', $position->fair_name);
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
-	$mail->setMailVar('name', $position->user_name);
-	$mail->setMailVar('stand_space_name', $position->position_name);
+	$mail->setMailVar('event_name', $position->fair_name);
+	$mail->setMailVar('url', BASE_URL . $position->url);
+	$mail->setMailVar('exhibitor_name', $position->user_name);
+	$mail->setMailVar('position_name', $position->position_name);
 	$mail->setMailVar('date_expires', $position->expires);
 	$mail->setMailVar('days_until_expiration', $position->diff);
 	$mail->send();
@@ -104,8 +106,10 @@ foreach ($expiring_positions as $position) {
 
 	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . '@chartbooker.com', $position->fair_name);
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
-	$mail->setMailVar('name', $position->user_name);
-	$mail->setMailVar('stand_space_name', $position->position_name);
+	$mail->setMailVar('event_name', $position->fair_name);
+	$mail->setMailVar('url', BASE_URL . $position->url);
+	$mail->setMailVar('exhibitor_name', $position->user_name);
+	$mail->setMailVar('position_name', $position->position_name);
 	$mail->setMailVar('date_expires', $position->expires);
 	$mail->setMailVar('days_until_expiration', $position->diff);
 	$mail->send();

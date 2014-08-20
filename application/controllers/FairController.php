@@ -266,9 +266,9 @@ class FairController extends Controller {
 
 					if ($userLevel === "3") {
 				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-				    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+					$mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+					$mail->setMailVar('company', $user->get('company'));
 					$mail->setMailVar('event_name', $this->Fair->get('name'));
-				    $mail->setMailVar('company', $user->get('company'));
 				    $mail->send();
 				  }
 
@@ -549,9 +549,10 @@ class FairController extends Controller {
 
 				if ($userLevel === "3") {
 				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-				    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
-				    $mail->setMailVar('company', $user->get('company'));
-				    $mail->send();
+					$mail->setMailVar('url', BASE_URL.$fair_clone->get('url'));
+					$mail->setMailVar('company', $user->get('company'));
+					$mail->setMailVar('event_name', $fair_clone->get('name'));
+					$mail->send();
 				}
 
 				header("Location: ".BASE_URL."fair/overview/cloning_complete");

@@ -25,8 +25,8 @@ function reservePopup($row, link, action) {
 	$('.' + action, dialogue).show();
 	$('.closeDialogue', dialogue).click(closeDialogue);
 	dialogue.css('display', 'block');
-	$('#overlay').show();
 	open_dialogue = dialogue;
+	$('#overlay').show();
 
 	var catArr = ($row.data("categories") + "").split("|");
 	var optArr = ($row.data("options") + "").split("|");
@@ -34,7 +34,7 @@ function reservePopup($row, link, action) {
 
 	$('#reserve_category_scrollbox input').prop('checked', false);
 	for (i = 0; i < catArr.length; i++) {
-		$('#reserve_category_scrollbox input[value=' + catArr[i] + ']').prop('checked', true);
+		$('#reserve_category_scrollbox input[value=\'' + catArr[i] + '\']').prop('checked', true);
 	}
 
 	$('#reserve_option_scrollbox input').prop('checked', false);
@@ -47,7 +47,7 @@ function reservePopup($row, link, action) {
 	$('#reserve_id').val($row.data('id'));
 	$('#reserve_user').text($row.data("company"));
 	$('#reserve_commodity_input').val($row.data("commodity"));
-	$('#reserve_message_input').val($row.data("message"));
+	$('#reserve_message_input').val($row.data("message"));	
 
 	if (action == 'edit') {
 		$('#reserve_expires_input').val($row.data("expires").replace(/ GMT[+-]\d*/, ''));
@@ -179,7 +179,7 @@ function positionDialogue(id) {
 	var popupMaxWidth = Math.max(448, viewportWidth * .47);
 	var popupMaxHeight = Math.max(328, viewportHeight * .90);
 
-	//Exeptions to width and height
+	//Exceptions to width and height
 	switch (id) {
 		case "showUserDialogue":
 			popupMaxWidth = Math.max(950, viewportWidth * .70);
@@ -188,12 +188,19 @@ function positionDialogue(id) {
 		case "edit_position_dialogue":
 		case "book_position_dialogue":
 		case "reserve_position_dialogue":
-		case "more_info_dialogue":
 		case "apply_mark_dialogue":
 			popupMaxWidth = 400;
 			break;
 		case "preliminaryConfirm":
 			popupMaxWidth = Math.max(550, viewportWidth * .30);
+			break;
+		case "more_info_dialogue":
+			popupMaxWidth = 600;
+			break;
+		case "preliminary_bookings_dialogue":
+			popupMaxWidth = Math.max(900, viewportWidth * .70);
+			popupMaxHeight = Math.max(328, viewportHeight * .90);
+			popupMaxWidth = 800;
 			break;
 	}
 
@@ -376,7 +383,8 @@ var bookingOptions = {
 
 		var $this = $(this);
 		var $span = $this.parent().children(".optionText");
-		var text = $span.text();
+		var $input = $this.parent().children(".optionTextHidden");
+		var text = $input.val();
 
 		$span.attr("title", "");
 
@@ -619,8 +627,8 @@ $(document).ready(function() {
 				$('#popupformTwo').remove();
 				$('#overlay').hide();
 			});
-			if(popupform.width() > 760){
-				popupform.css('width', 760);		
+			if(popupform.width() > 800){
+				popupform.css('width', 800);		
 			}
 			popupform.css('left', '50%');
 			popupform.css('margin-left', (popupform.width() + 48)/-2);
@@ -634,12 +642,12 @@ $(document).ready(function() {
 	$('.helpOrgLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
-			url : 'page/help',
+			url : 'page/help_organizer',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupform" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
+			var html = '<div id="popupformTwo" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
 			$('body').append(html);
-			var popupform = $('#popupform');
+			var popupform = $('#popupformTwo');
 			
 			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
 			var closeButton = $('.closeDialogue');
@@ -647,11 +655,11 @@ $(document).ready(function() {
 			$('.closeDialogue').click(function(){
 				$(this).off('click');
 				$(this).remove();
-				$('#popupform').remove();
+				$('#popupformTwo').remove();
 				$('#overlay').hide();
 			});
-			if(popupform.width() > 760){
-				popupform.css('width', 760);		
+			if(popupform.width() > 800){
+				popupform.css('width', 800);		
 			}
 			popupform.css('left', '50%');
 			popupform.css('margin-left', (popupform.width() + 48)/-2);

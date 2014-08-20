@@ -12,6 +12,7 @@ function hookUpPasswdMeter() {
 		input.after(meter);
 		
 		meter.css({
+			paddingRight: '5px',
 			paddingLeft: '10px',
 			fontWeight: 'bold'
 		});
@@ -38,16 +39,16 @@ function hookUpPasswdMeter() {
 			}
 			
 			if (strength > 4) {
-				meter.css('color', 'green').text('Super strong');
+				meter.css('color', 'green').text(lang.passwd_superstrong);
 				$(this).css('border', 'solid 1px #00FF00')
 			} else if (strength > 3) {
-				meter.css('color', 'green').text('Strong');
+				meter.css('color', 'green').text(lang.passwd_strong);
 				$(this).css('border', 'solid 1px #00FF00')
 			} else if (strength > 2) {
-				meter.css('color', 'orange').text('Medium');
+				meter.css('color', 'orange').text(lang.passwd_medium);
 				$(this).css('border', 'solid 1px #FF0000')
 			} else {
-				meter.css('color', 'red').text('Weak');
+				meter.css('color', 'red').text(lang.passwd_weak);
 				$(this).css('border', 'solid 1px #FF0000')
 			}
 			

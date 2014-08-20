@@ -246,6 +246,7 @@ input[type=button], input[type=submit], .td_button, .link-button {
 .link-button {
 	display: inline-block;
 	text-decoration: none;
+	margin-bottom: 10px;
 }
 
 .td_button_disabled a {
@@ -293,6 +294,9 @@ textarea {
 	font-size: 17px;
 	color: #fff;
 	cursor: pointer;
+}
+.export-group label {
+	font-weight: 200;
 }
 
 .button {
