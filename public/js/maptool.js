@@ -2477,8 +2477,7 @@ maptool.Grid = (function() {
 		$maptoolbox.toggleClass('minimized');
 
 		if ($maptoolbox.hasClass("minimized")) {
-			maptoolbox.style.top = "";
-			maptoolbox.style.bottom = 0;
+			maptoolbox.style.top = 0;
 			maptoolbox.style.left = "20px";
 
 			maptoolboxHeader.off("mousedown", toolboxStartMove);
@@ -2487,7 +2486,6 @@ maptool.Grid = (function() {
 				minimize.setAttribute("title", "Maximize");
 			}, 500);
 		} else {
-			maptoolbox.style.bottom = "";
 			maptoolbox.style.left = toolboxmove.element_start_x + "px";
 			maptoolbox.style.top = toolboxmove.element_start_y + "px";
 
