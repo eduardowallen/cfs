@@ -2242,8 +2242,7 @@ maptool.Grid = (function() {
 		$maptoolbox.toggleClass('minimized');
 
 		if ($maptoolbox.hasClass("minimized")) {
-			maptoolbox.style.top = "";
-			maptoolbox.style.bottom = 0;
+			maptoolbox.style.top = 0;
 			maptoolbox.style.left = "20px";
 
 			maptoolboxHeader.off("mousedown", toolboxStartMove);
@@ -2252,7 +2251,6 @@ maptool.Grid = (function() {
 				minimize.setAttribute("title", "Maximize");
 			}, 500);
 		} else {
-			maptoolbox.style.bottom = "";
 			maptoolbox.style.left = toolboxmove.element_start_x + "px";
 			maptoolbox.style.top = toolboxmove.element_start_y + "px";
 
@@ -2946,6 +2944,61 @@ maptool.init = function(mapId) {
 		}, 1000);
 	}
 }
+
+maptool.Touch = (function() {
+	function pinchListener(e) {
+		var scale = e.scale;
+
+		if (scale < 1) {
+			scale = Math.abs(scale / 50 - 1);
+		} else {
+			scale = scale / 100 + 1;
+		}
+
+		var new_zoomlevel = Math.min(config.maxZoom, scale * maptool.map.zoomlevel);
+		maptool.zoomAdjust({
+			originalEvent: {
+				pageX: e.center.x,
+				pageY: e.center.y
+			}
+		}, new_zoomlevel);
+	}
+
+	function panListener(e) {
+		moveMap({
+			stopPropagation: function() {},
+			preventDefault: function() {},
+			pageX: e.deltaX,
+			pageY: e.deltaY
+		});
+	}
+
+	function panStartListener(e) {
+		start.x = e.deltaX;
+		start.y = e.deltaY;
+	}
+
+	$(function() {
+		var mc = new Hammer.Manager($('#mapHolder')[0]);
+		mc.add(new Hammer.Pinch());
+		mc.add(new Hammer.Pan());
+
+		mc.on('pinchstart', function(e) {
+			$('.marker, #focus_arrow').hide();
+		});
+
+		mc.on('pinchend', function(e) {
+			$('.marker, #focus_arrow').show();
+			maptool.adjustZoomMarker();
+			maptool.reCalculatePositions();
+		});
+
+		mc.on('pinchmove', pinchListener);
+
+		mc.on('panstart', panStartListener);
+		mc.on('pan', panListener);
+	});
+}());
 
 //Event handlers
 $(document).ready(function() {

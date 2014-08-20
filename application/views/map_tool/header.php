@@ -22,6 +22,7 @@
 <script type="text/javascript" src="js/jquery.tablesorter.min.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/chartbooker.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/mobilecheck.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/hammer.min.js?ver=2.0.2"></script>
 <script type="text/javascript" src="js/maptool.js<?php echo $unique?>"></script>
 <script src="js/jquery.placeholder.js"></script>
 <script language="javascript" type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
