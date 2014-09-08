@@ -2965,17 +2965,21 @@ maptool.Touch = (function() {
 	}
 
 	function panListener(e) {
-		moveMap({
-			stopPropagation: function() {},
-			preventDefault: function() {},
-			pageX: e.deltaX,
-			pageY: e.deltaY
-		});
+		if (e.pointerType !== 'mouse') {
+			moveMap({
+				stopPropagation: function() {},
+				preventDefault: function() {},
+				pageX: e.deltaX,
+				pageY: e.deltaY
+			});
+		}
 	}
 
 	function panStartListener(e) {
-		start.x = e.deltaX;
-		start.y = e.deltaY;
+		if (e.pointerType !== 'mouse') {
+			start.x = e.deltaX;
+			start.y = e.deltaY;
+		}
 	}
 
 	$(function() {
