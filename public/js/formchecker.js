@@ -11,7 +11,7 @@ $(document).ready(function()  {
 function prepFormChecker() {
 	$("form #email").data('valid', true);
 	$("form #email").tooltip();
-	$("form #email").keydown(function() {
+	$("form #email").keyup(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);

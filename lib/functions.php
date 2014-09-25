@@ -90,9 +90,9 @@ function sendMail($to, $subject, $msg, $from='') {
 	/*mail($to, $subject, $msg, 'From:Chartbooker<no-reply@chartbooker.com>');
 	return;*/
 
-	// If the code runs on testserver, send ALL emails to example@chartbooker.com!
+	// If the code runs on testserver, send ALL emails to example@chartbooking.com!
 	if (defined('TESTSERV') && TESTSERV) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
 
 	require_once ROOT.'lib/Swift-4.1.7/swift_required.php';
@@ -123,9 +123,9 @@ function sendMail($to, $subject, $msg, $from='') {
 //  send images as part of the mail.
 function sendMailHTML($to, $subject, $msg, $from='') {
 
-	// If the code runs on testserver, send ALL emails to example@chartbooker.com!
+	// If the code runs on testserver, send ALL emails to example@chartbooking.com!
 	if (defined('TESTSERV') && TESTSERV) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
 
 	require_once ROOT.'lib/Swift-4.1.7/swift_required.php';

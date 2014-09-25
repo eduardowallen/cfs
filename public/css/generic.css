@@ -170,6 +170,9 @@ input[type="button"].closeDialogue {
 
 .ui-tooltip {
 	z-index: 99999;
+	border: 2px solid #FF0000;
+	background: url('images/ui-bg_flat_75_ffffff_40x100.png') repeat-x scroll 50% 100% #FFF;
+	color: #222;
 }
 
 h1 {

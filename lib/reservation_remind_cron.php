@@ -85,7 +85,7 @@ foreach ($expiring_positions as $position) {
 	// Send mail to exhibitor
 	$to = $position->exhibitor_email;
 	if (defined('TESTSERV')) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
 
 	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com', $position->fair_name);
@@ -101,7 +101,7 @@ foreach ($expiring_positions as $position) {
 	// Send mail to organizer
 	$to = $position->organizer_email;
 	if (defined('TESTSERV')) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
 
 	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . '@chartbooker.com', $position->fair_name);

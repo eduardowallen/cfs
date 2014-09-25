@@ -39,7 +39,7 @@ function preHover(id){
 	//if( ! isNaN(id) ){
 		setTimeout(function() {
 			$('#info-' + id).show();
-		}, 1000);
+		}, 2000);
 	//}
 }
 
@@ -1308,11 +1308,11 @@ maptool.editBooking = function(positionObject) {
 }
 
 maptool.cancelBooking = function(positionObject) {
-	if (confirm(lang.cancel_booking_confirm_text)) {
+	if (prompt(lang.cancelBookingComment, '') && (confirm(lang.cancel_booking_confirm_text + ' ' + positionObject.name + '?'))) {
 		$.ajax({
 			url: 'ajax/maptool.php',
 			type: 'POST',
-			data: 'cancelBooking=' + positionObject.id + '&comment=' + prompt(lang.cancelBookingComment, ''),
+			data: 'cancelBooking=' + positionObject.id + '&comment=',
 			success: function(response) {
 				maptool.update();
 			}
