@@ -120,7 +120,7 @@
 <?php endif; ?>
 </head>
 <body>
-	<a href="http://www.chartbooker.com/"><img src="images/logo_chartbooker.png" alt="Chartbooker International" id="logo"/></a><p id="logo-text">Fair system v1.3.6</p>
+	<a href="http://www.chartbooker.com/"><img src="images/logo_chartbooker.png" alt="Chartbooker International" id="logo"/></a><p id="logo-text">Fair system v<?php echo APP_VERSION; ?></p>
 	<?php
 /*	if (userLevel() > 0) {
 		$me = new User;
