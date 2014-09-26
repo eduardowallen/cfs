@@ -6,6 +6,7 @@ $column_info = array(
 		'status' => $translator->{'Status'},
 		'position' => $translator->{'Stand'},
 		'area' => $translator->{'Area'},
+		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
 		'booking_time' => $translator->{'Time of booking'},

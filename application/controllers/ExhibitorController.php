@@ -598,7 +598,8 @@ class ExhibitorController extends Controller {
 						exhibitor.*, 
 						pos.name AS position, 
 						pos.status, 
-						pos.area
+						pos.area,
+						pos.information
 					FROM exhibitor, user, fair_map_position AS pos 
 					WHERE exhibitor.fair = ?
 						AND exhibitor.position = pos.id
@@ -649,6 +650,7 @@ class ExhibitorController extends Controller {
 				'status' => $this->translate->{'Status'},
 				'position' => $this->translate->{'Stand'},
 				'area' => $this->translate->{'Area'},
+				'information' => $this->translate->{'Information about stand space'},
 				'commodity' => $this->translate->{'Trade'},
 				'extra_options' => $this->translate->{'Extra options'},
 				'booking_time' => $this->translate->{'Time of booking'},

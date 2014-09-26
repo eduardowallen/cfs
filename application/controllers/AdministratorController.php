@@ -261,17 +261,17 @@ class AdministratorController extends Controller {
 			$u->load($_SESSION['user_id'], 'id');
 
 			if ($tbl == 1) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair'], 2));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 2) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair'], 1));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 3) {
-				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.name AS position, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			}
@@ -342,6 +342,7 @@ class AdministratorController extends Controller {
 				'status' => $this->translate->{'Status'},
 				'position' => $this->translate->{'Stand'},
 				'area' => $this->translate->{'Area'},
+				'information' => $this->translate->{'Information about stand space'},
 				'commodity' => $this->translate->{'Trade'},
 				'extra_options' => $this->translate->{'Extra options'},
 				'booking_time' => $this->translate->{'Time of booking'},
