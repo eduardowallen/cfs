@@ -58,7 +58,7 @@ class SmsController extends Controller {
 		}
 
 		try {
-			if (!isset($_POST['sms_text'])) {
+			if (!isset($_POST['sms_text']) || $_POST['sms_text'] == '') {
 				throw new Exception('You must provide a SMS text.', 1);
 			}
 
