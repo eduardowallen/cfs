@@ -67,7 +67,7 @@ function prepFormChecker() {
 				},
 				dataType: "json",
 				success: function (response) {
-					if (response.aliasExists) {
+					if (response.aliasExists || !/^[a-z-_0-9]+$/.test($input.val())) {
 						$input.prop("title", lang.alias_exists_label);
 						$input.tooltip("open");
 						$input.css("border", "1px solid red");
