@@ -211,7 +211,11 @@ function prepFormChecker() {
 						$(this).css("color", "red");
 						errors.push($(this).attr("for"));
 					}
-					
+
+					if (input.hasClass('phone-val') && !/^\+?[\d]{5,20}$/.test(input.val())) {
+						$(this).css("color", "red");
+						errors.push($(this).attr("for"));
+					}
 				}
 				
 			}

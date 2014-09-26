@@ -70,10 +70,10 @@
     </select>
 
     <label for="phone1"><?php echo htmlspecialchars($translator->{'Phone 1'}); ?> *</label>
-    <input type="text" name="phone1" id="phone1" value="<?php echo $user->get('phone1'); ?>"/>
+    <input type="text" name="phone1" id="phone1" class="phone-val" value="<?php echo $user->get('phone1'); ?>"/>
           
     <label for="phone2"><?php echo htmlspecialchars($translator->{'Phone 2'}); ?></label>
-    <input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
+    <input type="text" name="phone2" id="phone2" class="phone-val" value="<?php echo $user->get('phone2'); ?>"/>
           
     <label for="fax"><?php echo htmlspecialchars($translator->{'Fax number'}); ?></label>
     <input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
@@ -155,10 +155,10 @@
     <input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
      
     <label for="phone3"><?php echo htmlspecialchars($translator->{'Contact Phone'}); ?> *</label>
-    <input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
+    <input type="text" name="phone3" id="phone3" class="phone-val" value="<?php echo $user->get('contact_phone'); ?>"/>
 
     <label for="phone4"><?php echo htmlspecialchars($translator->{'Contact Phone 2'}); ?></label>
-    <input type="text" name="phone4" id="phone4" value="<?php echo $user->get('contact_phone2'); ?>"/>
+    <input type="text" name="phone4" id="phone4" class="phone-val" value="<?php echo $user->get('contact_phone2'); ?>"/>
 
     <label for="contact_email"><?php echo htmlspecialchars($translator->{'Contact Email'}); ?> *</label>
     <input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
@@ -167,7 +167,7 @@
     <label for="password"><?php echo htmlspecialchars($translator->{'Password'}); ?> *</label>
     <input type="password" name="password" id="password" class="hasIndicator"/>
 	<img src="/images/icons/icon_help.png" class="helpicon_map" title="<?php echo htmlspecialchars($translator->{'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.'}); ?>" />
-          
+
     <label for="password_repeat"><?php echo htmlspecialchars($translator->{'Password again (repeat to confirm)'}); ?> *</label>
     <input type="password" name="password_repeat" id="password_repeat"/>
 		  
