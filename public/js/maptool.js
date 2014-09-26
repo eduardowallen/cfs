@@ -1346,7 +1346,6 @@ maptool.cancelBooking = function(positionObject) {
 		}
 	}
 }
-var count;
 
 //Reserve open position
 maptool.reservePosition = function(positionObject) {
