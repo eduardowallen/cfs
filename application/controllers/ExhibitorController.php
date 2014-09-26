@@ -284,6 +284,10 @@ class ExhibitorController extends Controller {
 			}
 		}
 
+		if (userLevel() == 4 && $fairId == 0) {
+			$fairId = $_SESSION['user_fair'];
+		}
+
 		$this->set('headline', 'Exhibitor overview');
 		$this->set('create_link', 'Create new exhibitor');
 		$this->set('th_status', 'Status');

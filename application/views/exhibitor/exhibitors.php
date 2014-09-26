@@ -70,7 +70,7 @@ $column_info = array(
 
 	<form action="exhibitor/export2/<?php echo $fairId; ?>" method="post">
 		<div class="floatright right">
-			<button type="submit" class="open-sms-send" name="send_sms" data-for="exhibitors_list" data-fair="<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($send_sms_label); ?></button><br />
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="exhibitors_list" data-fair="<?php echo $fairId; ?>"><?php echo uh($send_sms_label); ?></button><br />
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="exhibitors_list"><?php echo uh($export_button); ?></button>
 		</div>
 
