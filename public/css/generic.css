@@ -78,6 +78,10 @@ a:hover {
 	z-index:10001;
 }
 
+#content h2.clear {
+	margin-top: 16px;
+}
+
 .dialogue h3 {
 	width:90%;
 	word-wrap:break-word;
@@ -393,7 +397,7 @@ textarea {
 	position: relative;
 	overflow: auto;
 	max-height: 400px;
-	border-bottom: 1px solid #000;
+/*	border-bottom: 1px solid #000;*/
 	width: 100%;
 }
 

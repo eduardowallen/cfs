@@ -579,7 +579,7 @@ h1.inline-block {
 
 input.dialogueInput{width:300px;}
 
-.commentList{width:300px; float:left;}
+.commentList{width:370px; clear:both; overflow-y:auto; overflow-x:hidden;}
 .commentList ul, .comment ul{display:block; margin:0; padding:0;}
-.commentList ul li, .comment ul li{display:block; margin:0; padding:0;}
+.commentList ul li, .comment ul li{display:block; margin:0; padding:0; word-break:break-all;}
 .comment{border-top:1px solid #000; margin-top:5px; padding:5px 10px 10px 0px;}
