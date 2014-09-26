@@ -277,9 +277,8 @@ maptool.placeMarkers = function() {
 			left: xMargin + 'px',
 			top: yMargin + 'px'
 		});
-		
-		var d = new Date();
-		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id && ((Math.round(d.getTime() / 1000) - maptool.map.positions[i].edit_started) < 60*20)) {
+
+		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id) {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
 

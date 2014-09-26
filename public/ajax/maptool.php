@@ -145,6 +145,14 @@ if (isset($_POST['init'])) {
 
 		}
 
+		// If this position has been edited for a very long time, reset the flags!
+		// Maybe the user just shut down the page or some error occured?
+		if ($pos->get('being_edited') > 0 && $pos->get('edit_started')+60*3 < time()) {
+			$pos->set('being_edited', 0);
+			$pos->set('edit_started', 0);
+			$pos->save();
+		}
+
 		$length = array_push($ret["positions"], array(
 			'id' => $pos->get('id'),
 			'x' => $pos->get('x'),
