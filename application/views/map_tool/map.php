@@ -330,10 +330,13 @@ function makeUserOptions3($sel=0, $fair) {
 
 <?php if (!isset($_SESSION['user_level']) && (!isset($_SESSION['visitor']) || !$_SESSION['visitor'])): ?>
 <div id="nouser_dialogue" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>
-	<img src="images/button_icons/Chartbooker Fair System Logotype.png" alt="" class="nouser_cfslogo" style="margin: 0 0 0 5px;"></img>
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;" />
+	<img src="images/button_icons/Chartbooker Fair System Logotype.png" alt="" class="nouser_cfslogo" style="margin: 0 0 0 5px;" />
 	<div id="inner">
-		<p class="center"><span style="color:#116734;text-align:center;font-size:18px; font-weight:bold;"><strong><?php echo ($translator->{'To use this service you need an account:'}); ?></div></p></span></strong>
+		<p class="center">
+			<strong style="color:#116734;text-align:center;font-size:18px; font-weight:bold;"><?php echo ($translator->{'To use this service you need an account:'}); ?></strong>
+		</p>
+	</div>
 
 	<div class="clear floatleft panel">
 		<p class="right"><a href="user/login" id="open_loginform" class="link-button"><span style="font-weight:bold;"><?php echo uh($translator->{'I already have an account'}); ?></a></span></p>
@@ -357,9 +360,10 @@ function makeUserOptions3($sel=0, $fair) {
 		<p><a href="user/register" class="link-button registerlink"><span style="font-weight:bold;"><?php echo uh($translator->{'Register new account'}); ?></a></span></p>
 		<p></p>
 		<p>
-          <a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>">
-        <span style="color:#116734; font-size:14px; font-weight:bold;">
-        <?php echo uh($translator->{"Forgot your password?"}); ?></a></span></p>
+			<a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>">
+				<span style="color:#116734; font-size:14px; font-weight:bold;"><?php echo uh($translator->{"Forgot your password?"}); ?></span>
+			</a>
+		</p>
 	</div>
 </div>
 
