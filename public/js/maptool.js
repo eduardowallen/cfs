@@ -1331,15 +1331,19 @@ maptool.editBooking = function(positionObject) {
 }
 
 maptool.cancelBooking = function(positionObject) {
-	if (prompt(lang.cancelBookingComment, '') && (confirm(lang.cancel_booking_confirm_text + ' ' + positionObject.name + '?'))) {
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: 'cancelBooking=' + positionObject.id + '&comment=',
-			success: function(response) {
-				maptool.update();
-			}
-		});
+	var comment = prompt(lang.cancelBookingComment, '');
+
+	if (comment !== null) {
+		if (confirm(lang.cancel_booking_confirm_text + ' ' + positionObject.name + '?')) {
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: 'cancelBooking=' + positionObject.id + '&comment=' + comment,
+				success: function(response) {
+					maptool.update();
+				}
+			});
+		}
 	}
 }
 var count;
