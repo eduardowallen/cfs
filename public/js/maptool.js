@@ -3118,7 +3118,7 @@ $(document).ready(function() {
 		} else if (isiPad) {
 
 		} else {
-			maptool.reload();
+			maptool.placeMarkers();
 		}
 	});
 	
