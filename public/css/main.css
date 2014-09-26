@@ -89,9 +89,10 @@ img#logo {
 	vertical-align:top;
 	text-align:center;
 }
-#header ul li {
+#header > ul > li {
 	display:inline-block;
 	vertical-align:top;
+	width: 150px;
 }
 #header ul li a, #header ul li span {
 	display:block;
@@ -99,7 +100,6 @@ img#logo {
 	line-height:31px;
 	padding-top:0px;
 	text-align:center;
-	width:150px;
 	color:#FFFFFF;
 	background:#3c3c3c;
 	font-size: 1.2em;
@@ -109,9 +109,6 @@ img#logo {
 	text-decoration:none;
 	text-transform:uppercase;
 	cursor:pointer;
-	overflow: hidden;
-	white-space: nowrap;
-	text-overflow: ellipsis;
 }
 #header ul li img {
 	vertical-align:middle;
@@ -130,7 +127,7 @@ img#logo {
 }
 #header ul li:hover ul {
 	display:block;
-	position:relative;
+	position:absolute;
 	z-index:99999;
 }
 #header ul li ul li {
@@ -138,8 +135,10 @@ img#logo {
 	border-top:2px solid #ffffff;
 }
 #header ul li ul li a, #header ul li ul li span {
+	padding: 0 5px;
 	border-top-right-radius:0px;
 	border-top-left-radius:0px;
+	text-align: left;
 }
 #header ul li .icon {
 	/*padding-left:32px;
