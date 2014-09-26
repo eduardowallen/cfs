@@ -107,12 +107,12 @@ $column_info = array(
 					?>
 					</td>
 					<td class="center"><?php echo $pos['phone1']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><?php echo $pos['name']; ?></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><?php echo $pos['name']; ?></a></td>
 					<td class="center"><?php echo $pos['email']; ?></td>
 					<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>
 					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt="" title="<?php echo $th_view; ?>" /></a></td>
 					<?php if (userLevel() > 0): ?>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>
 				
 					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" data-userid="<?php echo $pos['id']; ?>" checked="checked" /></td>
 					<?php endif; ?>
