@@ -186,13 +186,3 @@
 <?php else: ?>
 <p><?php echo $no_bookings_label; ?></p>
 <?php endif; ?>
-
-<?php /*
-<form action="exhibitor/profile/<?php echo $user->get('id'); ?>" method="post">
-	<h3><?php echo $ban_section_header ?></h3>
-	<label for="ban_msg"><?php echo $ban_msg_label ?></label>
-	<textarea name="ban_msg" id="ban_msg"></textarea>
-	<p><!--input type="submit" name="ban_save" value="<?php echo $ban_save ?>"/-->
-			<div type="submit" name="ban_save"  ><?php echo $ban_save ?></div></p>
-</form>
-*/ ?>

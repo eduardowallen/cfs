@@ -1033,7 +1033,6 @@ class ExhibitorController extends Controller {
 		// $positions contains this exhibitor's all bookings
 		$positions = array();
 
-		//foreach($u->getPreliminaries() as $prel) {
 		while (($res = $stmtPreliminary->fetch(PDO::FETCH_ASSOC))) {
 			$positions[] = $res;
 		}
@@ -1073,21 +1072,6 @@ class ExhibitorController extends Controller {
 
 		$same_fair_positions = array_merge($stmt->fetchAll(PDO::FETCH_ASSOC), $stmtPreliminary->fetchAll(PDO::FETCH_ASSOC));
 
-		/*
-		if (isset($_POST['ban_save'])) {
-			
-			$stmt = $u->db->prepare("DELETE FROM user_ban WHERE user = ? AND organizer = ?");
-			$stmt->execute(array($u->get('id'), $_SESSION['user_id']));
-			
-			$ban = new UserBan;
-			$ban->set('user', $u->get('id'));
-			$ban->set('organizer', $_SESSION['user_id']);
-			$ban->set('reason', $_POST['ban_msg']);
-			$ban->save();
-			
-		}
-		*/
-    
 		$this->setNoTranslate('user', $u);
 		$this->setNoTranslate('positions', $positions);
 		$this->setNoTranslate('same_fair_positions', $same_fair_positions);
@@ -1126,15 +1110,10 @@ class ExhibitorController extends Controller {
 
 		$this->set('password_label', 'Password');
 		$this->set('password_repeat_label', 'Password again (repeat to confirm)');
-		//$this->set('save_label', 'Save');
-		//$this->set('save_label', 'Save');
-		
+
 		$this->set('customer_nr_label', 'Customer number');
 		$this->set('customer_id', 'Customer Number');
 		$this->set('save_customer_id', 'Save Customer Number');
-		//$this->set('ban_section_header', 'Ban user');
-		//$this->set('ban_msg_label', 'Reason for ban');
-		//$this->set('ban_save', 'Save');
 
 		$this->set('bookings_section', 'Bookings on your other events');
 		$this->set('bookings_samefair_section', 'Bookings for this event');
