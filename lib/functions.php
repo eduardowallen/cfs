@@ -42,7 +42,7 @@ function userCanAdminFair($fair_id, $map_id) {
 		if ($result) {
 
 			$accessible_maps = explode('|', $result->map_access);
-			if (in_array($map_id, $accessible_maps)) {
+			if ($map_id == 0 || in_array($map_id, $accessible_maps)) {
 				return true;
 			}
 		}
