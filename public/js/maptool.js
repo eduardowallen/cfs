@@ -415,124 +415,148 @@ maptool.tooltip = function(index) {
 	$("#info-" + index).show();
 }
 
+maptool.updateBusyStatus = function(position_id, callback) {
+	$.ajax({
+		url: 'ajax/maptool.php',
+		method: 'GET',
+		data: 'getBusyStatus=' + position_id,
+		success: function(response) {
+			var marker = $('#pos-' + position_id);
+			var busy;
+
+			if (response.being_edited > 0 && response.being_edited != maptool.map.user_id) {
+				marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
+				busy = true;
+			} else {
+				marker.attr('src', 'images/icons/marker_' + response.statusText + '.png').removeClass('busy');
+				busy = false;
+			}
+
+			callback(busy);
+		}
+	});
+};
+
 //Create context menu for markers
 maptool.showContextMenu = function(position, marker) {
-	if ($('#pos-' + position).hasClass('busy'))
-		return;
+	maptool.updateBusyStatus(position, function(is_busy) {
+		if (is_busy)
+			return;
 
-	maptool.tooltip(position);
+		maptool.tooltip(position);
 
-	maptool.hideContextMenu();
+		maptool.hideContextMenu();
 
-	var objIndex = null;
-	for (var i=0; i<maptool.map.positions.length; i++) {
-		if (maptool.map.positions[i].id == position) {
-			objIndex = i;
-			break;
+		var objIndex = null;
+		for (var i=0; i<maptool.map.positions.length; i++) {
+			if (maptool.map.positions[i].id == position) {
+				objIndex = i;
+				break;
+			}
 		}
-	}
 
-	var contextMenu = $('<ul id="cm-' + position + '" class="contextmenu"></ul>');
-	var todayDt = $('#todayDt').attr('td');
-	var closeDt = $('#closeDt').attr('td');
-	var publishDt = $('#publishDt').attr('td');
-	if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
-		contextMenu.append('<li id="cm_book">' + lang.bookStandSpace + '</li><li id="cm_reserve">' + lang.reserveStandSpace + '</li>');
-		if (copiedExhibitor) {
-			contextMenu.append('<li id="cm_paste">' + lang.pasteExhibitor + '</li>');
+		var contextMenu = $('<ul id="cm-' + position + '" class="contextmenu"></ul>');
+		var todayDt = $('#todayDt').attr('td');
+		var closeDt = $('#closeDt').attr('td');
+		var publishDt = $('#publishDt').attr('td');
+		if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
+			contextMenu.append('<li id="cm_book">' + lang.bookStandSpace + '</li><li id="cm_reserve">' + lang.reserveStandSpace + '</li>');
+			if (copiedExhibitor) {
+				contextMenu.append('<li id="cm_paste">' + lang.pasteExhibitor + '</li>');
+			}
+		} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
+			contextMenu.append('<li id="cm_apply">' + lang.preliminaryBookStandSpace + '</li>');
+		} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
+			contextMenu.append('<li id="cm_cancel">' + lang.cancelPreliminaryBooking + '</li>');
 		}
-	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
-		contextMenu.append('<li id="cm_apply">' + lang.preliminaryBookStandSpace + '</li>');
-	} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
-		contextMenu.append('<li id="cm_cancel">' + lang.cancelPreliminaryBooking + '</li>');
-	}
-	
-	if (maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
-		contextMenu.append('<li id="cm_edit">' + lang.editStandSpace + '</li><li id="cm_move">' + lang.moveStandSpace + '</li><li id="cm_delete">' + lang.deleteStandSpace + '</li>');
-	}
-	
-	if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0){
-		contextMenu.append('<li id="cm_note">' + lang.notes + '</li>');
-	}
-
-	if ((maptool.map.positions[objIndex].applied) && maptool.map.userlevel == 1){
-		contextMenu.append('<li id="cm_more">' + lang.viewBooking + '</li>');
-	} else {
-		contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
-	}
-
-	if (maptool.map.positions[objIndex].status > 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
-		contextMenu.append('<li id="cm_edit_booking">' + lang.editBooking + '</li>');
-		contextMenu.append('<li id="cm_cancel_booking">' + lang.cancelBooking + '</li>');
-		if (maptool.map.positions[objIndex].status == 1) {
-			contextMenu.append('<li id="cm_book">' + lang.bookStandSpace + '</li>');
-		} else if (maptool.map.positions[objIndex].status == 2) {
-			contextMenu.append('<li id="cm_reserve">' + lang.reserveStandSpace + '</li>');
-		}
-	} else if (maptool.map.positions[objIndex].applied > 0 && maptool.map.userlevel > 1 && hasRights) {
-		contextMenu.append('<li id="cm_show_preliminary_bookings">' + lang.showPreliminaryBookings + '</li>');
-	}
-
-	if ($("li", contextMenu).length > 0) {
 		
-
-		contextMenu.css({
-			left: $("#pos-" + position).offset().left + config.iconOffset,
-			top: $("#pos-" + position).offset().top + config.iconOffset - 35
-		}).show();
-
-		//Clear click events
-		//$(".contextmenu li").off("click");
+		if (maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
+			contextMenu.append('<li id="cm_edit">' + lang.editStandSpace + '</li><li id="cm_move">' + lang.moveStandSpace + '</li><li id="cm_delete">' + lang.deleteStandSpace + '</li>');
+		}
 		
-		//click handlers for context menu
-		if(maptool.map.userlevel > 0 && (maptool.map.userlevel == 1 || (hasRights || maptool.map.userlevel == 4))) {
-			$("#mapHolder").prepend(contextMenu);
-			$(".contextmenu li").click(function(e) {
-				var positionId = $(this).parent().attr("id").replace("cm-", "");
-				if (e.target.id == 'cm_delete') {
-					maptool.deletePosition(positionId);
-				} else if (e.target.id == 'cm_book') {
-					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-					maptool.bookPosition(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_reserve') {
-					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-					maptool.reservePosition(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_edit') {
-					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-					maptool.editPosition(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_move') {
-					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-					maptool.movePosition(e, maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_more') {
-					maptool.positionInfo(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_apply') {
-					maptool.markForApplication(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_cancel') {
-					maptool.cancelApplication(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_paste') {
-					maptool.pasteExhibitor(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_edit_booking') {
-					maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-					maptool.editBooking(maptool.map.positions[objIndex]);
-				} else if (e.target.id == 'cm_cancel_booking') {
-					maptool.cancelBooking(maptool.map.positions[objIndex]);
-				} else if(e.target.id == 'cm_note') {
-					maptool.makeNote(maptool.map.positions[objIndex]);
-				} else if(e.target.id == 'cm_show_preliminary_bookings') {
-					maptool.showPreliminaryBookings(maptool.map.positions[objIndex]);
-				}
-			}); 		
+		if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0){
+			contextMenu.append('<li id="cm_note">' + lang.notes + '</li>');
+		}
+
+		if ((maptool.map.positions[objIndex].applied) && maptool.map.userlevel == 1){
+			contextMenu.append('<li id="cm_more">' + lang.viewBooking + '</li>');
 		} else {
-			maptool.positionInfo(maptool.map.positions[objIndex]);
+			contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
 		}
-	}
 
-	var map = $('#mapHolder');
-	if(map.height()-contextMenu.height() < marker.offset().top){
-		contextMenu.css({
-			top : marker.offset().top - (contextMenu.height() - 5),
-		});
-	}
+		if (maptool.map.positions[objIndex].status > 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
+			contextMenu.append('<li id="cm_edit_booking">' + lang.editBooking + '</li>');
+			contextMenu.append('<li id="cm_cancel_booking">' + lang.cancelBooking + '</li>');
+			if (maptool.map.positions[objIndex].status == 1) {
+				contextMenu.append('<li id="cm_book">' + lang.bookStandSpace + '</li>');
+			} else if (maptool.map.positions[objIndex].status == 2) {
+				contextMenu.append('<li id="cm_reserve">' + lang.reserveStandSpace + '</li>');
+			}
+		} else if (maptool.map.positions[objIndex].applied > 0 && maptool.map.userlevel > 1 && hasRights) {
+			contextMenu.append('<li id="cm_show_preliminary_bookings">' + lang.showPreliminaryBookings + '</li>');
+		}
+
+		if ($("li", contextMenu).length > 0) {
+			
+
+			contextMenu.css({
+				left: $("#pos-" + position).offset().left + config.iconOffset,
+				top: $("#pos-" + position).offset().top + config.iconOffset - 35
+			}).show();
+
+			//Clear click events
+			//$(".contextmenu li").off("click");
+			
+			//click handlers for context menu
+			if(maptool.map.userlevel > 0 && (maptool.map.userlevel == 1 || (hasRights || maptool.map.userlevel == 4))) {
+				$("#mapHolder").prepend(contextMenu);
+				$(".contextmenu li").click(function(e) {
+					var positionId = $(this).parent().attr("id").replace("cm-", "");
+					if (e.target.id == 'cm_delete') {
+						maptool.deletePosition(positionId);
+					} else if (e.target.id == 'cm_book') {
+						maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+						maptool.bookPosition(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_reserve') {
+						maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+						maptool.reservePosition(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_edit') {
+						maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+						maptool.editPosition(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_move') {
+						maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+						maptool.movePosition(e, maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_more') {
+						maptool.positionInfo(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_apply') {
+						maptool.markForApplication(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_cancel') {
+						maptool.cancelApplication(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_paste') {
+						maptool.pasteExhibitor(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_edit_booking') {
+						maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+						maptool.editBooking(maptool.map.positions[objIndex]);
+					} else if (e.target.id == 'cm_cancel_booking') {
+						maptool.cancelBooking(maptool.map.positions[objIndex]);
+					} else if(e.target.id == 'cm_note') {
+						maptool.makeNote(maptool.map.positions[objIndex]);
+					} else if(e.target.id == 'cm_show_preliminary_bookings') {
+						maptool.showPreliminaryBookings(maptool.map.positions[objIndex]);
+					}
+				}); 		
+			} else {
+				maptool.positionInfo(maptool.map.positions[objIndex]);
+			}
+		}
+
+		var map = $('#mapHolder');
+		if(map.height()-contextMenu.height() < marker.offset().top){
+			contextMenu.css({
+				top : marker.offset().top - (contextMenu.height() - 5),
+			});
+		}
+	});
 }
 
 maptool.markPositionAsBeingEdited = function(obj) {

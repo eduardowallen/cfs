@@ -48,6 +48,21 @@ if (isset($_POST['markPositionAsNotBeingEdited'])) {
 	
 }
 
+if (isset($_GET['getBusyStatus'])) {
+	$pos = new FairMapPosition();
+	$pos->load($_GET['getBusyStatus'], 'id');
+
+	header('Content-type: application/json; charset=utf-8');
+	echo json_encode(array(
+		'position' => $pos->get('id'),
+		'being_edited' => ($pos->get('being_edited') > 0),
+		'edit_started' => $pos->get('edit_started'),
+		'statusText' => $pos->getStatusText()
+	));
+
+	exit;
+}
+
 if (isset($_POST['getPreliminary'])) {
 	
 	$query = $globalDB->query("SELECT prel.*, user.* FROM preliminary_booking AS prel LEFT JOIN user ON prel.user = user.id WHERE position = '".$_POST['getPreliminary']."'");
