@@ -100,6 +100,29 @@ input[type="button"].closeDialogue {
 	margin: auto;	
 }
 
+.dialog-tab-list {
+	margin-bottom: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.dialog-tab-list li {
+	display: inline-block;
+	border: 1px solid #000;
+}
+
+.dialog-tab-list li a {
+	display: block;
+	padding: 3px 10px;
+	color: #000;
+	text-decoration: none;
+}
+
+.dialog-tab {
+	/*display: none;*/
+	border: 3px solid #000;
+}
+
 #nouser_dialogue {
 	margin-left: -300px;
 	width: 550px;
@@ -288,6 +311,7 @@ textarea {
 }
 
 .open-excel-export {
+	margin-bottom: 5px;
 	padding-bottom: 3px;
 	background: #3d9538;
 	border: 0;
@@ -298,8 +322,18 @@ textarea {
 	color: #fff;
 	cursor: pointer;
 }
-.export-group label {
-	font-weight: 200;
+
+.open-sms-send {
+	margin-bottom: 5px;
+	padding-bottom: 3px;
+	background: #27679e;
+	border: 0;
+	-webkit-border-radius: 4px;
+	border-radius: 4px;
+	font-family: 'Open Sans', sans-serif, Arial, Helvetica;
+	font-size: 17px;
+	color: #fff;
+	cursor: pointer;
 }
 
 .button {

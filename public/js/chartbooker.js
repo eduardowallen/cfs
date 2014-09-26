@@ -1,5 +1,6 @@
 /* Funktioner för att visa popuper under newReservations! Hämtar data från tabellen och placerar i en popup! */
 var open_dialogue = null;
+var ask_before_leave = false;
 
 function showPopup(type, activator){
 
@@ -98,9 +99,13 @@ function closeDialogue(e) {
 	}
 
 	if (open_dialogue !== null) {
-		open_dialogue.hide();
-		open_dialogue = null;
-		$('#overlay').hide();
+		if (!ask_before_leave || (ask_before_leave && confirm(lang.ask_before_leave))) {
+			open_dialogue.hide();
+			open_dialogue = null;
+			$('#overlay').hide();
+
+			ask_before_leave = false;
+		}
 	}
 }
 
@@ -444,7 +449,7 @@ function showExportPopup(e) {
 		$('#export_popup').remove();
 	}
 
-	var html = '<div id="export_popup" class="dialogue" style="width: 500px;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+	var html = '<div id="export_popup" class="dialogue" style="width: 500px; text-align: left;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
 		+ '<h3>' + lang.export_headline + '</h3>', 
 		export_popup, 
 		button = $(e.target), 
@@ -472,6 +477,103 @@ function showExportPopup(e) {
 	$('.close-popup', export_popup).click(closeDialogue);
 
 	positionDialogue("export_popup");
+}
+
+function showSmsSendPopup(e) {
+	e.preventDefault();
+	ask_before_leave = true;
+
+	if ($('#sms_send_popup').length > 0) {
+		$('#sms_send_popup').remove();
+	}
+
+	var sms_price = 0.5;
+	var button = $(e.target);
+	var table_form = $(button.prop('form'));
+	var num_recipients = $('input[name*=rows]:checked', table_form).length;
+	var sms_send_popup = $('<form id="sms_send_popup" class="dialogue" style="width: 400px;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+		+ '<h3>' + lang.sms_enter_message + '</h3>'
+		+ '<p><textarea name="sms_text"></textarea></p>'
+		+ '<p><strong>' + lang.sms_max_chars + '</strong><strong id="sms_send_chars_count"></strong></p>'
+		+ '<p><button type="submit" class="save-btn">' + lang.send_label + '</button></p>'
+		+ '<ul class="dialog-tab-list"><li><a href="#sms_send_log" class="js-select-tab">'
+		+ lang.sms_log + '</a></li><li><a href="#sms_send_errors" class="js-select-tab">' + lang.errors + ' (<span id="sms_send_errors_count">0</span>)</a></li></ul>'
+		+ '<div class="dialog-tab" id="sms_send_log"><p></p></div>'
+		+ '<div class="dialog-tab" id="sms_send_errors"><ul></ul></div>'
+		+ '<p>' + lang.sms_num_recipients + ': <strong>' + num_recipients + '</strong><br />'
+		+ lang.sms_estimated_cost + ': <strong id="sms_send_cost"></strong> kr</p></form>');
+
+	var error_list = $('#sms_send_errors ul', sms_send_popup);
+
+	sms_send_popup.show();
+	open_dialogue = sms_send_popup;
+
+	sms_send_popup.on('submit', function(e) {
+		e.preventDefault();
+		error_list.empty();
+		$('#sms_send_errors_count').text(0);
+
+		var selected_user_ids = [];
+
+		$('input[name*=rows]:checked', table_form).each(function(index, input) {
+			selected_user_ids.push('user[]=' + $(input).data('userid'));
+		});
+
+		$.ajax({
+			url: 'sms/send',
+			method: 'POST',
+			data: sms_send_popup.serialize() + '&fair=' + button.data('fair') + '&' + selected_user_ids.join('&'),
+			success: function(response) {
+				if (response.error) {
+					error_list.append($('<li></li>').text(response.error));
+
+				} else if (response.errors) {
+					for (var i = 0; i < response.errors.length; i++) {
+						error_list.append($('<li></li>').text(response.errors[i]));
+					}
+				}
+
+				if (response.num_sent > 0) {
+					$('#sms_send_log p').text(lang.sms_sent_correct);
+				}
+
+				$('#sms_send_errors_count').text(error_list.children().length);
+			}
+		});
+	});
+
+	$('body').append(sms_send_popup);
+	$('.dialog-tab-list', sms_send_popup).tabs();
+	$('.close-popup', sms_send_popup).click(closeDialogue);
+
+	var chars_count = $('#sms_send_chars_count');
+	var cost_count = $('#sms_send_cost');
+	var count_timer = null;
+	$('textarea', sms_send_popup).on('keyup', function(e) {
+		if (count_timer !== null) {
+			clearTimeout(count_timer);
+		}
+
+		var input = e.target;
+		count_timer = setTimeout(function() {
+			updateCount(input);
+			count_timer = null;
+		}, 10);
+	}).trigger('keyup');
+
+	function updateCount(input) {
+		var page = Math.max(1, Math.ceil(input.value.length / 160));
+		var left = (160 * page) - input.value.length;
+
+		if (input.value.length >= 640) {
+			input.value = input.value.substring(0, 640);
+			left = 0;
+			page = 4;
+		}
+
+		chars_count.text(left + ' | ' + page);
+		cost_count.text((sms_price * page * num_recipients).toFixed(2));
+	}
 }
 
 function checkAll(e) {
@@ -523,6 +625,11 @@ function useScrolltable(table) {
 }
 
 $(document).ready(function() {
+	// Ask before leave
+	window.onbeforeunload = function() {
+		return (ask_before_leave ? 'Är du säker?' : null);
+	};
+
 	$('.datepicker.date').datepicker();
 	$('.datepicker.date').datepicker('option', 'dateFormat', 'dd-mm-yy');
 	$('.datepicker.datetime').datetimepicker({timeFormat: 'HH:mm'});
@@ -787,6 +894,7 @@ $(document).ready(function() {
 	.on("click", ".editExtraOption", bookingOptions.editExtraOption)
 	.on("click", ".saveExtraOption", bookingOptions.saveExtraOption)
 	.on('click', '.open-excel-export', showExportPopup)
+	.on('click', '.open-sms-send', showSmsSendPopup)
 	.on('click', '.check-all', checkAll)
 	.on("click", "#exportToExcel", function (e) {
 		e.preventDefault();
@@ -844,3 +952,58 @@ $(document).ready(function() {
 	$('.std_table:not(.scrolltable)').tablesorter();
 	
 });
+
+var Tabs = (function($) {
+	var Tabs = function(element) {
+		var tab_nav = $(element);
+		var self = this;
+
+		self.current_tab = null;
+
+		function open(tab) {
+			if (self.current_tab !== null) {
+				close(self.current_tab);
+			}
+
+			tab.addClass('current');
+			$(tab[0].hash).show();
+
+			self.current_tab = tab;
+		}
+
+		function close(tab) {
+			tab.removeClass('current');
+			$(tab[0].hash).hide();
+		}
+
+		/*
+		 * Initiate
+		 */
+		tab_nav.on('click', '.js-select-tab', function(e) {
+			e.preventDefault();
+			open($(this));
+		});
+
+		$('.js-select-tab', tab_nav).each(function(index, tab) {
+			if (index === 0) {
+				open($(tab));
+			} else {
+				close($(tab));
+			}
+		});
+	};
+
+	$.fn.tabs = function() {
+		return this.each(function(key, value){
+			var element = $(this);
+			// Return early if this element already has a plugin instance
+			if (element.data('tabs')) {
+				return element.data('tabs');
+			}
+
+			var tabs = new Tabs(this);
+			// Store plugin object in this element's data
+			element.data('tabs', tabs);
+		});
+	};
+}(jQuery));

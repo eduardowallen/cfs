@@ -330,6 +330,45 @@ CREATE TABLE IF NOT EXISTS `user_ban` (
   KEY `user` (`user`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sms`
+--
+
+CREATE TABLE `sms` (
+`id` int(10) unsigned NOT NULL,
+  `fair_id` int(10) unsigned NOT NULL,
+  `author_user_id` int(10) unsigned NOT NULL,
+  `text` text COLLATE utf8_swedish_ci NOT NULL,
+  `num_texts` tinyint(3) unsigned NOT NULL,
+  `sent_time` int(10) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
+
+ALTER TABLE `sms`
+	ADD PRIMARY KEY (`id`), ADD KEY `fair` (`fair_id`,`author_user_id`);
+ALTER TABLE `sms`
+	MODIFY `id` int(10) unsigned NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `sms_recipient`
+--
+
+CREATE TABLE `sms_recipient` (
+`sms_id` int(11) NOT NULL,
+  `rec_user_id` int(11) NOT NULL,
+  `phone` varchar(50) COLLATE utf8_swedish_ci NOT NULL,
+  `sent_status` tinyint(3) unsigned NOT NULL,
+  `delivery_status` tinyint(3) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
+
+ALTER TABLE `sms_recipient`
+	ADD PRIMARY KEY (`sms_id`,`phone`);
+ALTER TABLE `sms_recipient`
+	MODIFY `sms_id` int(11) NOT NULL AUTO_INCREMENT;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

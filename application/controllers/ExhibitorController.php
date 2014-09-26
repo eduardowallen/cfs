@@ -259,6 +259,7 @@ class ExhibitorController extends Controller {
 		$this->setNoTranslate('connected', $connected);
 		$this->setNoTranslate('canceled', $canceled);
 		$this->set('th_copy', 'Copy to map');
+		$this->set('send_sms_label', 'Send SMS to selected Exhibitors');
 		$this->set('export', 'Export to Excel');
 	}
 	
@@ -297,6 +298,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_view', 'View');
 		$this->set('th_profile', 'View profile');
 		$this->set('export_button', 'Export as excel');
+		$this->set('send_sms_label', 'Send SMS to selected Exhibitors');
 		$this->set('label_booked', 'booked');
 		$this->set('label_reserved', 'reserved');
 		$this->setNoTranslate('fairId', $fairId);

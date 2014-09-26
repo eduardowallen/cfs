@@ -247,7 +247,10 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 <?php if(count($positions) > 0){ ?>
 
 	<form action="administrator/exportNewReservations/1" method="post">
-		<button type="submit" class="open-excel-export" name="export_excel" data-for="booked" style="float:right;"><?php echo uh($export); ?></button>
+		<div class="floatright right">
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="booked" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
+			<button type="submit" class="open-excel-export" name="export_excel" data-for="booked"><?php echo uh($export); ?></button>
+		</div>
 
 		<table class="std_table use-scrolltable" id="booked">
 			<thead>
@@ -268,12 +271,12 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 			<tbody>
 			<?php foreach($positions as $pos):?>
 				<tr
-					data-categories="<?php echo $pos['categories']; ?>"
-					data-options="<?php echo $pos['options']; ?>"
-					data-posname="<?php echo $pos['name']; ?>"
-					data-company="<?php echo $pos['company']; ?>"
-					data-commodity="<?php echo $pos['commodity']; ?>"
-					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+					data-categories="<?php echo uh($pos['categories']); ?>"
+					data-options="<?php echo uh($pos['options']); ?>"
+					data-posname="<?php echo uh($pos['name']); ?>"
+					data-company="<?php echo uh($pos['company']); ?>"
+					data-commodity="<?php echo uh($pos['commodity']); ?>"
+					data-message="<?php echo uh($pos['arranger_message']); ?>"
 				>
 					<td><?php echo $pos['name']; ?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
@@ -281,7 +284,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
-					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+					<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
 							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
@@ -303,7 +306,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-1" checked="checked" /></td>
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" checked="checked" /></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
@@ -320,7 +323,10 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 	<?php if(count($rpositions) > 0){?>
 
 	<form action="administrator/exportNewReservations/2" method="post">
-		<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved" style="float:right;"><?php echo uh($export); ?></button>
+		<div class="floatright right">
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="reserved" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
+			<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved"><?php echo uh($export); ?></button>
+		</div>
 
 		<table class="std_table use-scrolltable" id="reserved">
 			<thead>
@@ -344,12 +350,12 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 			<?php foreach($rpositions as $pos): ?>
 				<tr
 					data-id="<?php echo $pos['id']; ?>"
-					data-categories="<?php echo $pos['categories']; ?>"
-					data-options="<?php echo $pos['options']; ?>"
-					data-posname="<?php echo $pos['name']; ?>"
-					data-company="<?php echo $pos['company']; ?>"
-					data-commodity="<?php echo $pos['commodity']; ?>"
-					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+					data-categories="<?php echo uh($pos['categories']); ?>"
+					data-options="<?php echo uh($pos['options']); ?>"
+					data-posname="<?php echo uh($pos['name']); ?>"
+					data-company="<?php echo uh($pos['company']); ?>"
+					data-commodity="<?php echo uh($pos['commodity']); ?>"
+					data-message="<?php echo uh($pos['arranger_message']); ?>"
 					data-expires="<?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?>"
 					data-approveurl="<?php echo BASE_URL.'administrator/approveReservation/'; ?>"
 				>
@@ -359,7 +365,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
 					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
-					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+					<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 	<?php if (strlen($pos['arranger_message']) > 0): ?>
 							<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
 								<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
@@ -389,7 +395,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-2" checked="checked" /></td>
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-2" checked="checked" /></td>
 					<!--<td class="approve" style="display:none;"></td>-->
 				</tr>
 			<?php endforeach; ?>
@@ -407,7 +413,10 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 
 <?php if(count($prelpos) > 0){ ?>
 	<form action="administrator/exportNewReservations/3" method="post">
-		<button type="submit" class="open-excel-export" name="export_excel" data-for="prem" style="float:right;"><?php echo uh($export); ?></button>
+		<div class="floatright right">
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="prem" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
+			<button type="submit" class="open-excel-export" name="export_excel" data-for="prem"><?php echo uh($export); ?></button>
+		</div>
 
 		<table class="std_table use-scrolltable" id="prem">
 			<thead>
@@ -432,19 +441,19 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 					data-id="<?php echo $pos['id']; ?>"
 					data-approveurl="<?php echo BASE_URL.'administrator/newReservations/approve/'; ?>"
 					data-reserveurl="<?php echo BASE_URL.'administrator/reservePrelBooking/'; ?>"
-					data-categories="<?php echo $pos['categories']; ?>"
-					data-options="<?php echo $pos['options']; ?>"
-					data-posname="<?php echo $pos['name']; ?>"
-					data-company="<?php echo $pos['company']; ?>"
-					data-commodity="<?php echo $pos['commodity']; ?>"
-					data-message="<?php echo htmlspecialchars($pos['arranger_message']); ?>"
+					data-categories="<?php echo uh($pos['categories']); ?>"
+					data-options="<?php echo uh($pos['options']); ?>"
+					data-posname="<?php echo uh($pos['name']); ?>"
+					data-company="<?php echo uh($pos['company']); ?>"
+					data-commodity="<?php echo uh($pos['commodity']); ?>"
+					data-message="<?php echo uh($pos['arranger_message']); ?>"
 				>
 					<td><?php echo $pos['name'];?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
-					<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+					<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
 							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
@@ -473,7 +482,7 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>
-					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" class="rows-3" checked="checked" /></td>
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-3" checked="checked" /></td>
 				</tr>
 			<?php endforeach;?>
 			</tbody>

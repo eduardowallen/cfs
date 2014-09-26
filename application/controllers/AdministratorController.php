@@ -760,6 +760,7 @@ class AdministratorController extends Controller {
 		$this->set('export', 'Export to Excel');
 		$this->set('col_export_err', 'Select at least one column in order to export!');
 		$this->set('row_export_err', 'Select at least one row in order to export!');
+		$this->set('send_sms_label', 'Send SMS to selected Exhibitors');
 		$this->set('ok_label', 'OK');
 	}
 

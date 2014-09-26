@@ -28,4 +28,8 @@ if (DEV) {
 	define('EMAIL_FROM_ADDRESS', 'info@chartbooker.com');
 }
 
+// MoSMS settings
+define('MOSMS_USERNAME', '');
+define('MOSMS_PASSWORD', '');
+define('MOSMS_USE_CUSTOM_SENDER', false);
 ?>

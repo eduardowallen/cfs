@@ -59,6 +59,7 @@
 	lang.forgot_pass = '<?php echo ujs($translator->{"Forgot your password?"}); ?>';
 	lang.forgot_user = '<?php echo ujs($translator->{"Forgot your username?"}); ?>';
 	lang.save_label = '<?php echo ujs($translator->{"Save"}); ?>';
+	lang.send_label = '<?php echo ujs($translator->{"Send"}); ?>';
 	lang.alias_label = '<?php echo ujs($translator->{"Username"}); ?>';
 	lang.company_section = '<?php echo ujs($translator->{"Company"}); ?>';
 	lang.invoice_section = '<?php echo ujs($translator->{"Billing address"}); ?>';
@@ -76,7 +77,15 @@
 	lang.validation_error = '<?php echo ujs($translator->{"There are # errors in the form. You have to enter information in all the fields marked with a *"}); ?>';
 	lang.export_headline = '<?php echo ujs($translator->{'Please choose other fields to export if necessary:'}); ?>';
 	lang.export_excel = '<?php echo ujs($translator->{'Export as Excel document'}); ?>';
+	lang.sms_enter_message = '<?php echo ujs($translator->{'Enter your message'}); ?>';
+	lang.sms_max_chars = '<?php echo ujs($translator->{'Max 640 characters'}); ?>';
+	lang.sms_log = '<?php echo ujs($translator->{'SMS log'}); ?>';
+	lang.errors = '<?php echo ujs($translator->{'Errors'}); ?>';
+	lang.sms_sent_correct = '<?php echo ujs($translator->{'SMS successfully sent!'}); ?>';
+	lang.sms_num_recipients = '<?php echo ujs($translator->{'Number of recipients for this dispatch'}); ?>';
+	lang.sms_estimated_cost = '<?php echo ujs($translator->{'Estimated cost'}); ?>';
 	lang.select_all = '<?php echo ujs($translator->{'Select all'}); ?>';
+	lang.ask_before_leave = '<?php echo ujs($translator->{'Are you sure you want to leave this dialog? Any unsaved changes will be lost.'}); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">

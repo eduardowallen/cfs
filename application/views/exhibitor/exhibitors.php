@@ -68,7 +68,10 @@ $column_info = array(
 	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>-->
 
 	<form action="exhibitor/export2/<?php echo $fairId; ?>" method="post">
-		<button type="submit" class="open-excel-export" name="export_excel" data-for="exhibitors_list" style="float:right;;"><?php echo uh($export_button); ?></button>
+		<div class="floatright right">
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="exhibitors_list" data-fair="<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($send_sms_label); ?></button><br />
+			<button type="submit" class="open-excel-export" name="export_excel" data-for="exhibitors_list"><?php echo uh($export_button); ?></button>
+		</div>
 
 		<table class="std_table use-scrolltable" id="exhibitors_list">
 			<thead>
@@ -111,7 +114,7 @@ $column_info = array(
 					<?php if (userLevel() > 0): ?>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>
 				
-					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" checked="checked" /></td>
+					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" data-userid="<?php echo $pos['id']; ?>" checked="checked" /></td>
 					<?php endif; ?>
 				</tr>
 <?php endforeach; ?>
