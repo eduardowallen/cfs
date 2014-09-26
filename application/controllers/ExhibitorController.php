@@ -1028,36 +1028,9 @@ class ExhibitorController extends Controller {
 				WHERE `preliminary_booking`.`user` = ? AND `fair`.`created_by` = ?
 			");
 			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
-		} else {
-			$stmt = $u->db->prepare("SELECT
-				`exhibitor`.`id` AS exhibitor_id,
-				`exhibitor`.`commodity`,
-				`exhibitor`.`arranger_message`,
-				`exhibitor`.`booking_time`,
-				`exhibitor`.`position`,
-				`fair_map_position`.*,
-				`fair_map`.`id` AS fair_map_id,
-				`fair_map`.`fair`,
-				`fair_map`.`name` AS fair_map_name,
-				`user`.`company`
-				FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ? AND `exhibitor`.`fair` = ?");
-			$stmt->execute(array($u->get('id'), $_SESSION['user_fair']));
-
-			$stmtPreliminary = $u->db->prepare("SELECT
-				`preliminary_booking`.`id` AS exhibitor_id,
-				`preliminary_booking`.`commodity`,
-				`preliminary_booking`.`booking_time`,
-				`preliminary_booking`.`arranger_message`,
-				`fair_map_position`.*,
-				`fair_map`.`id` AS fair_map_id,
-				`fair_map`.`fair`,
-				`fair_map`.`name` AS fair_map_name,
-				`user`.`company`
-				FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `preliminary_booking`.`user` = ? AND `preliminary_booking`.`fair` = ?
-			");
-			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
 		}
 
+		// $positions contains this exhibitor's all bookings
 		$positions = array();
 
 		//foreach($u->getPreliminaries() as $prel) {
@@ -1068,7 +1041,38 @@ class ExhibitorController extends Controller {
 		while (($res = $stmt->fetch(PDO::FETCH_ASSOC))) {
 			$positions[] = $res;
 		}
-		
+
+		// Following will get this exhibitor's bookings on the "current" fair this user is logged in to
+		$stmt = $u->db->prepare("SELECT
+			`exhibitor`.`id` AS exhibitor_id,
+			`exhibitor`.`commodity`,
+			`exhibitor`.`arranger_message`,
+			`exhibitor`.`booking_time`,
+			`exhibitor`.`position`,
+			`fair_map_position`.*,
+			`fair_map`.`id` AS fair_map_id,
+			`fair_map`.`fair`,
+			`fair_map`.`name` AS fair_map_name,
+			`user`.`company`
+			FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ? AND `exhibitor`.`fair` = ?");
+		$stmt->execute(array($u->get('id'), $_SESSION['user_fair']));
+
+		$stmtPreliminary = $u->db->prepare("SELECT
+			`preliminary_booking`.`id` AS exhibitor_id,
+			`preliminary_booking`.`commodity`,
+			`preliminary_booking`.`booking_time`,
+			`preliminary_booking`.`arranger_message`,
+			`fair_map_position`.*,
+			`fair_map`.`id` AS fair_map_id,
+			`fair_map`.`fair`,
+			`fair_map`.`name` AS fair_map_name,
+			`user`.`company`
+			FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `preliminary_booking`.`user` = ? AND `preliminary_booking`.`fair` = ?
+		");
+		$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
+
+		$same_fair_positions = array_merge($stmt->fetchAll(PDO::FETCH_ASSOC), $stmtPreliminary->fetchAll(PDO::FETCH_ASSOC));
+
 		/*
 		if (isset($_POST['ban_save'])) {
 			
@@ -1086,6 +1090,7 @@ class ExhibitorController extends Controller {
     
 		$this->setNoTranslate('user', $u);
 		$this->setNoTranslate('positions', $positions);
+		$this->setNoTranslate('same_fair_positions', $same_fair_positions);
 		$this->set('headline', 'Exhibitor profile');
 
 		$this->set('company_section', 'Company');
@@ -1131,14 +1136,15 @@ class ExhibitorController extends Controller {
 		//$this->set('ban_msg_label', 'Reason for ban');
 		//$this->set('ban_save', 'Save');
 
-		$this->set('bookings_section', 'Bookings');
+		$this->set('bookings_section', 'Bookings on your other events');
+		$this->set('bookings_samefair_section', 'Bookings for this event');
 		$this->set('tr_event', 'Fair');
 		$this->set('tr_pos', 'Stand space');
 		$this->set('tr_area', 'Area');
 		$this->set('tr_booker', 'Booked by');
 		$this->set('tr_field', 'Trade');
 		$this->set('tr_time', 'Time of booking');
-		$this->set('tr_message', 'Message to organizer');
+		$this->set('tr_message', 'Message to organizer in list');
 		$this->set('ok_label', 'OK');
 		$this->set('no_bookings_label', 'This exhibitor has not made any bookings yet.');
 

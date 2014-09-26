@@ -107,6 +107,46 @@
 	<button onclick="saveCustomId()" type="button"><?php echo $save_customer_id?></button>
 <?php endif;?>
 
+<h3 style="margin-top: 20px;"><?php echo $bookings_samefair_section; ?></h3>
+
+<?php if (count($same_fair_positions) > 0): ?>
+<table class="std_table use-scrolltable" id="profileBookings">
+	<thead>
+		<tr>
+			<th><?php echo $tr_event; ?></th>
+			<th><?php echo $tr_pos; ?></th>
+			<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+			<th><?php echo $tr_booker; ?></th>
+			<th><?php echo $tr_field; ?></th>
+			<th><?php echo $tr_time; ?></th>
+			<th><?php echo $tr_message; ?></th>
+		</tr>
+	</thead>
+	<tbody>
+<?php foreach($same_fair_positions as $pos): ?>
+		<tr>
+			<td><a target="_blank" href="/mapTool/map/<?php echo $pos['fair']; ?>/<?php echo $pos['id']; ?>/<?php echo $pos['map']; ?>"><?php echo $pos['fair_map_name']; ?> </a></td>
+			<td><?php echo $pos['name']; ?></td>
+			<td class="center"><?php echo $pos['area']; ?></td>
+			<td class="center"><?php echo $pos['company']; ?></td>
+			<td class="center"><?php echo $pos['commodity']; ?></td>
+			<td><?php echo ($pos['booking_time'] != '') ? date('d-m-Y H:i:s', $pos['booking_time']) : ''; ?></td>
+			<td class="center" title="<?php echo htmlspecialchars($pos['arranger_message']); ?>">
+<?php if (strlen($pos['arranger_message']) > 0): ?>
+				<a href="administrator/arrangerMessage/<?php echo (isset($pos['preliminary']) ? 'preliminary' : 'exhibitor') . '/' . $pos['exhibitor_id']; ?>" class="open-arranger-message">
+					<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+				</a>
+<?php endif; ?>
+		</td>
+	</tr>
+<?php endforeach; ?>
+	</tbody>
+</table>
+
+<?php else: ?>
+<p><?php echo $no_bookings_label; ?></p>
+<?php endif; ?>
+
 <h3><?php echo $bookings_section; ?></h3>
 
 <?php if (count($positions) > 0): ?>
