@@ -905,7 +905,7 @@ class ExhibitorController extends Controller {
 
 	function profile($id) {
 
-		setAuthLevel(1);
+		setAuthLevel(2);
 
 		$u = new User;
 		$u->load($id, 'id');
