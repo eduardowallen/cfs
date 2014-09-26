@@ -8,8 +8,13 @@ function hookUpPasswdMeter() {
 		$(this).removeClass('hasIndicator');
 		var input = $(this);
 		var meter = $('<span class="passwd_meter"/>');
-		
-		input.after(meter);
+		var help_icon = input.siblings('.helpicon_map');
+
+		if (help_icon.length > 0) {
+			help_icon.after(meter);
+		} else {
+			input.after(meter);
+		}
 		
 		meter.css({
 			paddingRight: '5px',

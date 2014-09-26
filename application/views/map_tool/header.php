@@ -59,6 +59,10 @@
 	lang.password_label = '<?php echo ujs($translator->{"Password"}); ?>';
 	lang.password_repeat_label = '<?php echo ujs($translator->{"Password again (repeat to confirm)"}); ?>';
 	lang.password_standard = '<?php echo ujs($translator->{"Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter."}); ?>';
+	lang.passwd_superstrong = '<?php echo ujs($translator->{"Superstrong"}); ?>';
+	lang.passwd_strong = '<?php echo ujs($translator->{"Strong"}); ?>';
+	lang.passwd_medium = '<?php echo ujs($translator->{"Medium"}); ?>';
+	lang.passwd_weak = '<?php echo ujs($translator->{"Weak"}); ?>';
 	lang.forgot_pass = '<?php echo ujs($translator->{"Forgot your password?"}); ?>';
 	lang.forgot_user = '<?php echo ujs($translator->{"Forgot your username?"}); ?>';
 	lang.save_label = '<?php echo ujs($translator->{"Save"}); ?>';
