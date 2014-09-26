@@ -511,36 +511,39 @@ function showSmsSendPopup(e) {
 
 	sms_send_popup.on('submit', function(e) {
 		e.preventDefault();
-		error_list.empty();
-		$('#sms_send_errors_count').text(0);
 
-		var selected_user_ids = [];
+		if (confirm(lang.sms_accept_before_send)) {
+			error_list.empty();
+			$('#sms_send_errors_count').text(0);
 
-		$('input[name*=rows]:checked', table_form).each(function(index, input) {
-			selected_user_ids.push('user[]=' + $(input).data('userid'));
-		});
+			var selected_user_ids = [];
 
-		$.ajax({
-			url: 'sms/send',
-			method: 'POST',
-			data: sms_send_popup.serialize() + '&fair=' + button.data('fair') + '&' + selected_user_ids.join('&'),
-			success: function(response) {
-				if (response.error) {
-					error_list.append($('<li></li>').text(response.error));
+			$('input[name*=rows]:checked', table_form).each(function(index, input) {
+				selected_user_ids.push('user[]=' + $(input).data('userid'));
+			});
 
-				} else if (response.errors) {
-					for (var i = 0; i < response.errors.length; i++) {
-						error_list.append($('<li></li>').text(response.errors[i]));
+			$.ajax({
+				url: 'sms/send',
+				method: 'POST',
+				data: sms_send_popup.serialize() + '&fair=' + button.data('fair') + '&' + selected_user_ids.join('&'),
+				success: function(response) {
+					if (response.error) {
+						error_list.append($('<li></li>').text(response.error));
+
+					} else if (response.errors) {
+						for (var i = 0; i < response.errors.length; i++) {
+							error_list.append($('<li></li>').text(response.errors[i]));
+						}
 					}
-				}
 
-				if (response.num_sent > 0) {
-					$('#sms_send_log p').text(lang.sms_sent_correct);
-				}
+					if (response.num_sent > 0) {
+						$('#sms_send_log p').text(lang.sms_sent_correct);
+					}
 
-				$('#sms_send_errors_count').text(error_list.children().length);
-			}
-		});
+					$('#sms_send_errors_count').text(error_list.children().length);
+				}
+			});
+		}
 	});
 
 	$('body').append(sms_send_popup);

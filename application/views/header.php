@@ -88,6 +88,7 @@
 	lang.sms_sent_correct = '<?php echo ujs($translator->{'SMS successfully sent!'}); ?>';
 	lang.sms_num_recipients = '<?php echo ujs($translator->{'Number of recipients for this dispatch'}); ?>';
 	lang.sms_estimated_cost = '<?php echo ujs($translator->{'Estimated cost'}); ?>';
+	lang.sms_accept_before_send = '<?php echo ujs($translator->{'Are you sure that you want to send these text messages?'}); ?>';
 	lang.select_all = '<?php echo ujs($translator->{'Select all'}); ?>';
 	lang.ask_before_leave = '<?php echo ujs($translator->{'Are you sure you want to leave this dialog? Any unsaved changes will be lost.'}); ?>';
 </script>
