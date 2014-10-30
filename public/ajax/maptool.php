@@ -52,12 +52,42 @@ if (isset($_GET['getBusyStatus'])) {
 	$pos = new FairMapPosition();
 	$pos->load($_GET['getBusyStatus'], 'id');
 
+	$map = new FairMap;
+	$map->load($pos->get('map'), 'id');
+
+	$num_prel_bookings = 0;
+
+	if (userLevel() > 1 && userCanAdminFair($map->get('fair'), $map->get('id'))) {
+		// Prepare a SQL statement for getting the number of prelimnary bookings for a position
+		$num_prel_booking_stmt = $globalDB->prepare("SELECT COUNT(*) AS cnt FROM preliminary_booking WHERE position = ?");
+
+		// Fetch any preliminary bookings for this position
+		$num_prel_booking_stmt->execute(array($pos->get('id')));
+		$num_prel_result = $num_prel_booking_stmt->fetchObject();
+
+		if (isset($num_prel_result->cnt)) {
+			$num_prel_bookings = $num_prel_result->cnt;
+		}
+
+	} else if (userLevel() == 1) {
+		// Check if this Exhibitor has preliminary booked this position
+		$user = new User;
+		$user->load($_SESSION['user_id'], 'id');
+		$preliminaries = $user->getPreliminaries();
+		foreach ($preliminaries as $p) {
+			if ($p['position'] == $pos->get('id')) {
+				++$num_prel_bookings;
+				break;
+			}
+		}
+	}
+
 	header('Content-type: application/json; charset=utf-8');
 	echo json_encode(array(
 		'position' => $pos->get('id'),
 		'being_edited' => ($pos->get('being_edited') > 0),
 		'edit_started' => $pos->get('edit_started'),
-		'statusText' => $pos->getStatusText()
+		'statusText' => ($num_prel_bookings > 0 && $pos->get('status') == 0 ? 'applied' : $pos->getStatusText())
 	));
 
 	exit;
