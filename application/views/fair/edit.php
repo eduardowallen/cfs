@@ -85,6 +85,15 @@
 				}
 			});
 		}());
+
+		function hiddenChangeListener(e) {
+			var method = (parseInt($(this).val(), 10) === 0 ? 'slideUp' : 'slideDown');
+			$('#allow_registrations_fields')[method]();
+		}
+
+		$('#hidden')
+			.on('change', hiddenChangeListener)
+			.trigger('change');
 	});
 </script>
 
@@ -199,6 +208,14 @@ php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disa
 			<option value="1"<?php echo $hidden_sel1; ?>><?php echo $true_label; ?></option>
 		</select>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Whether or not other users are able to access the event.'}); ?>" />
+
+		<div id="allow_registrations_fields">
+			<label for="allow_registrations"><?php echo $allow_registrations_label; ?></label>
+			<select name="allow_registrations" id="allow_registrations">
+				<option value="0"<?php if ($fair->get('allow_registrations') == 0) echo ' selected="selected"'; ?>><?php echo $false_label; ?></option>
+				<option value="1"<?php if ($fair->get('allow_registrations') == 1) echo ' selected="selected"'; ?>><?php echo $true_label; ?></option>
+			</select>
+		</div>
 	</div>
 
 	<p class="clear"><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>

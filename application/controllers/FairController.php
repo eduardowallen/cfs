@@ -226,6 +226,7 @@ class FairController extends Controller {
 					$this->Fair->set('approved', 1);
 				}
 				$this->Fair->set('hidden', $_POST['hidden']);
+				$this->Fair->set('allow_registrations', $_POST['allow_registrations']);
 				for ($i = 1; $i <= 3; $i++) {
 					$this->Fair->set('reminder_day' . $i, $_POST['reminder_day' . $i]);
 					$this->Fair->set('reminder_note' . $i, $_POST['reminder_note' . $i]);
@@ -335,6 +336,7 @@ class FairController extends Controller {
 			$this->set('save_label', 'Save');
 			$this->set('cancel_label', 'Cancel');
 			$this->set('hide_fair_for_label', 'Hide fair for unauthorized accounts');
+			$this->set('allow_registrations_label', 'Allow registrations when fair is hidden');
 			$this->set('false_label', 'false');
 			$this->set('true_label', 'true');
 			$this->set("options_when_booking_label", "Options when booking");
