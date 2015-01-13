@@ -3009,24 +3009,26 @@ maptool.Touch = (function() {
 	}
 
 	$(function() {
-		var mc = new Hammer.Manager($('#mapHolder')[0]);
-		mc.add(new Hammer.Pinch());
-		mc.add(new Hammer.Pan());
+		if ($('#mapHolder').length > 0) {
+			var mc = new Hammer.Manager($('#mapHolder')[0]);
+			mc.add(new Hammer.Pinch());
+			mc.add(new Hammer.Pan());
 
-		mc.on('pinchstart', function(e) {
-			$('.marker, #focus_arrow').hide();
-		});
+			mc.on('pinchstart', function(e) {
+				$('.marker, #focus_arrow').hide();
+			});
 
-		mc.on('pinchend', function(e) {
-			$('.marker, #focus_arrow').show();
-			maptool.adjustZoomMarker();
-			maptool.reCalculatePositions();
-		});
+			mc.on('pinchend', function(e) {
+				$('.marker, #focus_arrow').show();
+				maptool.adjustZoomMarker();
+				maptool.reCalculatePositions();
+			});
 
-		mc.on('pinchmove', pinchListener);
+			mc.on('pinchmove', pinchListener);
 
-		mc.on('panstart', panStartListener);
-		mc.on('pan', panListener);
+			mc.on('panstart', panStartListener);
+			mc.on('pan', panListener);
+		}
 	});
 }());
 
