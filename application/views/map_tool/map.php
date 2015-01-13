@@ -55,14 +55,21 @@ function makeUserOptions3($sel=0, $fair) {
 	else:
 		$visible = 'false';
 	endif;
-		
-	if($visible == 'false' && !$hasRights) : ?>
+
+	if ($visible == 'false' && !$hasRights): ?>
 		<script type="text/javascript">
 			$().ready(function(){
+<?php	if ($f->get('allow_registrations') == 1 && userLevel() == 1): ?>
+				if (confirm('<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>')) {
+					location.href = '/fair_registration/form/<?php echo $f->get('id'); ?>';
+				}
+<?php	else: ?>
 				alert("<?php echo uh($translator->{'This fair is hidden'}); ?>");
+<?php	endif; ?>
 			});
 		</script>
-	<?php endif;
+<?php
+	endif;
 
 	// Om mässan är synlig
 	if(($visible == 'false' && userLevel() > 2) || ($visible == 'false' && userLevel() == 2 && $hasRights) || $visible == 'true') :

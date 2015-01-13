@@ -159,7 +159,7 @@ img#logo {
 	margin-left:-50px;
 	max-height:50px;
 }
-#save_confirm {
+#save_confirm, .save-confirm {
 	position:fixed;
 	z-index:1000;
 	top:50%;
