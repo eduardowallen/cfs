@@ -30,9 +30,9 @@
 		<?php foreach ($langs as $lang): ?>
 			
 			<?php if ($lang['default']): ?>
-				<td style="max-width:140px;"><?php echo $string[$lang['id']]; ?><input type="hidden" value="<?php echo $string[$lang['id']]; ?>" name="string[<?php echo $groupKey; ?>][<?php echo $lang['id']; ?>]"/></td>
+				<td style="max-width:140px;"><?php echo uh($string[$lang['id']]); ?><input type="hidden" value="<?php echo uh($string[$lang['id']]); ?>" name="string[<?php echo $groupKey; ?>][<?php echo $lang['id']; ?>]"/></td>
 			<?php else: ?>
-				<td><textarea style="width:140px; height:auto;" class="translate_textarea" name="string[<?php echo $groupKey; ?>][<?php echo $lang['id']; ?>]"><?php echo (isset($string[$lang['id']])) ? $string[$lang['id']] : ''; ?></textarea></td>
+				<td><textarea style="width:140px; height:auto;" class="translate_textarea" name="string[<?php echo $groupKey; ?>][<?php echo $lang['id']; ?>]"><?php echo (isset($string[$lang['id']])) ? uh($string[$lang['id']]) : ''; ?></textarea></td>
 			<?php endif; ?>
 			
 		<?php endforeach; ?>
