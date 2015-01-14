@@ -61,7 +61,7 @@ function makeUserOptions3($sel=0, $fair) {
 			$().ready(function(){
 <?php	if ($f->get('allow_registrations') == 1 && userLevel() == 1): ?>
 				if (confirm('<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>')) {
-					location.href = '/fair_registration/form/<?php echo $f->get('id'); ?>';
+					location.href = '/fairRegistration/form/<?php echo $f->get('id'); ?>';
 				}
 <?php	else: ?>
 				alert("<?php echo uh($translator->{'This fair is hidden'}); ?>");
