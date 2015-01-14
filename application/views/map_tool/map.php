@@ -304,7 +304,7 @@ function makeUserOptions3($sel=0, $fair) {
 		accessibleMaps.push(<?php echo $map ?>);
 	<?php endforeach; ?>
 
-	<?php if($visible == 'false' && !$hasRights): ?>
+	<?php if ($visible == 'true' || ($visible == 'false' && $hasRights)): ?>
 	$(document).ready(function() {
 		<?php 
 			$id = "";
