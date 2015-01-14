@@ -59,7 +59,7 @@ class Controller {
 	}
 
 	protected function createJsonResponse() {
-		$this->_template = new JsonResponse();
+		$this->_template = new JsonResponse('', '');
 	}
 
 	public function changeAction($new_action, $args = array()) {

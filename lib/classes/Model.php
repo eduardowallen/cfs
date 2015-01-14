@@ -1,5 +1,5 @@
 <?php
-class Model {
+class Model implements JsonSerializable {
 
 	protected $_model;
 	public $db;
@@ -7,7 +7,6 @@ class Model {
 	protected $id;
 	protected $table_name;
 	private $db_keys = array();
-	private $key;
 	private $loaded = false;
 
 
@@ -31,6 +30,20 @@ class Model {
 
 		}
 		return strtolower(substr($tbl, 1));
+	}
+
+	public function jsonSerialize() {
+		$values = array(
+			'id' => $this->id
+		);
+
+		foreach (get_object_vars($this) as $key => $value) {
+			if ($key != 'db' && $key != 'table_name' && $key != 'db_keys' && $key != 'loaded' && $key != '_model') {
+				$values[$key] = $value;
+			}
+		}
+
+		return $values;
 	}
 
 	public function load($key, $by) {
