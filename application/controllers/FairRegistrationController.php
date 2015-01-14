@@ -41,6 +41,12 @@ class FairRegistrationController extends Controller {
 			$this->FairRegistration->set('booking_time', time());
 			$this->FairRegistration->save();
 
+			// Connect user to fair
+			if (!userIsConnectedTo($fair->get('id'))) {
+				$stmt = $this->db->prepare("INSERT INTO fair_user_relation (`fair`, `user`, `connected_time`) VALUES (?, ?, ?)");
+				$stmt->execute(array($fair->get('id'), $me->get('id'), time()));
+			}
+
 			header('Location: /fairRegistration/success');
 			return;
 		}
