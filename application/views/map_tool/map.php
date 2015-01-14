@@ -322,6 +322,10 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php if (isset($_SESSION['copied_exhibitor'])): ?>
 		copiedExhibitor = "<?php echo $_SESSION['copied_exhibitor'] ?>";
 		<?php endif; ?>
+
+		<?php if (isset($copied_fair_registration)): ?>
+		copiedFairRegistration = <?php echo JsonResponse::encode($copied_fair_registration); ?>;
+		<?php endif; ?>
 	});
 	<?php endif; ?>
 </script>
@@ -670,6 +674,25 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<p><input type="button" id="apply_post" value="<?php echo uh($translator->{'Confirm'}); ?>"/></p>
 
+</div>
+
+<div id="fair_registration_paste_type_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
+	<h3><?php echo uh($translator->{'Paste registration'}); ?></h3>
+
+	<p>
+		<label>
+			<?php echo uh($translator->{'Set type of booking:'}); ?>
+			<select id="paste_fair_registration_type">
+				<option value="0"><?php echo uh($translator->{'Booking'}); ?></option>
+				<option value="1"><?php echo uh($translator->{'Reservation'}); ?></option>
+			</select>
+		</label>
+	</p>
+
+	<p>
+		<input type="button" id="paste_fair_registration" value="<?php echo uh($translator->{'Continue'}); ?>" />
+	</p>
 </div>
 
 

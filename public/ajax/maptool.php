@@ -48,6 +48,15 @@ if (isset($_POST['markPositionAsNotBeingEdited'])) {
 	
 }
 
+if (isset($_POST['delete_copied_fairreg'])) {
+	$fair_registration = new FairRegistration();
+	$fair_registration->load($_POST['delete_copied_fairreg'], 'id');
+	if ($fair_registration->wasLoaded()) {
+		unset($_SESSION['copied_fair_registration']);
+		$fair_registration->delete();
+	}
+}
+
 if (isset($_GET['getBusyStatus'])) {
 	$pos = new FairMapPosition();
 	$pos->load($_GET['getBusyStatus'], 'id');

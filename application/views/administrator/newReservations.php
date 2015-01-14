@@ -77,6 +77,18 @@ $prelbookings_columns = array(
 	)
 );
 $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info);
+
+$fair_registrations_columns = array(
+	$translator->{"Registrations"} => array(
+		'status' => $translator->{'Status'},
+		'area' => $translator->{'Area'},
+		'commodity' => $translator->{'Trade'},
+		'extra_options' => $translator->{'Extra options'},
+		'booking_time' => $translator->{'Time of booking'},
+		'arranger_message' => $translator->{'Message to organizer in list'}
+	)
+);
+$fair_registrations_columns = array_merge($fair_registrations_columns, $general_column_info);
 ?>
 <style>
 	#content{max-width:1280px;}
@@ -140,7 +152,9 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 
 		reserved: <?php echo json_encode($reserved_columns); ?>,
 
-		prem: <?php echo json_encode($prelbookings_columns); ?>
+		prem: <?php echo json_encode($prelbookings_columns); ?>,
+
+		fair_registrations: <?php echo json_encode($fair_registrations_columns); ?>
 
 	};
 </script>
@@ -494,6 +508,57 @@ $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info)
 <?php } else { ?>
 	<p> <?php echo $prel_notfound?> </p>
 <?php }?>
+
+
+
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $fair_registrations_headline; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'fair_registrations')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+
+<?php if (count($fair_registrations) > 0): ?>
+	<form action="administrator/exportNewReservations/4" method="post">
+		<div class="floatright right">
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="fair_registrations" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
+			<button type="submit" class="open-excel-export" name="export_excel" data-for="fair_registrations"><?php echo uh($export); ?></button>
+		</div>
+
+		<table class="std_table use-scrolltable" id="fair_registrations">
+			<thead>
+				<tr>
+					<th><?php echo $tr_area; ?></th>
+					<th><?php echo $tr_booker; ?></th>
+					<th><?php echo $tr_field; ?></th>
+					<th><?php echo $tr_message; ?></th>
+					<th data-sorter="false"><?php echo $tr_view; ?></th>
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-4" checked="checked" /></th>
+				</tr>
+			</thead>
+			<tbody>
+<?php	foreach ($fair_registrations as $registration): ?>
+				<tr data-id="<?php echo $registration->id; ?>">
+					<td class="center"><?php echo uh($registration->area); ?></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $registration->user; ?>" class="showProfileLink"><?php echo uh($registration->company); ?></a></td>
+					<td class="center"><?php echo uh($registration->commodity); ?></td>
+					<td class="center" title="<?php echo uh($registration->arranger_message); ?>">
+<?php		if (strlen($registration->arranger_message) > 0): ?>
+						<a href="administrator/arrangerMessage/registration/<?php echo $registration->id; ?>" class="open-arranger-message">
+							<img src="<?php echo BASE_URL; ?>images/icons/script.png" alt="<?php echo $tr_message; ?>" />
+						</a>
+<?php		endif; ?>
+					</td>
+					<td class="center">
+						<a href="mapTool/pasteRegistration/<?php echo $registration->fair . '/' . $registration->id; ?>" target="_blank" title="<?php echo $tr_view; ?>">
+							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
+						</a>
+					</td>
+					<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $registration->id; ?>" data-userid="<?php echo $registration->user; ?>" class="rows-4" checked="checked" /></td>
+				</tr>
+<?php	endforeach; ?>
+			</tbody>
+		</table>
+	</form>
+<?php else: ?>
+	<p><?php echo $fregistrations_notfound; ?></p>
+<?php endif; ?>
+
 <?php else: ?>
 	<p>Du är inte behörig att administrera den här mässan.</p>
 <?php endif; ?>

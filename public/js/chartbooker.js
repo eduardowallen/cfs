@@ -194,6 +194,7 @@ function positionDialogue(id) {
 		case "book_position_dialogue":
 		case "reserve_position_dialogue":
 		case "apply_mark_dialogue":
+		case 'fair_registration_paste_type_dialogue':
 		case "note_dialogue":
 			popupMaxWidth = 400;
 			break;

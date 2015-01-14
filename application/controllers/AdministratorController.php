@@ -274,6 +274,11 @@ class AdministratorController extends Controller {
 				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			} else if ($tbl == 4) {
+				$stmt = $u->db->prepare("SELECT fr.*, u.id AS userid, u.* FROM fair_registration AS fr LEFT JOIN user AS u ON u.id = fr.user WHERE fr.fair = ? AND fr.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt->execute(array($_SESSION['user_fair']));
+				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			}
 
 			/* Har nu tabellinformationen i en array, 
@@ -289,6 +294,9 @@ class AdministratorController extends Controller {
 			} else if ($tbl == 3) {
 				$filename = "PreliminaryBookings.xlsx";
 				$label_status = $this->translate->{'Preliminary booked'};
+			} else if ($tbl == 4) {
+				$filename = "FairRegistrations.xlsx";
+				$label_status = $this->translate->{'Registration'};
 			}
 
 			if ($tbl < 3) {
@@ -352,7 +360,7 @@ class AdministratorController extends Controller {
 			);
 
 			//Prelbooking does not have `Last edited`
-			if ($tbl !== 3) {
+			if ($tbl < 3) {
 				$column_names[] = $this->translate->{'Last edited'};
 			}
 
@@ -383,7 +391,7 @@ class AdministratorController extends Controller {
 
 					} else if ($fieldname == 'extra_options') {
 						$value = '';
-						if ($tbl == 3) {
+						if ($tbl >= 3) {
 							$option_texts = array();
 							$options = explode('|', $row['options']);
 
@@ -733,14 +741,22 @@ class AdministratorController extends Controller {
 			}
 		}
 
+		/* Fair registrations */
+		$stmt_fregistrations = $this->db->prepare("SELECT fa.*, u.company FROM fair_registration AS fa LEFT JOIN user AS u ON u.id = fa.user WHERE fa.fair = ?");
+		$stmt_fregistrations->execute(array($_SESSION['user_fair']));
+		$fair_registrations = $stmt_fregistrations->fetchAll(PDO::FETCH_CLASS);
+
 		$this->setNoTranslate('positions', $positions);
 		$this->setNoTranslate('rpositions', $rpositions);
 		$this->setNoTranslate('prelpos', $prelpos);
+		$this->setNoTranslate('fair_registrations', $fair_registrations);
 		$this->set('deletion_comment', 'Enter comment about deletion');
 		$this->set('booked_notfound', 'No booked booths was found.');
 		$this->set('reserv_notfound', 'No reservations was found.');
 		$this->set('prel_notfound', 'No preliminary bookings was found.');
 		$this->set('prel_table', 'Preliminary bookings');
+		$this->set('fair_registrations_headline', 'Registrations');
+		$this->set('fregistrations_notfound', 'No registrations was found.');
 		$this->set('tr_fair', 'Fair');
 		$this->set('tr_pos', 'Stand space');
 		$this->set('tr_area', 'Area');
@@ -777,6 +793,10 @@ class AdministratorController extends Controller {
 				$prel_booking = new PreliminaryBooking();
 				$prel_booking->load($id, 'id');
 				$message = $prel_booking->get('arranger_message');
+			} else if ($type == 'registration') {
+				$fair_registration = new FairRegistration();
+				$fair_registration->load($id, 'id');
+				$message = $fair_registration->get('arranger_message');
 			} else {
 				$exhibitor = new Exhibitor();
 				$exhibitor->load($id, 'id');

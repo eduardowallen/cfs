@@ -66,6 +66,14 @@ class MapToolController extends Controller {
 				if (!empty($_SESSION["user_id"]) && $saveVisit) {
 					setcookie($_SESSION["user_id"] . "_last_fair", $_SESSION["user_fair"], time() + 3600 * 24 * 365, "/");
 				}
+
+				if (isset($_SESSION['copied_fair_registration'])) {
+					$fair_registration = new FairRegistration();
+					$fair_registration->load($_SESSION['copied_fair_registration'], 'id');
+					if ($fair_registration->wasLoaded()) {
+						$this->setNoTranslate('copied_fair_registration', $fair_registration);
+					}
+				}
 				
 				$this->setNoTranslate('fair', $fair);
 				$this->set('connect', 'Connect to fair');
@@ -101,6 +109,14 @@ class MapToolController extends Controller {
 		}
 
 
+	}
+
+	function pasteRegistration($fair = '', $registration_id = '') {
+		if ($fair != '' && $registration_id != '') {
+			$_SESSION['copied_fair_registration'] = $registration_id;
+			header('Location: /mapTool/map/' . $fair);
+			die();
+		}
 	}
 
 	function print_position($map_id = null, $position_id = null) {
