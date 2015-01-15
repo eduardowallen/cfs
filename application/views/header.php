@@ -95,7 +95,7 @@
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">
 	
-	function confirmBox(evt, message, url, type) {
+	function confirmBox(evt, message, action_positive, type, action_negative) {
 		evt.preventDefault();
 		$('#overlay').show();
 		$('#confirmBox .msg').html(message).parent().show();
@@ -106,13 +106,18 @@
 
 		$('#confirm_' + (type === 'OK_CANCEL' ? 'abort' : 'no')).click(function() {
 			closeConfirmBox();
+			if (typeof action_negative === 'function') {
+				action_negative();
+			} else if (typeof action_negative === 'string') {
+				document.location.href = '<?php echo BASE_URL ?>' + action_negative;
+			}
 		});
 		$('#confirm_' + (type === 'OK_CANCEL' ? 'ok' : 'yes')).click(function() {
 			closeConfirmBox();
-			if (typeof url === 'function') {
-				url();
+			if (typeof action_positive === 'function') {
+				action_positive();
 			} else {
-				document.location.href = '<?php echo BASE_URL ?>' + url;
+				document.location.href = '<?php echo BASE_URL ?>' + action_positive;
 			}
 		});
 	}

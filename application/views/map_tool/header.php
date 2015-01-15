@@ -87,21 +87,36 @@
 </script>
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">
-	function confirmBox(evt, message, url) {
+	function confirmBox(evt, message, action_positive, type, action_negative) {
 		evt.preventDefault();
 		$('#overlay').show();
 		$('#confirmBox .msg').html(message).parent().show();
-		$('#confirm_abort').click(function() {
+
+		$('#confirmBox .dialog-buttons').hide();
+		type = (typeof type === 'undefined' ? 'OK_CANCEL' : type);
+		$('#confirmBox' + type).show();
+
+		$('#confirm_' + (type === 'OK_CANCEL' ? 'abort' : 'no')).click(function() {
 			closeConfirmBox();
+			if (typeof action_negative === 'function') {
+				action_negative();
+			} else if (typeof action_negative === 'string') {
+				document.location.href = '<?php echo BASE_URL ?>' + action_negative;
+			}
 		});
-		$('#confirm_ok').click(function() {
+		$('#confirm_' + (type === 'OK_CANCEL' ? 'ok' : 'yes')).click(function() {
 			closeConfirmBox();
-			document.location.href = '<?php echo BASE_URL ?>' + url;
+			if (typeof action_positive === 'function') {
+				action_positive();
+			} else {
+				document.location.href = '<?php echo BASE_URL ?>' + action_positive;
+			}
 		});
 	}
 	function closeConfirmBox() {
 		$('#overlay').hide();
 		$('#confirmBox .msg').html('').parent().hide();
+		$('#confirmBox .dialog-text').remove();
 	}
 	
 	$(document).ready(function() {
@@ -141,9 +156,13 @@
 	<div id="overlay"></div>
 	<div id="confirmBox">
 		<p class="msg"></p>
-		<p>
-			<input type="button" id="confirm_ok" value="OK"/>
-			<input type="button" id="confirm_abort" value="Avbryt"/>
+		<p class="dialog-buttons" id="confirmBoxOK_CANCEL">
+			<input type="button" id="confirm_ok" value="<?php echo uh($translator->{'OK'}); ?>"/>
+			<input type="button" id="confirm_abort" value="<?php echo uh($translator->{'Cancel'}); ?>"/>
+		</p>
+		<p class="dialog-buttons" id="confirmBoxYES_NO">
+			<input type="button" id="confirm_yes" value="<?php echo uh($translator->{'Yes'}); ?>"/>
+			<input type="button" id="confirm_no" value="<?php echo uh($translator->{'No'}); ?>"/>
 		</p>
 	</div>
 	<div id="save_confirm">
