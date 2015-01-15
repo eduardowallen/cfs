@@ -59,10 +59,17 @@ function makeUserOptions3($sel=0, $fair) {
 	if ($visible == 'false' && !$hasRights): ?>
 		<script type="text/javascript">
 			$().ready(function(){
+				var fakevent = {preventDefault: function() {}};
 <?php	if ($f->get('allow_registrations') == 1 && userLevel() == 1): ?>
-				if (confirm('<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>')) {
-					location.href = '/fairRegistration/form/<?php echo $f->get('id'); ?>';
+<?php		if ($has_prev_registrations): ?>
+				confirmBox(fakevent, '<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>', confirmedRegisterEvent, 'OK_CANCEL');
+
+				function confirmedRegisterEvent() {
+					confirmBox(fakevent, '<?php echo ujs($translator->{'You have already requested a stand space on this event. Do you want to make another one?'}); ?>', 'fairRegistration/form/<?php echo $f->get('id'); ?>', 'YES_NO', 'exhibitor/myBookings');
 				}
+<?php		else: ?>
+				confirmBox(fakevent, '<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>', 'fairRegistration/form/<?php echo $f->get('id'); ?>', 'OK_CANCEL');
+<?php		endif; ?>
 <?php	else: ?>
 				alert("<?php echo uh($translator->{'This fair is hidden'}); ?>");
 <?php	endif; ?>

@@ -74,6 +74,15 @@ class MapToolController extends Controller {
 						$this->setNoTranslate('copied_fair_registration', $fair_registration);
 					}
 				}
+
+				if ($fair->get('allow_registrations') == 1 && userLevel() == 1) {
+					// Look for any previous made registrations
+					$stmt_registrations = $this->db->prepare("SELECT COUNT(*) AS cnt FROM fair_registration WHERE fair = ? AND user = ?");
+					$stmt_registrations->execute(array($fair->get('id'), $_SESSION['user_id']));
+					$prev_registrations = $stmt_registrations->fetchObject();
+
+					$this->setNoTranslate('has_prev_registrations', ($prev_registrations->cnt > 0));
+				}
 				
 				$this->setNoTranslate('fair', $fair);
 				$this->set('connect', 'Connect to fair');
