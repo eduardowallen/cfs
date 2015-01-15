@@ -1177,14 +1177,23 @@ class ExhibitorController extends Controller {
 			$prelpos[] = $pos;
 		}
 
+		/* Fair registrations */
+		$stmt_fregistrations = $this->db->prepare("SELECT fa.*, f.name AS fair_name FROM fair_registration AS fa LEFT JOIN fair AS f ON f.id = fa.fair WHERE fa.user = ?");
+		$stmt_fregistrations->execute(array($_SESSION['user_id']));
+		$fair_registrations = $stmt_fregistrations->fetchAll(PDO::FETCH_CLASS);
+
 		$this->setNoTranslate('positions', $positions);
 		$this->setNoTranslate('rpositions', $rpositions);
 		$this->setNoTranslate('prelpos', $prelpos);
+		$this->setNoTranslate('fair_registrations', $fair_registrations);
 
 		$this->set('booked_notfound', 'No booked booths was found.');
 		$this->set('reserv_notfound', 'No reservations was found.');
 		$this->set('prel_notfound', 'No preliminary bookings was found.');
+		$this->set('prel_notfound', 'No preliminary bookings was found.');
 		$this->set('prel_table', 'Preliminary bookings');
+		$this->set('fair_registrations_headline', 'Registrations');
+		$this->set('fregistrations_notfound', 'No registrations was found.');
 		$this->set('tr_fair', 'Fair');
 		$this->set('tr_pos', 'Stand space');
 		$this->set('tr_area', 'Area');
@@ -1294,6 +1303,18 @@ class ExhibitorController extends Controller {
 		setAuthLevel(1);
 		$this->Exhibitor->del_pre_booking($id, $user_id, $position);
 		header('Location: '.BASE_URL.'exhibitor/myBookings');
+	}
+
+	function registration_delete($id) {
+		setAuthLevel(1);
+		$fair_registration = new FairRegistration();
+		$fair_registration->load($id, 'id');
+		if ($fair_registration->wasLoaded() && $fair_registration->get('user') == $_SESSION['user_id']) {
+			$fair_registration->delete();
+		}
+
+		header('Location: ' . BASE_URL . 'exhibitor/myBookings');
+		die();
 	}
 
 	function delete($id, $user_id, $position){
