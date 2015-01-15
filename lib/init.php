@@ -73,7 +73,7 @@ function callHook() {
 		call_user_func_array(array($dispatch, $action), array_slice($urlArray, 2));
 	} else {
 		//Error handling
-		throw new Exception("404");
+		throw new Exception('Action ' . $action . ' not found on ' . $controller, 404);
 	}
 }
 
@@ -112,4 +112,10 @@ if (!defined("ENT_HTML5")) {
 }
 
 setReporting();
-callHook();
+
+try {
+	callHook();
+} catch (Exception $ex) {
+
+}
+?>
