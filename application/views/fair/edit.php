@@ -216,6 +216,13 @@ php if (userLevel() == 4 || $edit_id == 'new') { $da = ''; } else { $da = ' disa
 				<option value="1"<?php if ($fair->get('allow_registrations') == 1) echo ' selected="selected"'; ?>><?php echo $true_label; ?></option>
 			</select>
 		</div>
+
+		<label for="hidden_search"><?php echo $hide_fair_search_label; ?></label>
+		<select name="hidden_search" id="hidden_search">
+			<option value="0"<?php if ($fair->get('hidden_search') == 0) echo ' selected="selected"'; ?>><?php echo $false_label; ?></option>
+			<option value="1"<?php if ($fair->get('hidden_search') == 1) echo ' selected="selected"'; ?>><?php echo $true_label; ?></option>
+		</select>
+		<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Whether or not exhibitors will be able to see this event in the Eventsearch page.'}); ?>" />
 	</div>
 
 	<p class="clear"><input <?php echo $disable; ?> type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>

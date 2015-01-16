@@ -110,6 +110,7 @@
 				<li><a href="user/accountSettings"><!--<img src="images/icons/icon_logga_in.png" alt=""/>--><?php echo uh($translator->{'My profile'}); ?></a>
 					<ul>
 						<li><a href="exhibitor/myBookings"><?php echo uh($translator->{'My bookings'}); ?></a></li>
+						<li><a href="fair/search"><?php echo uh($translator->{'Eventsearch'}); ?></a></li>
 						<li><a href="user/changePassword"><?php echo uh($translator->{'Change password'}); ?></a></li>
 						<li><a href="user/logout"><?php echo uh($translator->{'Log out'}); ?></a></li>
 					</ul>

@@ -6,6 +6,37 @@ class FairController extends Controller {
 		
 	}
 
+	public function search() {
+		setAuthLevel(1);
+
+		$stmt_open_fairs = $this->db->prepare("SELECT f.*, u.website, COUNT(ex.id) AS cnt_exhibitors, COUNT(pb.id) AS cnt_prel_bookings FROM fair AS f
+				LEFT JOIN user AS u ON u.id = f.created_by
+				LEFT JOIN exhibitor AS ex ON ex.fair = f.id AND ex.user = ?
+				LEFT JOIN preliminary_booking AS pb ON pb.fair = f.id AND pb.user = ?
+				WHERE f.approved = 1
+				AND f.hidden_search = 0
+				AND f.auto_publish <= UNIX_TIMESTAMP()
+				AND f.auto_close > UNIX_TIMESTAMP()
+				GROUP BY f.id
+				ORDER BY f.name
+		");
+		$stmt_open_fairs->execute(array($_SESSION['user_id'], $_SESSION['user_id']));
+
+		$fairs = $stmt_open_fairs->fetchAll(PDO::FETCH_CLASS);
+
+		$this->setNoTranslate('fairs', $fairs);
+		$this->set('label_headline', 'Eventsearch');
+		$this->set('label_fairname', 'Fair name');
+		$this->set('label_closing_date', 'Closing date');
+		$this->set('label_homepage', 'Homepage');
+		$this->set('label_bookings', 'Bookings');
+		$this->set('label_registration', 'Registration');
+		$this->set('label_go_to_event', 'Go to event');
+		$this->set('label_hidden', 'Hidden');
+		$this->set('label_open', 'Open');
+		$this->set('label_no_fairs', 'Found no fairs.');
+	}
+
 	function overview($param='') {
 		setAuthLevel(3);
 		$this->setNoTranslate('param', $param);
@@ -227,6 +258,7 @@ class FairController extends Controller {
 				}
 				$this->Fair->set('hidden', $_POST['hidden']);
 				$this->Fair->set('allow_registrations', $_POST['allow_registrations']);
+				$this->Fair->set('hidden_search', $_POST['hidden_search']);
 				for ($i = 1; $i <= 3; $i++) {
 					$this->Fair->set('reminder_day' . $i, $_POST['reminder_day' . $i]);
 					$this->Fair->set('reminder_note' . $i, $_POST['reminder_note' . $i]);
@@ -336,6 +368,7 @@ class FairController extends Controller {
 			$this->set('save_label', 'Save');
 			$this->set('cancel_label', 'Cancel');
 			$this->set('hide_fair_for_label', 'Hide fair for unauthorized accounts');
+			$this->set('hide_fair_search_label', 'Hide fair in the "fair search"');
 			$this->set('allow_registrations_label', 'Allow registrations when fair is hidden');
 			$this->set('false_label', 'false');
 			$this->set('true_label', 'true');
