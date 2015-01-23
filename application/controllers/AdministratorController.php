@@ -261,17 +261,17 @@ class AdministratorController extends Controller {
 			$u->load($_SESSION['user_id'], 'id');
 
 			if ($tbl == 1) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair'], 2));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 2) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair'], 1));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 3) {
-				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -394,9 +394,9 @@ class AdministratorController extends Controller {
 						if ($tbl >= 3) {
 							$option_texts = array();
 							$options = explode('|', $row['options']);
-
 							foreach ($options as $option_id) {
-								$option = new FairExtraOption($option_id);
+								$option = new FairExtraOption();
+								$option->load($option_id, 'id');
 								if ($option->wasLoaded()) {
 									$option_texts[] = $option->get('text');
 								}
