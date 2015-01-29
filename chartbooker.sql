@@ -126,6 +126,8 @@ CREATE TABLE IF NOT EXISTS `fair` (
   `auto_close` int(10) unsigned NOT NULL,
   `max_positions` int(9) unsigned NOT NULL,
   `hidden` tinyint(1) NOT NULL DEFAULT '0',
+  `allow_registrations` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
+  `hidden_search` TINYINT(1) UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `url` (`url`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -368,6 +370,31 @@ ALTER TABLE `sms_recipient`
 	ADD PRIMARY KEY (`sms_id`,`phone`);
 ALTER TABLE `sms_recipient`
 	MODIFY `sms_id` int(11) NOT NULL AUTO_INCREMENT;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `fair_registration`
+--
+
+CREATE TABLE `fair_registration` (
+  `id` int(9) unsigned NOT NULL,
+  `user` int(9) unsigned NOT NULL,
+  `fair` int(9) unsigned NOT NULL,
+  `categories` text COLLATE utf8_swedish_ci NOT NULL,
+  `options` text COLLATE utf8_swedish_ci NOT NULL,
+  `commodity` text COLLATE utf8_swedish_ci NOT NULL,
+  `arranger_message` text COLLATE utf8_swedish_ci NOT NULL,
+  `area` varchar(256) COLLATE utf8_swedish_ci NOT NULL,
+  `booking_time` int(20) unsigned NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_swedish_ci;
+
+
+ALTER TABLE `fair_registration`
+ ADD PRIMARY KEY (`id`), ADD KEY `fair` (`fair`);
+ 
+ ALTER TABLE `fair_registration`
+MODIFY `id` int(9) unsigned NOT NULL AUTO_INCREMENT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
