@@ -63,6 +63,23 @@ function callHook() {
 		}
 	}
 
+	// Make sure that signed in users can't use the system without terms approval!
+	if (isset($_SESSION['user_id'])) {
+		if (!isset($_SESSION['user_terms_approved'])) {
+			header('Location: ' . BASE_URL . 'user/logout');
+			exit;
+		}
+
+		if (!$_SESSION['user_terms_approved']) {
+			$url = $urlArray[0] . '/' . $action;
+			// Whitelist URLs that can be accessed without approved terms
+			if (!in_array($url, array('user/terms'))) {
+				header('Location: ' . BASE_URL . 'user/terms?next=' . $url);
+				exit;
+			}
+		}
+	}
+
 	$dispatch = new $controller($model, $controllerName, $action);
 	if (isset($countView)) {
 		$stmt = $dispatch->db->prepare("UPDATE fair SET page_views = `page_views`+1 WHERE url = ?");

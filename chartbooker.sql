@@ -314,6 +314,7 @@ CREATE TABLE IF NOT EXISTS `user` (
   `password_changed` int(10) NOT NULL,
   `locked` tinyint(1) NOT NULL,
   `commodity` varchar(200) COLLATE utf8_unicode_ci NOT NULL,
+  `terms` INT UNSIGNED NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   UNIQUE KEY `alias` (`alias`)

@@ -372,17 +372,27 @@ class UserController extends Controller {
 				//if ($days > 72) {
 				//	header("Location: ".BASE_URL."user/changePassword/remind");
 				//} else {
-					$fair = new Fair;
-					$fair->load($_SESSION['user_fair'], 'id');
-					if ($fair->wasLoaded()) {
-						if (userLevel() > 1) {
-							$redirect_url = BASE_URL.'mapTool/map/'.$fair->get('id');
-						} else {
-							$redirect_url = BASE_URL.$fair->get('url');
-						}
+				$fair = new Fair;
+				$fair->load($_SESSION['user_fair'], 'id');
+				if ($fair->wasLoaded()) {
+					if (userLevel() > 1) {
+						$redirect_url = BASE_URL.'mapTool/map/'.$fair->get('id');
 					} else {
-						$redirect_url = BASE_URL."page/loggedin";
+						$redirect_url = BASE_URL.$fair->get('url');
 					}
+				} else {
+					$redirect_url = BASE_URL."page/loggedin";
+				}
+
+				// Check if user has approved the current User Terms
+				// (Master level users doesn't have to approve anything)
+				if ($this->User->get('terms') == USER_TERMS || $this->User->get('level') == 4) {
+					$_SESSION['user_terms_approved'] = true;
+
+				} else {
+					// User terms NOT approved!
+					$redirect_url = BASE_URL . 'user/terms?next=' . $redirect_url;
+					$_SESSION['user_terms_approved'] = false;
 
 					if ($this->is_ajax) {
 						$this->createJsonResponse();
@@ -391,7 +401,17 @@ class UserController extends Controller {
 					} else {
 						header("Location: " . $redirect_url);
 					}
+				}
+
+				if ($this->is_ajax) {
+					$this->createJsonResponse();
+					$this->set('redirect', $redirect_url);
+					return;
+				} else {
+					header("Location: " . $redirect_url);
+				}
 				//}
+
 				exit;
 			} else {
 				if ($this->is_ajax) {
@@ -878,6 +898,37 @@ class UserController extends Controller {
 		return preg_match("/^[0-9\p{Ll}]+$/u", $string);
 	}
 
+	public function terms() {
+		setAuthLevel(1);
+
+		$this->User->load($_SESSION['user_id'], 'id');
+		$next = (isset($_GET['next']) ? str_replace(BASE_URL, '', $_GET['next']) : 'page/loggedin');
+
+		if (isset($_POST['approve'])) {
+			$this->User->set('terms', USER_TERMS);
+			$this->User->save();
+
+			$_SESSION['user_terms_approved'] = true;
+
+			header('Location: ' . BASE_URL . $next);
+			exit;
+
+		} else if (isset($_POST['decline'])) {
+			$this->logout();
+			exit;
+
+		} else {
+			$stmt_content = $this->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = ?");
+			$stmt_content->execute(array('user_terms', LANGUAGE));
+			$terms_content = $stmt_content->fetchObject()->content;
+
+			$this->setNoTranslate('next', $next);
+			$this->setNoTranslate('terms_content', $terms_content);
+			$this->set('label_headline', 'Approve our User Terms');
+			$this->set('label_approve', 'Approve');
+			$this->set('label_decline', 'Decline');
+		}
+	}
 }
 
 ?>
