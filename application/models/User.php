@@ -198,6 +198,20 @@ class User extends Model {
 		}
 		return $users;
 	}
+
+	public static function getExhibitorsForMyFairs() {
+		if (userLevel() == 3) {
+			return self::getExhibitorsForArranger($_SESSION['user_id']);
+		} else {
+			$users = array();
+
+			foreach (getMyFairs() as $fair) {
+				return self::getExhibitorsForFair($fair->id);
+			}
+
+			return $users;
+		}
+	}
 }
 
 ?>

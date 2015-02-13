@@ -115,6 +115,13 @@ class Exhibitor extends User {
 		return parent::get($att);
 	}
 
+	/* Static methods */
+
+	public static function fetchAll() {
+		global $globalDB;
+		$stmt = $globalDB->query("SELECT u.*, ex.id AS exhibitor_id FROM exhibitor AS ex INNER JOIN user AS u ON u.id = ex.user GROUP BY u.id ORDER BY company");
+		return $stmt->fetchAll(PDO::FETCH_CLASS, 'Exhibitor');
+	}
 }
 
 ?>

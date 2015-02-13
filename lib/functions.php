@@ -52,6 +52,30 @@ function userCanAdminFair($fair_id, $map_id) {
 	return false;
 }
 
+function getMyFairs() {
+	global $globalDB;
+
+	if (userLevel() == 2) {
+		$stmt = $globalDB->prepare("SELECT id, name
+				FROM fair_user_relation AS fur
+				LEFT JOIN fair ON fur.fair = fair.id
+				WHERE user = ? ORDER BY name");
+
+		$stmt->execute(array($_SESSION['user_id']));
+		return $stmt->fetchAll(PDO::FETCH_OBJ);
+
+	} else if (userLevel() == 3) {
+		$stmt = $globalDB->prepare("SELECT id, name FROM fair WHERE created_by = ? ORDER BY name");
+		$stmt->execute(array($_SESSION['user_id']));
+		return $stmt->fetchAll(PDO::FETCH_OBJ);
+
+	} else {
+		$stmt = $globalDB->prepare("SELECT id, name FROM fair ORDER BY name");
+		$stmt->execute(array($_SESSION['user_id']));
+		return $stmt->fetchAll(PDO::FETCH_OBJ);
+	}
+}
+
 function getTableName($classname) {
 	$tbl = '';
 	foreach(str_split($classname) as $char) {
