@@ -88,6 +88,7 @@ function callHook() {
 
 	if (method_exists($controller, $action)) {
 		call_user_func_array(array($dispatch, $action), array_slice($urlArray, 2));
+		$dispatch->render();
 	} else {
 		//Error handling
 		throw new Exception('Action ' . $action . ' not found on ' . $controller, 404);
