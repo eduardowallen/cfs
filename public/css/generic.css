@@ -255,7 +255,7 @@ input[type=text], input[type=password], textarea {
 	font-size:12px;
 }
 
-input[type=button], input[type=submit], .td_button, .link-button {
+input[type=button], input[type=submit], button, .td_button, .link-button {
 	border:1px solid #666666;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
