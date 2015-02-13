@@ -135,10 +135,11 @@
 		});
 		<?php if (isset($_POST['save']) && !isset($error)): ?>
 		$("#save_confirm").show();
+		<?php endif; ?>
+
 		$("#save_confirm input").click(function() {
 			$(this).parent().parent().fadeOut("fast");
 		});
-		<?php endif; ?>
 		
 	});
 
