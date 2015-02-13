@@ -6,6 +6,7 @@
 				<li><a href="user/accountSettings"><!--<img src="images/icons/icon_logga_in.png" alt=""/>--><?php echo uh($translator->{'My profile'}); ?></a>
 					<ul>
 						<li><a href="user/changePassword"><?php echo uh($translator->{'Change password'}); ?></a></li>
+						<li><a href="comment"><?php echo uh($translator->{'Notes'}); ?></a></li>
 						<li><a href="user/logout"><?php echo uh($translator->{'Log out'}); ?></a></li>
 					</ul>
 				</li>
@@ -47,6 +48,7 @@
 						<li><a href="fair/overview"><?php echo uh($translator->{'My events'}); ?></a></li>
 						<li><a href="administrator/mine"><?php echo uh($translator->{'Administrators'}); ?></a></li>
 						<li><a href="exhibitor/forFair"><?php echo uh($translator->{'Exhibitors'}); ?></a></li>
+						<li><a href="comment"><?php echo uh($translator->{'Notes'}); ?></a></li>
 						<li><a href="administrator/newReservations"><?php echo uh($translator->{'New reservations'}); ?><?php echo $bookCount; ?></a></li>
 						<li><a href="user/changePassword"><?php echo uh($translator->{'Change password'}); ?></a></li>
 						<li><a href="user/logout"><?php echo uh($translator->{'Log out'}); ?></a></li>
@@ -79,6 +81,7 @@
 					<ul>
 						<li><a href="administrator/newReservations"><?php echo uh($translator->{'New reservations'}); ?><?php echo $bookCount; ?></a></li>
 						<li><a href="exhibitor/forFair"><?php echo uh($translator->{'Exhibitors'}); ?></a></li>
+						<li><a href="comment"><?php echo uh($translator->{'Notes'}); ?></a></li>
 						<li><a href="user/changePassword"><?php echo uh($translator->{'Change password'}); ?></a></li>
 						<li><a href="user/logout"><?php echo uh($translator->{'Log out'}); ?></a></li>
 					</ul>

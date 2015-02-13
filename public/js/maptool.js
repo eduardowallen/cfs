@@ -1790,57 +1790,13 @@ maptool.positionInfo = function(positionObject) {
 	positionDialogue("more_info_dialogue");
 }
 
-maptool.getNotes = function(positionObject){
-	$('#note_dialogue > textarea').text ="";
-	var lblTitle = $('#note_dialogue h3');
-	lblTitle.text(lblTitle.data('text') + positionObject.name);
-	var fairId = maptool.map.fair;
-	var exhibitorId = positionObject.exhibitor.user;
-	var positionId = positionObject.id;
-	
-	if(exhibitorId != "undefined"){	
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST', 
-			data: 'getComment=1&fair='+fairId+'&exhibitor='+exhibitorId+'&position='+positionId
-		}).success(function(response){
-			$('.commentList').html(response);
-		});
-	} 
-}
-
-maptool.makeNote = function(positionObject){
-	$('#note_dialogue > button').off('click');
-	var lblTitle = $('#note_dialogue h3');
-	lblTitle.text(lblTitle.data('text') + positionObject.name);
-	$('#note_dialogue > textarea').val = "";
-	var fairId = maptool.map.fair;
-	var exhibitorId = positionObject.exhibitor.user;
-	var positionId = positionObject.id;
-	var who = $('#noteName').text();
-
-
-	maptool.getNotes(positionObject);
-	$('#note_dialogue > button').click(function(){
-		var text = $('#note_dialogue > textarea').val();
-		
-		var place;
-
-		if($('#commentOnSpace').val() == '1'){
-			place = 0;
-		} else {
-			place = positionId;
-		}
-
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST', 
-			data: 'makeComment=1&fair='+fairId+'&exhibitor='+exhibitorId+'&position='+place+'&text='+text
-		}).success(function(response){
-			maptool.getNotes(positionObject);
-		});
+maptool.makeNote = function(positionObject) {
+	Comments.showDialog({
+		user_id: positionObject.exhibitor.user,
+		fair_id: maptool.map.fair,
+		position_id: positionObject.id,
+		close_dialog_after: false
 	});
-	maptool.openDialogue('note_dialogue');
 };
 
 maptool.showPreliminaryBookings = function(position_data) {

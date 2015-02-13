@@ -99,6 +99,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 					<th><?php echo $th_fairs ?></th>
 					<th><?php echo $th_bookings ?></th>
 					<th><?php echo $th_last_login ?></th>
+					<th data-sorter="false"><?php echo $tr_comments; ?></th>
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-1" checked="checked" /></th>
 				</tr>
 			</thead>
@@ -110,6 +111,11 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 						<td class="center"><?php echo $user->get('fair_count');?></td>
 						<td class="center"><?php echo $user->get('ex_count');?></td>
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login'));?></td>
+						<td class="center">
+							<a href="#" class="js-show-comment-dialog" data-user="<?php echo $user->get('id'); ?>" title="<?php echo $tr_comments; ?>">
+								<img src="<?php echo BASE_URL; ?>images/icons/notes.png" alt="<?php echo $tr_comments; ?>" />
+							</a>
+						</td>
 						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" class="rows-1" checked="checked" /></td>
 						<!--<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
 						<td class="center"><a onclick="return confirm('<?php echo uh($translator->{'Really delete?'}); ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>-->
@@ -142,6 +148,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 					<!--<th><?php echo $th_bookings ?></th>-->
 					<th><?php echo $th_last_login ?></th>
 					<th><?php echo $th_connect_time ?></th>
+					<th data-sorter="false"><?php echo $tr_comments; ?></th>
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
 				</tr>
 			</thead>
@@ -154,6 +161,11 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 						<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
 						<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
 						<td><?php if ($user->get('connected_time')) echo date('d-m-Y H:i:s', $user->get('connected_time')); else echo 'n/a'; ?></td>
+						<td class="center">
+							<a href="#" class="js-show-comment-dialog" data-user="<?php echo $user->get('id'); ?>" title="<?php echo $tr_comments; ?>">
+								<img src="<?php echo BASE_URL; ?>images/icons/notes.png" alt="<?php echo $tr_comments; ?>" />
+							</a>
+						</td>
 						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" class="rows-2" checked="checked" /></td>
 					</tr>
 				<?php endforeach; ?>

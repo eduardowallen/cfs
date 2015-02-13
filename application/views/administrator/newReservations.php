@@ -279,6 +279,7 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					<th><?php echo $tr_time; ?></th>
 					<th><?php echo $tr_last_edited; ?></th>
 					<th><?php echo $tr_message; ?></th>
+					<th data-sorter="false"><?php echo $tr_comments; ?></th>
 					<th data-sorter="false"><?php echo $tr_view; ?></th>
 					<th data-sorter="false"><?php echo $tr_edit; ?></th>
 					<th data-sorter="false"><?php echo $tr_delete; ?></th>
@@ -308,8 +309,13 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 						</a>
 <?php endif; ?>
 					</td>
+					<td class="center">
+						<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
+							<img src="<?php echo BASE_URL; ?>images/icons/notes.png" alt="<?php echo $tr_comments; ?>" />
+						</a>
+					</td>
 					<td>
-					<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
 						</a>
 					</td>

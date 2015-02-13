@@ -581,6 +581,170 @@ function showSmsSendPopup(e) {
 	}
 }
 
+var Comments = (function() {
+	var current_modelview = null;
+	var current_collectionview = null;
+	var close_after_create = false;
+	var template;
+
+	function getModelView(reference) {
+		return reference.parents('[data-model=Comment]');
+	}
+
+	function saveCommentListener(e) {
+		e.preventDefault();
+		var target = $(e.target);
+
+		$.ajax({
+			url: e.target.action,
+			method: 'POST',
+			data: target.serialize() + '&save=1&template=' + template,
+			success: function(response) {
+				if (response.error) {
+					alert(response.error);
+				} else {
+					if (response.saved) {
+						$('#save_confirm').show();
+
+						if (current_modelview.length > 0) {
+							$('[data-key=comment]', current_modelview).text(response.model.comment);
+							$('[data-key=type]', current_modelview).html(response.model.type_html);
+							closeDialogue();
+						}
+
+					} else if (response.deleted) {
+						if (current_modelview) {
+							current_modelview.remove();
+						}
+
+						closeDialogue();
+
+					} else if (current_collectionview.length > 0) {
+						$('.empty-placeholder', current_collectionview).remove();
+						current_collectionview.append(response);
+
+						if (close_after_create) {
+							closeDialogue();
+						}
+					}
+				}
+			}
+		});
+	}
+
+	function initDialog(response, options) {
+		if ($('#note_dialogue').length > 0) {
+			$('#note_dialogue').remove();
+		}
+
+		if (response.error) {
+			alert(response.error);
+		} else {
+			var note_dialogue = $('<div id="note_dialogue" class="dialogue" style="width: 400px;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+				+ response + '</div>');
+			var user_select = $('.js-user-select', note_dialogue);
+
+			$('form', note_dialogue).on('submit', saveCommentListener);
+
+			if (user_select.length > 0) {
+				var user_search = $('<input type="text" id="note_user_search" />');
+				user_select.siblings('strong').before(user_search);
+				user_search.wrap('<label>' + lang.search_exhibitor + ':<br /></label><br />');
+
+				user_search.on('keypress', function(e) {
+					if (e.keyCode == 13) {
+						e.preventDefault();
+					} else {
+						setTimeout(function() {
+							var query = user_search.val().toLowerCase();
+							var selectedFirst = false;
+							if (query == '') {
+									$('option', user_select).show();
+							} else {
+								$('option', user_select).each(function(index, option) {
+									option = $(option);
+									if (option.text().toLowerCase().indexOf(query) == -1) {
+										option.prop('selected', false);
+										option.hide();
+
+									} else {
+										if (!selectedFirst) {
+											option.prop('selected', true);
+											selectedFirst = true;
+										}
+
+										option.show();
+									}
+								});
+							}
+						}, 0);
+					}
+				});
+			}
+
+			$('body').append(note_dialogue);
+			$('.close-popup', note_dialogue).click(closeDialogue);
+
+			current_collectionview = $(options.collection_view_selector);
+			close_after_create = options.close_dialog_after;
+			template = options.template;
+
+			closeDialogue();
+
+			$('#overlay').show();
+			note_dialogue.show();
+			open_dialogue = note_dialogue;
+		}
+	}
+
+	function showActionDialog(e) {
+		e.preventDefault();
+		var target = (e.target.nodeName === 'A' ? e.target : e.target.parentNode);
+
+		current_modelview = getModelView($(target));
+
+		$.ajax({
+			url: target.href,
+			type: 'GET',
+			success: initDialog
+		});
+	}
+
+	function showDialog(options) {
+		$.ajax({
+			url: 'comment/dialog/' + options.user_id + '/' + options.fair_id + '/' + options.position_id,
+			type: 'GET',
+			success: function(response) {
+				initDialog(response, options);
+			}
+		});
+	}
+
+	/* Init */
+	$(function() {
+		$('body')
+			.on('click', '.js-comment-action', showActionDialog)
+			.on('click', '.js-show-comment-dialog', function(e) {
+				e.preventDefault();
+				var target = $(e.target.nodeName === 'A' ? e.target : e.target.parentNode);
+
+				showDialog({
+					user_id: target.data('user') || 0,
+					fair_id: target.data('fair') || 0,
+					position_id: target.data('position') || 0,
+					collection_view_selector: target.data('view') || '#note_dialogue .commentList ul',
+					close_dialog_after: target.data('close') || false,
+					template: target.data('template') || 'comment_item'
+				});
+			})
+		;
+	});
+
+	return {
+		showDialog: showDialog
+	};
+}());
+
 function checkAll(e) {
 	var check_all = $(e.target), 
 		checkbox;

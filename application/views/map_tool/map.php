@@ -534,30 +534,6 @@ function makeUserOptions3($sel=0, $fair) {
 	</table>
 </div>
 
-<?php
-	if((userLevel() == 2 && userIsConnectedTo($fair->get('id'))) || userLevel() > 2) : ?>
-		<div id="note_dialogue" class="dialogue">
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />
-		<h2></h2>
-		<h3 data-text="<?php echo uh($translator->{'Notes on'}); ?>"></h3>
-		<div class="commentList" style="max-height:280px; margin-bottom:30px; overflow-y:scroll;">
-			<ul>
-				<li>
-					<div class="comment">
-						<ul>
-							<li><?php echo uh($translator->{'Written by'}); ?>: </li>
-							<li><?php echo uh($translator->{'Date'}); ?>: </li>
-							<li><?php echo uh($translator->{'Note'}); ?>: </li>
-						</ul>
-					</div>
-				</li>
-			</ul>
-		</div>
-		<textarea cols="30" rows="10" style="resize:none;"></textarea>
-		<button><?php echo uh($translator->{'Insert comment'}); ?></button> <select id="commentOnSpace"><option value="0"><?php echo uh($translator->{'For this stand space only'}); ?></option><option value="1"><?php echo uh($translator->{'For all the stand spaces of the exhibitor'}); ?></option></select>
-	<?php endif?>
-</div>
-
 <div id="todayDt" td="<?php echo time(); ?>"> </div>
 <div id="closeDt" td="<?php echo $fair->get('auto_close')?>"> </div>
 <div id="publishDt" td="<?php echo $fair->get('auto_publish')?>"> </div>

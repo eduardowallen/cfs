@@ -996,35 +996,6 @@ if (isset($_POST['connectToFair'])) {
 	echo json_encode($response);
 }
 
-if(isset($_POST['makeComment'])){
-	session_start();
-	$comment = new Comment;
-	$me = new User;
-	$me->load($_SESSION['user_id'], 'id');
-	$author = $me->get('name');
-	$dt = $comment->set($_POST['fair'], $_POST['exhibitor'], $author, date('Y-m-d H:i:s'), $_POST['text'], $_POST['position']);
-	echo $dt;
-}
-
-if(isset($_POST['getComment'])){
-	$comment = new Comment;
-	$data = $comment->load($_POST['fair'], $_POST['exhibitor'], $_POST['position']);?>
-	<ul>
-	<?php foreach($data as $comments): ?>
-		<li>
-			<div class="comment">
-			<ul>
-				<li><?php echo $comments['author']?> (<?php echo $comments['date']?>) :</li>
-			</ul>
-			<ul>
-				<li><?php echo $comments['comment']?></li>
-			</ul>
-		</li>
-	<?php endforeach; ?>
-	</ul>
-	<?php
-}
-
 if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 
 	$position = new FairMapPosition();

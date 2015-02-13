@@ -491,3 +491,60 @@ max-width:700px !important;
 	max-height: 400px;
 	border: 1px solid #000;
 }
+
+.commentList {
+	clear: both;
+	overflow-y: auto;
+	overflow-x: hidden;
+	margin: 20px 0;
+	width: 370px;
+	max-height: 280px;
+}
+
+.commentList ul {
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+
+.commentList ul li {
+	display: block;
+	margin: 0;
+	padding: 0;
+	word-break: break-all;
+}
+
+.comment {
+	border-top: 1px solid #000;
+	margin-top: 5px;
+	padding: 5px 10px 10px 0px;
+}
+
+.comment p {
+	margin: 5px 0;
+}
+
+.comment-negative {
+	color: #9c4e4e;
+}
+
+.comment-neutral {
+	color: #4d5f9b;
+}
+
+.comment-positive {
+	color: #168912;
+}
+
+.action-edit, .action-delete {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.action-edit {
+	color: #168912;
+}
+
+.action-delete {
+	color: #9c4e4e;
+}

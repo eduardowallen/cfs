@@ -251,6 +251,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_bookings', 'Bookings');
 		$this->set('th_last_login', 'Last login');
 		$this->set('th_connect_time', 'Connected to fair on');
+		$this->set('tr_comments', 'Notes');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
 		$this->setNoTranslate('fairs', $fairs);

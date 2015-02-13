@@ -26,16 +26,21 @@ SET time_zone = "+00:00";
 -- Table structure for table `comment`
 --
 
-CREATE TABLE IF NOT EXISTS `comment` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `date` varchar(20) NOT NULL,
+CREATE TABLE `comment` (
+  `id` int(11) NOT NULL NOT NULL AUTO_INCREMENT,
+  `date` datetime NOT NULL,
   `author` varchar(225) NOT NULL,
-  `fair` int(11) NOT NULL,
+  `author_id` int(10) unsigned NOT NULL,
+  `author_owner` int(10) unsigned NOT NULL,
+  `fair` int(11) unsigned NOT NULL DEFAULT '0',
   `exhibitor` int(11) NOT NULL,
-  `position` varchar(50) NOT NULL,
+  `position` int(11) unsigned NOT NULL DEFAULT '0',
+  `position_name` varchar(64) NOT NULL,
   `comment` text NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8;
+  `type` tinyint(1) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `author_id` (`author_id`,`author_owner`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
