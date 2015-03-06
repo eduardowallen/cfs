@@ -927,7 +927,23 @@ class UserController extends Controller {
 		} else {
 			$stmt_content = $this->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = ?");
 			$stmt_content->execute(array('user_terms', LANGUAGE));
-			$terms_content = $stmt_content->fetchObject()->content;
+			$terms_row = $stmt_content->fetchObject();
+
+			if (is_object($terms_row)) {
+				$terms_content = $terms_row->content;
+
+			} else {
+				// Fetch the english version if terms is not translated yet
+				$stmt_content = $this->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = 'en'");
+				$stmt_content->execute(array('user_terms'));
+				$terms_row = $stmt_content->fetchObject();
+
+				if (is_object($terms_row)) {
+					$terms_content = $terms_row->content;
+				} else {
+					$terms_content = '';
+				}
+			}
 
 			$this->setNoTranslate('next', $next);
 			$this->setNoTranslate('terms_content', $terms_content);
