@@ -1,5 +1,4 @@
 /* Funktioner för att visa popuper under newReservations! Hämtar data från tabellen och placerar i en popup! */
-var open_dialogue = null;
 var ask_before_leave = false;
 
 function showPopup(type, activator){
@@ -26,7 +25,6 @@ function reservePopup($row, link, action) {
 	$('.' + action, dialogue).show();
 	$('.closeDialogue', dialogue).click(closeDialogue);
 	dialogue.css('display', 'block');
-	open_dialogue = dialogue;
 	$('#overlay').show();
 
 	var catArr = ($row.data("categories") + "").split("|");
@@ -98,14 +96,16 @@ function closeDialogue(e) {
 		e.preventDefault();
 	}
 
-	if (open_dialogue !== null) {
-		if (!ask_before_leave || (ask_before_leave && confirm(lang.ask_before_leave))) {
-			open_dialogue.hide();
-			open_dialogue = null;
-			$('#overlay').hide();
+	if (!ask_before_leave || (ask_before_leave && confirm(lang.ask_before_leave))) {
+		// Hide the last visible dialog
+		$(".dialogue:visible").last().hide(0, function() {
+			// Hide the overlay if no more dialogs are visible
+			if ($(".dialogue:visible").length === 0) {
+				$("#overlay").hide();
+			}
 
 			ask_before_leave = false;
-		}
+		});
 	}
 }
 
@@ -236,8 +236,6 @@ function showUser(e) {
 
 			dialogue.html('<img src="images/icons/close_dialogue.png" class="closeDialogue" />' + response);
 			dialogue.show();
-
-			open_dialogue = dialogue;
 
 			$(".closeDialogue").on("click", function () {
 				dialogue.hide();
@@ -473,7 +471,6 @@ function showExportPopup(e) {
 
 	export_popup = $(html);
 	export_popup.show();
-	open_dialogue = export_popup;
 
 	$(button).before(export_popup);
 	$('.close-popup', export_popup).click(closeDialogue);
@@ -508,7 +505,6 @@ function showSmsSendPopup(e) {
 	var error_list = $('#sms_send_errors ul', sms_send_popup);
 
 	sms_send_popup.show();
-	open_dialogue = sms_send_popup;
 
 	sms_send_popup.on('submit', function(e) {
 		e.preventDefault();
@@ -1045,9 +1041,8 @@ $(document).ready(function() {
 	});
 
 	$(window).on('keyup', function(e) {
-		if (e.keyCode == 27 && open_dialogue !== null) {
+		if (e.keyCode == 27) {
 			closeDialogue();
-			$('#overlay').hide();
 		}
 	});
 
@@ -1098,7 +1093,6 @@ $(document).ready(function() {
 			success: function(response) {
 				$('#arranger_message_text').text(response.message);
 				arranger_message_popup.show();
-				open_dialogue = arranger_message_popup;
 			}
 		});
 	});
