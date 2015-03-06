@@ -1,4 +1,4 @@
-				<li class="comment">
+				<li class="comment" data-model="Comment">
 <?php		if ($comment->get('position_name') != ''): ?>
 					<p><strong><?php echo uh('(' . $label_position . '): ' . $comment->get('position_name')); ?></strong></p>
 <?php		elseif ($comment->get('fair_name') != ''): ?>
@@ -10,11 +10,11 @@
 						<?php echo uh($comment->get('author')) . ' (' . $comment->get('date') . ')'; ?>:
 					</p>
 
-					<p><?php echo uh($comment->get('comment')); ?></p>
+					<p data-key="comment"><?php echo uh($comment->get('comment')); ?></p>
 
 					<p>
 						<strong><?php echo uh($label_comment_type); ?>:</strong>
-						<?php
+						<span data-key="type"><?php
 						switch ($comment->get('type')) {
 							case -1:
 								echo '<span class="comment-negative">' . uh($label_comment_negative);
@@ -28,7 +28,7 @@
 								echo '<span class="comment-positive">' . uh($label_comment_positive);
 								break;
 						}
-						?></span> -
+						?></span></span> -
 						<a href="comment/delete/<?php echo $comment->get('id'); ?>" class="js-comment-action action-delete">
 							<?php echo uh($label_delete) . PHP_EOL; ?>
 							<img src="images/icons/delete.png" alt="" />

@@ -636,14 +636,14 @@ var Comments = (function() {
 	}
 
 	function initDialog(response, options) {
-		if ($('#note_dialogue').length > 0) {
-			$('#note_dialogue').remove();
+		if ($('#' + options.dialog_id).length > 0) {
+			$('#' + options.dialog_id).remove();
 		}
 
 		if (response.error) {
 			alert(response.error);
 		} else {
-			var note_dialogue = $('<div id="note_dialogue" class="dialogue" style="width: 400px;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+			var note_dialogue = $('<div id="' + options.dialog_id + '" class="dialogue" style="width: 400px;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
 				+ response + '</div>');
 			var user_select = $('.js-user-select', note_dialogue);
 
@@ -692,28 +692,32 @@ var Comments = (function() {
 			close_after_create = options.close_dialog_after;
 			template = options.template;
 
-			closeDialogue();
-
 			$('#overlay').show();
 			note_dialogue.show();
-			open_dialogue = note_dialogue;
 		}
 	}
 
 	function showActionDialog(e) {
 		e.preventDefault();
 		var target = (e.target.nodeName === 'A' ? e.target : e.target.parentNode);
+		var options = {
+			dialog_id: 'note_edit_dialogue'
+		};
 
 		current_modelview = getModelView($(target));
 
 		$.ajax({
 			url: target.href,
 			type: 'GET',
-			success: initDialog
+			success: function(response) {
+				initDialog(response, options);
+			}
 		});
 	}
 
 	function showDialog(options) {
+		options.dialog_id = 'note_dialogue';
+
 		$.ajax({
 			url: 'comment/dialog/' + options.user_id + '/' + options.fair_id + '/' + options.position_id,
 			type: 'GET',
