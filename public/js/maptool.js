@@ -1795,7 +1795,9 @@ maptool.makeNote = function(positionObject) {
 		user_id: positionObject.exhibitor.user,
 		fair_id: maptool.map.fair,
 		position_id: positionObject.id,
-		close_dialog_after: false
+		close_dialog_after: false,
+		collection_view_selector: '#note_dialogue .commentList',
+		template: 'comment_item'
 	});
 };
 
