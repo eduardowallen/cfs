@@ -88,7 +88,7 @@ class Comment extends Model {
 			$sql .= " WHERE " . implode(" AND ", $sql_wheres);
 		}
 
-		$stmt_comments = $globalDB->prepare($sql);
+		$stmt_comments = $globalDB->prepare($sql . " ORDER BY date DESC");
 		$stmt_comments->execute($params);
 
 		return $stmt_comments->fetchAll(PDO::FETCH_CLASS, 'Comment');
