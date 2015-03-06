@@ -621,7 +621,7 @@ var Comments = (function() {
 
 					} else if (current_collectionview.length > 0) {
 						$('.empty-placeholder', current_collectionview).remove();
-						current_collectionview.append(response);
+						current_collectionview.prepend(response);
 
 						// Reset form values
 						e.target.reset();
