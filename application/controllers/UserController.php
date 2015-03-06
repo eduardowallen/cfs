@@ -904,6 +904,13 @@ class UserController extends Controller {
 		$this->User->load($_SESSION['user_id'], 'id');
 		$next = (isset($_GET['next']) ? str_replace(BASE_URL, '', $_GET['next']) : 'page/loggedin');
 
+		// When user has changed the application language, this will be true.
+		// But we can't send the user back to TranslateController, they will
+		// get stuck in an infinite loop.
+		if ($next == 'translate/language') {
+			$next = 'page/loggedin';
+		}
+
 		if (isset($_POST['approve'])) {
 			$this->User->set('terms', USER_TERMS);
 			$this->User->save();

@@ -73,7 +73,7 @@ function callHook() {
 		if (!$_SESSION['user_terms_approved']) {
 			$url = $urlArray[0] . '/' . $action;
 			// Whitelist URLs that can be accessed without approved terms
-			if (!in_array($url, array('user/terms'))) {
+			if (!in_array($url, array('user/terms', 'translate/language'))) {
 				header('Location: ' . BASE_URL . 'user/terms?next=' . $url);
 				exit;
 			}
