@@ -623,6 +623,9 @@ var Comments = (function() {
 						$('.empty-placeholder', current_collectionview).remove();
 						current_collectionview.append(response);
 
+						// Reset form values
+						e.target.reset();
+
 						if (close_after_create) {
 							closeDialogue();
 						}
