@@ -78,68 +78,47 @@ class FairController extends Controller {
 			$this->set('msg_cloning_complete', 'Cloning of the event complete.');
 		}
 
-		switch(userLevel()) {
+		$sql = "SELECT f.id, f.name, approved, max_positions, creation_time, page_views, auto_publish, auto_close, f.created_by,
+				COUNT(fmap.id) AS maps_cnt,
+				u.company AS arranger_name, u.customer_nr AS arranger_cnr,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 2) AS booked_cnt,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 1) AS reserved_cnt,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id) AS total_cnt
+				FROM fair AS f
+				LEFT JOIN fair_map AS fmap ON fmap.fair = f.id
+				LEFT JOIN user AS u ON f.created_by = u.id";
 
+		switch (userLevel()) {
 			case 4:
-				$sql = "SELECT id FROM fair";
 				$params = array();
+
 				if ($param == 'new') {
-					$sql.= " WHERE approved = ?";
+					$sql .= " WHERE approved = ?";
 					array_push($params, '0');
 				} else if ((int) $param > 0) {
-					$sql.= " WHERE created_by = ?";
+					$sql .= " WHERE f.created_by = ?";
 					array_push($params, $param);
 				}
-			$sql.= " ORDER BY approved, name";
+
 				break;
+
 			case 3:
-				$sql= "SELECT id FROM fair WHERE created_by = ?";
+				$sql .= " WHERE f.created_by = ?";
 				$params = array($_SESSION['user_id']);
 				break;
+
 			default:
 				toLogin();
 				break;
 		}
 
+		$sql .= " GROUP BY f.id ORDER BY approved, name";
+
 		$stmt = $this->Fair->db->prepare($sql);
 		$stmt->execute($params);
+		$fairs = $stmt->fetchAll(PDO::FETCH_CLASS);
 
-		$res = $stmt->fetchAll();
-		$fairs = array();
-
-		if ($res > 0) {
-
-			foreach ($res as $result) {
-				$f = new Fair;
-				$f->load($result['id'], 'id', true);
-
-				$arr = new User;
-				$arr->load($f->get('created_by'), 'id');
-
-				$stmt = $f->db->prepare("SELECT pos.* FROM fair_map_position AS pos LEFT JOIN fair_map AS map ON pos.map = map.id WHERE map.fair = ?");
-				$stmt->execute(array($f->get('id')));
-				$positions = $stmt->fetchAll();
-				$total = 0;
-				$booked = 0;
-				$reserved = 0;
-				foreach ($positions as $pos) {
-					$total++;
-					if ($pos['status'] == 2) {
-						$booked++;
-					} else if ($pos['status'] == 1) {
-						$reserved++;
-					}
-				}
-				$f->set('booked', $booked);
-				$f->set('reserved', $reserved);
-				$f->set('total', $total);
-				$f->set('arranger_name', $arr->get('name'));
-				$f->set('arranger_cnr', $arr->get('customer_nr'));
-				$fairs[] = $f;
-			}
-			$this->setNoTranslate('fairs', $fairs);
-		}
-
+		$this->setNoTranslate('fairs', $fairs);
 	}
 
 	public function categories($fairId, $do='', $item=0) {
