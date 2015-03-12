@@ -587,9 +587,12 @@ var Comments = (function() {
 		return reference.parents('[data-model=Comment]');
 	}
 
-	function saveCommentListener(e) {
-		e.preventDefault();
+	function saveCommentListener(e, options) {
 		var target = $(e.target);
+
+		current_collectionview = $(options.collection_view_selector);
+		close_after_create = options.close_dialog_after;
+		template = options.template;
 
 		$.ajax({
 			url: e.target.action,
@@ -643,7 +646,10 @@ var Comments = (function() {
 				+ response + '</div>');
 			var user_select = $('.js-user-select', note_dialogue);
 
-			$('form', note_dialogue).on('submit', saveCommentListener);
+			$('form', note_dialogue).on('submit', function(e) {
+				e.preventDefault();
+				saveCommentListener(e, options);
+			});
 
 			if (user_select.length > 0) {
 				var user_search = $('<input type="text" id="note_user_search" />');
@@ -683,10 +689,6 @@ var Comments = (function() {
 
 			$('body').append(note_dialogue);
 			$('.close-popup', note_dialogue).click(closeDialogue);
-
-			current_collectionview = $(options.collection_view_selector);
-			close_after_create = options.close_dialog_after;
-			template = options.template;
 
 			$('#overlay').show();
 			note_dialogue.show();
