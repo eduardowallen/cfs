@@ -70,12 +70,16 @@ $column_info = array(
 
 	<form action="exhibitor/export2/<?php echo $fairId; ?>" method="post">
 		<div class="floatright right">
+<<<<<<< HEAD
 		<?php 
 		$fair = new Fair;
 		$fair->load($_SESSION['user_fair'], 'id');
 			if($fair->get('sms_settings') === '{"smsFunction":["1"]}') {?>		
 			<button type="submit" class="open-sms-send" name="send_sms" data-for="exhibitors_list" data-fair="<?php echo $fairId; ?>"><?php echo uh($send_sms_label); ?></button><br />
 		<?php } ?>
+=======
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="exhibitors_list" data-fair="<?php echo $fairId; ?>"><?php echo uh($send_sms_label); ?></button><br />
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="exhibitors_list"><?php echo uh($export_button); ?></button>
 		</div>
 
@@ -85,16 +89,28 @@ $column_info = array(
 					<th><?php echo $th_status; ?></th>
 					<th><?php echo $th_name; ?></th>
 					<th><?php echo $th_company; ?></th>
+<<<<<<< HEAD
 <!--				<th><?php echo $th_address; ?></th>-->
+=======
+					<th><?php echo $th_address; ?></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<th><?php echo $th_branch; ?></th>
 					<th><?php echo $th_phone; ?></th>
 					<th><?php echo $th_contact; ?></th>
 					<th><?php echo $th_email; ?></th>
+<<<<<<< HEAD
 <!--				<th><?php echo $th_website; ?></th>-->
 					<th data-sorter="false"><?php echo $th_view; ?></th>
 					<?php if (userLevel() > 0): ?>
 <!--				<th data-sorter="false"><?php echo $th_profile; ?></th>-->
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows" /></th>
+=======
+					<th><?php echo $th_website; ?></th>
+					<th data-sorter="false"><?php echo $th_view; ?></th>
+					<?php if (userLevel() > 0): ?>
+					<th data-sorter="false"><?php echo $th_profile; ?></th>
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<?php endif; ?>
 				
 				</tr>
@@ -105,13 +121,18 @@ $column_info = array(
 					<td><?php echo ($pos['posstatus'] == 2 ? $label_booked : ($pos['posstatus'] == 1 ? $label_reserved : '')); ?></td>
 					<td class="center"><?php echo $pos['posname']; ?></td>
 					<td class="center"><?php echo $pos['company']; ?></td>
+<<<<<<< HEAD
 <!--				<td class="center"><?php echo $pos['address']; ?></td>-->
+=======
+					<td class="center"><?php echo $pos['address']; ?></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<td class="center">
 					<?php
 						$commodity = $pos['commodity'];
 						echo ( empty( $commodity ) ) ? $pos['excommodity'] : $pos['commodity'] ;
 					?>
 					</td>
+<<<<<<< HEAD
 					<td class="center"><?php echo $pos['contact_phone2']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><?php echo $pos['name']; ?></a></td>
 					<td class="center"><?php echo $pos['email']; ?></td>
@@ -121,6 +142,17 @@ $column_info = array(
 <!--				<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>-->
 				
 					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" data-userid="<?php echo $pos['id']; ?>" /></td>
+=======
+					<td class="center"><?php echo $pos['phone1']; ?></td>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><?php echo $pos['name']; ?></a></td>
+					<td class="center"><?php echo $pos['email']; ?></td>
+					<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>
+					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt="" title="<?php echo $th_view; ?>" /></a></td>
+					<?php if (userLevel() > 0): ?>
+					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>
+				
+					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" data-userid="<?php echo $pos['id']; ?>" checked="checked" /></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<?php endif; ?>
 				</tr>
 <?php endforeach; ?>

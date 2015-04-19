@@ -274,6 +274,7 @@ class AdministratorController extends Controller {
 				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+<<<<<<< HEAD
 				
 			} else if ($tbl == 4) {
 				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
@@ -281,6 +282,10 @@ class AdministratorController extends Controller {
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 5) {
+=======
+
+			} else if ($tbl == 4) {
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$stmt = $u->db->prepare("SELECT fr.*, u.id AS userid, u.* FROM fair_registration AS fr LEFT JOIN user AS u ON u.id = fr.user WHERE fr.fair = ? AND fr.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -300,9 +305,12 @@ class AdministratorController extends Controller {
 				$filename = "PreliminaryBookings.xlsx";
 				$label_status = $this->translate->{'Preliminary booked'};
 			} else if ($tbl == 4) {
+<<<<<<< HEAD
 				$filename = "PreliminaryBookingsInactive.xlsx";
 				$label_status = $this->translate->{'Preliminary booked (inactive)'};
 			} else if ($tbl == 5) {
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$filename = "FairRegistrations.xlsx";
 				$label_status = $this->translate->{'Registration'};
 			}
@@ -324,6 +332,7 @@ class AdministratorController extends Controller {
 
 			$xls = new PHPExcel();
 			$xls->setActiveSheetIndex(0);
+<<<<<<< HEAD
 
 			$alpha = range('A', 'Z');
 			if (count($_POST['field']) > count($alpha)) {
@@ -332,6 +341,16 @@ class AdministratorController extends Controller {
 				}
 			}
 
+=======
+
+			$alpha = range('A', 'Z');
+			if (count($_POST['field']) > count($alpha)) {
+				foreach ($alpha as $letter) {
+					$alpha[] = 'A' . $letter;
+				}
+			}
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			$column_names = array(
 				'orgnr' => $this->translate->{'Organization number'},
 				'company' => $this->translate->{'Company'},
@@ -509,7 +528,11 @@ class AdministratorController extends Controller {
 			return;
 
 		// Jag tror att den här koden inte används längre...
+<<<<<<< HEAD
 		if ($action == 'deny') {/*
+=======
+		if ($action == 'deny') {
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			$pb = new PreliminaryBooking;
 			$pb->load($param, 'id');
 			
@@ -520,7 +543,11 @@ class AdministratorController extends Controller {
 			if ($fair->wasLoaded()) {
 				$mailSettings = json_decode($fair->get("mail_settings"));
 				if (is_array($mailSettings->reservationCancelled) && in_array("1", $mailSettings->reservationCancelled)) {
+<<<<<<< HEAD
 					$mail = new Mail($u->get('email'), 'reservation_cancelled', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+					$mail = new Mail($u->get('email'), 'reservation_cancelled', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail->send();
 				}
 			}
@@ -528,7 +555,11 @@ class AdministratorController extends Controller {
 			$pb->delete();
 			header("Location: ".BASE_URL."administrator/newReservations");
 			exit;// Slutar här
+<<<<<<< HEAD
 		*/} else if ($action == 'approve' && isset($_POST['id'])) {
+=======
+		} else if ($action == 'approve' && isset($_POST['id'])) {
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 			$pb = new PreliminaryBooking;
 			$pb->load($_POST['id'], 'id');
@@ -607,7 +638,11 @@ class AdministratorController extends Controller {
 						$status = posStatusToText($status);
 
 						if (in_array("0", $mailSettings->bookingEdited)) {
+<<<<<<< HEAD
 							$mail_organizer = new Mail($organizer->get('email'), 'booking_approved_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+							$mail_organizer = new Mail($organizer->get('email'), 'booking_approved_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							$mail_organizer->setMailVar('previous_status', $previous_status);
 							$mail_organizer->setMailVar('status', $status);
 							$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
@@ -625,7 +660,11 @@ class AdministratorController extends Controller {
 							$mail_organizer->send();
 						}
 						if (in_array("1", $mailSettings->bookingEdited)) {
+<<<<<<< HEAD
 							$mail_user = new Mail($ex_user->get('email'), 'booking_approved_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+							$mail_user = new Mail($ex_user->get('email'), 'booking_approved_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							$mail_user->setMailVar('previous_status', $previous_status);
 							$mail_user->setMailVar('status', $status);
 							$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
@@ -679,6 +718,7 @@ class AdministratorController extends Controller {
 					$categories[] = $cat['category'];
 				}
 			}
+<<<<<<< HEAD
 
 			$pos['categories'] = implode('|', $categories);
 
@@ -698,6 +738,27 @@ class AdministratorController extends Controller {
 			$positions[$pos['position']] = $pos;
 		}
 
+=======
+
+			$pos['categories'] = implode('|', $categories);
+
+			/* Get extra options */
+			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
+			$stmt->execute(array($pos['id']));
+			$posoptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			$options = array();
+			if (count($posoptions) > 0) {
+				foreach ($posoptions as $option) {
+					$options[] = $option['option'];
+				}
+			}
+
+			$pos['options'] = implode('|', $options);
+			$positions[$pos['position']] = $pos;
+		}
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		/* Reservations */
 		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.company, pos.id AS position, pos.name, pos.area, pos.map, ex.id AS posid, pos.expires FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ?");
 		$stmt->execute(array($_SESSION['user_fair'], 1));
@@ -716,9 +777,15 @@ class AdministratorController extends Controller {
 					$categories[] = $cat['category'];
 				}
 			}
+<<<<<<< HEAD
 
 			$pos['categories'] = implode('|', $categories);
 
+=======
+
+			$pos['categories'] = implode('|', $categories);
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			/* Get extra options */
 			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
 			$stmt->execute(array($pos['id']));
@@ -735,8 +802,13 @@ class AdministratorController extends Controller {
 			$rpositions[$pos['position']] = $pos;
 		}
 
+<<<<<<< HEAD
 		// Active Preliminary bookings
 		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, pos.map, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND pos.status = 0");
+=======
+		/* Preliminary bookings */
+		$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, pos.area, pos.name, pos.map, user.company FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair=? AND pos.id = prel.position AND user.id = prel.user");
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$stmt->execute(array($_SESSION['user_fair']));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$prelpos = array();
@@ -765,17 +837,30 @@ class AdministratorController extends Controller {
 		$stmt_fregistrations->execute(array($_SESSION['user_fair']));
 		$fair_registrations = $stmt_fregistrations->fetchAll(PDO::FETCH_CLASS);
 
+		/* Fair registrations */
+		$stmt_fregistrations = $this->db->prepare("SELECT fa.*, u.company FROM fair_registration AS fa LEFT JOIN user AS u ON u.id = fa.user WHERE fa.fair = ?");
+		$stmt_fregistrations->execute(array($_SESSION['user_fair']));
+		$fair_registrations = $stmt_fregistrations->fetchAll(PDO::FETCH_CLASS);
+
 		$this->setNoTranslate('positions', $positions);
 		$this->setNoTranslate('rpositions', $rpositions);
 		$this->setNoTranslate('prelpos', $prelpos);
+<<<<<<< HEAD
 		$this->setNoTranslate('iprelpos', $iprelpos);
     $this->setNoTranslate('fair_registrations', $fair_registrations);
+=======
+		$this->setNoTranslate('fair_registrations', $fair_registrations);
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$this->set('deletion_comment', 'Enter comment about deletion');
 		$this->set('booked_notfound', 'No booked booths was found.');
 		$this->set('reserv_notfound', 'No reservations was found.');
 		$this->set('prel_notfound', 'No preliminary bookings was found.');
+<<<<<<< HEAD
 		$this->set('prel_table', 'Preliminary bookings (active)');
 		$this->set('prel_table_inactive', 'Preliminary bookings (inactive)');
+=======
+		$this->set('prel_table', 'Preliminary bookings');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$this->set('fair_registrations_headline', 'Registrations');
 		$this->set('fregistrations_notfound', 'No registrations was found.');
 		$this->set('tr_fair', 'Fair');
@@ -1179,11 +1264,19 @@ class AdministratorController extends Controller {
 		//Check mail settings and send only if setting is set
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
+<<<<<<< HEAD
 			if (is_array($mailSettings->bookingCancelled)) {
 				$status = posStatusToText($status);
 
 				if (in_array("1", $mailSettings->bookingCancelled)) {
 					$mail_exhibitor = new Mail($u->get('email'), 'booking_cancelled_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+=======
+			if (is_array($mailSettings->$mailSetting)) {
+				$status = posStatusToText($status);
+
+				if (in_array("1", $mailSettings->$mailSetting)) {
+					$mail_exhibitor = new Mail($u->get('email'), 'booking_cancelled_receipt', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail_exhibitor->setMailVar('previous_status', $status);
 					$mail_exhibitor->setMailVar('position_name', $position->get('name'));
 					$mail_exhibitor->setMailVar('exhibitor_name', $u->get('name'));
@@ -1198,8 +1291,13 @@ class AdministratorController extends Controller {
 					$mail_exhibitor->send();
 				}
 
+<<<<<<< HEAD
 				if (in_array("2", $mailSettings->bookingCancelled)) {
 					$mail_user = new Mail($current_user->get('email'), 'booking_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+=======
+				if (in_array("0", $mailSettings->$mailSetting)) {
+					$mail_user = new Mail($current_user->get('email'), 'booking_cancelled_confirm', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail_user->setMailVar('previous_status', $status);
 					$mail_user->setMailVar('position_name', $position->get('name'));
 					$mail_user->setMailVar('exhibitor_name', $u->get('name'));
@@ -1214,8 +1312,13 @@ class AdministratorController extends Controller {
 					$mail_user->send();
 				}
 
+<<<<<<< HEAD
 				if (in_array("0", $mailSettings->bookingCancelled)) {
 					$mail_organizer = new Mail($organizer->get('email'), 'booking_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+=======
+				if (in_array("0", $mailSettings->$mailSetting)) {
+					$mail_organizer = new Mail($organizer->get('email'), 'booking_cancelled_confirm', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail_organizer->setMailVar('previous_status', $status);
 					$mail_organizer->setMailVar('position_name', $position->get('name'));
 					$mail_organizer->setMailVar('exhibitor_name', $u->get('name'));
@@ -1335,7 +1438,11 @@ class AdministratorController extends Controller {
 						$status = posStatusToText($status);
 
 						if (in_array("0", $mailSettings->$mailSetting)) {
+<<<<<<< HEAD
 							$mail_organizer = new Mail($organizer->get('email'), 'booking_' . (isset($previous_status) ? 'approved' : 'edited') . '_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+=======
+							$mail_organizer = new Mail($organizer->get('email'), 'booking_' . (isset($previous_status) ? 'approved' : 'edited') . '_confirm', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							$mail_organizer->setMailVar('status', $status);
 							$mail_organizer->setMailVar('event_name', $fair->get('name'));
 							$mail_organizer->setMailvar('exhibitor_name', $exhibitor->get('name'));
@@ -1359,7 +1466,11 @@ class AdministratorController extends Controller {
 						}
 
 						if (in_array("1", $mailSettings->$mailSetting)) {
+<<<<<<< HEAD
 							$mail_user = new Mail($exhibitor->get('email'), 'booking_' . (isset($previous_status) ? 'approved' : 'edited') . '_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+=======
+							$mail_user = new Mail($exhibitor->get('email'), 'booking_' . (isset($previous_status) ? 'approved' : 'edited') . '_receipt', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							$mail_user->setMailVar('status', $status);
 							$mail_user->setMailVar('event_name', $fair->get('name'));
 							$mail_user->setMailvar('exhibitor_name', $exhibitor->get('name'));
@@ -1474,7 +1585,11 @@ public function reservePrelBooking() {
 						$status = posStatusToText($status);
 
 						if (in_array("0", $mailSettings->bookingEdited)) {
+<<<<<<< HEAD
 							$mail_organizer = new Mail($organizer->get('email'), 'booking_approved_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+							$mail_organizer = new Mail($organizer->get('email'), 'booking_approved_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							$mail_organizer->setMailVar('previous_status', $previous_status);
 							$mail_organizer->setMailVar('status', $status);
 							$mail_organizer->setMailVar('company_name', $ex_user->get('company'));
@@ -1492,7 +1607,11 @@ public function reservePrelBooking() {
 							$mail_organizer->send();
 						}
 						if (in_array("1", $mailSettings->bookingEdited)) {
+<<<<<<< HEAD
 							$mail_user = new Mail($ex_user->get('email'), 'booking_approved_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+							$mail_user = new Mail($ex_user->get('email'), 'booking_approved_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							$mail_user->setMailVar('previous_status', $previous_status);
 							$mail_user->setMailVar('status', $status);
 							$mail_user->setMailVar('company_name', $ex_user->get('company'));

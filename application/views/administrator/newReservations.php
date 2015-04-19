@@ -78,6 +78,7 @@ $prelbookings_columns = array(
 );
 $prelbookings_columns = array_merge($prelbookings_columns, $general_column_info);
 
+<<<<<<< HEAD
 $prelbookings2_columns = array(
 	$translator->{"Preliminary booking"} => array(
 		'status' => $translator->{'Status'},
@@ -93,6 +94,8 @@ $prelbookings2_columns = array(
 );
 $prelbookings2_columns = array_merge($prelbookings2_columns, $general_column_info);
 
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 $fair_registrations_columns = array(
 	$translator->{"Registrations"} => array(
 		'status' => $translator->{'Status'},
@@ -158,6 +161,7 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 			element.css('display','none');
 			$(btn).children().attr('src', '<?php echo BASE_URL."public/images/icons/utv.png";?>');
 		}
+<<<<<<< HEAD
 
 		return false;
 	}
@@ -173,6 +177,21 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 
 		fair_registrations: <?php echo json_encode($fair_registrations_columns); ?>
 
+=======
+
+		return false;
+	}
+
+	var export_fields = {
+		booked: <?php echo json_encode($bookings_columns); ?>,
+
+		reserved: <?php echo json_encode($reserved_columns); ?>,
+
+		prem: <?php echo json_encode($prelbookings_columns); ?>,
+
+		fair_registrations: <?php echo json_encode($fair_registrations_columns); ?>
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	};
 </script>
 
@@ -278,14 +297,22 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 
 
 
+<<<<<<< HEAD
 <h2 class="tblsite" style="margin-top:20px"><img src="images/icons/marker_booked.png"/> <?php echo $headline; ?></h2>
+=======
+<h2 class="tblsite" style="margin-top:20px"><?php echo $headline; ?><a href="#" onclick="return hider(this,'booked')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <?php if(count($positions) > 0){ ?>
 
 	<form action="administrator/exportNewReservations/1" method="post">
 		<div class="floatright right">
+<<<<<<< HEAD
 		<?php if($fair->get('sms_settings') === '{"smsFunction":["1"]}') {?>
 			<button type="submit" class="open-sms-send" name="send_sms" data-for="booked" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
 		<?php } ?>
+=======
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="booked" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="booked"><?php echo uh($export); ?></button>
 		</div>
 
@@ -303,7 +330,11 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					<th data-sorter="false"><?php echo $tr_view; ?></th>
 					<th data-sorter="false"><?php echo $tr_edit; ?></th>
 					<th data-sorter="false"><?php echo $tr_delete; ?></th>
+<<<<<<< HEAD
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-1" /></th>
+=======
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-1" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			</thead>
 			<tbody>
@@ -320,8 +351,13 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
+<<<<<<< HEAD
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) : $never_edited_label); ?></td>
+=======
+					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
+					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -349,7 +385,11 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 							<img style="padding:0px 5px 0px 5px" src="<?php echo BASE_URL; ?>images/icons/delete.png" alt="<?php echo $tr_delete; ?>" />
 						</a>
 					</td>
+<<<<<<< HEAD
 					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /></td>
+=======
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" checked="checked" /></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			<?php endforeach; ?>
 			</tbody>
@@ -361,15 +401,23 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 
 
 
+<<<<<<< HEAD
 	<h2 class="tblsite" style="margin-top:20px"><img src="images/icons/marker_reserved.png"/> <?php echo $rheadline; ?></h2>
+=======
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $rheadline; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'reserved')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL.'public/images/icons/min.png';?>" alt="" /></a></h2>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 	<?php if(count($rpositions) > 0){?>
 
 	<form action="administrator/exportNewReservations/2" method="post">
 		<div class="floatright right">
+<<<<<<< HEAD
 			<?php if($fair->get('sms_settings') === '{"smsFunction":["1"]}') {?>
 			<button type="submit" class="open-sms-send" name="send_sms" data-for="reserved" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
 			<?php } ?>
+=======
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="reserved" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="reserved"><?php echo uh($export); ?></button>
 		</div>
 
@@ -388,7 +436,11 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					<th data-sorter="false"><?php echo $tr_edit; ?></th>
 					<th data-sorter="false"><?php echo $tr_deny; ?></th>
 					<th data-sorter="false"><?php echo $tr_approve; ?></th>
+<<<<<<< HEAD
 					<th data-sorter="false" colspan="3"><input type="checkbox" class="check-all" data-group="rows-2" /></th>
+=======
+					<th data-sorter="false" colspan="3"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			</thead>
 			<tbody>
@@ -401,15 +453,24 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					data-company="<?php echo uh($pos['company']); ?>"
 					data-commodity="<?php echo uh($pos['commodity']); ?>"
 					data-message="<?php echo uh($pos['arranger_message']); ?>"
+<<<<<<< HEAD
 					data-expires="<?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?>"
+=======
+					data-expires="<?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?>"
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					data-approveurl="<?php echo BASE_URL.'administrator/approveReservation/'; ?>"
 				>
 					<td><?php echo $pos['name']; ?></td>
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
+<<<<<<< HEAD
 					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
 					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) : $never_edited_label); ?></td>
+=======
+					<td><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
+					<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i:s', $pos['edit_time']) . ' ' . TIMEZONE : $never_edited_label); ?></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 	<?php if (strlen($pos['arranger_message']) > 0): ?>
 							<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -417,7 +478,11 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 							</a>
 	<?php endif; ?>
 					</td>
+<<<<<<< HEAD
 					<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>
+=======
+					<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?> <?php echo TIMEZONE; ?></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<td class="center">
 						<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
@@ -440,7 +505,11 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_approve; ?>" />
 						</a>
 					</td>
+<<<<<<< HEAD
 					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-2" /></td>
+=======
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-2" checked="checked" /></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<!--<td class="approve" style="display:none;"></td>-->
 				</tr>
 			<?php endforeach; ?>
@@ -454,14 +523,22 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 
 
 
+<<<<<<< HEAD
 	<h2 class="tblsite" style="margin-top:20px"><img src="images/icons/marker_applied.png"/> <?php echo $prel_table; ?></h2>
+=======
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $prel_table; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'prem')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 <?php if(count($prelpos) > 0){ ?>
 	<form action="administrator/exportNewReservations/3" method="post">
 		<div class="floatright right">
+<<<<<<< HEAD
 			<?php if($fair->get('sms_settings') === '{"smsFunction":["1"]}') {?>
 			<button type="submit" class="open-sms-send" name="send_sms" data-for="prem" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
 			<?php } ?>
+=======
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="prem" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="prem"><?php echo uh($export); ?></button>
 		</div>
 
@@ -478,7 +555,11 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					<th data-sorter="false"><?php echo $tr_deny; ?></th>
 					<th data-sorter="false"><?php echo $tr_approve; ?></th>
 					<th data-sorter="false"><?php echo $tr_reserve; ?></th>
+<<<<<<< HEAD
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-3" /></th>
+=======
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-3" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			</thead>
 			<tbody>
@@ -499,7 +580,11 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					<td class="center"><?php echo $pos['area']; ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 					<td class="center"><?php echo $pos['commodity']; ?></td>
+<<<<<<< HEAD
 					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?></td>
+=======
+					<td class="center"><?php echo date('d-m-Y H:i:s', $pos['booking_time']); ?> <?php echo TIMEZONE; ?></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 <?php if (strlen($pos['arranger_message']) > 0): ?>
 						<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -526,15 +611,23 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 					<td class="center">
 						<!-- <a href="<?php //echo BASE_URL.'administrator/reservePrelBooking/'.$pos['id'] ?>" title="<?php //echo $tr_reserve; ?>"> -->
 						<a style="cursor:pointer;" title="<?php echo $tr_reserve; ?>" onclick="showPopup('reserve',this)">
+<<<<<<< HEAD
 							<img src="<?php echo BASE_URL; ?>images/icons/reserve.png" alt="<?php echo $tr_reserve; ?>" />
 						</a>
 					</td>
 					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-3" /></td>
+=======
+							<img src="<?php echo BASE_URL; ?>images/icons/add.png" alt="<?php echo $tr_reserve; ?>" />
+						</a>
+					</td>
+					<td><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-3" checked="checked" /></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			<?php endforeach;?>
 			</tbody>
 		</table>
 	</form>
+<<<<<<< HEAD
 <?php } else { ?>
 	<p> <?php echo $prel_notfound?> </p>
 <?php }?>
@@ -623,15 +716,26 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 			</tbody>
 		</table>
 	</form>
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <?php } else { ?>
 	<p> <?php echo $prel_notfound?> </p>
 <?php }?>
 
+<<<<<<< HEAD
 <!-- Registrations -->
 	<h2 class="tblsite" style="margin-top:20px"><img src="images/icons/script.png"/> <?php echo $fair_registrations_headline; ?></h2>
 
 <?php if (count($fair_registrations) > 0): ?>
 	<form action="administrator/exportNewReservations/5" method="post">
+=======
+
+
+	<h2 class="tblsite" style="margin-top:20px"><?php echo $fair_registrations_headline; ?><a href="#" style="cursor:pointer;" onclick="return hider(this,'fair_registrations')"><img style="width:30x; height:15px; margin-left:20px;" src="<?php echo BASE_URL."public/images/icons/min.png";?>" alt="" /></a></h2>
+
+<?php if (count($fair_registrations) > 0): ?>
+	<form action="administrator/exportNewReservations/4" method="post">
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		<div class="floatright right">
 			<button type="submit" class="open-sms-send" name="send_sms" data-for="fair_registrations" data-fair="<?php echo $fair->get('id'); ?>"><?php echo uh($send_sms_label); ?></button><br />
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="fair_registrations"><?php echo uh($export); ?></button>
@@ -642,11 +746,18 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 				<tr>
 					<th><?php echo $tr_area; ?></th>
 					<th><?php echo $tr_booker; ?></th>
+<<<<<<< HEAD
 					<th><?php echo $tr_time; ?></th>
 					<th><?php echo $tr_field; ?></th>
 					<th><?php echo $tr_message; ?></th>
 					<th data-sorter="false"><?php echo $tr_copy; ?></th>
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-5" /></th>
+=======
+					<th><?php echo $tr_field; ?></th>
+					<th><?php echo $tr_message; ?></th>
+					<th data-sorter="false"><?php echo $tr_view; ?></th>
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-4" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			</thead>
 			<tbody>
@@ -654,8 +765,12 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 				<tr data-id="<?php echo $registration->id; ?>">
 					<td class="center"><?php echo uh($registration->area); ?></td>
 					<td class="center"><a href="exhibitor/profile/<?php echo $registration->user; ?>" class="showProfileLink"><?php echo uh($registration->company); ?></a></td>
+<<<<<<< HEAD
 					<td class="center"><?php echo date('d-m-Y H:i:s', $registration->booking_time); ?></td>	
 					<td class="center"><?php echo uh($registration->commodity); ?></td>				
+=======
+					<td class="center"><?php echo uh($registration->commodity); ?></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<td class="center" title="<?php echo uh($registration->arranger_message); ?>">
 <?php		if (strlen($registration->arranger_message) > 0): ?>
 						<a href="administrator/arrangerMessage/registration/<?php echo $registration->id; ?>" class="open-arranger-message">
@@ -664,11 +779,19 @@ $fair_registrations_columns = array_merge($fair_registrations_columns, $general_
 <?php		endif; ?>
 					</td>
 					<td class="center">
+<<<<<<< HEAD
 						<a href="mapTool/pasteRegistration/<?php echo $registration->fair . '/' . $registration->id; ?>" target="_blank" title="<?php echo $tr_copy; ?>">
 							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_copy; ?>" />
 						</a>
 					</td>
 					<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $registration->id; ?>" data-userid="<?php echo $registration->user; ?>" class="rows-5" /></td>
+=======
+						<a href="mapTool/pasteRegistration/<?php echo $registration->fair . '/' . $registration->id; ?>" target="_blank" title="<?php echo $tr_view; ?>">
+							<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" alt="<?php echo $tr_view; ?>" />
+						</a>
+					</td>
+					<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $registration->id; ?>" data-userid="<?php echo $registration->user; ?>" class="rows-4" checked="checked" /></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 <?php	endforeach; ?>
 			</tbody>

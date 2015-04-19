@@ -12,10 +12,13 @@ $export_columns = array(
 );
 //$export_columns = array_merge($export_columns, $general_column_info);
 ?>
+<<<<<<< HEAD
 <style>
 	#content{max-width:1280px;}
 	form, .std_table { clear: both; }
 </style>
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		<script src="js/tablesearch.js"></script>
 		<script>
 		$(function() {
@@ -50,18 +53,30 @@ $export_columns = array(
 				<button type="submit" class="open-excel-export" name="export_excel" data-for="comments"><?php echo uh($label_export_excel); ?></button>
 			</div>
 
+<<<<<<< HEAD
 			<table class="std_table use-scrolltable">
 				<thead>
 					<tr>
 						<th><?php echo uh($label_author); ?></th>
+=======
+			<table class="std_table">
+				<thead>
+					<tr>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 						<th><?php echo uh($label_exhibitor); ?></th>
 						<th><?php echo uh($label_note); ?></th>
 						<th><?php echo uh($label_type); ?></th>
 						<th><?php echo uh($label_note_time); ?></th>
+<<<<<<< HEAD
 						<th data-sorter="false"><?php echo uh($label_headline); ?></th>
 						<th data-sorter="false"><?php echo uh($label_edit); ?></th>
 						<th data-sorter="false"><?php echo uh($label_delete); ?></th>
 						<th data-sorter="false"><input type="checkbox" class="check-all" data-group="comment-rows" /></th>
+=======
+						<th data-sorter="false"><?php echo uh($label_edit); ?></th>
+						<th data-sorter="false"><?php echo uh($label_delete); ?></th>
+						<th data-sorter="false"><input type="checkbox" class="check-all" data-group="comment-rows" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					</tr>
 				</thead>
 				<tbody id="comment_collection">

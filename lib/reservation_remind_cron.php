@@ -88,7 +88,11 @@ foreach ($expiring_positions as $position) {
 		$to = 'example@chartbooking.com';
 	}
 
+<<<<<<< HEAD
 	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . EMAIL_FROM_DOMAIN);
+=======
+	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com', $position->fair_name);
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
 	$mail->setMailVar('event_name', $position->fair_name);
 	$mail->setMailVar('url', BASE_URL . $position->url);
@@ -104,7 +108,11 @@ foreach ($expiring_positions as $position) {
 		$to = 'example@chartbooking.com';
 	}
 
+<<<<<<< HEAD
 	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . EMAIL_FROM_DOMAIN);
+=======
+	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . '@chartbooker.com', $position->fair_name);
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
 	$mail->setMailVar('event_name', $position->fair_name);
 	$mail->setMailVar('url', BASE_URL . $position->url);

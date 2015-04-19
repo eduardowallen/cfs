@@ -31,17 +31,27 @@
 			<h3><?php echo uh($label_comment_add_headline); ?></h3>
 
 			<p>
+<<<<<<< HEAD
 				<strong><?php echo $label_exhibitor; ?></strong><br />
+=======
+				<strong><?php echo $label_exhibitor; ?>: </strong><br />
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<select name="exhibitor" class="js-user-select">
 <?php	foreach ($exhibitors as $exhibitor): ?>
 					<option value="<?php echo $exhibitor->get('id'); ?>"><?php echo uh($exhibitor->get('company')); ?></option>
 <?php	endforeach; ?>
 				</select>
+<<<<<<< HEAD
 			</p>
 <?php endif; ?>
 			<p>
 				<h3><?php echo uh($label_comment_add_headline); ?></h3>
 				<br/>
+=======
+			</P>
+<?php endif; ?>
+			<p>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<strong><?php echo uh($label_comment_type_of); ?></strong><br />
 				<select name="type">
 					<option value="1"><?php echo uh($label_comment_positive); ?></option>
@@ -69,9 +79,16 @@
 <?php endif; ?>
 			</p>
 			<p>
+<<<<<<< HEAD
 				<textarea name="comment" cols="30" class="insert_comment_text" rows="7"></textarea>
 			</p>
 			<p>
 				<button type="submit" class="comment-btn" name="save" value="1"><?php echo uh($label_comment_add); ?></button>
+=======
+				<textarea name="comment" cols="30" rows="7"></textarea>
+			</p>
+			<p>
+				<button name="save" value="1"><?php echo uh($label_comment_add); ?></button>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			</p>
 		</form>

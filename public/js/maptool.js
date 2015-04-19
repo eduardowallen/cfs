@@ -864,11 +864,15 @@ maptool.bookPosition = function(positionObject) {
 	$('#book_category_scrollbox').css('border-color', '#000000');
 	$('#book_category_scrollbox input').prop('checked', false);
 	$('#book_option_scrollbox input').prop('checked', false);
+<<<<<<< HEAD
 		var sel = $('#book_user_input');
 		var opts_list = sel.find('option');
 		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase(); });
 		sel.html(opts_list);
 		
+=======
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	if (maptool.map.userlevel < 2) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
@@ -1470,10 +1474,13 @@ maptool.reservePosition = function(positionObject) {
 	$('#reserve_category_scrollbox').css('border-color', '#000000');
 	$('#reserve_category_scrollbox input').prop('checked', false);
 	$('#reserve_option_scrollbox input').prop('checked', false);
+<<<<<<< HEAD
 		var sel = $('#reserve_user_input');
 		var opts_list = sel.find('option');
 		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase(); });
 		sel.html(opts_list);
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 	if (maptool.map.userlevel < 2) {
 		$('#reserve_user_input, label[for="reserve_user_input"]').hide();
@@ -1546,8 +1553,13 @@ maptool.reservePosition = function(positionObject) {
 			}
 		}
 	});
+<<<<<<< HEAD
 
 
+=======
+
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	$('#reserve_post').unbind('click');
 	$("#reserve_post").click(function() {
 		var cats = [];

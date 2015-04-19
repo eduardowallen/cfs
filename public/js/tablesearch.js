@@ -109,7 +109,11 @@ function filterTableTable(table, str, results) {
 		}
 	}*/
 	$(document).ready(function() {
+<<<<<<< HEAD
 	var html = '<div style="width:600px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
+=======
+	var html = '<div style="width:400px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			 + '<input type="button" class="search_button" id="search_button" value="' + lang.search + '" /><span id="search_results" style="padding-left:10px;"></span>';	
 		$('.std_table').each(function() {
 			var parstd_table = $(this);

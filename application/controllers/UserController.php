@@ -370,6 +370,14 @@ class UserController extends Controller {
 				$fair = new Fair;
 				$fair->load($_SESSION['user_fair'], 'id');
 
+<<<<<<< HEAD
+=======
+				//if ($days > 72) {
+				//	header("Location: ".BASE_URL."user/changePassword/remind");
+				//} else {
+				$fair = new Fair;
+				$fair->load($_SESSION['user_fair'], 'id');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				if ($fair->wasLoaded()) {
 					if (userLevel() > 1) {
 						$redirect_url = BASE_URL.'mapTool/map/'.$fair->get('id');
@@ -381,7 +389,11 @@ class UserController extends Controller {
 				}
 
 				// Check if user has approved the current User Terms
+<<<<<<< HEAD
 				// (Master level users don't have to approve anything)
+=======
+				// (Master level users doesn't have to approve anything)
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				if ($this->User->get('terms') == USER_TERMS || $this->User->get('level') == 4) {
 					$_SESSION['user_terms_approved'] = true;
 
@@ -403,10 +415,17 @@ class UserController extends Controller {
 					$this->createJsonResponse();
 					$this->set('redirect', $redirect_url);
 					return;
+<<<<<<< HEAD
 
 				} else {
 					header("Location: " . $redirect_url);
 				}
+=======
+				} else {
+					header("Location: " . $redirect_url);
+				}
+				//}
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 				exit;
 
@@ -452,7 +471,16 @@ class UserController extends Controller {
 		$this->set('pass_standard', 'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.');
 		$this->setNoTranslate('info', '');
 
+<<<<<<< HEAD
 		$time_now = date('d-m-Y H:i');
+=======
+		if ($info == 'remind')
+			$this->set('info', "It has been more than a month since you last changed your password. It is recommended that you change it now.");
+		else
+			$this->setNoTranslate('info', '');
+			
+	$time_now = date('d-m-Y H:i');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	
 		if (isset($_POST['save'])) {
 
@@ -466,11 +494,18 @@ class UserController extends Controller {
 						$this->User->setPassword($_POST['password']);
 						$this->User->save();
 						$this->set('ok', 'Password changed');
+<<<<<<< HEAD
 		            	$mail = new Mail($this->User->email, 'password_changed');
 		      			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
 		      			$mail->setMailVar('edit_time', $time_now);
 		     			$mail->send();
 
+=======
+            $mail = new Mail($this->User->email, 'password_changed');
+			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
+			$mail->setMailVar('edit_time', $time_now);
+            $mail->send();
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					} else {
 						$this->set('error', 'Your current password was wrong.');
 					}
@@ -524,6 +559,7 @@ class UserController extends Controller {
 				$pass = substr($pass, -30, 6);
 				$this->User->setPassword($pass);
 				$this->User->save();
+<<<<<<< HEAD
 
 		        $mail = new Mail($this->User->email, 'password_reset2');
 		        $mail->setMailVar('alias', $this->User->get('alias'));
@@ -531,6 +567,13 @@ class UserController extends Controller {
 			    $mail->setMailVar('exhibitor_name', $this->User->get('name'));
 		        $mail->send();
 
+=======
+        $mail = new Mail($this->User->email, 'password_reset2');
+        $mail->setMailVar('alias', $this->User->get('alias'));
+        $mail->setMailVar('password', $pass);
+		$mail->setMailVar('exhibitor_name', $this->User->get('name'));
+        $mail->send();
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$_SESSION['m'] = $this->User->email;
 				header('Location: '.BASE_URL.'user/login/ok');
 
@@ -543,6 +586,7 @@ class UserController extends Controller {
 					$pass = substr($pass, -30, 6);
 					$this->User->setPassword($pass);
 					$this->User->save();
+<<<<<<< HEAD
 
 			        $mail = new Mail($this->User->email, 'password_reset2');
 			        $mail->setMailVar('alias', $this->User->alias);
@@ -550,6 +594,13 @@ class UserController extends Controller {
 		    		$mail->setMailVar('exhibitor_name', $this->User->name);
 					$mail->send();
 
+=======
+          $mail = new Mail($this->User->email, 'password_reset2');
+          $mail->setMailVar('alias', $this->User->alias);
+          $mail->setMailVar('password', $pass);
+		  $mail->setMailVar('exhibitor_name', $this->User->name);
+          $mail->send();
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$_SESSION['m'] = $this->User->email;
 					header('Location: '.BASE_URL.'user/login/ok');
 
@@ -713,11 +764,18 @@ class UserController extends Controller {
 						$userId = $this->User->save();
 						$hash = md5($this->User->get('email').BASE_URL.$userId);
 						$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
+<<<<<<< HEAD
 
 			            $mail = new Mail($this->User->email, 'confirm_mail');
 						$mail->setMailVar('exhibitor_name', $this->User->get('name'));
 			            $mail->setMailVar('url', $url);
 			            $mail->send();
+=======
+            $mail = new Mail($this->User->email, 'confirm_mail');
+			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
+            $mail->setMailVar('url', $url);
+            $mail->send();
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
             
 						if ($fairUrl != '') {
             
@@ -892,7 +950,11 @@ class UserController extends Controller {
 	}
 
 	private function validAlias($string) {
+<<<<<<< HEAD
 		// Check if string only consists of numbers or any lowercase letter from any language.
+=======
+		//Check if string only consists of numbers or any lowercase letter from any language.
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		return preg_match("/^[0-9\p{Ll}]+$/u", $string);
 	}
 
@@ -903,7 +965,11 @@ class UserController extends Controller {
 		$next = (isset($_GET['next']) ? str_replace(BASE_URL, '', $_GET['next']) : 'page/loggedin');
 
 		// When user has changed the application language, this will be true.
+<<<<<<< HEAD
 		// But we can't send the user back to TranslateController because they will
+=======
+		// But we can't send the user back to TranslateController, they will
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		// get stuck in an infinite loop.
 		if ($next == 'translate/language') {
 			$next = 'page/loggedin';

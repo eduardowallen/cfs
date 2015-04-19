@@ -44,7 +44,10 @@ class CommentController extends Controller {
 		$this->set('label_add_comment', 'Create new note');
 		$this->set('label_export_excel', 'Export to Excel');
 		$this->set('label_exhibitor', 'Exhibitor');
+<<<<<<< HEAD
 		$this->set('label_author', 'Author');
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$this->set('label_note', 'Note');
 		$this->set('label_type', 'Type');
 		$this->set('label_note_time', 'Time for note');
@@ -78,7 +81,10 @@ class CommentController extends Controller {
 			$alpha = range('A', 'Z');
 
 			$column_names = array(
+<<<<<<< HEAD
 				'author_name' => $this->translate->{'Author'},
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				'exhibitor_name' => $this->translate->{'Exhibitor'},
 				'comment' => $this->translate->{'Note'},
 				'date' => $this->translate->{'Time for note'},
@@ -186,11 +192,19 @@ class CommentController extends Controller {
 			$this->set('label_headline', 'Notes for %s');
 			$this->set('label_current_exhibitor', 'Current exhibitor');
 			$this->set('label_no_comments', 'There are no comments made yet for this exhibitor');
+<<<<<<< HEAD
 			$this->set('label_comment_add_headline', 'New comment');
 			$this->set('label_comment_type_of', 'Type of comment');
 			$this->set('label_comment_valid_for', 'This comment will be valid for');
 			$this->set('label_all_exhibitor_fairs', 'All exhibitor\'s fairs');
 			$this->set('label_exhibitor', 'Select Exhibitor');
+=======
+			$this->set('label_comment_add_headline', 'New comment for');
+			$this->set('label_comment_type_of', 'Type of comment');
+			$this->set('label_comment_valid_for', 'This comment will be valid for');
+			$this->set('label_all_exhibitor_fairs', 'All exhibitor\'s fairs');
+			$this->set('label_exhibitor', 'Exhibitor');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			$this->set('label_comment_pos_only', 'This position only');
 			$this->set('label_comment_fair_only', 'This fair only');
 			$this->set('label_comment_all_fairs', 'All fairs');

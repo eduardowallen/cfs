@@ -11,7 +11,10 @@
 <link rel="stylesheet" type="text/css" href="//code.jquery.com/ui/1.10.4/themes/smoothness/jquery-ui.css" />
 <link rel="stylesheet" type="text/css" href="css/generic.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/main.css<?php echo $unique?>" />
+<<<<<<< HEAD
 <link rel="stylesheet" type="text/css" href="css/tip-yellowsimple.css<?php echo $unique?>" />
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <link rel="stylesheet" type="text/css" media="print" href="css/print.css<?php echo $unique?>" />
 <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,600,700' rel='stylesheet' type='text/css'>
 <script type="text/javascript" src="//code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -20,12 +23,21 @@
 <script type="text/javascript" src="js/formchecker.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/passwd_meter.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/jquery.tablesorter.min.js<?php echo $unique?>"></script>
+<<<<<<< HEAD
 <script type="text/javascript" src="js/jquery.poshytip.min.js<?php echo $unique?>"></script>
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <script type="text/javascript" src="js/jquery.floatThead.min.js"></script>
 <script type="text/javascript" src="js/chartbooker.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
 
 <script type="text/javascript">
+<<<<<<< HEAD
+=======
+	$(document).ready(function() {
+    $( document ).tooltip(); // Initialize jQueryUI tooltips
+	});
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	var lang = {};
 	lang.logo_text = '<?php echo ujs($translator->{"Bookings for fairs and events"}); ?>'
 	lang.alias_exists_label = '<?php echo ujs($translator->{"The username already exists"}); ?>';
@@ -96,7 +108,10 @@
 	lang.sms_estimated_cost = '<?php echo ujs($translator->{'Estimated cost'}); ?>';
 	lang.sms_accept_before_send = '<?php echo ujs($translator->{'Are you sure that you want to send these text messages?'}); ?>';
 	lang.select_all = '<?php echo ujs($translator->{'Select all'}); ?>';
+<<<<<<< HEAD
 	lang.sms_popup_title = '<?php echo ujs($translator->{'SMS-function'}); ?>';
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	lang.ask_before_leave = '<?php echo ujs($translator->{'Are you sure you want to leave this dialog? Any unsaved changes will be lost.'}); ?>';
 </script>
 <?php if (userLevel() > 0): ?>
@@ -144,9 +159,12 @@
 		$("#save_confirm").show();
 		<?php endif; ?>
 
+<<<<<<< HEAD
 		setTimeout(function() {
 			$('#save_confirm').fadeOut('slow');
 		}, 2000);
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$("#save_confirm input").click(function() {
 			$(this).parent().parent().fadeOut("fast");
 		});
@@ -206,7 +224,15 @@
 				$today = time();
 	
 				if (userLevel() == 1) {
+<<<<<<< HEAD
 
+=======
+				/*	echo '<style>
+						#header ul li{background-color:#73d367;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#73d367; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';*/
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? AND fair.auto_close > $today");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -227,7 +253,15 @@
 					}
 				
 				} else if (userLevel() == 2) {
+<<<<<<< HEAD
 
+=======
+				/*	echo '<style>
+						#header ul li{background-color:#82cce4;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#82cce4; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';*/
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$db = new Database;
 					$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -239,7 +273,15 @@
 					}
 
 				} else if (userLevel() == 3) {
+<<<<<<< HEAD
 
+=======
+				/*	echo '<style>
+						#header ul li{background-color:#f9c969;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#f9c969; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';*/
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$db = new Database;	
 					$stmt = $db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
 					$stmt->execute(array($_SESSION['user_id']));
@@ -251,7 +293,15 @@
 					}
 
 				} else if (userLevel() == 4) {
+<<<<<<< HEAD
 
+=======
+				/*	echo '<style>
+						#header ul li{background-color:#c7c7c7;}
+						#header ul li a, #header ul li span{background:none; border:0;}
+						#header ul li a:hover, #header ul li span:hover{border-radius:0; background:#c7c7c7; background-image:url(\'images/icons/hover.png\'); background-position:2px 2px; background-repeat:no-repeat;}					
+					</style>';*/
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$db = new Database;
 					$stmt = $db->prepare("SELECT COUNT(*) AS fairs FROM fair WHERE approved = ?");
 					$stmt->execute(array(0));

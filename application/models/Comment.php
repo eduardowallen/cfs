@@ -63,7 +63,11 @@ class Comment extends Model {
 
 			case 3:
 				// Fetch all comments on user on any position AND that fair
+<<<<<<< HEAD
 				$sql_wheres[] = "c.exhibitor = ? AND (c.fair = ? OR c.fair >= 0)";
+=======
+				$sql_wheres[] = "c.exhibitor = ? AND (c.fair = ? OR c.fair = 0)";
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 				$params = array($user_id, $fair_id);
 				break;
@@ -75,7 +79,11 @@ class Comment extends Model {
 		}
 
 		if ($position_id > 0) {
+<<<<<<< HEAD
 			$sql_wheres[] = "(c.position = ? OR c.position >= 0)";
+=======
+			$sql_wheres[] = "(c.position = ? OR c.position = 0)";
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			$params[] = $position_id;
 		}
 

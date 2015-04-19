@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <?php if ($notfound) :?>
 	<div id="wrong_url">
 		<img src="images/images/wrong_url.png" style="padding-right:10px;" />
@@ -8,6 +9,12 @@
 <? die();
 	//die($translator->{'Fair not found'});
 endif;
+=======
+<?php
+if ($notfound)
+	die($translator->{'Fair not found'});
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 
 function makeUserOptions1($sel=0, $fair) {
@@ -66,6 +73,7 @@ function makeUserOptions3($sel=0, $fair) {
 		<script type="text/javascript">
 			$().ready(function(){
 				var fakevent = {preventDefault: function() {}};
+<<<<<<< HEAD
 <?php	if (userLevel() > 1): ?>				
 		$('#alertBox2').show();
 		$('#overlay').show();
@@ -75,6 +83,8 @@ function makeUserOptions3($sel=0, $fair) {
 			$(location).attr('href',url2);
 			});
 <?php		endif; ?>			
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <?php	if ($f->get('allow_registrations') == 1 && userLevel() == 1): ?>
 <?php		if ($has_prev_registrations): ?>
 				confirmBox(fakevent, '<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>', confirmedRegisterEvent, 'OK_CANCEL');
@@ -85,6 +95,7 @@ function makeUserOptions3($sel=0, $fair) {
 <?php		else: ?>
 				confirmBox(fakevent, '<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>', 'fairRegistration/form/<?php echo $f->get('id'); ?>', 'OK_CANCEL');
 <?php		endif; ?>
+<<<<<<< HEAD
 
 <?php	else: ?>
 		$('#alertBox').show();
@@ -99,6 +110,10 @@ function makeUserOptions3($sel=0, $fair) {
 			$('#nouser_dialogue').show();
 		});
 
+=======
+<?php	else: ?>
+				alert("<?php echo uh($translator->{'This fair is hidden'}); ?>");
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <?php	endif; ?>
 			});
 		</script>
@@ -375,6 +390,70 @@ function makeUserOptions3($sel=0, $fair) {
 	}
 </script>
 
+<<<<<<< HEAD
+=======
+<?php if (!isset($_SESSION['user_level']) && (!isset($_SESSION['visitor']) || !$_SESSION['visitor'])): ?>
+<div id="nouser_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;" />
+	<img src="images/button_icons/Chartbooker Fair System Logotype.png" alt="" class="nouser_cfslogo" style="margin: 0 0 0 5px;" />
+	<div id="inner">
+		<p class="center">
+			<strong style="color:#116734;text-align:center;font-size:18px; font-weight:bold;"><?php echo ($translator->{'To use this service you need an account:'}); ?></strong>
+		</p>
+	</div>
+
+	<div class="clear floatleft panel">
+		<p class="right"><a href="user/login" id="open_loginform" class="link-button"><span style="font-weight:bold;"><?php echo uh($translator->{'I already have an account'}); ?></a></span></p>
+		<div id="user_login_dialogue">
+			<form action="user/login" method="post">
+				<p class="error"></p>
+				<div>
+        <label for="user"><?php echo uh($translator->{"Username"}); ?></label>
+				<input type="text" name="user" id="user"/>
+				<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
+				<input type="password" name="pass" id="pass"/>
+					<p>
+						<input type="hidden" name="outside_fair_url" value="<?php echo $_SESSION["outside_fair_url"]; ?>" />
+						<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>" class="save-btn"/>
+					</p>
+				</div>
+			</form>
+		</div>
+	</div>
+	<div class="floatright panel">
+		<p><a href="user/register" class="link-button registerlink"><span style="font-weight:bold;"><?php echo uh($translator->{'Register new account'}); ?></a></span></p>
+		<p></p>
+		<p>
+			<a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>">
+				<span style="color:#116734; font-size:14px; font-weight:bold;"><?php echo uh($translator->{"Forgot your password?"}); ?></span>
+			</a>
+		</p>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function() {
+		$('#overlay').show();
+		$('#nouser_dialogue').show();
+
+		ajaxLoginForm($('#user_login_dialogue form'));
+
+		$('#open_loginform').click(function(e) {
+			e.preventDefault();
+			$('#user_login_dialogue').show();
+		});
+
+		$('.registerlink').click(function(e) {
+			$(".closeDialogue").click(function() {
+				if ($('#nouser_dialogue:visible').length) {
+					$("#overlay").show();
+				}
+			});
+		});
+	});
+</script>
+<?php endif; ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 <!--<p id="zoomcontrols">
 	<a href="javascript:void(0)" class="button fullscreen" id="full"><?php echo uh($translator->{'View full screen'}); ?></a>
@@ -425,7 +504,25 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php endforeach; ?>
 	</div>
 	
+<<<<<<< HEAD
 			<!--  Extra tillval -->
+=======
+	<?php /*
+	<div id="hiddenExhibitorList_d">
+		<ul>
+			<?php echo makeUserOptions3(0, $fair)?>
+		</ul>
+	</div>
+	
+
+	<label for="search_user_input"><?php echo uh($translator->{'Search'}); ?></label>
+	<input type="text" class="dialogueInput" name="search_user_input" id="search_user_input" />
+	<p class="exhibitorNotFound" style="font-size:10px; font-weight:bold;"></p>
+	<input type="hidden" id="book_user_input" />
+
+	*/?>
+	
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?> *</label>
 	<textarea rows="3" style="height:45px; resize:none;" type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"></textarea>
 
@@ -437,7 +534,11 @@ function makeUserOptions3($sel=0, $fair) {
 			</p>
 		<?php } ?>
 	</div>
+<<<<<<< HEAD
 			<!--  Meddelande till arrangören -->
+=======
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 	<textarea name="book_message_input" style="resize:none;" id="book_message_input"></textarea>
 
@@ -446,7 +547,10 @@ function makeUserOptions3($sel=0, $fair) {
 	<input type="text" style="width:300px;" name="search_user_input" id="search_user_input" />
 	<img src="/images/icons/icon_help.png" class="helpicon_search_commodity" title="<?php echo htmlspecialchars($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>" />
 	
+<<<<<<< HEAD
   <!-- Drop-downlista för att välja användare att boka in -->	
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
 	<select  style="width:300px;" name="book_user_input" id="book_user_input">
 		<?php echo makeUserOptions1(0, $fair); ?>
@@ -478,15 +582,23 @@ function makeUserOptions3($sel=0, $fair) {
 				<th><?php echo uh($translator->{'Time of booking'}); ?></th>
 				<th><?php echo uh($translator->{"Message to organizer in list"}); ?></th>
 				<th><?php echo uh($translator->{"Deny"}); ?></th>
+<<<<<<< HEAD
 				<th><?php echo uh($translator->{"Approve (if already payed)"}); ?></th>
 				<th><?php echo uh($translator->{'Reserve stand space (if not yet payed)'}); ?></th>
+=======
+				<th><?php echo uh($translator->{"Approve"}); ?></th>
+				<th><?php echo uh($translator->{'Reserve stand space'}); ?></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			</tr>
 		</thead>
 		<tbody>
 		</tbody>
 	</table>
 </div>
+<<<<<<< HEAD
 </div>
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 <div id="todayDt" td="<?php echo time(); ?>"> </div>
 <div id="closeDt" td="<?php echo $fair->get('auto_close')?>"> </div>
@@ -498,7 +610,10 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<div class="ssinfo"></div>
 	
+<<<<<<< HEAD
 	<!-- Div för att välja kategori -->
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<label for="reserve_category_input"><?php echo uh($translator->{'Category'}); ?> *</label>
 	<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
@@ -507,13 +622,26 @@ function makeUserOptions3($sel=0, $fair) {
 			</p>
 		<?php endforeach; ?>
 	</div>
+<<<<<<< HEAD
+=======
+
+	<?php /*
+	<div id="hiddenExhibitorList">
+		<ul>
+			<?php echo makeUserOptions2(0, $fair)?>
+		</ul>
+	</div>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 	<!--  Textfält för att fylla i den bokade användarens sortiment -->
 	
 	<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?> *</label>
 	<textarea rows="3" style="height:45px; resize:none;" input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/></textarea>
 
+<<<<<<< HEAD
 	<!--  Extra tillval -->
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<label for="reserve_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
 	<div id="reserve_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('options') as $opt): ?>

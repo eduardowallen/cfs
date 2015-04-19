@@ -18,15 +18,23 @@
 <div class="form_column">
 	<h3><?php echo $company_section; ?></h3>
 
+<<<<<<< HEAD
 	<label for="orgnr"><?php echo $orgnr_label; ?></label>
 	<div type="text" name="orgnr" id="orgnr"  ><?php echo $user->get('orgnr'); ?></div>
 
 	<label for="company"><?php echo $company_label; ?></label>
+=======
+	<label for="orgnr"><?php echo $orgnr_label; ?> *</label>
+	<div type="text" name="orgnr" id="orgnr"  ><?php echo $user->get('orgnr'); ?></div>
+
+	<label for="company"><?php echo $company_label; ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div type="text" name="company" id="company"  ><?php echo $user->get('company'); ?></div>
 
 	<label for="commodity"><?php echo $commodity_label; ?></label>
 	<div rows="3" style="width:250px;" name="commodity" id="commodity"><?php echo $user->get('commodity'); ?></div>
 
+<<<<<<< HEAD
 	<label for="address"><?php echo $address_label; ?></label>
 	<div type="text" name="address" id="address"  ><?php echo $user->get('address'); ?></div>
 
@@ -37,11 +45,27 @@
 	<div type="text" name="city" id="city"  ><?php echo $user->get('city'); ?></div>
 
 	<label for="country"><?php echo $country_label; ?></label>
+=======
+	<label for="address"><?php echo $address_label; ?> *</label>
+	<div type="text" name="address" id="address"  ><?php echo $user->get('address'); ?></div>
+
+	<label for="zipcode"><?php echo $zipcode_label; ?> *</label>
+	<div type="text" name="zipcode" id="zipcode"  ><?php echo $user->get('zipcode'); ?></div>
+
+	<label for="city"><?php echo $city_label; ?> *</label>
+	<div type="text" name="city" id="city"  ><?php echo $user->get('city'); ?></div>
+
+	<label for="country"><?php echo $country_label; ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div name="country" id="country" style="width:258px;">
 		<?php echo $user->get('country');?>&nbsp;
 	</div>
 
+<<<<<<< HEAD
 	<label for="phone1"><?php echo $phone1_label; ?></label>
+=======
+	<label for="phone1"><?php echo $phone1_label; ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div type="text" name="phone1" id="phone1"  ><?php echo $user->get('phone1'); ?></div>
 
 	<label for="phone2"><?php echo $phone2_label; ?></label>
@@ -50,7 +74,11 @@
 	<label for="fax"><?php echo $fax_label; ?></label>
 	<div type="text" name="fax" id="fax"  ><?php echo $user->get('fax'); ?></div>
 
+<<<<<<< HEAD
 	<label for="email"><?php echo $email_label; ?></label>
+=======
+	<label for="email"><?php echo $email_label; ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div type="text" name="email" id="email"  ><?php echo $user->get('email'); ?></div>
 
 	<label for="website"><?php echo $website_label; ?></label>
@@ -59,6 +87,7 @@
 
 <div class="form_column">
 	<h3><?php echo $invoice_section; ?></h3>
+<<<<<<< HEAD
 	<label for="invoice_company"><?php echo $invoice_company_label; ?></label>
 	<div type="text" name="invoice_company" id="invoice_company"  ><?php echo $user->get('invoice_company'); ?></div>
 
@@ -72,11 +101,30 @@
 	<div type="text" name="invoice_city" id="invoice_city"  ><?php echo $user->get('invoice_city'); ?></div>
 
 	<label for="invoice_country"><?php echo $country_label; ?></label>
+=======
+	<label for="invoice_company"><?php echo $invoice_company_label; ?> *</label>
+	<div type="text" name="invoice_company" id="invoice_company"  ><?php echo $user->get('invoice_company'); ?></div>
+
+	<label for="invoice_address"><?php echo $invoice_address_label; ?> *</label>
+	<div type="text" name="invoice_address" id="invoice_address"  ><?php echo $user->get('invoice_address'); ?></div>
+
+	<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> *</label>
+	<div type="text" name="invoice_zipcode" id="invoice_zipcode"  ><?php echo $user->get('invoice_zipcode'); ?></div>
+
+	<label for="invoice_city"><?php echo $invoice_city_label; ?> *</label>
+	<div type="text" name="invoice_city" id="invoice_city"  ><?php echo $user->get('invoice_city'); ?></div>
+
+	<label for="invoice_country"><?php echo $country_label; ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div name="invoice_country" id="invoice_country" style="width:258px;">
 		<?php echo $user->get('invoice_country');?>&nbsp;
 	</div>
 
+<<<<<<< HEAD
 	<label for="invoice_email"><?php echo $invoice_email_label; ?></label>
+=======
+	<label for="invoice_email"><?php echo $invoice_email_label; ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div type="text" name="invoice_email" id="invoice_email"  ><?php echo $user->get('invoice_email'); ?></div>
 
 	<label for="presentation"><?php echo $presentation_label; ?></label>
@@ -85,6 +133,7 @@
 
 <div class="form_column">
 	<h3><?php echo $contact_section; ?></h3>
+<<<<<<< HEAD
 <?php if(userLevel() == 4) :?>
 	<label for="alias"><?php echo $alias_label; ?></label>
 	<div type="text" name="alias" id="alias"   disabled="disabled"><?php echo $user->get('alias'); ?></div>
@@ -93,12 +142,25 @@
 	<div type="text" name="name" id="name"  ><?php echo $user->get('name'); ?></div>
 
 	<label for="phone3"><?php echo $phone3_label; ?></label>
+=======
+	<label for="alias"><?php echo $alias_label; ?> *</label>
+	<div type="text" name="alias" id="alias"   disabled="disabled"><?php echo $user->get('alias'); ?></div>
+
+	<label for="name"><?php echo $contact_label; ?> *</label>
+	<div type="text" name="name" id="name"  ><?php echo $user->get('name'); ?></div>
+
+	<label for="phone3"><?php echo $phone3_label; ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div type="text" name="phone3" id="phone3"  ><?php echo $user->get('contact_phone'); ?></div>
 
 	<label for="phone4"><?php echo $phone4_label; ?></label>
 	<div type="text" name="phone4" id="phone4"  ><?php echo $user->get('contact_phone2'); ?></div>
 
+<<<<<<< HEAD
 	<label for="contact_email"><?php echo $contact_email ?></label>
+=======
+	<label for="contact_email"><?php echo $contact_email ?> *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	<div type="text" name="contact_email" id="contact_email"  ><?php echo $user->get('contact_email'); ?></div>
 </div>
 
@@ -114,9 +176,15 @@
 <table class="std_table use-scrolltable" id="profileBookings">
 	<thead>
 		<tr>
+<<<<<<< HEAD
 			<th><?php echo $tr_map; ?></th>
 			<th><?php echo $tr_pos; ?></th>
 			<th><?php echo $tr_area; ?></th>
+=======
+			<th><?php echo $tr_event; ?></th>
+			<th><?php echo $tr_pos; ?></th>
+			<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<th><?php echo $tr_booker; ?></th>
 			<th><?php echo $tr_field; ?></th>
 			<th><?php echo $tr_time; ?></th>
@@ -154,9 +222,15 @@
 <table class="std_table use-scrolltable" id="profileBookings">
 	<thead>
 		<tr>
+<<<<<<< HEAD
 			<th><?php echo $tr_map; ?></th>
 			<th><?php echo $tr_pos; ?></th>
 			<th><?php echo $tr_area; ?></th>
+=======
+			<th><?php echo $tr_event; ?></th>
+			<th><?php echo $tr_pos; ?></th>
+			<th><?php echo $tr_area; ?> (m<sup>2</sup>)</th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<th><?php echo $tr_booker; ?></th>
 			<th><?php echo $tr_field; ?></th>
 			<th><?php echo $tr_time; ?></th>

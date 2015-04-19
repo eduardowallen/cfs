@@ -356,6 +356,7 @@ if (isset($_POST['bookPosition'])) {
 	// If this is derived from a preliminary booking, then delete that booking
 	if (isset($_POST['prel_booking'])) {
 		$previous_status = 3;
+<<<<<<< HEAD
 
 		$prel_booking = new PreliminaryBooking();
 		$prel_booking->load($_POST['prel_booking'], 'id');
@@ -429,6 +430,81 @@ if (isset($_POST['bookPosition'])) {
 		}	
 	}
 
+=======
+
+		$prel_booking = new PreliminaryBooking();
+		$prel_booking->load($_POST['prel_booking'], 'id');
+
+		if ($prel_booking->wasLoaded()) {
+			$prel_booking->delete();
+		}
+	}
+
+	// Send mail
+	$categories = implode(', ', $categoryNames);
+	$options = implode(', ', $options);
+	$time_now = date('d-m-Y H:i');
+	
+	$pos = new FairMapPosition();
+	$pos->load($ex->get('position'), 'id');
+
+	$fair = new Fair();
+	$fair->load($ex->get('fair'), 'id');
+	
+	$organizer = new User();
+	$organizer->load($fair->get('created_by'), 'id');
+
+	$ex_user = new User();
+	$ex_user->load($ex->get('user'), 'id');
+
+	
+	//Check mail settings and send only if setting is set
+	if ($fair->wasLoaded()) {
+		$mailSettings = json_decode($fair->get("mail_settings"));
+		if (is_array($mailSettings->bookingEdited)) {
+			$previous_status = posStatusToText($previous_status);
+			$status = posStatusToText($status);
+
+			if (in_array("0", $mailSettings->bookingEdited)) {
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+				$mail_organizer->setMailvar('previous_status', $previous_status);
+				$mail_organizer->setMailvar('status', $status);
+				$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_organizer->setMailvar("company_name", $ex_user->get("company"));
+				$mail_organizer->setMailvar("event_name", $fair->get("name"));
+				$mail_organizer->setMailVar("position_name", $pos->get("name"));
+				$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_organizer->setMailVar("position_information", $pos->get("information"));
+				$mail_organizer->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_organizer->setMailVar("exhibitor_category", $categories);
+				$mail_organizer->setMailVar('exhibitor_options', $options);
+				$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->send();
+			}
+			if (in_array("1", $mailSettings->bookingEdited)) {
+				$mail_user = new Mail($ex_user->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+				$mail_user->setMailvar('previous_status', $previous_status);
+				$mail_user->setMailvar('status', $status);
+				$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_user->setMailvar("company_name", $ex_user->get("company"));
+				$mail_user->setMailvar("event_name", $fair->get("name"));
+				$mail_user->setMailVar("position_name", $pos->get("name"));
+				$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_user->setMailVar("position_information", $pos->get("information"));
+				$mail_user->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_user->setMailVar("exhibitor_category", $categories);
+				$mail_user->setMailVar('exhibitor_options', $options);
+				$mail_user->setMailVar('arranger_message', $_POST['message']);
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->send();
+			}
+		}	
+	}
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	exit;
 }
 
@@ -484,8 +560,13 @@ if (isset($_POST['reservePosition'])) {
 			$stmt->execute(array($exId, $cat));
 		}
 	}
+<<<<<<< HEAD
 	
 	
+=======
+	
+	
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	$options = array();	
 	
 	if (isset($_POST['options']) && is_array($_POST['options'])) {
@@ -536,12 +617,21 @@ if (isset($_POST['reservePosition'])) {
 
 	if ($fair->wasLoaded()) {
 		$mailSettings = json_decode($fair->get("mail_settings"));
+<<<<<<< HEAD
 		if (is_array($mailSettings->reservationCreated)) {
 			$previous_status = posStatusToText($previous_status);
 			$status = posStatusToText($status);
 
 			if (in_array("0", $mailSettings->reservationCreated)) {
 				$mail_organizer = new Mail($organizer->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+		if (is_array($mailSettings->bookingEdited)) {
+			$previous_status = posStatusToText($previous_status);
+			$status = posStatusToText($status);
+
+			if (in_array("0", $mailSettings->bookingEdited)) {
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$mail_organizer->setMailvar('previous_status', $previous_status);
 				$mail_organizer->setMailvar('status', $status);
 				$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
@@ -558,8 +648,13 @@ if (isset($_POST['reservePosition'])) {
 				$mail_organizer->setMailVar('edit_time', $time_now);
 				$mail_organizer->send();
 			}
+<<<<<<< HEAD
 			if (in_array("1", $mailSettings->reservationCreated)) {
 				$mail_user = new Mail($ex_user->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+			if (in_array("1", $mailSettings->bookingEdited)) {
+				$mail_user = new Mail($ex_user->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$mail_user->setMailvar('previous_status', $previous_status);
 				$mail_user->setMailvar('status', $status);
 				$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
@@ -624,6 +719,7 @@ if (isset($_POST['editBooking'])) {
 		foreach ($_POST['categories'] as $cat) {
 			$stmt->execute(array($exId, $cat));
 		}
+<<<<<<< HEAD
 	}
 
 	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
@@ -634,6 +730,18 @@ if (isset($_POST['editBooking'])) {
 			$stmt->execute(array($exId, $opt));
 		}
 	}
+=======
+	}
+
+	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
+
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exId, $opt));
+		}
+	}
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	// Remove old options for this booking	
 	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
 	
@@ -680,7 +788,11 @@ if (isset($_POST['editBooking'])) {
 			$status = posStatusToText($pos->get('status'));
 
 			if (in_array("0", $mailSettings->$mailSetting)) {
+<<<<<<< HEAD
 				$mail_organizer = new Mail($organizer->get('email'), 'booking_edited_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_edited_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$mail_organizer->setMailvar('status', $status);
 				$mail_organizer->setMailvar("exhibitor_name", $ex->get("name"));
 				$mail_organizer->setMailvar("company_name", $ex->get("company"));
@@ -703,7 +815,11 @@ if (isset($_POST['editBooking'])) {
 			}
 
 			if (in_array("1", $mailSettings->$mailSetting)) {
+<<<<<<< HEAD
 				$mail_user = new Mail($ex->get('email'), 'booking_edited_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+				$mail_user = new Mail($ex->get('email'), 'booking_edited_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$mail_user->setMailvar('status', $status);
 				$mail_user->setMailvar("exhibitor_name", $ex->get("name"));
 				$mail_user->setMailvar("company_name", $ex->get("company"));
@@ -792,6 +908,7 @@ if (isset($_POST['preliminary'])) {
 						$options[] = $ex_option->get('text');
 					}
 				}
+<<<<<<< HEAD
 
 				$options = implode(', ', $options);
 				$status = posStatusToText(3);
@@ -838,6 +955,43 @@ if (isset($_POST['preliminary'])) {
 						$mail_user->send();
 					
 				
+=======
+
+				$options = implode(', ', $options);
+				$status = posStatusToText(3);
+
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_created_confirm', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+				$mail_organizer->setMailvar('status', $status);
+				$mail_organizer->setMailVar('url', BASE_URL . $fair->get('url'));
+				$mail_organizer->setMailVar('event_name', $fair->get('name'));
+				$mail_organizer->setMailvar("company_name", $user->get("company"));
+				$mail_organizer->setMailVar('position_name', $position->get('name'));
+				$mail_organizer->setMailVar('position_information', $position->get('information'));
+				$mail_organizer->setMailVar('booking_time', $time_now);
+				$mail_organizer->setMailVar('arranger_message', $_POST['message'][$index]);
+				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
+				$mail_organizer->setMailVar('exhibitor_category', $categories);
+				$mail_organizer->setMailVar('exhibitor_options', $options);
+				$mail_organizer->setMailVar('exhibitor_name', $user->get('name'));
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->send();
+
+				$mail_user = new Mail($user->get('email'), 'booking_created_receipt', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+				$mail_user->setMailvar('status', $status);
+				$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
+				$mail_user->setMailVar('event_name', $fair->get('name'));
+				$mail_user->setMailvar("company_name", $user->get("company"));
+				$mail_user->setMailVar('position_name', $position->get('name'));
+				$mail_user->setMailVar('position_information', $position->get('information'));
+				$mail_user->setMailVar('booking_time', $time_now);
+				$mail_user->setMailVar('arranger_message', $_POST['message'][$index]);
+				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
+				$mail_user->setMailVar('exhibitor_category', $categories);
+				$mail_user->setMailVar('exhibitor_options', $options);
+				$mail_user->setMailVar('exhibitor_name', $user->get('name'));
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->send();
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			}
 		}
 	}
@@ -882,9 +1036,12 @@ if (isset($_POST['cancelBooking'])) {
 		$fair = new Fair();
 		$fair->load($fairMap->get('fair'), 'id');
 
+<<<<<<< HEAD
 		$organizer = new User();
 		$organizer->load($fair->get('created_by'), 'id');
 		
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$me = new User();
 		$me->load($_SESSION['user_id'], 'id');
 
@@ -895,10 +1052,16 @@ if (isset($_POST['cancelBooking'])) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			if (is_array($mailSettings->bookingCancelled)) {
 				$previous_status = posStatusToText($previous_status);
+<<<<<<< HEAD
 				
 
 				if (in_array("0", $mailSettings->bookingCancelled)) {
 					$mail_organizer = new Mail($organizer->get('email'), 'booking_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+=======
+
+				if (in_array("0", $mailSettings->bookingCancelled)) {
+					$mail_organizer = new Mail($exhibitor->get('email'), 'booking_cancelled_confirm', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail_organizer->setMailVar('url', BASE_URL . $fair->get('url'));
 					$mail_organizer->setMailVar('previous_status', $previous_status);
 					$mail_organizer->setMailvar("event_name", $fair->get("name"));
@@ -912,7 +1075,11 @@ if (isset($_POST['cancelBooking'])) {
 					$mail_organizer->send();
 				}
 				if (in_array("1", $mailSettings->bookingCancelled)) {
+<<<<<<< HEAD
 					$mail_user = new Mail($exhibitor->get('email'), 'booking_cancelled_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+=======
+					$mail_user = new Mail($exhibitor->get('email'), 'booking_cancelled_receipt', $fair->get('url') . '@chartbooker.com', $fair->get('name'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
 					$mail_user->setMailVar('previous_status', $previous_status);
 					$mail_user->setMailvar("event_name", $fair->get("name"));
@@ -925,6 +1092,7 @@ if (isset($_POST['cancelBooking'])) {
 					$mail_user->setMailVar('comment', $_POST['comment']);
 					$mail_user->send();
 				}
+<<<<<<< HEAD
 				if (in_array("2", $mailSettings->bookingCancelled)) {
 					$mail_currentuser = new Mail($me->get('email'), 'booking_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
 					$mail_currentuser->setMailVar('url', BASE_URL . $fair->get('url'));
@@ -939,6 +1107,8 @@ if (isset($_POST['cancelBooking'])) {
 					$mail_currentuser->setMailVar('comment', $_POST['comment']);
 					$mail_currentuser->send();
 				}				
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			}
 		}
 	}
@@ -1105,6 +1275,7 @@ if (isset($_POST['approve_preliminary'])) {
 			}
 
 			$stmt->execute(array($exId, $cat));
+<<<<<<< HEAD
 		}
 	}
 	
@@ -1121,6 +1292,24 @@ if (isset($_POST['approve_preliminary'])) {
 			$options[] = $ex_option->get('text');					
 		}
 	}
+=======
+		}
+	}
+	
+	
+	$options = array();	
+	
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exId, $opt));
+			
+			$ex_option = new FairExtraOption();
+			$ex_option->load($opt, 'id');
+			$options[] = $ex_option->get('text');					
+		}
+	}
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 		$categories = implode(', ', $categoryNames);
 		$options = implode(', ', $options);
@@ -1149,6 +1338,7 @@ if (isset($_POST['approve_preliminary'])) {
 		//Check mail settings and send only if setting is set
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
+<<<<<<< HEAD
 			if (is_array($mailSettings->acceptPreliminaryBooking)) {
 				$previous_status = posStatusToText($previous_status);
 				$status = posStatusToText($status);
@@ -1159,6 +1349,18 @@ if (isset($_POST['approve_preliminary'])) {
 					$mail_organizer->setMailVar('status', $status);
 					$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
 					$mail_organizer->setMailvar("company_name", $ex_user->get("company"));
+=======
+			if (is_array($mailSettings->reservationEdited)) {
+				$previous_status = posStatusToText($previous_status);
+				$status = posStatusToText($status);
+
+				if (in_array("0", $mailSettings->reservationEdited)) {
+					$mail_organizer = new Mail($organizer->get('email'), 'booking_approved_confirm', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+					$mail_organizer->setMailVar('previous_status', $previous_status);
+					$mail_organizer->setMailVar('status', $status);
+					$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
+					$mail_organizer->setMailvar("company_name", $ex->get("company"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail_organizer->setMailvar("event_name", $fair->get("name"));
 					$mail_organizer->setMailVar("position_name", $pos->get("name"));
 					$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
@@ -1175,8 +1377,13 @@ if (isset($_POST['approve_preliminary'])) {
 					$mail_organizer->send();
 				}
 
+<<<<<<< HEAD
 				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
 					$mail_user = new Mail($ex_user->get('email'), 'preliminary_approved_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+				if (in_array("1", $mailSettings->reservationEdited)) {
+					$mail_user = new Mail($ex_user->get('email'), 'booking_approved_receipt', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$mail_user->setMailVar('previous_status', $previous_status);
 					$mail_user->setMailVar('status', $status);
 					$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));

@@ -84,12 +84,16 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 
 	<form action="exhibitor/exportForFair/1" method="post">
 		<div class="floatright right">
+<<<<<<< HEAD
 		<?php 
 		$fair = new Fair;
 		$fair->load($_SESSION['user_fair'], 'id');
 			if($fair->get('sms_settings') === '{"smsFunction":["1"]}') {?>
 			<button type="submit" class="open-sms-send" name="send_sms" data-for="booked" data-fair="<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($send_sms_label); ?></button><br />
 		<?php } ?>
+=======
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="booked" data-fair="<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($send_sms_label); ?></button><br />
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="booked"><?php echo uh($export); ?></button>
 		</div>
 
@@ -105,7 +109,11 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 					<th><?php echo $th_bookings ?></th>
 					<th><?php echo $th_last_login ?></th>
 					<th data-sorter="false"><?php echo $tr_comments; ?></th>
+<<<<<<< HEAD
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-1" /></th>
+=======
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-1" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			</thead>
 			<tbody>
@@ -121,7 +129,11 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 								<img src="<?php echo BASE_URL; ?>images/icons/notes.png" alt="<?php echo $tr_comments; ?>" />
 							</a>
 						</td>
+<<<<<<< HEAD
 						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" class="rows-1" /></td>
+=======
+						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" class="rows-1" checked="checked" /></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 						<!--<td class="center"><a href="user/edit/<?php echo $user->get('id') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo uh($translator->{'Edit'}); ?>"/></a></td>
 						<td class="center"><a onclick="return confirm('<?php echo uh($translator->{'Really delete?'}); ?>');" href="exhibitor/deleteAccount/<?php echo $user->get('id') ?>"><img src="images/icons/delete.png" alt=""/></a></td>-->
 					</tr>
@@ -131,7 +143,11 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 	</form>
 
 <?php else : ?>
+<<<<<<< HEAD
 	<p><?php echo uh("There are no exhibitors with bookings for this fair.")?></p>
+=======
+	<p>Det finns inga inbokade utställare ännu.</p>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <?php endif;?>
 
 <br>
@@ -141,12 +157,16 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 
 	<form action="exhibitor/exportForFair/2" method="post">
 		<div class="floatright right">
+<<<<<<< HEAD
 		<?php 
 		$fair = new Fair;
 		$fair->load($_SESSION['user_fair'], 'id');
 			if($fair->get('sms_settings') === '{"smsFunction":["1"]}') {?>		
 			<button type="submit" class="open-sms-send" name="send_sms" data-for="booked" data-fair="<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($send_sms_label); ?></button><br />
 		<?php } ?>
+=======
+			<button type="submit" class="open-sms-send" name="send_sms" data-for="booked" data-fair="<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($send_sms_label); ?></button><br />
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			<button type="submit" class="open-excel-export" name="export_excel" data-for="connected"><?php echo uh($export); ?></button>
 		</div>
 
@@ -154,13 +174,21 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 			<thead>
 				<tr>
 					<th><?php echo $th_company ?></th>
+<<<<<<< HEAD
 					<th><?php echo $th_contactperson ?></th>
+=======
+					<th><?php echo $th_name ?></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<th><?php echo $th_fairs ?></th>
 					<!--<th><?php echo $th_bookings ?></th>-->
 					<th><?php echo $th_last_login ?></th>
 					<th><?php echo $th_connect_time ?></th>
 					<th data-sorter="false"><?php echo $tr_comments; ?></th>
+<<<<<<< HEAD
 					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-2" /></th>
+=======
+					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows-2" checked="checked" /></th>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</tr>
 			</thead>
 			<tbody>
@@ -177,7 +205,11 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 								<img src="<?php echo BASE_URL; ?>images/icons/notes.png" alt="<?php echo $tr_comments; ?>" />
 							</a>
 						</td>
+<<<<<<< HEAD
 						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" class="rows-2" /></td>
+=======
+						<td class="center"><input type="checkbox" name="rows[]" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" class="rows-2" checked="checked" /></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					</tr>
 				<?php endforeach; ?>
 			</tbody>
@@ -185,5 +217,9 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 	</form>
 
 <?php else : ?>
+<<<<<<< HEAD
 	<p><?php echo uh("There are no other exhibitors connected.")?></p>
+=======
+	<p>Det finns inga anslutna utställare.</p>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 <?php endif;?>

@@ -195,8 +195,11 @@ function positionDialogue(id) {
 		case "reserve_position_dialogue":
 		case "apply_mark_dialogue":
 		case 'fair_registration_paste_type_dialogue':
+<<<<<<< HEAD
 			popupMaxWidth = 400;
 			break;
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		case "note_dialogue":
 			popupMaxWidth = 400;
 			break;
@@ -211,12 +214,15 @@ function positionDialogue(id) {
 			popupMaxHeight = Math.max(328, viewportHeight * .90);
 			popupMaxWidth = 800;
 			break;
+<<<<<<< HEAD
 		case "popupform_register":
 			popupMaxWidth = Math.max(910, viewportWidth * .70);
 			popupMaxHeight = Math.max(720, viewportHeight * .90);
 			popupMaxWidth = 910;
 			popupMaxHeight = 720;
 			break;	
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	}
 
 	dialogue.css({
@@ -307,10 +313,15 @@ function prepareTable() {
 		exportTableToExcel(rowArray, colArray, 3);
 	} else if (tableId === "popupconnected") {
 		exportTableToExcel(rowArray, colArray, 2);
+<<<<<<< HEAD
 	} else if(tableId == "popupiprem"){
 		exportTableToExcel(rowArray, colArray, 4);		
 	}
 	
+=======
+	}
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	rowArray = [];
 	colArray = [];
 }
@@ -454,13 +465,20 @@ var bookingOptions = {
 
 function showExportPopup(e) {
 	e.preventDefault();
+<<<<<<< HEAD
 	$('#overlay').show();
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 	if ($('#export_popup').length > 0) {
 		$('#export_popup').remove();
 	}
 
+<<<<<<< HEAD
 	var html = '<div id="export_popup" class="dialogue" style="width: 500px; text-align: left;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />'
+=======
+	var html = '<div id="export_popup" class="dialogue" style="width: 500px; text-align: left;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		+ '<h3>' + lang.export_headline + '</h3>', 
 		export_popup, 
 		button = $(e.target), 
@@ -485,25 +503,32 @@ function showExportPopup(e) {
 
 	$(button).before(export_popup);
 	$('.close-popup', export_popup).click(closeDialogue);
+<<<<<<< HEAD
 	$(".closeDialogue").click(function() {
 		$('#export_popup').remove();
 			if ($(".dialogue:visible").length === 0) {
 				$("#overlay").hide();
 			}
 	});	
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 	positionDialogue("export_popup");
 }
 
 function showSmsSendPopup(e) {
 	e.preventDefault();
+<<<<<<< HEAD
 	$('#overlay').show();
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	ask_before_leave = true;
 
 	if ($('#sms_send_popup').length > 0) {
 		$('#sms_send_popup').remove();
 	}
 
+<<<<<<< HEAD
 	var sms_price = 1.0;
 	var button = $(e.target);
 	var table_form = $(button.prop('form'));
@@ -514,11 +539,27 @@ function showSmsSendPopup(e) {
 		+ '<p><strong>' + lang.sms_max_chars + '</strong><strong id="sms_send_chars_count"></strong></p>'
 		+ '<p>' + lang.sms_num_recipients + ': <strong>' + num_recipients + '</strong><br />'
 		+ lang.sms_estimated_cost + ': <strong id="sms_send_cost"></strong> kr ex moms</p>'
+=======
+	var sms_price = 0.5;
+	var button = $(e.target);
+	var table_form = $(button.prop('form'));
+	var num_recipients = $('input[name*=rows]:checked', table_form).length;
+	var sms_send_popup = $('<form id="sms_send_popup" class="dialogue" style="width: 400px;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
+		+ '<h3>' + lang.sms_enter_message + '</h3>'
+		+ '<p><textarea name="sms_text"></textarea></p>'
+		+ '<p><strong>' + lang.sms_max_chars + '</strong><strong id="sms_send_chars_count"></strong></p>'
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		+ '<p><button type="submit" class="save-btn">' + lang.send_label + '</button></p>'
 		+ '<ul class="dialog-tab-list"><li><a href="#sms_send_log" class="js-select-tab">'
 		+ lang.sms_log + '</a></li><li><a href="#sms_send_errors" class="js-select-tab">' + lang.errors + ' (<span id="sms_send_errors_count">0</span>)</a></li></ul>'
 		+ '<div class="dialog-tab" id="sms_send_log"><p></p></div>'
+<<<<<<< HEAD
 		+ '<div class="dialog-tab" id="sms_send_errors"><ul></ul></div></form>');
+=======
+		+ '<div class="dialog-tab" id="sms_send_errors"><ul></ul></div>'
+		+ '<p>' + lang.sms_num_recipients + ': <strong>' + num_recipients + '</strong><br />'
+		+ lang.sms_estimated_cost + ': <strong id="sms_send_cost"></strong> kr</p></form>');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 	var error_list = $('#sms_send_errors ul', sms_send_popup);
 
@@ -544,12 +585,18 @@ function showSmsSendPopup(e) {
 				success: function(response) {
 					if (response.error) {
 						error_list.append($('<li></li>').text(response.error));
+<<<<<<< HEAD
 						$('.dialog-tab-list li:nth-child(2)').css("background-color", "red");
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 					} else if (response.errors) {
 						for (var i = 0; i < response.errors.length; i++) {
 							error_list.append($('<li></li>').text(response.errors[i]));
+<<<<<<< HEAD
 							$('.dialog-tab-list li:nth-child(2)').css("background-color", "red");
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 						}
 					}
 
@@ -624,12 +671,15 @@ var Comments = (function() {
 				} else {
 					if (response.saved) {
 						$('#save_confirm').show();
+<<<<<<< HEAD
 						setTimeout(function() {
 							$('#save_confirm').fadeOut('slow');
 						}, 2000);
 						$("#save_confirm input").click(function() {
 							$(this).parent().parent().fadeOut("fast");
 						});						
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 						if (current_modelview.length > 0) {
 							$('[data-key=comment]', current_modelview).text(response.model.comment);
@@ -641,6 +691,7 @@ var Comments = (function() {
 						if (current_modelview) {
 							current_modelview.remove();
 						}
+<<<<<<< HEAD
 						$('#delete_confirm').show();						
 						setTimeout(function() {
 							$('#delete_confirm').fadeOut('slow');
@@ -649,6 +700,8 @@ var Comments = (function() {
 							$(this).parent().parent().fadeOut("fast");
 						});						
 
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 						closeDialogue();
 
@@ -688,7 +741,11 @@ var Comments = (function() {
 			if (user_select.length > 0) {
 				var user_search = $('<input type="text" id="note_user_search" />');
 				user_select.siblings('strong').before(user_search);
+<<<<<<< HEAD
 				user_search.wrap('<label>' + lang.search_exhibitor + '<br /></label><br />');
+=======
+				user_search.wrap('<label>' + lang.search_exhibitor + ':<br /></label><br />');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 				user_search.on('keypress', function(e) {
 					if (e.keyCode == 13) {
@@ -792,7 +849,11 @@ function checkAll(e) {
 		checkbox = $(this);
 
 		if (checkbox.hasClass(check_all.data('group'))) {
+<<<<<<< HEAD
 			checkbox.filter(':visible').prop('checked', check_all.prop('checked'));
+=======
+			checkbox.prop('checked', check_all.prop('checked'));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		}
 	});
 }
@@ -851,7 +912,10 @@ $(document).ready(function() {
 
 		if (typeof value !== "undefined") {
 			$this.datetimepicker('setDate', $.datepicker.parseDateTime("dd-mm-yy", "HH:mm", value));
+<<<<<<< HEAD
 			$('#ui-datepicker-div').css('display','none');
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		}
 	});
 
@@ -937,7 +1001,11 @@ $(document).ready(function() {
 			url : 'page/help',
 			method : 'GET',
 		}).done(function(reqResp){
+<<<<<<< HEAD
 			var html = '<div id="popupform_help" class="helpLink"></div>';
+=======
+			var html = '<div id="popupformTwo" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			$('body').append(html);
 			var popupform = $('#popupform_help');	
 			
@@ -970,9 +1038,15 @@ $(document).ready(function() {
 			url : 'page/help_organizer',
 			method : 'GET',
 		}).done(function(reqResp){
+<<<<<<< HEAD
 			var html = '<div id="popupform_help" class="helpLink"></div>';
 			$('body').append(html);
 			var popupform = $('#popupform_help');
+=======
+			var html = '<div id="popupformTwo" style="width:500px; max-height:80%; overflow-y:auto; padding:20px; margin:0 0 0 -250px; top:50px;"></div>';
+			$('body').append(html);
+			var popupform = $('#popupformTwo');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			
 			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
 			var closeButton = $('.closeDialogue');
@@ -980,16 +1054,26 @@ $(document).ready(function() {
 			$('.closeDialogue').click(function(){
 				$(this).off('click');
 				$(this).remove();
+<<<<<<< HEAD
 				$('#popupform_help').remove();
 					if ($(".dialogue:visible").length === 0) {
 					$("#overlay").hide();
 					}
+=======
+				$('#popupformTwo').remove();
+				$('#overlay').hide();
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			});
 			if(popupform.width() > 800){
 				popupform.css('width', 800);		
 			}
+<<<<<<< HEAD
 			//popupform.css('left', '50%');
 			//popupform.css('margin-left', (popupform.width() + 48)/-2);
+=======
+			popupform.css('left', '50%');
+			popupform.css('margin-left', (popupform.width() + 48)/-2);
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			var d = popupform.width() - 15;
 			closeButton.css('left', d);
 

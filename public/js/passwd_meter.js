@@ -17,7 +17,11 @@ function hookUpPasswdMeter() {
 		}
 		
 		meter.css({
+<<<<<<< HEAD
 			paddingRight: '10px',
+=======
+			paddingRight: '5px',
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			paddingLeft: '10px',
 			fontWeight: 'bold'
 		});
@@ -51,10 +55,17 @@ function hookUpPasswdMeter() {
 				$(this).css('border', 'solid 1px #00FF00')
 			} else if (strength > 2) {
 				meter.css('color', 'orange').text(lang.passwd_medium);
+<<<<<<< HEAD
 				$(this).css('border', 'solid 1px #00FF00')
 			} else {
 				meter.css('color', 'red').text(lang.passwd_weak);
 				$(this).css('border', 'solid 1px #00FF00')
+=======
+				$(this).css('border', 'solid 1px #FF0000')
+			} else {
+				meter.css('color', 'red').text(lang.passwd_weak);
+				$(this).css('border', 'solid 1px #FF0000')
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			}
 			
 			

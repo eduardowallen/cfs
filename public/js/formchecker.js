@@ -87,6 +87,7 @@ $("form #contact_email").bind("paste",function(e) {
 		}
 	});
 
+<<<<<<< HEAD
 	$("#alias").data('valid', true);
 	
 	$("#alias").keyup(function() {
@@ -94,6 +95,13 @@ $("form #contact_email").bind("paste",function(e) {
 		$(this).css('border', '1px solid #00FF00');
 		$input.data('valid', true);
 		$input.tooltip({ tooltipClass: "ui-tooltip-register" });
+=======
+	$("#alias").on("keydown", function () {
+		var $input = $(this);
+
+		$input.data('valid', true);
+		$input.tooltip();
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 		if (typeof aliasTimer !== "undefined") {
 			window.clearTimeout(aliasTimer);
@@ -110,6 +118,7 @@ $("form #contact_email").bind("paste",function(e) {
 				},
 				dataType: "json",
 				success: function (response) {
+<<<<<<< HEAD
 					if (response.aliasExists) {
 						$input.prop("title", lang.alias_exists);
 						$input.tooltip("open");
@@ -117,6 +126,10 @@ $("form #contact_email").bind("paste",function(e) {
 						$input.data("valid", false);
 					} else if(!/^[a-z-_0-9]+$/.test($input.val())) {
 						$input.prop("title", lang.alias_error);
+=======
+					if (response.aliasExists || !/^[a-z-_0-9]+$/.test($input.val())) {
+						$input.prop("title", lang.alias_exists_label);
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 						$input.tooltip("open");
 						$input.css("border", "1px solid red");
 						$input.data("valid", false);
@@ -128,6 +141,7 @@ $("form #contact_email").bind("paste",function(e) {
 				}
 			});
 
+<<<<<<< HEAD
 		}, 1);
 	});
 /*
@@ -136,6 +150,14 @@ $("form #contact_email").bind("paste",function(e) {
 		tooltipClass: "ui-tooltip-register"
 	});
 	$("form #invoice_email").keyup(function() {
+=======
+		}, 250);
+	});
+
+	$("form #invoice_email").data('valid', true);
+	$("form #invoice_email").tooltip();
+	$("form #invoice_email").keydown(function() {
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);
@@ -187,7 +209,7 @@ $("form #contact_email").bind("paste",function(e) {
 
 	
 	$("form #contact_email").data('valid', true);
-	$("form #contact_email").keyup(function() {
+	$("form #contact_email").keydown(function() {
 		if (isValidEmailAddress($(this).val())) {
 			$(this).css('border', '1px solid #00FF00');
 			var input = $(this);

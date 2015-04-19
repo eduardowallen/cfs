@@ -31,9 +31,15 @@
   
   <div class="form_column" id="form_column1">
     <h3><?php echo htmlspecialchars($translator->{'Company'}); ?></h3>
+<<<<<<< HEAD
 
     <label for="email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
     <input type="text" autocomplete="off" name="email" id="email" title="<?php echo ujs($translator->{"Insert your email address."}); ?>" value="<?php echo $user->get('email'); ?>"/>
+=======
+	
+    <label for="email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
+    <input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>	
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
     
     <label for="orgnr"><?php echo htmlspecialchars($translator->{'Organization number'}); ?> *</label>
     <input type="text" name="orgnr" id="orgnr" title="<?php echo ujs($translator->{"Insert the organization number of your organization."}); ?>" value="<?php echo $user->get('orgnr'); ?>"/>
@@ -70,6 +76,7 @@
     </select>
 
     <label for="phone1"><?php echo htmlspecialchars($translator->{'Phone 1'}); ?> *</label>
+<<<<<<< HEAD
     <input type="text" name="phone1" id="phone1" class="phone-val" title="<?php echo ujs($translator->{"Insert the phone number of your organization."}); ?>" value="<?php echo $user->get('phone1'); ?>"/>
           
     <label for="phone2"><?php echo htmlspecialchars($translator->{'Phone 2'}); ?></label>
@@ -80,6 +87,18 @@
           
     <label for="website"><?php echo htmlspecialchars($translator->{'Website'}); ?></label>
     <input type="text" name="website" id="website" title="<?php echo ujs($translator->{"Insert the website address of your organization."}); ?>" value="<?php echo $user->get('website'); ?>"/>
+=======
+    <input type="text" name="phone1" id="phone1" class="phone-val" value="<?php echo $user->get('phone1'); ?>"/>
+          
+    <label for="phone2"><?php echo htmlspecialchars($translator->{'Phone 2'}); ?></label>
+    <input type="text" name="phone2" id="phone2" class="phone-val" value="<?php echo $user->get('phone2'); ?>"/>
+          
+    <label for="fax"><?php echo htmlspecialchars($translator->{'Fax number'}); ?></label>
+    <input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
+          
+    <label for="website"><?php echo htmlspecialchars($translator->{'Website'}); ?></label>
+    <input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	
 <?php if(userLevel() == 4): ?>
 	<label for="#"><?php echo htmlspecialchars($translator->{'Account locked'}); ?></label>
@@ -97,7 +116,11 @@
     <label class="inline-block" for="copy"><?php echo htmlspecialchars($translator->{'Copy from company details'}); ?></label>
 	
     <label for="invoice_email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
+<<<<<<< HEAD
     <input type="text" autocomplete="off" name="invoice_email" id="invoice_email" title="<?php echo ujs($translator->{"Insert the email address at which we can reach the organization for invoice."}); ?>" value="<?php echo $user->get('invoice_email'); ?>"/>
+=======
+    <input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>	
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
           
     <label for="invoice_company"><?php echo htmlspecialchars($translator->{'Company'}); ?> *</label>
     <input type="text" name="invoice_company" id="invoice_company" title="<?php echo ujs($translator->{"Insert the organization name for the invoice."}); ?>" value="<?php echo $user->get('invoice_company'); ?>"/>
@@ -125,7 +148,11 @@
     <?php
       if(isset($popup)):
     ?>
+<<<<<<< HEAD
         <div style="margin-top:50px;">
+=======
+        <div style="margin-top:40px;">
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
           <label for="presentation"><?php echo htmlspecialchars($translator->{'Presentation (this is what will be shown to your customers)'}); ?></label>
           <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
         </div>
@@ -155,20 +182,35 @@
     <input type="text" name="name" id="name" title="<?php echo ujs($translator->{"Insert the name of the contact person of this account."}); ?>" value="<?php echo $user->get('name'); ?>"/>
      
     <label for="phone3"><?php echo htmlspecialchars($translator->{'Contact Phone'}); ?> *</label>
+<<<<<<< HEAD
     <input type="text" name="phone3" id="phone3" title="<?php echo ujs($translator->{"Insert the phone number that we can reach the contact person for support about this account."}); ?>" class="phone-val" value="<?php echo $user->get('contact_phone'); ?>"/>
 
     <label for="phone4"><?php echo htmlspecialchars($translator->{'Contact Phone 2'}); ?> *</label>
     <input type="text" name="phone4" id="phone4" title="<?php echo ujs($translator->{"Insert the cell phone number of the contact person. for this account. This information will be visible to organizers of events that you attend to."}); ?>" class="phone-val" value="<?php echo $user->get('contact_phone2'); ?>"/>
+=======
+    <input type="text" name="phone3" id="phone3" class="phone-val" value="<?php echo $user->get('contact_phone'); ?>"/>
+
+    <label for="phone4"><?php echo htmlspecialchars($translator->{'Contact Phone 2'}); ?></label>
+    <input type="text" name="phone4" id="phone4" class="phone-val" value="<?php echo $user->get('contact_phone2'); ?>"/>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
     <label for="contact_email"><?php echo htmlspecialchars($translator->{'Contact Email'}); ?> *</label>
     <input type="text" autocomplete="off" name="contact_email" id="contact_email" title="<?php echo ujs($translator->{"Insert the email address of the contact person for this account. This information will be visible to organizers of events that you attend to."}); ?>" value="<?php echo $user->get('contact_email'); ?>"/>
 
 <?php if(userLevel() == 0): ?>
     <label for="password"><?php echo htmlspecialchars($translator->{'Password'}); ?> *</label>
+<<<<<<< HEAD
     <input type="password" name="password" id="password" title="<?php echo ujs($translator->{"Insert a password for this account. The password has to be Strong or Super strong."}); ?>" class="hasIndicator"/>
 
     <label for="password_repeat"><?php echo htmlspecialchars($translator->{'Password again (repeat to confirm)'}); ?> *</label>
     <input type="password" name="password_repeat" id="password_repeat" title="<?php echo ujs($translator->{"Repeat the password that you entered in the previous field."}); ?>"/>
+=======
+    <input type="password" name="password" id="password" class="hasIndicator"/>
+	<img src="/images/icons/icon_help.png" class="helpicon_map" title="<?php echo htmlspecialchars($translator->{'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.'}); ?>" />
+
+    <label for="password_repeat"><?php echo htmlspecialchars($translator->{'Password again (repeat to confirm)'}); ?> *</label>
+    <input type="password" name="password_repeat" id="password_repeat"/>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		  
       
     </p>

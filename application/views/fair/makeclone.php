@@ -78,6 +78,7 @@
 		<label for="windowtitle"><?php echo $window_title_label; ?> *</label>
 		<input type="text" name="windowtitle" id="windowtitle" value="<?php echo $fair->get('windowtitle'); ?>"/>
 
+<<<<<<< HEAD
 		<label for="auto_publish"><?php echo $auto_publish_label; ?> (DD-MM-YYYY HH:MM) *</label>
 		<input class="datetime datepicker" type="text" name="auto_publish" id="auto_publish" value="<?php echo date('d-m-Y', $fair->get('auto_publish')); ?>"/>
 		
@@ -85,6 +86,15 @@
 		<input class="datetime datepicker" type="text" name="auto_close" id="auto_close" value="<?php echo date('d-m-Y', $fair->get('auto_close')); ?>"/>
 
 		<label for="auto_close_reserved"><?php echo $auto_close_reserved_label; ?> (DD-MM-YYYY HH:MM) *</label>
+=======
+		<label for="auto_publish"><?php echo $auto_publish_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
+		<input class="datetime datepicker" type="text" name="auto_publish" id="auto_publish" value="<?php echo date('d-m-Y', $fair->get('auto_publish')); ?>"/>
+		
+		<label for="auto_close"><?php echo $auto_close_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
+		<input class="datetime datepicker" type="text" name="auto_close" id="auto_close" value="<?php echo date('d-m-Y', $fair->get('auto_close')); ?>"/>
+
+		<label for="auto_close_reserved"><?php echo $auto_close_reserved_label; ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>) *</label>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		<input class="datetime datepicker" type="text" name="auto_close_reserved" id="auto_close_reserved" />
 
 		<label for="contact_info"><?php echo $contact_label; ?> *</label>

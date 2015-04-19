@@ -46,7 +46,11 @@ class Administrator extends User {
 			$me = new User;
 			$me->load($_SESSION['user_id'], 'id');
 			
+<<<<<<< HEAD
 			$mail = new Mail($_POST['email'], 'administrator_new_account', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+=======
+			$mail = new Mail($_POST['email'], 'administrator_new_account', $fair->get("url") . "@chartbooker.com", $fair->get("name"));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			$mail->setMailVar("url", BASE_URL . $fair->get("url"));
 			$mail->setMailVar('alias', $this->alias);
 			$mail->setMailVar('password', $str);

@@ -2,7 +2,11 @@
 			<ul>
 				<?php if (userLevel() == 4): ?>
 				
+<<<<<<< HEAD
 	<!--The first button in the main menu -->
+=======
+	<?php /* The first button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><a href="user/accountSettings"><!--<img src="images/icons/icon_logga_in.png" alt=""/>--><?php echo uh($translator->{'My profile'}); ?></a>
 					<ul>
 						<li><a href="user/changePassword"><?php echo uh($translator->{'Change password'}); ?></a></li>
@@ -11,7 +15,11 @@
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The second button in the main menu -->
+=======
+	<?php /* The second button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><span><!--<img src="images/icons/icon_registrera.png" alt=""/>--><?php echo uh($translator->{'Users'}); ?></span>
 					<ul>
 						<li><a href="user/overview/4"><?php echo uh($translator->{'Masters'}); ?></a></li>
@@ -22,15 +30,24 @@
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The third button in the main menu -->
+=======
+	<?php /* The third button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><a href="fair/overview"><!--<img src="images/icons/icon_events.png" alt=""/>--><?php echo uh($translator->{'Fairs'}); ?></a>
 					<ul>
 						<li><a href="sms"><?php echo uh($translator->{'SMS'}); ?></a></li>
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The fourth button in the main menu -->
 				<li><span><img src="images/icons/support.png" alt=""/><?php echo uh($translator->{'Support'}); ?></span>
+=======
+	<?php /* The fourth button in the main menu */ ?>
+				<li><span><!--<img src="images/icons/icon_help.png" alt=""/>--><?php echo uh($translator->{'Support'}); ?></span>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<ul>
 						<li><a href="mail/edit"><?php echo uh($translator->{'Mails'}); ?></a></li>
 						<li><a href="page/edit"><?php echo uh($translator->{'Pages'}); ?></a></li>
@@ -42,7 +59,11 @@
 	<!--Main menu for Organizers -->
 				<?php elseif (userLevel() == 3): ?>
 	
+<<<<<<< HEAD
 	<!--The first button in the main menu -->
+=======
+	<?php /* The first button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><a href="user/accountSettings"><!--<img src="images/icons/icon_logga_in.png" alt=""/>--><?php echo uh($translator->{'My profile'}); ?></a>
 					<ul>
 						<li><a href="fair/overview"><?php echo uh($translator->{'My events'}); ?></a></li>
@@ -55,18 +76,30 @@
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The second button in the main menu -->
 				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><!--<img src="images/icons/icon_globe.png" alt=""/>--><?php echo uh($translator->{'Map tool'}); ?></a></li>
 	
 	<!--The third button in the main menu -->
+=======
+	<?php /* The second button in the main menu */ ?>
+				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><!--<img src="images/icons/icon_globe.png" alt=""/>--><?php echo uh($translator->{'Map tool'}); ?></a></li>
+	
+	<?php /* The third button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><span><!--<img src="images/icons/icon_events.png" alt=""/>--><?php echo uh($translator->{'Fairs'}); ?></span>
 					<ul>
 						<?php echo $opts ?>
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The fourth button in the main menu -->
 				<li><span><img src="images/icons/support.png" alt=""/><?php echo uh($translator->{'Support'}); ?></span>
+=======
+	<?php /* The fourth button in the main menu */ ?>
+				<li><span><!--<img src="images/icons/icon_help.png" alt=""/>--><?php echo uh($translator->{'Support'}); ?></span>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<ul>
 						<li><a class="helpOrgLink"><?php echo uh($translator->{"Here's how"}); ?></a></li>
 						<li><a class="contactLink"><?php echo uh($translator->{'Contact us'}); ?></a></li>
@@ -76,7 +109,11 @@
 	<!--Main menu for Administrators -->
 				<?php elseif (userLevel() == 2): ?>
 	
+<<<<<<< HEAD
 	<!--The first button in the main menu -->
+=======
+	<?php /* The first button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><a href="user/accountSettings"><!--<img src="images/icons/icon_logga_in.png" alt=""/>--><?php echo uh($translator->{'My profile'}); ?></a>
 					<ul>
 						<li><a href="administrator/newReservations"><?php echo uh($translator->{'New reservations'}); ?><?php echo $bookCount; ?></a></li>
@@ -87,18 +124,30 @@
 					</ul>
 				</li>
 	
+<<<<<<< HEAD
 	<!--The second button in the main menu -->
 				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><!--<img src="images/icons/icon_globe.png" alt=""/>--><?php echo uh($translator->{'Map tool'}); ?></a></li>
 				
 	<!--The third button in the main menu -->
+=======
+	<?php /* The second button in the main menu */ ?>
+				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><!--<img src="images/icons/icon_globe.png" alt=""/>--><?php echo uh($translator->{'Map tool'}); ?></a></li>
+				
+	<?php /* The third button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><span><!--<img src="images/icons/icon_events.png" alt=""/>--><?php echo uh($translator->{'Fairs'}); ?></span>
 					<ul>
 						<?php echo $opts ?>
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The fourth button in the main menu -->
 				<li><span><img src="images/icons/support.png" alt=""/><?php echo uh($translator->{'Support'}); ?></span>
+=======
+	<?php /* The fourth button in the main menu */ ?>
+				<li><span><!--<img src="images/icons/icon_help.png" alt=""/>--><?php echo uh($translator->{'Support'}); ?></span>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<ul>
 						<li><a class="helpOrgLink"><?php echo uh($translator->{'Help'}); ?></a></li>
 						<li><a class="contactLink"><?php echo uh($translator->{'Contact us'}); ?></a></li>
@@ -109,7 +158,11 @@
 	<!--Main menu for Exhibitors -->
 				<?php elseif (userLevel() == 1): ?>
 				
+<<<<<<< HEAD
 	<!--The first button in the main menu -->
+=======
+	<?php /* The first button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><a href="user/accountSettings"><!--<img src="images/icons/icon_logga_in.png" alt=""/>--><?php echo uh($translator->{'My profile'}); ?></a>
 					<ul>
 						<li><a href="exhibitor/myBookings"><?php echo uh($translator->{'My bookings'}); ?></a></li>
@@ -119,18 +172,30 @@
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The second button in the main menu -->
 				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><!--<img src="images/icons/icon_globe.png" alt=""/>--><?php echo uh($translator->{'View map'}); ?></a></li>
 				
 	<!--The third button in the main menu -->
+=======
+	<?php /* The second button in the main menu */ ?>
+				<li><a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>"><!--<img src="images/icons/icon_globe.png" alt=""/>--><?php echo uh($translator->{'View map'}); ?></a></li>
+				
+	<?php /* The third button in the main menu */ ?>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<li><span><!--<img src="images/icons/icon_events.png" alt=""/>--><?php echo uh($translator->{'Fairs'}); ?></span>
 					<ul>
 						<?php echo $opts ?>
 					</ul>
 				</li>
 				
+<<<<<<< HEAD
 	<!--The fourth button in the main menu -->
 				<li><span><img src="images/icons/support.png" alt=""/><?php echo uh($translator->{'Support'}); ?></span>
+=======
+	<?php /* The fourth button in the main menu */ ?>
+				<li><span><!--<img src="images/icons/icon_help.png" alt=""/>--><?php echo uh($translator->{'Support'}); ?></span>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<ul>
 						<li><a class="helpLink"><?php echo uh($translator->{'Help'}); ?></a></li>
 						<li><a class="contactLink <?php echo $_SESSION['user_fair'] ?>"><?php echo uh($translator->{'Contact us'}); ?></a></li>
@@ -149,7 +214,11 @@
 					
 					<li><a class="loginlink" href="user/login/<?php echo $_SESSION['outside_fair_url'] ?>"><!--<img src="images/icons/icon_logga_in.png" alt=""/>--><?php echo uh($translator->{'Sign in'}); ?></a></li>
 					<li><a class="registerlink" href="user/register/<?php echo $_SESSION['outside_fair_url'] ?>"><!--<img src="images/icons/icon_registrera.png" alt=""/>--><?php echo uh($translator->{'Register'}); ?></a></li>					
+<<<<<<< HEAD
 					<li><a class="helpLink"><img src="images/icons/support.png" alt=""/><?php echo uh($translator->{"Here's how"}); ?></a></li>
+=======
+					<li><a class="helpLink"><!--<img src="images/icons/icon_help.png" alt=""/>--><?php echo uh($translator->{"Here's how"}); ?></a></li>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					<li><a class="contactLink <?php echo $_SESSION['outside_fair_url']?>"><!--<img src="images/icons/icon_contact.png" alt=""/>--><?php echo uh($translator->{'Contact us'}); ?></a></li>
 
 					

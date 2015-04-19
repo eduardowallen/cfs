@@ -64,7 +64,10 @@ class FairController extends Controller {
 		$this->set('th_exhibitors', 'Exhibitors');
 		$this->set('th_settings', 'Settings');
 		$this->set('th_mailSettings', 'Mail settings');
+<<<<<<< HEAD
 		$this->set('th_smsSettings', 'SMS Settings');
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$this->set('th_delete', 'Delete');
 		$this->set('th_clone', 'Clone');
 		$this->set('app_yes', 'Yes');
@@ -676,6 +679,7 @@ class FairController extends Controller {
 
 	}
 
+<<<<<<< HEAD
 	public function sms($id = null) {
 		setAuthLevel(4);
 	
@@ -744,6 +748,45 @@ class FairController extends Controller {
 
 			Alias::clear();
 
+=======
+	public function event_mail($id = NULL) {
+		setAuthLevel(3);
+
+		$fair = new Fair();
+		$fair->load($id, "id");
+
+		if ($fair->wasLoaded()) {
+			if (isset($_POST["save"])) {
+				unset($_POST["save"]);
+				$fair->set("mail_settings", json_encode($_POST));
+				$fair->save();
+			}
+
+			$this->set("heading", "Automatically send a mail when I:");
+			$this->set("toMyself", "To myself");
+			$this->set("toExhibitor", "To the Exhibitor");
+			$this->set("editBooking", "Edit a booking");
+			$this->set("editReservation", "Edit a reservation");
+			$this->set("cancelBooking", "Cancel a booking");
+			$this->set("cancelPreliminaryBooking", "Cancel a preliminary booking");
+			$this->set("cancelReservation", "Cancel a reservation");
+			$this->set("save", "Save");
+
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (!is_object($mailSettings)) {
+				$mailSettings = new stdClass();
+			}
+
+			$this->setNoTranslate("mailSettings", $mailSettings);
+			$this->setNoTranslate("id", $id);
+		}
+	}
+	public function updateAliases() {
+			$result = $this->Fair->db->query("SELECT `fair`.`url`, `user`.`email` FROM `fair` INNER JOIN `user` ON `fair`.`created_by` = `user`.`id` ");
+
+			Alias::clear();
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			while (($fair = $result->fetch(PDO::FETCH_ASSOC))) {
 				Alias::addNew($fair["url"], array($fair["email"]));
 			}

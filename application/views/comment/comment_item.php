@@ -28,12 +28,21 @@
 								echo '<span class="comment-positive">' . uh($label_comment_positive);
 								break;
 						}
+<<<<<<< HEAD
 						?></span></span>
 						<a href="comment/delete/<?php echo $comment->get('id'); ?>" class="js-comment-action action-delete" style="float:right">
 							<?php echo uh($label_delete) . PHP_EOL; ?>
 							<img src="images/icons/delete.png" alt="" />
 						</a>
 						<a href="comment/edit/<?php echo $comment->get('id'); ?>" class="js-comment-action action-edit" style="float:right">
+=======
+						?></span></span> -
+						<a href="comment/delete/<?php echo $comment->get('id'); ?>" class="js-comment-action action-delete">
+							<?php echo uh($label_delete) . PHP_EOL; ?>
+							<img src="images/icons/delete.png" alt="" />
+						</a> -
+						<a href="comment/edit/<?php echo $comment->get('id'); ?>" class="js-comment-action action-edit">
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							<?php echo uh($label_edit) . PHP_EOL; ?>
 							<img src="images/icons/pencil.png" alt="" />
 						</a>

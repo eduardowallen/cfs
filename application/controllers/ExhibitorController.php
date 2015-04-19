@@ -710,6 +710,7 @@ class ExhibitorController extends Controller {
 
 						} else if ($fieldname == 'edit_time') {
 							$value = ($row['edit_time'] > 0 ? date('d-m-Y H:i:s', $row['edit_time']) : '');
+<<<<<<< HEAD
 
 						} else if ($fieldname == 'status') {
 							if ($row['status'] == 2) {
@@ -721,6 +722,19 @@ class ExhibitorController extends Controller {
 						} else if ($fieldname == 'extra_options') {
 							$value = '';
 
+=======
+
+						} else if ($fieldname == 'status') {
+							if ($row['status'] == 2) {
+								$value = $label_booked;
+							} else {
+								$value = $label_reserved;
+							}
+
+						} else if ($fieldname == 'extra_options') {
+							$value = '';
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							$stmt_options->execute(array($row['id']));
 							$options = $stmt_options->fetchObject();
 							if ($options) {
@@ -736,6 +750,7 @@ class ExhibitorController extends Controller {
 						$count++;
 					}
 				}
+<<<<<<< HEAD
 
 				$i++;
 			}
@@ -746,6 +761,18 @@ class ExhibitorController extends Controller {
 
 			//$xls->getActiveSheet()->getStyle('A' . $i . ':Z' . $i)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
 
+=======
+
+				$i++;
+			}
+
+			$xls->getActiveSheet()->getStyle('A1:AZ1')->applyFromArray(array(
+				'font' => array('bold' => true)
+			));
+
+			//$xls->getActiveSheet()->getStyle('A' . $i . ':Z' . $i)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_GENERAL);
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 			$objWriter = new PHPExcel_Writer_Excel2007($xls);
 			//$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
 			$objWriter->save('php://output');
@@ -911,8 +938,11 @@ class ExhibitorController extends Controller {
 		$u = new User;
 		$u->load($id, 'id');
 
+<<<<<<< HEAD
 		
 		//Bokningar på dina andra event
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		//Masters and exhibitors looking at their own profile get the full list of positions, lower levels get the ones for their fair
 		if (userLevel() == 4 || $_SESSION["user_id"] == $id) {
 			$stmt = $u->db->prepare("SELECT
@@ -926,6 +956,7 @@ class ExhibitorController extends Controller {
 				`fair_map`.`fair`,
 				`fair_map`.`name` AS fair_map_name,
 				`user`.`company`
+<<<<<<< HEAD
 				FROM `exhibitor` 
         INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` 
         INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` 
@@ -934,6 +965,10 @@ class ExhibitorController extends Controller {
 			$stmt->execute(array($u->get('id'), $_SESSION["user_fair"]));
 
 		
+=======
+				FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ?");
+			$stmt->execute(array($u->get('id')));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 			$stmtPreliminary = $u->db->prepare("SELECT
 				`preliminary_booking`.`id` AS exhibitor_id,
@@ -945,6 +980,7 @@ class ExhibitorController extends Controller {
 				`fair_map`.`fair`,
 				`fair_map`.`name` AS fair_map_name,
 				`user`.`company`
+<<<<<<< HEAD
 				FROM `preliminary_booking` 
         INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` 
 				INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id`  
@@ -952,6 +988,11 @@ class ExhibitorController extends Controller {
         WHERE `user` = ? AND `preliminary_booking`.`fair` <> ?
 			");
 			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
+=======
+				FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `user` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id")));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 		//Administrators and Organizers can see the bookings linked to the events they have administrative privilegies to
 		} else if (userLevel() == 2) {
@@ -980,9 +1021,15 @@ class ExhibitorController extends Controller {
 				INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id`
 				INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id`
 				INNER JOIN `fair_user_relation` ON `fair_map`.`fair` = `fair_user_relation`.`fair`
+<<<<<<< HEAD
 				WHERE `exhibitor`.`user` = ? AND `exhibitor`.`fair` <> ? AND `fair_user_relation`.`user` = ?
 			");
 			$stmt->execute(array($u->get('id'), $_SESSION["user_fair"], $_SESSION['user_id']));
+=======
+				WHERE `exhibitor`.`user` = ? AND `fair_user_relation`.`user` = ?
+			");
+			$stmt->execute(array($u->get('id'), $_SESSION['user_id']));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 			$stmtPreliminary = $u->db->prepare("SELECT
 				`preliminary_booking`.`id` AS exhibitor_id,
@@ -999,11 +1046,17 @@ class ExhibitorController extends Controller {
 				INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair`
 				INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id`
 				INNER JOIN `fair_user_relation` ON `fair_map`.`fair` = `fair_user_relation`.`fair`
+<<<<<<< HEAD
 				WHERE `preliminary_booking`.`user` = ? 
 				AND `preliminary_booking`.`fair` <> ? 
 				AND `fair_user_relation`.`user` = ?
 			");
 			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"], $_SESSION["user_fair"]));
+=======
+				WHERE `preliminary_booking`.`user` = ? AND `fair_user_relation`.`user` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		} else if (userLevel() == 3) {
 			$stmt = $u->db->prepare("SELECT
 				`exhibitor`.`id` AS exhibitor_id,
@@ -1021,11 +1074,17 @@ class ExhibitorController extends Controller {
 				INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id`
 				INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id`
 				INNER JOIN `fair` ON `fair_map`.`fair` = `fair`.`id`
+<<<<<<< HEAD
 				WHERE `exhibitor`.`user` = ? 
 				AND `exhibitor`.`fair` <> ? 
 				AND `fair`.`created_by` = ?
 			");
 			$stmt->execute(array($u->get('id'), $_SESSION["user_fair"], $_SESSION['user_id']));
+=======
+				WHERE `exhibitor`.`user` = ? AND `fair`.`created_by` = ?
+			");
+			$stmt->execute(array($u->get('id'), $_SESSION['user_id']));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 			$stmtPreliminary = $u->db->prepare("SELECT
 				`preliminary_booking`.`id` AS exhibitor_id,
@@ -1042,11 +1101,17 @@ class ExhibitorController extends Controller {
 				INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair`
 				INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id`
 				INNER JOIN `fair` ON `fair_map`.`fair` = `fair`.`id`
+<<<<<<< HEAD
 				WHERE `preliminary_booking`.`user` = ? 
 				AND `preliminary_booking`.`fair` <> ?
 				AND `fair`.`created_by` = ?
 			");
 			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"], $_SESSION["user_id"]));
+=======
+				WHERE `preliminary_booking`.`user` = ? AND `fair`.`created_by` = ?
+			");
+			$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		}
 
 		// $positions contains this exhibitor's all bookings
@@ -1072,11 +1137,15 @@ class ExhibitorController extends Controller {
 			`fair_map`.`fair`,
 			`fair_map`.`name` AS fair_map_name,
 			`user`.`company`
+<<<<<<< HEAD
 			FROM `exhibitor` 
       INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` 
       INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` 
       INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` 
       WHERE `exhibitor`.`user` = ? AND `exhibitor`.`fair` = ?");
+=======
+			FROM `exhibitor` INNER JOIN `fair_map_position` ON `exhibitor`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` INNER JOIN `user` ON `exhibitor`.`user` = `user`.`id` WHERE `exhibitor`.`user` = ? AND `exhibitor`.`fair` = ?");
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$stmt->execute(array($u->get('id'), $_SESSION['user_fair']));
 
 		$stmtPreliminary = $u->db->prepare("SELECT
@@ -1089,15 +1158,23 @@ class ExhibitorController extends Controller {
 			`fair_map`.`fair`,
 			`fair_map`.`name` AS fair_map_name,
 			`user`.`company`
+<<<<<<< HEAD
 			FROM `preliminary_booking` 
       INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` 
 	  INNER JOIN `fair_map` ON `fair_map_position`.`map` = `fair_map`.`id` 
       INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` 
       WHERE `preliminary_booking`.`user` = ? AND `preliminary_booking`.`fair` = ?
+=======
+			FROM `preliminary_booking` INNER JOIN `fair_map_position` ON `preliminary_booking`.`position` = `fair_map_position`.`id` INNER JOIN `fair_map` ON `preliminary_booking`.`fair` = `fair_map`.`fair` INNER JOIN `user` ON `preliminary_booking`.`user` = `user`.`id` WHERE `preliminary_booking`.`user` = ? AND `preliminary_booking`.`fair` = ?
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		");
 		$stmtPreliminary->execute(array($u->get("id"), $_SESSION["user_fair"]));
 
 		$same_fair_positions = array_merge($stmt->fetchAll(PDO::FETCH_ASSOC), $stmtPreliminary->fetchAll(PDO::FETCH_ASSOC));
+<<<<<<< HEAD
+=======
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$this->setNoTranslate('user', $u);
 		$this->setNoTranslate('positions', $positions);
 		$this->setNoTranslate('same_fair_positions', $same_fair_positions);
@@ -1143,7 +1220,11 @@ class ExhibitorController extends Controller {
 
 		$this->set('bookings_section', 'Bookings on your other events');
 		$this->set('bookings_samefair_section', 'Bookings for this event');
+<<<<<<< HEAD
 		$this->set('tr_map', 'Map for this booking');
+=======
+		$this->set('tr_event', 'Fair');
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$this->set('tr_pos', 'Stand space');
 		$this->set('tr_area', 'Area');
 		$this->set('tr_booker', 'Booked by');
@@ -1243,16 +1324,23 @@ class ExhibitorController extends Controller {
 		$this->setNoTranslate('rpositions', $rpositions);
 		$this->setNoTranslate('prelpos', $prelpos);
 		$this->setNoTranslate('fair_registrations', $fair_registrations);
+<<<<<<< HEAD
 		$this->setNoTranslate('oldpositions', $oldpositions);
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 		$this->set('booked_notfound', 'No booked booths was found.');
 		$this->set('reserv_notfound', 'No reservations was found.');
 		$this->set('prel_notfound', 'No preliminary bookings was found.');
+		$this->set('prel_notfound', 'No preliminary bookings was found.');
 		$this->set('prel_table', 'Preliminary bookings');
 		$this->set('fair_registrations_headline', 'Registrations');
 		$this->set('fregistrations_notfound', 'No registrations was found.');
+<<<<<<< HEAD
 		$this->set('old_bookings_headline', 'Old bookings');
 		$this->set('oldbookings_notfound', 'No old bookings found.');
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		$this->set('tr_fair', 'Fair');
 		$this->set('tr_map', 'Map');
 		$this->set('tr_pos', 'Stand space');

@@ -40,6 +40,21 @@ th {text-align:center;}
     box-shadow:         0 0 5px black;
 }
 
+#maintenance-message {
+    position: absolute;
+    z-index: 101;
+    margin-bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fde073;
+    text-align: center;
+    line-height: 2.5;
+    overflow: hidden; 
+    -webkit-box-shadow: 0 0 5px black;
+    -moz-box-shadow:    0 0 5px black;
+    box-shadow:         0 0 5px black;
+}
+
 #overlay {
 	display:none;
 	position:fixed;
@@ -122,7 +137,11 @@ input[type="button"].closeDialogue {
 }
 
 .dialog-tab-list {
+<<<<<<< HEAD
 	margin: 0px 0px 0px 7px;
+=======
+	margin-bottom: 0;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	padding: 0;
 	list-style: none;
 }
@@ -130,11 +149,16 @@ input[type="button"].closeDialogue {
 .dialog-tab-list li {
 	display: inline-block;
 	border: 1px solid #000;
+<<<<<<< HEAD
 	border-radius: 8px 8px 0px 0px;
 }
 #sms_send_log p{
 	margin-left: 10px;
 }
+=======
+}
+
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 .dialog-tab-list li a {
 	display: block;
 	padding: 3px 10px;
@@ -144,6 +168,7 @@ input[type="button"].closeDialogue {
 
 .dialog-tab {
 	/*display: none;*/
+<<<<<<< HEAD
 	border: 2px solid #000;
 	border-radius: 8px;
 }
@@ -153,6 +178,16 @@ input[type="button"].closeDialogue {
 	width: 550px;
  	min-height: 150px;
 	top: 40%;
+=======
+	border: 3px solid #000;
+}
+
+#nouser_dialogue {
+	margin-left: -300px;
+	width: 550px;
+ 	min-height: 150px;
+	margin-top:-20% !important;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
  }
 
 .nouser_cfslogo {
@@ -220,16 +255,23 @@ input[type="button"].closeDialogue {
 
 .ui-tooltip {
 	z-index: 99999;
+<<<<<<< HEAD
 	border: 1px solid #222;
+=======
+	border: 2px solid #FF0000;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	background: url('images/ui-bg_flat_75_ffffff_40x100.png') repeat-x scroll 50% 100% #FFF;
 	color: #222;
 }
 
+<<<<<<< HEAD
 .ui-tooltip-register {
 	border: 1px solid #FF0000;
 	background: url('images/ui-bg_flat_75_ffffff_40x100.png') repeat-x scroll 50% 100% #FFF;
 	color: #222;
 }
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 h1 {
 	margin:0;
 	color:#000000;
@@ -293,7 +335,7 @@ input[type=text], input[type=password], textarea {
     box-sizing: border-box;	
 }
 
-input[type=button], input[type=submit], .td_button, .link-button {
+input[type=button], input[type=submit], button, .td_button, .link-button {
 	border:1px solid #666666;
 	-moz-border-radius:4px;
 	-webkit-border-radius:4px;
@@ -377,7 +419,10 @@ input[type=button], input[type=submit], .td_button, .link-button {
 	display: inline-block;
 	text-decoration: none;
 	margin-bottom: 10px;
+<<<<<<< HEAD
 	cursor:pointer;
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 }
 
 .td_button_disabled a {
@@ -427,6 +472,7 @@ textarea {
 	color: #fff;
 }
 
+<<<<<<< HEAD
 #reminder_cancel_btn[type=button]:hover{
 	background: url('../images/button_icons/red-cancel-hover.png') no-repeat;
 	}
@@ -459,6 +505,8 @@ textarea {
 	color: #fff;
 	cursor:pointer;
 }
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 .open-excel-export {
 	margin-bottom: 5px;
 	padding-bottom: 3px;
@@ -496,6 +544,7 @@ textarea {
 	-moz-border-radius:3px;
 	-webkit-border-radius:3px;
 	border-radius:3px;
+	color: #000;
 }
 .button:hover {
 	background-color:#dcdcdc;
@@ -540,8 +589,12 @@ textarea {
 
 .scrolltable-wrap {
 	position: relative;
+<<<<<<< HEAD
 	overflow-x: hidden;
 	overflow-y: auto;
+=======
+	overflow: auto;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	max-height: 400px;
 /*	border-bottom: 1px solid #000;*/
 	width: 100%;
@@ -571,6 +624,10 @@ p.pricetag input{margin:0; padding:0; margin-top:2px; height:23px; width:120px;}
 	border-bottom:1px solid #666666;
 }
 .std_table td, .std_table th {
+<<<<<<< HEAD
+=======
+	border:1px solid #666666;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	padding:8px 5px 8px 5px;
 }
 .std_table td a {

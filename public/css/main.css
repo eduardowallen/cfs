@@ -135,11 +135,18 @@ img#logo {
 	border-top:2px solid #ffffff;
 }
 #header ul li ul li a, #header ul li ul li span {
+<<<<<<< HEAD
 	padding: 0px 11px 0px 11px;
 	border-top-right-radius:0px;
 	border-top-left-radius:0px;
 	text-align: left;
 	min-width: 128px;
+=======
+	padding: 0 5px;
+	border-top-right-radius:0px;
+	border-top-left-radius:0px;
+	text-align: left;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 }
 #header ul li .icon {
 	/*padding-left:32px;
@@ -160,8 +167,9 @@ img#logo {
 	margin-left:-50px;
 	max-height:50px;
 }
-#save_confirm {
+#save_confirm, .save-confirm {
 	position:fixed;
+<<<<<<< HEAD
 	z-index:9999999;
 	top:50%;
 	left:50%;
@@ -178,6 +186,9 @@ img#logo {
 #delete_confirm {
 	position:fixed;
 	z-index:1000;
+=======
+	z-index:100000;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	top:50%;
 	left:50%;
 	width:240px;
@@ -449,10 +460,17 @@ font-weight:bold;
 	overflow-x:hidden;
 	background:#ffffff;
 	text-align:left;
+<<<<<<< HEAD
 	border:1px solid #333333;
 	-moz-border-radius:0px;
 	-webkit-border-radius:0px;
 	border-radius:0px;
+=======
+	border:4px solid #333333;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:8px;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	max-height:800px;
 }
 
@@ -510,6 +528,11 @@ font-weight:bold;
 	position:absolute;
 	z-index:99999;
 	background:#ffffff;
+<<<<<<< HEAD
+=======
+	width: 910px;
+	height: 800px;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	text-align:left;
 	left:50%;
 	margin:5% 0 0 -27%;
@@ -539,7 +562,10 @@ label[for=presentation]{
 
 .helpicon_map {
 	margin-bottom: -5px;
+<<<<<<< HEAD
 	margin-left: 5px;	
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 }
 
 .languages {
@@ -605,7 +631,11 @@ label[for=presentation]{
 }
 
 #sms_send_chars_count {
+<<<<<<< HEAD
 	margin-left: 170px;
+=======
+	float: right;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 }
 
 #sms_send_popup .dialog-tab {
@@ -621,6 +651,7 @@ label[for=presentation]{
 	border: 1px solid #000;
 }
 
+<<<<<<< HEAD
 #note_dialogue {
 	position:fixed;
 	width: 400px;
@@ -631,12 +662,18 @@ label[for=presentation]{
  	position:fixed;
  }
  
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 .commentList {
 	clear: both;
 	overflow-y: auto;
 	overflow-x: hidden;
 	margin: 20px 0;
+<<<<<<< HEAD
 	width: 100%;
+=======
+	width: 370px;
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	max-height: 280px;
 }
 
@@ -645,9 +682,12 @@ label[for=presentation]{
 	margin: 0;
 	padding: 0;
 }
+<<<<<<< HEAD
 .js-comment-action {
 	margin-right: 5px;
 }
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 .commentList ul li {
 	display: block;
@@ -677,6 +717,7 @@ label[for=presentation]{
 .comment-positive {
 	color: #168912;
 }
+<<<<<<< HEAD
 .insert_comment_text{
 	width: 400px;
 }
@@ -684,6 +725,8 @@ label[for=presentation]{
 #sms_send_popup h1 {
 	color: #168912;
 }
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 .action-edit, .action-delete {
 	font-weight: bold;
@@ -694,11 +737,14 @@ label[for=presentation]{
 	color: #168912;
 }
 
+<<<<<<< HEAD
 .icon_sms_popup {
 	width: 40px;
 	height: 40px;
 }
 
+=======
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 .action-delete {
 	color: #9c4e4e;
 }

@@ -71,6 +71,7 @@
 					<?php endif; ?>
 					<tr>
 						<td colspan="3">
+<<<<<<< HEAD
 							<a class="td_button" href="fair/categories/<?php echo $fair->id; ?>"><?php echo $th_categories ?></a>
 							<a class="td_button" href="administrator/overview/<?php echo $fair->id; ?>"><?php echo $th_admins ?></a>
 							<a class="td_button" href="exhibitor/exhibitors/<?php echo $fair->id; ?>"><?php echo $th_exhibitors ?></a>
@@ -80,6 +81,16 @@
 							<?php if(/*$fair->approved != 2 && */userLevel() == 4) : ?>
 							<a class="td_button" href="fair/sms/<?php echo $fair->id; ?>"><?php echo $th_smsSettings ?></a>
 							<a class="td_button" href="fair/delete/<?php echo $fair->id; ?>"><?php echo $th_delete ?></a>
+=======
+							<span class="td_button"><a href="fair/categories/<?php echo $fair->id; ?>"><?php echo $th_categories ?></a></span>
+							<span class="td_button"><a href="administrator/overview/<?php echo $fair->id; ?>"><?php echo $th_admins ?></a></span>
+							<span class="td_button"><a href="exhibitor/exhibitors/<?php echo $fair->id; ?>"><?php echo $th_exhibitors ?></a></span>
+							<span class="td_button"><a href="fair/edit/<?php echo $fair->id; ?>"><?php echo $th_settings ?></a></span>
+							<span class="td_button"><a href="fair/maps/<?php echo $fair->id; ?>"><?php echo $th_maps ?></a></span>
+							<span class="td_button"><a href="fair/event_mail/<?php echo $fair->id; ?>"><?php echo $th_mailSettings; ?></a></span>
+							<?php if(/*$fair->approved != 2 && */userLevel() == 4) : ?>
+							<span class="td_button"><a	href="fair/delete/<?php echo $fair->id; ?>"><?php echo $th_delete ?></a></span>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 							<?php endif; ?>
 							<span class="td_button floatright<?php if ($fair->approved == 2) echo ' td_button_disabled'; ?>"><a href="<?php echo ($fair->approved == 2 ? '#' : 'fair/makeclone/' . $fair->id); ?>" class="fair-clone-confirm"><?php echo $th_clone ?></a></span>
 						</td>

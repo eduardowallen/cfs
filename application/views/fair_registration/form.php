@@ -47,6 +47,10 @@
 				<input type="text" name="area" id="apply_area" />
 
 				<p>
+<<<<<<< HEAD
 					<input type="submit" name="save" id="confirm_yes" value="<?php echo uh($label_confirm); ?>"/>
+=======
+					<input type="submit" name="save" value="<?php echo uh($label_confirm); ?>"/>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				</p>
 			</form>

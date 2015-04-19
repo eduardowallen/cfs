@@ -78,7 +78,11 @@
 				<td><?php echo $user->get('company'); ?></td>
 				<td><?php echo $user->get('orgnr'); ?></td>
 				<td><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('name'); ?></a></td>
+<<<<<<< HEAD
 				<td><?php echo $user->get('contact_phone2'); ?></td>
+=======
+				<td><?php echo $user->get('phone1'); ?></td>
+>>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<td><?php echo $user->get('email'); ?></td>
 				<td class="center"><?php echo $user->get('fair_count'); ?></td>
 				<td class="center"><?php echo $user->get('ex_count'); ?></td>
