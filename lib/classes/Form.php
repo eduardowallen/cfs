@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 // Looks for and includes requested <form> files.
 class Form
@@ -9,7 +9,7 @@ class Form
     {
       extract($variables);
       ob_start(); // Capture output instead of outputting it
-        include ROOT.'application/forms/'.$formName.'.php';
+      include ROOT.'application/forms/'.$formName.'.php';
       return ob_get_clean(); // Return captured output as a variable
     }
     else

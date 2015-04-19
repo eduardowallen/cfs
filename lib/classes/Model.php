@@ -1,5 +1,5 @@
 <?php
-class Model {
+class Model implements JsonSerializable {
 
 	protected $_model;
 	public $db;
@@ -7,7 +7,6 @@ class Model {
 	protected $id;
 	protected $table_name;
 	private $db_keys = array();
-	private $key;
 	private $loaded = false;
 
 
@@ -33,6 +32,20 @@ class Model {
 		return strtolower(substr($tbl, 1));
 	}
 
+	public function jsonSerialize() {
+		$values = array(
+			'id' => $this->id
+		);
+
+		foreach (get_object_vars($this) as $key => $value) {
+			if ($key != 'db' && $key != 'table_name' && $key != 'db_keys' && $key != 'loaded' && $key != '_model') {
+				$values[$key] = $value;
+			}
+		}
+
+		return $values;
+	}
+
 	public function load($key, $by) {
 		$stmt = $this->db->prepare("SELECT * FROM ".$this->table_name." WHERE `".$by."` = ?");
 		//echo "SELECT * FROM ".$this->table_name." WHERE `".$by."` = ".$key;
@@ -54,9 +67,18 @@ class Model {
 		}
 	}
 
-	protected function fetchExternal($class, $attribute, $joinedOn, $key) {
+	protected function fetchExternal($class, $attribute, $joinedOn, $key, $order_by = null, $order_dir = null) {
 
-		$stmt = $this->db->prepare("SELECT id FROM ".$this->getTableName($class)." WHERE `".$joinedOn."` = ?");
+		$query = "SELECT id FROM ".$this->getTableName($class)." WHERE `".$joinedOn."` = ?";
+		if ($order_by !== null) {
+			$query .= " ORDER BY `" . $order_by . "`";
+
+			if ($order_dir !== null && ($order_dir == 'ASC' || $order_dir == 'DESC')) {
+				$query .= " " . $order_dir;
+			}
+		}
+
+		$stmt = $this->db->prepare($query);
 
 		$stmt->execute(array($key));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);

@@ -35,5 +35,26 @@ if (isset($_POST['checkName'])) {
 		echo json_encode(array('url'=>$url, 'status'=>'ok'));
 	}
 	
+} else if (!empty($_POST["newOption"])) {
+	$fairOption = new FairExtraOption();
+
+	$fairOption->set("text", $_POST["value"]);
+	$fairOption->set("fair", $_POST["newOption"]);
+	$fairOption->save();
+
+	echo json_encode(array("id" => $fairOption->db->lastInsertId()));
+
+} else if (!empty($_POST["deleteOption"])) {
+	$fairOption = new FairExtraOption();
+	$fairOption->load($_POST["deleteOption"], "id");
+
+	$fairOption->delete();
+
+} else if (!empty($_POST["saveOption"])) {
+	$fairOption = new FairExtraOption();
+	$fairOption->load($_POST["saveOption"], "id");
+
+	$fairOption->set("text", $_POST["value"]);
+	$fairOption->save();
 }
 ?>

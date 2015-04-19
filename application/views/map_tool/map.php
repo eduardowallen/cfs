@@ -1,7 +1,13 @@
-<?php
-if ($notfound)
-	die('Fair not found');
-
+<?php if ($notfound) :?>
+	<div id="wrong_url">
+		<img src="images/images/wrong_url.png" style="padding-right:10px;" />
+		<br />
+		<p class="wrongurltext">
+		<?php echo($translator->{'Fair not found'}); ?>
+		</p></div>
+<? die();
+	//die($translator->{'Fair not found'});
+endif;
 
 
 function makeUserOptions1($sel=0, $fair) {
@@ -55,14 +61,49 @@ function makeUserOptions3($sel=0, $fair) {
 	else:
 		$visible = 'false';
 	endif;
-		
-	if($visible == 'false' && !$hasRights) : ?>
+
+	if ($visible == 'false' && !$hasRights): ?>
 		<script type="text/javascript">
 			$().ready(function(){
-				alert("<?php echo uh($translator->{'This fair is hidden'}); ?>");
+				var fakevent = {preventDefault: function() {}};
+<?php	if (userLevel() > 1): ?>				
+		$('#alertBox2').show();
+		$('#overlay').show();
+			var url2 = "user/accountSettings";
+
+		$('#alertBox2 input').click(function() {
+			$(location).attr('href',url2);
+			});
+<?php		endif; ?>			
+<?php	if ($f->get('allow_registrations') == 1 && userLevel() == 1): ?>
+<?php		if ($has_prev_registrations): ?>
+				confirmBox(fakevent, '<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>', confirmedRegisterEvent, 'OK_CANCEL');
+
+				function confirmedRegisterEvent() {
+					confirmBox(fakevent, '<?php echo ujs($translator->{'You have already requested a stand space on this event. Do you want to make another one?'}); ?>', 'fairRegistration/form/<?php echo $f->get('id'); ?>', 'YES_NO', 'exhibitor/myBookings');
+				}
+<?php		else: ?>
+				confirmBox(fakevent, '<?php echo ujs($translator->{'This event is hidden! If you want to register for this event, press OK'}); ?>', 'fairRegistration/form/<?php echo $f->get('id'); ?>', 'OK_CANCEL');
+<?php		endif; ?>
+
+<?php	else: ?>
+		$('#alertBox').show();
+		$('#overlay').show();
+			var url = "exhibitor/myBookings";
+
+		$('#alertBox input').click(function() {
+			$('#alertBox').hide();
+<?php	if ($f->get('allow_registrations') == 0 && userLevel() == 1): ?>			
+			$(location).attr('href',url);
+<?php		endif; ?>			
+			$('#nouser_dialogue').show();
+		});
+
+<?php	endif; ?>
 			});
 		</script>
-	<?php endif;
+<?php
+	endif;
 
 	// Om mässan är synlig
 	if(($visible == 'false' && userLevel() > 2) || ($visible == 'false' && userLevel() == 2 && $hasRights) || $visible == 'true') :
@@ -93,8 +134,8 @@ function makeUserOptions3($sel=0, $fair) {
 <?php if ($hasRights): ?>
 		<div id="maptoolbox">
 			<h3 id="maptoolbox_header">
-				<?php echo htmlspecialchars($translator->{'Map tools'}); ?>
-				<a href="#" id="maptoolbox_minimize" title="<?php echo htmlspecialchars($translator->{'Minimize'}); ?>"></a>
+				<?php echo uh($translator->{'Map tools'}); ?>
+				<a href="#" id="maptoolbox_minimize" title="<?php echo uh($translator->{'Minimize'}); ?>"></a>
 			</h3>
 
 			<p id="zoombar">
@@ -105,40 +146,40 @@ function makeUserOptions3($sel=0, $fair) {
 			<div id="maptoolbox_controls">
 				<label>
 					<input type="checkbox" id="maptool_grid_activated" />
-					<?php echo htmlspecialchars($translator->{"Grid activated"}); ?>
-					<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo htmlspecialchars($translator->{'If this is unchecked, the grid will not be generated.'}); ?>" />
+					<?php echo uh($translator->{"Grid activated"}); ?>
+					<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'If this is unchecked, the grid will not be generated.'}); ?>" />
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_visible_x" />
-					<?php echo htmlspecialchars($translator->{'Show X-axis'}); ?>
+					<?php echo uh($translator->{'Show X-axis'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_visible_y" />
-					<?php echo htmlspecialchars($translator->{'Show Y-axis'}); ?>
+					<?php echo uh($translator->{'Show Y-axis'}); ?>
 				</label>
 				<label>
-					<?php echo htmlspecialchars($translator->{'Opacity'}); ?>:
+					<?php echo uh($translator->{'Opacity'}); ?>:
 					<input type="range" id="maptool_grid_opacity" min="1" max="100" value="100" />
 					<input type="text" id="maptool_grid_opacity_num" value="100" class="spinner" />
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_white" />
-					<?php echo htmlspecialchars($translator->{'White grid'}); ?>
+					<?php echo uh($translator->{'White grid'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_snap_markers_x" />
-					<?php echo htmlspecialchars($translator->{'Snap stand spaces to X-axis'}); ?>
+					<?php echo uh($translator->{'Snap stand spaces to X-axis'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_snap_markers_y" />
-					<?php echo htmlspecialchars($translator->{'Snap stand spaces to Y-axis'}); ?>
+					<?php echo uh($translator->{'Snap stand spaces to Y-axis'}); ?>
 				</label>
 				<label>
 					<input type="checkbox" id="maptool_grid_is_moving" />
-					<?php echo htmlspecialchars($translator->{'Move grid'}); ?>
+					<?php echo uh($translator->{'Move grid'}); ?>
 				</label>
 				<span class="maptoolbox-label-row">
-					<?php echo htmlspecialchars($translator->{'Coordinates'}); ?>:
+					<?php echo uh($translator->{'Coordinates'}); ?>:
 					<label>
 						X
 						<input type="text" id="maptool_grid_coord_x" value="0" class="spinner" />
@@ -149,26 +190,26 @@ function makeUserOptions3($sel=0, $fair) {
 					</label>
 				</span>
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'X-axis gap'}); ?>:</span>
+					<span class="maptoolbox-label"><?php echo uh($translator->{'X-axis gap'}); ?>:</span>
 					<input type="text" id="maptool_grid_height" value="20" class="spinner" />
 				</label>
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Y-axis gap'}); ?>:</span>
+					<span class="maptoolbox-label"><?php echo uh($translator->{'Y-axis gap'}); ?>:</span>
 					<input type="text" id="maptool_grid_width" value="20" class="spinner" />
 				</label>
 				<!--<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'W x H per cell'}); ?>:</span>
+					<span class="maptoolbox-label"><?php echo uh($translator->{'W x H per cell'}); ?>:</span>
 					<input type="text" id="maptool_grid_width_rat" value="20" class="spinner" />
 					x
 					<input type="text" id="maptool_grid_height_rat" value="20" class="spinner" />
 				</label>-->
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Save grid for this event'}); ?>:</span>
-					<input type="button" id="maptool_grid_save" value="<?php echo htmlspecialchars($translator->{'Save grid'}); ?>" />
+					<span class="maptoolbox-label"><?php echo uh($translator->{'Save grid for this event'}); ?>:</span>
+					<input type="button" id="maptool_grid_save" value="<?php echo uh($translator->{'Save grid'}); ?>" />
 				</label>
 				<label>
-					<span class="maptoolbox-label"><?php echo htmlspecialchars($translator->{'Reset grid to original size'}); ?>:</span>
-					<input type="button" id="maptool_grid_reset" value="<?php echo htmlspecialchars($translator->{'Reset'}); ?>" />
+					<span class="maptoolbox-label"><?php echo uh($translator->{'Reset grid to original size'}); ?>:</span>
+					<input type="button" id="maptool_grid_reset" value="<?php echo uh($translator->{'Reset'}); ?>" />
 				</label>
 			</div>
 		</div>
@@ -224,15 +265,16 @@ function makeUserOptions3($sel=0, $fair) {
 	}?>
 
 	lang.locale = "<?php echo $locale; ?>";
-	lang.bookStandSpace = '<?php echo ujs($translator->{"Book stand space"}); ?>';
+	lang.bookStandSpace = '<?php echo ujs($translator->{"Book stand space (if already payed)"}); ?>';
 	lang.editStandSpace = '<?php echo ujs($translator->{"Edit stand space"}); ?>';
 	lang.moveStandSpace = '<?php echo ujs($translator->{"Move stand space"}); ?>';
 	lang.deleteStandSpace = '<?php echo ujs($translator->{"Delete stand space"}); ?>';
-	lang.reserveStandSpace = '<?php echo ujs($translator->{"Reserve stand space"}); ?>';
+	lang.reserveStandSpace = '<?php echo ujs($translator->{"Reserve stand space (if not yet payed"}); ?>';
 	lang.preliminaryBookStandSpace = '<?php echo ujs($translator->{"Preliminary book stand space"}); ?>';
 	lang.cancelPreliminaryBooking = '<?php echo ujs($translator->{"Cancel preliminary booking"}); ?>';
 	lang.editBooking = '<?php echo ujs($translator->{"Edit booking"}); ?>';
 	lang.cancelBooking = '<?php echo ujs($translator->{"Cancel booking"}); ?>';
+	lang.cancelBookingComment = '<?php echo ujs($translator->{"Enter comment about deletion"}); ?>';
 	lang.pasteExhibitor = '<?php echo ujs($translator->{"Paste exhibitor"}); ?>';
 	lang.notes = '<?php echo ujs($translator->{"Notes"}); ?>';
 	lang.moreInfo = '<?php echo ujs($translator->{"More info"}); ?>';
@@ -249,12 +291,17 @@ function makeUserOptions3($sel=0, $fair) {
 	lang.website = '<?php echo ujs($translator->{"Website"}); ?>';
 	lang.print = '<?php echo ujs($translator->{"Print"}); ?>';
 	lang.category = '<?php echo ujs($translator->{"Categories"}); ?>';
+	lang.extra_options = '<?php echo ujs($translator->{"Extra options"}); ?>';
 	lang.noPlaceRights = '<?php echo ujs($translator->{"You do not have administrative rights on this map"}); ?>';
 	lang.clickToViewMoreInfo = '<?php echo ujs($translator->{"Click to view more information"}); ?>';
 	lang.noPresentationText = '<?php echo ujs($translator->{"The company has not specified any information."}); ?>';
 	lang.insert_comment = '<?php echo ujs($translator->{"Insert comment"}); ?>';
 	lang.viewBooking = '<?php echo ujs($translator->{"View booking"}); ?>';
 	lang.showPreliminaryBookings = '<?php echo ujs($translator->{"View preliminary bookings"}); ?>';
+	lang.passwd_superstrong = '<?php echo ujs($translator->{"Super strong"}); ?>';
+	lang.passwd_strong = '<?php echo ujs($translator->{"Strong"}); ?>';
+	lang.passwd_medium = '<?php echo ujs($translator->{"Medium"}); ?>';
+	lang.passwd_weak = '<?php echo ujs($translator->{"Weak"}); ?>';
 	
 	lang.StatusText = function(str) {
 		if (str == 'open')
@@ -291,6 +338,7 @@ function makeUserOptions3($sel=0, $fair) {
 		accessibleMaps.push(<?php echo $map ?>);
 	<?php endforeach; ?>
 
+	<?php if ($visible == 'true' || ($visible == 'false' && $hasRights)): ?>
 	$(document).ready(function() {
 		<?php 
 			$id = "";
@@ -308,73 +356,25 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php if (isset($_SESSION['copied_exhibitor'])): ?>
 		copiedExhibitor = "<?php echo $_SESSION['copied_exhibitor'] ?>";
 		<?php endif; ?>
+
+		<?php if (isset($copied_fair_registration)): ?>
+		copiedFairRegistration = <?php echo JsonResponse::encode($copied_fair_registration); ?>;
+		<?php endif; ?>
 	});
+	<?php endif; ?>
 </script>
 <script>
 	var confirmDialogue = "<?php echo $translator->{'Are you sure that you want to remove stand space'}; ?>";
 	var deletion = "<?php echo $translator->{'Enter comment about deletion'}; ?>";
 
-	function denyPrepPosition(link, position, status){
+	function denyPrepPosition(link, position, status, clicked){
 		if(confirm(confirmDialogue.replace('%s', position))){
 			var message = prompt(deletion, "");
-			denyPosition(link, message, position, status, true);
+			denyPosition(link, message, position, status, clicked);
 		}
 	}
 </script>
 
-<?php if (!isset($_SESSION['user_level']) && (!isset($_SESSION['visitor']) || !$_SESSION['visitor'])): ?>
-<div id="nouser_dialogue" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>
-
-	<div class="clear floatleft panel">
-		<p class="right"><a href="user/login" id="open_loginform" class="link-button"><?php echo uh($translator->{'I already have an account'}); ?></a></p>
-		<div id="user_login_dialogue">
-			<form action="user/login" method="post">
-				<p class="error"></p>
-				<div>
-					<label for="user"><?php echo uh($translator->{"Username"}); ?></label>
-					<input type="text" name="user" id="user"/>
-					<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
-					<input type="password" name="pass" id="pass"/>
-					<p>
-						<a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>"><?php echo uh($translator->{"Forgot your password?"}); ?></a>
-					</p>
-					<p>
-						<input type="hidden" name="outside_fair_url" value="<?php echo $_SESSION["outside_fair_url"]; ?>" />
-						<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>"/>
-					</p>
-				</div>
-			</form>
-		</div>
-	</div>
-	<div class="floatright panel">
-		<p><a href="user/register" class="link-button registerlink"><?php echo uh($translator->{'Register new account'}); ?></a></p>
-		<p></p>
-	</div>
-</div>
-
-<script>
-	$(document).ready(function() {
-		$('#overlay').show();
-		$('#nouser_dialogue').show();
-
-		ajaxLoginForm($('#user_login_dialogue form'));
-
-		$('#open_loginform').click(function(e) {
-			e.preventDefault();
-			$('#user_login_dialogue').show();
-		});
-
-		$('.registerlink').click(function(e) {
-			$(".closeDialogue").click(function() {
-				if ($('#nouser_dialogue:visible').length) {
-					$("#overlay").show();
-				}
-			});
-		});
-	});
-</script>
-<?php endif; ?>
 
 <!--<p id="zoomcontrols">
 	<a href="javascript:void(0)" class="button fullscreen" id="full"><?php echo uh($translator->{'View full screen'}); ?></a>
@@ -385,6 +385,11 @@ function makeUserOptions3($sel=0, $fair) {
 
 <!--<p id="leftfloatingbar"><span style="font-size:1.2em; font-weight:bold; margin-left:20px" class="button"><span style="color:green"><?php echo $opening_time.'</span>: '.date('d.m.Y', $fair->get('auto_publish')) ?> <span style="margin-left:30px; color:red"><?php echo $closing_time.'</span>: '.date('d.m.Y', $fair->get('auto_close')) ?></span></p>-->
 
+<div id="preliminaryConfirm" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
+	<p><?php echo $translator->{"Thank you for your preliminary booking! A receipt of your booking has been sent to your inbox and it is now up to the Organizer to do the rest of the work. You can preliminary book more stand spaces if you want in the same manner."}; ?></p>
+	<input type="button" class="closeDialogue" value="Ok" />
+</div>
 
 <div id="edit_position_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
@@ -405,13 +410,13 @@ function makeUserOptions3($sel=0, $fair) {
 
 </div>
 
-<!--<div id="book_position_dialogue" class="dialogue">
+<div id="book_position_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
 	<h3><?php echo uh($translator->{'Book stand space'}); ?></h3>
 
 	<div class="ssinfo"></div>
 	
-	<label for="book_category_input"><?php echo uh($translator->{'Category'}); ?></label>
+	<label for="book_category_input"><?php echo uh($translator->{'Category'}); ?> *</label>
 	<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
 		<p>
@@ -420,90 +425,35 @@ function makeUserOptions3($sel=0, $fair) {
 		<?php endforeach; ?>
 	</div>
 	
-	<?php /*
-	<div id="hiddenExhibitorList_d">
-		<ul>
-			<?php echo makeUserOptions3(0, $fair)?>
-		</ul>
-	</div>
-	
-
-	<label for="search_user_input"><?php echo uh($translator->{'Search'}); ?></label>
-	<input type="text" class="dialogueInput" name="search_user_input" id="search_user_input" />
-	<p class="exhibitorNotFound" style="font-size:10px; font-weight:bold;"></p>
-	<input type="hidden" id="book_user_input" />
-
-	*/?>
-	
-	<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
+			<!--  Extra tillval -->
+	<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?> *</label>
 	<textarea rows="3" style="height:45px; resize:none;" type="text" class="dialogueInput" name="book_commodity_input" id="book_commodity_input"></textarea>
 
+	<label for="book_option_input"><?php echo uh($translator->{"Extra options"}); ?></label>
+	<div id="book_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('options') as $option) { ?>
+			<p>
+				<input type="checkbox" value="<?php echo $option->get('id') ?>" /><?php echo $option->get('text') ?>
+			</p>
+		<?php } ?>
+	</div>
+			<!--  Meddelande till arrangören -->
 	<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 	<textarea name="book_message_input" style="resize:none;" id="book_message_input"></textarea>
 
+			<!-- Sökfält för att hitta användare att boka in -->
 	<label for="search_user_input"><?php echo uh($translator->{'Search'}); ?></label>
 	<input type="text" style="width:300px;" name="search_user_input" id="search_user_input" />
-
+	<img src="/images/icons/icon_help.png" class="helpicon_search_commodity" title="<?php echo htmlspecialchars($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>" />
+	
+  <!-- Drop-downlista för att välja användare att boka in -->	
 	<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
 	<select  style="width:300px;" name="book_user_input" id="book_user_input">
 		<?php echo makeUserOptions1(0, $fair); ?>
-		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
 	</select>
 
 	<p><input type="button" id="book_post" value="<?php echo uh($translator->{'Confirm booking'}); ?>"/></p>
 
-</div>-->
-
-<div id="book_position_dialogue" class="dialogue">
-	<form action="" method="post">
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-		<h3 class="confirm"><?php echo uh($translator->{'Book stand space'}); ?></h3>
-		<h3 class="edit"><?php echo uh($translator->{'Edit booking'}); ?></h3>
-
-		<p>
-			<strong><?php echo uh($translator->{'Space'}); ?> <span class="position-name"></span></strong>
-		</p>
-		
-		<label for="book_category_input"><?php echo uh($translator->{'Category'}); ?></label>
-		<div id="book_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
-			<?php foreach($fair->get('categories') as $cat): ?>
-			<p style="margin:0; width:100%; float:left;">
-				<input type="checkbox" name="categories[]" value="<?php echo $cat->get('id') ?>" /><?php echo $cat->get('name') ?>
-			</p>
-			<?php endforeach; ?>
-		</div>
-		
-		<label for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
-		<input type="text" class="dialogueInput" name="commodity" id="book_commodity_input" />
-
-		<label for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
-		<textarea name="arranger_message" id="book_message_input"></textarea>
-
-		<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
-		<select style="width:300px;" id="book_user_input" disabled="disabled">
-			<option id="book_user"></option>
-		</select>
-
-		<input type="hidden" value="<?php echo BASE_URL . 'mapTool/map/' . $_SESSION['user_fair']; ?>" name="redirect" />
-
-		<p>
-			<input type="hidden" name="id" id="book_id" />
-			<input type="submit" name="approve" class="confirm" value="<?php echo uh($translator->{'Confirm booking'}); ?>" />
-			<input type="submit" name="approve" class="edit" value="<?php echo uh($translator->{'Save'}); ?>" />
-		</p>
-	</form>
-</div>
-
-<div id="arranger_message_popup" class="dialogue">
-	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
-
-	<h3><?php echo $tr_message; ?></h3>
-
-	<p id="arranger_message_text"></p>
-
-	<p class="center">
-		<a href="#" class="link-button close-popup"><?php echo $ok_label; ?></a>
-	</p>
 </div>
 
 <div id="more_info_dialogue" class="dialogue">
@@ -517,48 +467,25 @@ function makeUserOptions3($sel=0, $fair) {
 
 <div id="preliminary_bookings_dialogue" class="dialogue">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
-	<h3><?php echo htmlspecialchars($translator->{"Preliminary bookings"}); ?></h3>
+	<h3><?php echo uh($translator->{"Preliminary bookings"}); ?></h3>
 	<table class="std_table">
 		<thead>
 			<tr>
-				<th><?php echo htmlspecialchars($translator->{"Stand space"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Area"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{'Booked by'}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Trade"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{'Time of booking'}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Message to organizer"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Deny"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{"Approve"}); ?></th>
-				<th><?php echo htmlspecialchars($translator->{'Reserve stand space'}); ?></th>
+				<th><?php echo uh($translator->{"Stand space"}); ?></th>
+				<th><?php echo uh($translator->{"Area"}); ?></th>
+				<th><?php echo uh($translator->{'Booked by'}); ?></th>
+				<th><?php echo uh($translator->{"Trade"}); ?></th>
+				<th><?php echo uh($translator->{'Time of booking'}); ?></th>
+				<th><?php echo uh($translator->{"Message to organizer in list"}); ?></th>
+				<th><?php echo uh($translator->{"Deny"}); ?></th>
+				<th><?php echo uh($translator->{"Approve (if already payed)"}); ?></th>
+				<th><?php echo uh($translator->{'Reserve stand space (if not yet payed)'}); ?></th>
 			</tr>
 		</thead>
 		<tbody>
 		</tbody>
 	</table>
 </div>
-
-<?php
-	if((userLevel() == 2 && userIsConnectedTo($fair->get('id'))) || userLevel() > 2) : ?>
-		<div id="note_dialogue" class="dialogue">
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />
-		<h2></h2>
-		<h3 data-text="<?php echo uh($translator->{'Notes on'}); ?>"></h3>
-		<div class="commentList" style="max-height:280px; margin-bottom:30px; overflow-y:scroll;">
-			<ul>
-				<li>
-					<div class="comment">
-						<ul>
-							<li><?php echo uh($translator->{'Written by'}); ?>: </li>
-							<li><?php echo uh($translator->{'Date'}); ?>: </li>
-							<li><?php echo uh($translator->{'Note'}); ?>: </li>
-						</ul>
-					</div>
-				</li>
-			</ul>
-		</div>
-		<textarea cols="30" rows="10" style="resize:none;"></textarea>
-		<button><?php echo uh($translator->{'Insert comment'}); ?></button> <select id="commentOnSpace"><option value="0"><?php echo uh($translator->{'For this stand space only'}); ?></option><option value="1"><?php echo uh($translator->{'For all the stand spaces of the exhibitor'}); ?></option></select>
-	<?php endif?>
 </div>
 
 <div id="todayDt" td="<?php echo time(); ?>"> </div>
@@ -571,7 +498,8 @@ function makeUserOptions3($sel=0, $fair) {
 
 	<div class="ssinfo"></div>
 	
-	<label for="reserve_category_input"><?php echo uh($translator->{'Category'}); ?></label>
+	<!-- Div för att välja kategori -->
+	<label for="reserve_category_input"><?php echo uh($translator->{'Category'}); ?> *</label>
 	<div id="reserve_category_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
 		<?php foreach($fair->get('categories') as $cat): ?>
 			<p>
@@ -579,38 +507,43 @@ function makeUserOptions3($sel=0, $fair) {
 			</p>
 		<?php endforeach; ?>
 	</div>
-	<?php /*
-	<div id="hiddenExhibitorList">
-		<ul>
-			<?php echo makeUserOptions2(0, $fair)?>
-		</ul>
+
+	<!--  Textfält för att fylla i den bokade användarens sortiment -->
+	
+	<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?> *</label>
+	<textarea rows="3" style="height:45px; resize:none;" input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/></textarea>
+
+	<!--  Extra tillval -->
+	<label for="reserve_option_input"><?php echo uh($translator->{'Extra options'}); ?></label>
+	<div id="reserve_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('options') as $opt): ?>
+			<p>
+				<input type="checkbox" value="<?php echo $opt->get('id') ?>" /><?php echo $opt->get('text') ?>
+			</p>
+		<?php endforeach; ?>
 	</div>
-
-	<?php //print_r(makeUserOptions2(0, $fair)); ?>
-	<label for="search_user_input"><?php echo uh($translator->{'Search'}); ?></label>
-	<input type="text" class="dialogueInput" name="search_user_input" id="search_user_input" />
-	<p class="exhibitorNotFound" style="font-size:10px; font-weight:bold;"></p>
-	<input type="hidden" id="reserve_user_input" name="reserve_user_input" /> 
-	*/?>
 	
-	<label for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
-	<input type="text" class="dialogueInput" name="reserve_commodity_input" id="reserve_commodity_input"/>
-
-	
+	<!--  Textfält för att fylla i meddelande till arrangören -->	
 	<label for="reserve_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
 	<textarea name="reserve_message_input" id="reserve_message_input"></textarea>
 
+	<!-- Sökfält för att hitta användare att boka in -->
 	<label for="search_user_input"><?php echo uh($translator->{'Search'}); ?></label>
 	<input type="text" name="search_user_input" id="search_user_input" />
+	<img src="/images/icons/icon_help.png" class="helpicon_search_commodity" title="<?php echo htmlspecialchars($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>" />
 
+	<!-- Drop-downlista för att välja användare att boka in -->
 	<label for="reserve_user_input"><?php echo uh($translator->{'User'}); ?></label>
 	<select style="width:300px;" name="reserve_user_input" id="reserve_user_input">
 		<?php echo makeUserOptions1(0, $fair); ?>
-		<?php //echo makeUserOptions2($fair->db, 'user', 0, 'level=1', 'company'); ?>
 	</select>
 
-	<label for="reserve_expires_input"><?php echo uh($translator->{'Reserved until'}); ?> (DD-MM-YYYY HH:MM <?php echo TIMEZONE; ?>)</label>
+	<!-- Kalenderfunktion för att välja platsens slutgiltiga reservationsdatum -->
+	<label for="reserve_expires_input"><?php echo uh($translator->{'Reserved until'}); ?> (DD-MM-YYYY HH:MM)</label>
 	<input type="text" class="dialogueInput datetime datepicker" name="reserve_expires_input" id="reserve_expires_input" value=""/>
+	<img src="/images/icons/icon_help.png" class="helpicon_map" title="<?php echo uh($translator->{'The date that you set here is the date when the reservation expires and the stand space is reopened (green) for preliminary bookings.'}); ?>" />
+	
+	<!--  Knapp för att slutföra bokningen -->
 	<p><input type="button" id="reserve_post" value="<?php echo uh($translator->{'Confirm reservation'}); ?>"/></p>
 </div>
 
@@ -619,8 +552,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<h3><?php echo uh($translator->{'Apply for stand space'}); ?></h3>
 	
 	<div class="ssinfo"></div>
-	
-	<label for="apply_category_scrollbox"><?php echo uh($translator->{'Category'}); ?></label>
+	<label for="apply_category_scrollbox"><?php echo uh($translator->{'Category'}); ?> *</label>
 	<div style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;" id="apply_category_scrollbox">
 		<?php foreach($fair->get('categories') as $cat): ?>
 		<p>
@@ -628,10 +560,19 @@ function makeUserOptions3($sel=0, $fair) {
 		</p>
 		<?php endforeach; ?>
 	</div>
+
+	<label for="apply_option_input"><?php echo uh($translator->{"Extra options"}); ?></label>
+	<div id="apply_option_scrollbox" style="width:300px; height:100px; overflow-y:scroll; background-color:#eee; border:1px solid #ccc; overflow-x:hidden;">
+		<?php foreach($fair->get('options') as $option) { ?>
+			<p>
+				<input type="checkbox" value="<?php echo $option->get('id') ?>" /><?php echo $option->get('text') ?>
+			</p>
+		<?php } ?>
+	</div>
 	
-	<label for="apply_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
+	<label for="apply_commodity_input"><?php echo uh($translator->{'Commodity'}); ?> *</label>
 	<?php if(isset($me)) : ?>
-		<input type="text" name="apply_commodity_input" id="apply_commodity_input" value="<?php echo $me->get('commodity')?>"/>
+		<textarea rows="3" style="height:45px; resize:none;" input type="text" name="apply_commodity_input" id="apply_commodity_input" value="<?php echo $me->get('commodity')?>"/></textarea>
 	<?php else : ?>
 		<input type="text" name="apply_commodity_input" id="apply_commodity_input"/>
 	<?php endif; ?>
@@ -668,12 +609,103 @@ function makeUserOptions3($sel=0, $fair) {
 
 </div>
 
+<div id="fair_registration_paste_type_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>
+	<h3><?php echo uh($translator->{'Paste registration'}); ?></h3>
+
+	<p>
+		<label>
+			<?php echo uh($translator->{'Set type of booking:'}); ?>
+			<select id="paste_fair_registration_type">
+				<option value="0"><?php echo uh($translator->{'Booking'}); ?></option>
+				<option value="1"><?php echo uh($translator->{'Reservation'}); ?></option>
+			</select>
+		</label>
+	</p>
+
+	<p>
+		<input type="button" id="paste_fair_registration" value="<?php echo uh($translator->{'Continue'}); ?>" />
+	</p>
+</div>
+
 
 
 <?php if( is_int($myMap) ) : ?>
 <script>
 	$(document).ready(function(){
 		$('#map_link_<?php echo $myMap; ?>').click();
+	});
+</script>
+<?php endif; ?>
+
+
+<?php if (!isset($_SESSION['user_level']) && (!isset($_SESSION['visitor']) || !$_SESSION['visitor'])): ?>
+<div id="nouser_dialogue" class="dialogue">
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;" />
+	<img src="images/button_icons/Chartbooker Fair System Logotype.png" alt="" class="nouser_cfslogo" style="margin: 0 0 0 5px;" />
+	<div id="inner">
+		<p class="center">
+			<strong style="color:#116734;text-align:center;font-size:18px; font-weight:bold;"><?php echo ($translator->{'To use this service you need an account:'}); ?></strong>
+		</p>
+	</div>
+
+	<div class="clear floatleft panel">
+		<p class="right"><a class="link-button loginlink" href="user/login/<?php echo $_SESSION['outside_fair_url'] ?>" id="open_loginform"><span style="font-weight:bold;"><?php echo uh($translator->{'I already have an account'}); ?></a></span></p>
+<!--		<div id="user_login_dialogue">
+			<form action="user/login" method="post">
+				<p class="error"></p>
+				<div>
+        <label for="user"><?php echo uh($translator->{"Username"}); ?></label>
+				<input type="text" name="user" id="user"/>
+				<label for="pass"><?php echo uh($translator->{"Password"}); ?></label>
+				<input type="password" name="pass" id="pass"/>
+					<p>
+						<input type="hidden" name="outside_fair_url" value="<?php echo $_SESSION["outside_fair_url"]; ?>" />
+						<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>" class="save-btn"/>
+					</p>
+				</div>
+			</form>
+		</div>-->
+	</div>	
+
+	<div class="floatright panel">
+		<p><a href="user/register" class="link-button registerlink"><span style="font-weight:bold;"><?php echo uh($translator->{'Register new account'}); ?></a></span></p>
+	</div>
+	
+	<div class="center panel">
+		<p><a class="link-button helpLink"><span style="font-weight:bold;"><?php echo uh($translator->{'I NEED HELP'}); ?></a></span></p>
+		<p></p>
+		<p>
+			<a href="user/resetPassword/backref/<?php echo $fair->get('url'); ?>">
+				<span style="color:#116734; font-size:14px; font-weight:bold;"><?php echo uh($translator->{"Forgot your password?"}); ?></span>
+			</a>
+		</p>
+	</div>
+</div>
+
+<script>
+	$(document).ready(function() {
+	if ( $('#alertBox').filter(':visible').length){
+	e.preventDefault();
+    $('#nouser_dialogue').hide();
+} 
+		$('#overlay').show();
+		$('#nouser_dialogue').show();
+
+		ajaxLoginForm($('#user_login_dialogue form'));
+
+		$('#open_loginform').click(function(e) {
+			e.preventDefault();
+			$('#user_login_dialogue').show();
+		});
+
+		$('.registerlink').click(function(e) {
+			$(".closeDialogue").click(function() {
+				if ($('#nouser_dialogue:visible').length) {
+					$("#overlay").show();
+				}
+			});
+		});
 	});
 </script>
 <?php endif; ?>

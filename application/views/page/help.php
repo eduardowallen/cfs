@@ -1,2 +1,23 @@
-<h1><?php echo $headline; ?></h1>
+<h1 style="text-align:center;"><?php echo $headline; ?></h1>
+<!--<input type="text" id="search-criteria"/>
+<input type="button" id="search" value="search"/>-->
+
+<div id="help_content">
+
+<script type="text/javascript">
+jQuery( function( $ ) {
+        //$('h2').nextUntil('h2').hide();
+        $('h2').click( function() { $(this).nextUntil('h2').toggle(400); } );
+});
+</script>
 <?php echo $content; ?>
+<!--
+<script>
+$('h2:p').hide();
+$('#search').click(function(){
+    $('h2:p').hide();
+   var txt = $('#search-criteria').val();
+   $('p:contains("'+txt+'")').show();
+});
+</script>-->
+</div>

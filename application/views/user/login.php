@@ -26,9 +26,9 @@ if (isset($loggedin)) {
 		<input type="password" name="pass" id="pass"/>
 	</p>
 	<p>
-		<input type="submit" name="login" value="<?php echo $button; ?>"/>
+		<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>" class="save-btn"/>
 	</p>
-	<p>
+	<p style="color:#116734; font-size:14px; font-weight:bold;">
 		<a href="user/resetPassword"><?php echo $forgotlink; ?></a>
 	</p>
 	<p <?php if (isset($good)) {

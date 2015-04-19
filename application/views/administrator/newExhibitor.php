@@ -1,4 +1,5 @@
 <?php $country_list = array(
+		"Sweden",
 		"Afghanistan",
 		"Albania",
 		"Algeria",
@@ -164,7 +165,6 @@
 		"Sudan",
 		"Suriname",
 		"Swaziland",
-		"Sweden",
 		"Switzerland",
 		"Syria",
 		"Taiwan",
@@ -207,35 +207,33 @@
 		<?php endforeach; ?>
 	</select>
 	<br class="clear">
-  
-	<div class="form_column">
-  <h3><?php echo $company_section; ?></h3>
-	
-		<label for="orgnr"><?php echo $orgnr_label; ?> *</label>
-		<input type="text" name="orgnr" id="orgnr" value="<?php echo $user->get('orgnr'); ?>"/>
-	
-		<label for="company"><?php echo $company_label; ?> *</label>
-		<input type="text" name="company" id="company" value="<?php echo $user->get('company'); ?>"/>
-	
-		<label for="commodity"><?php echo $commodity_label; ?></label>
-		<textarea rows="3" style="width:250px; height:40px; resize:none;" name="commodity" id="commodity"><?php echo $user->get('commodity'); ?></textarea>
-	
-		<!--<label for="category"><?php echo $category_label; ?> *</label>
-		<select name="category" id="category">
-		<?php echo makeOptions($user->db, 'exhibitor_category', 0, 'fair='.$_SESSION['user_fair']); ?>
-		</select>-->
-	
-		<label for="address"><?php echo $address_label; ?> *</label>
-		<input type="text" name="address" id="address" value="<?php echo $user->get('address'); ?>"/>
-	
-		<label for="zipcode"><?php echo $zipcode_label; ?> *</label>
-		<input type="text" name="zipcode" id="zipcode" value="<?php echo $user->get('zipcode'); ?>"/>
-	
-		<label for="city"><?php echo $city_label; ?> *</label>
-		<input type="text" name="city" id="city" value="<?php echo $user->get('city'); ?>"/>
 
-		<label for="country"><?php echo $country_label; ?> *</label>
-		<select name="country" id="country" style="width:258px;">
+  <div class="form_column" id="form_column1">
+    <h3><?php echo htmlspecialchars($translator->{'Company'}); ?></h3>
+
+    <label for="email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
+    <input type="text" autocomplete="off" name="email" id="email" title="<?php echo ujs($translator->{"Insert your email address."}); ?>" value="<?php echo $user->get('email'); ?>"/>
+    
+    <label for="orgnr"><?php echo htmlspecialchars($translator->{'Organization number'}); ?> *</label>
+    <input type="text" name="orgnr" id="orgnr" title="<?php echo ujs($translator->{"Insert the organization number of your organization."}); ?>" value="<?php echo $user->get('orgnr'); ?>"/>
+    
+    <label for="company"><?php echo htmlspecialchars($translator->{'Company'}); ?> *</label>
+    <input type="text" name="company" id="company" title="<?php echo ujs($translator->{"Insert the name of your organization."}); ?>" value="<?php echo $user->get('company'); ?>"/>
+    
+    <label for="commodity"><?php echo htmlspecialchars($translator->{'Commodity'}); ?> *</label>
+    <textarea rows="3" style="width:250px; height:40px; resize:none;" name="commodity" title="<?php echo ujs($translator->{"Insert the commodity that your organization represents."}); ?>" id="commodity"><?php echo $user->get('commodity'); ?></textarea>
+    
+    <label for="address"><?php echo htmlspecialchars($translator->{'Address'}); ?> *</label>
+    <input type="text" name="address" id="address" title="<?php echo ujs($translator->{"Insert the address of your organization."}); ?>" value="<?php echo $user->get('address'); ?>"/>
+    
+    <label for="zipcode"><?php echo htmlspecialchars($translator->{'Zip code'}); ?> *</label>
+    <input type="text" name="zipcode" id="zipcode" title="<?php echo ujs($translator->{"Insert the zip code of your organization."}); ?>" value="<?php echo $user->get('zipcode'); ?>"/>
+    
+    <label for="city"><?php echo htmlspecialchars($translator->{'City'}); ?> *</label>
+    <input type="text" name="city" id="city" title="<?php echo ujs($translator->{"Insert the city that your organization resides in."}); ?>" value="<?php echo $user->get('city'); ?>"/>
+    
+    <label for="country"><?php echo htmlspecialchars($translator->{'Country'}); ?> *</label>
+    <select name="country" id="country" title="<?php echo ujs($translator->{"Select the country that your organization resides in."}); ?>" style="width:258px;">
 		<?php foreach($country_list as $country) : ?>
 			<?php if($country == $user->get('country')):?>
 				<option value="<?php echo $country?>" selected><?php echo $country?></option>
@@ -243,77 +241,87 @@
 				<option value="<?php echo $country?>"><?php echo $country?></option>
 			<?php endif?>
 		<?php endforeach; ?>
+    </select>
+
+    <label for="phone1"><?php echo htmlspecialchars($translator->{'Phone 1'}); ?> *</label>
+    <input type="text" name="phone1" id="phone1" class="phone-val" title="<?php echo ujs($translator->{"Insert the phone number of your organization."}); ?>" value="<?php echo $user->get('phone1'); ?>"/>
+          
+    <label for="phone2"><?php echo htmlspecialchars($translator->{'Phone 2'}); ?></label>
+    <input type="text" name="phone2" id="phone2" class="phone-val" title="<?php echo ujs($translator->{"Insert the second phone number of your organization."}); ?>" value="<?php echo $user->get('phone2'); ?>"/>
+          
+    <label for="fax"><?php echo htmlspecialchars($translator->{'Fax number'}); ?></label>
+    <input type="text" name="fax" id="fax" title="<?php echo ujs($translator->{"Insert fax number of your organization."}); ?>" value="<?php echo $user->get('fax'); ?>"/>
+          
+    <label for="website"><?php echo htmlspecialchars($translator->{'Website'}); ?></label>
+    <input type="text" name="website" id="website" title="<?php echo ujs($translator->{"Insert the website address of your organization."}); ?>" value="<?php echo $user->get('website'); ?>"/>
+	
+  </div>
+        
+  <div class="form_column" id="form_column2">
+        
+    <h3><?php echo htmlspecialchars($translator->{'Billing address'}); ?></h3>
+            
+    <input type="checkbox" id="copy"/>
+    <label class="inline-block" for="copy"><?php echo htmlspecialchars($translator->{'Copy from company details'}); ?></label>
+	
+    <label for="invoice_email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
+    <input type="text" autocomplete="off" name="invoice_email" id="invoice_email" title="<?php echo ujs($translator->{"Insert the email address at which we can reach the organization for invoice."}); ?>" value="<?php echo $user->get('invoice_email'); ?>"/>
+          
+    <label for="invoice_company"><?php echo htmlspecialchars($translator->{'Company'}); ?> *</label>
+    <input type="text" name="invoice_company" id="invoice_company" title="<?php echo ujs($translator->{"Insert the organization name for the invoice."}); ?>" value="<?php echo $user->get('invoice_company'); ?>"/>
+          
+    <label for="invoice_address"><?php echo htmlspecialchars($translator->{'Address'}); ?> *</label>
+    <input type="text" name="invoice_address" id="invoice_address" title="<?php echo ujs($translator->{"Insert the address at which we can reach the organization for invoice."}); ?>" value="<?php echo $user->get('invoice_address'); ?>"/>
+          
+    <label for="invoice_zipcode"><?php echo htmlspecialchars($translator->{'Zip code'}); ?> *</label>
+    <input type="text" name="invoice_zipcode" id="invoice_zipcode" title="<?php echo ujs($translator->{"Insert the zip code at which we can reach the organization for invoice."}); ?>" value="<?php echo $user->get('invoice_zipcode'); ?>"/>
+          
+    <label for="invoice_city"><?php echo htmlspecialchars($translator->{'City'}); ?> *</label>
+    <input type="text" name="invoice_city" id="invoice_city" title="<?php echo ujs($translator->{"Insert the city at which we can reach the organization for invoice."}); ?>" value="<?php echo $user->get('invoice_city'); ?>"/>
+          
+    <label for="invoice_country"><?php echo htmlspecialchars($translator->{'Country'}); ?> *</label>
+		<select name="invoice_country" id="invoice_country" title="<?php echo ujs($translator->{"Select the country that the invoice organization resides in."}); ?>" style="width:258px;">
+		<?php foreach($country_list as $country) : ?>
+			<?php if($country == $user->get('invoice_country')):?>
+				<option value="<?php echo $country?>" selected><?php echo $country?></option>
+			<?php else:?>
+				<option value="<?php echo $country?>"><?php echo $country?></option>
+			<?php endif?>
+		<?php endforeach; ?>
 		</select>
 
-		<label for="phone1"><?php echo $phone1_label; ?> *</label>
-		<input type="text" name="phone1" id="phone1" value="<?php echo $user->get('phone1'); ?>"/>
-	
-		<label for="phone2"><?php echo $phone2_label; ?></label>
-		<input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
-	
-		<label for="fax"><?php echo $fax_label; ?></label>
-		<input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
-	
-		<label for="email"><?php echo $email_label; ?> *</label>
-		<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
-	
-		<label for="website"><?php echo $website_label; ?></label>
-		<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
-	</div>
+        <label for="presentation"<?php echo (userLevel()==0?' style="margin-top:50px;"':''); ?>><?php echo htmlspecialchars($translator->{'Presentation (this is what will be shown to your customers)'}); ?></label>
+        <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation'); ?>
+        <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
+  <p>
+    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
+  </p>		
 
-		
-	<div class="form_column">
-		<h3><?php echo $invoice_section; ?></h3>
-			<input type="checkbox" id="copy"/><label class="inline-block" for="copy"><?php echo $copy_label ?></label>
-			<label for="invoice_company"><?php echo $invoice_company_label; ?> *</label>
-			<input type="text" name="invoice_company" id="invoice_company" value="<?php echo $user->get('invoice_company'); ?>"/>
 
-			<label for="invoice_address"><?php echo $invoice_address_label; ?> *</label>
-			<input type="text" name="invoice_address" id="invoice_address" value="<?php echo $user->get('invoice_address'); ?>"/>
+  </div>
+          
+	<div class="form_column" id="form_column3">
 
-			<label for="invoice_zipcode"><?php echo $invoice_zipcode_label; ?> *</label>
-			<input type="text" name="invoice_zipcode" id="invoice_zipcode" value="<?php echo $user->get('invoice_zipcode'); ?>"/>
+    <h3><?php echo htmlspecialchars($translator->{'Contact'}); ?></h3>
+          
+    <label for="alias"><?php echo htmlspecialchars($translator->{'Username'}); ?> *</label>
+    <input type="text" autocomplete="off" name="alias" id="alias" title="<?php echo ujs($translator->{"Insert the desired username for this account. This will later on be used for you to log onto your account."}); ?>" value="<?php echo $user->get('alias'); ?>"<?php if ($user->get('id') != 0) { echo 'disabled="disabled"'; } ?>/>
+          
+    <label for="name"><?php echo htmlspecialchars($translator->{'Contact person'}); ?> *</label>
+    <input type="text" name="name" id="name" title="<?php echo ujs($translator->{"Insert the name of the contact person of this account."}); ?>" value="<?php echo $user->get('name'); ?>"/>
+     
+    <label for="phone3"><?php echo htmlspecialchars($translator->{'Contact Phone'}); ?> *</label>
+    <input type="text" name="phone3" id="phone3" title="<?php echo ujs($translator->{"Insert the phone number that we can reach the contact person for support about this account."}); ?>" class="phone-val" value="<?php echo $user->get('contact_phone'); ?>"/>
 
-			<label for="invoice_city"><?php echo $invoice_city_label; ?> *</label>
-			<input type="text" name="invoice_city" id="invoice_city" value="<?php echo $user->get('invoice_city'); ?>"/>
+    <label for="phone4"><?php echo htmlspecialchars($translator->{'Contact Phone 2'}); ?> *</label>
+    <input type="text" name="phone4" id="phone4" title="<?php echo ujs($translator->{"Insert the cell phone number of the contact person. for this account. This information will be visible to organizers of events that you attend to."}); ?>" class="phone-val" value="<?php echo $user->get('contact_phone2'); ?>"/>
 
-			<label for="invoice_country"><?php echo $country_label; ?> *</label>
-			<select name="invoice_country" id="invoice_country" style="width:258px;">
-			<?php foreach($country_list as $country) : ?>
-				<?php if($country == $user->get('invoice_country')):?>
-					<option value="<?php echo $country?>" selected><?php echo $country?></option>
-				<?php else:?>
-					<option value="<?php echo $country?>"><?php echo $country?></option>
-				<?php endif?>
-			<?php endforeach; ?>
-			</select>
+    <label for="contact_email"><?php echo htmlspecialchars($translator->{'Contact Email'}); ?> *</label>
+    <input type="text" autocomplete="off" name="contact_email" id="contact_email" title="<?php echo ujs($translator->{"Insert the email address of the contact person for this account. This information will be visible to organizers of events that you attend to."}); ?>" value="<?php echo $user->get('contact_email'); ?>"/>
 
-			<label for="invoice_email"><?php echo $invoice_email_label; ?> *</label>
-			<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
-	
-			<label for="presentation"><?php echo $presentation_label; ?></label>
-			<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation')?> 
-			<textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
-		</div>
-		
+  </div>
+  
 
-	<div class="form_column">
-		<h3><?php echo $contact_section; ?></h3>
-		<label for="alias"><?php echo $alias_label; ?> *</label>
-		<input type="text" name="alias" id="alias" value="<?php echo $user->get('alias'); ?>"/>
 
-		<label for="name"><?php echo $contact_label; ?> *</label>
-		<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
-		<label for="phone3"><?php echo $phone3_label; ?> *</label>
-		<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('contact_phone'); ?>"/>
-
-		<label for="phone4"><?php echo $phone4_label; ?></label>
-		<input type="text" name="phone4" id="phone4" value="<?php echo $user->get('contact_phone2'); ?>"/>
-
-		<label for="contact_email"><?php echo $contact_email ?> *</label>
-		<input type="text" name="contact_email" id="contact_email" value="<?php echo $user->get('contact_email'); ?>"/>
-
-	</div>
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
 </form>

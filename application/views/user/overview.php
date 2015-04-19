@@ -11,8 +11,8 @@
 			echo "&bcc=".$user->get('email');
 		endif;
 		$count++;
-	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p>
-<div class="tbld">
+	endforeach;?>"><?php echo uh($translator->{'Send mail'}); ?></a></p><br />
+<div class="scrolltbl onlythirteen">
 	<table class="std_table">
 		<thead>
 			<tr>
@@ -35,8 +35,8 @@
 				<td><?php echo $user->get('phone1'); ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $user->get('last_login')); ?></td>
 				<td><?php echo date('d-m-Y H:i:s', $user->get('created')); ?></td>
-				<td class="center"><a href="user/edit/<?php echo $user->get('id'); ?>/<?php echo $user->get('level') ?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
-				<td class="center"><a href="user/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="Delete"/></a></td>
+				<td class="center"><a href="user/edit/<?php echo $user->get('id'); ?>/<?php echo $user->get('level') ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+				<td class="center"><a href="user/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

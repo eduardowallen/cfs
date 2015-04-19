@@ -12,16 +12,30 @@ class Fair extends Model {
 		
 		parent::load($key, $by);
 		if ($this->wasLoaded()) {
-			$this->fetchExternal('FairMap', 'maps', 'fair', $this->id);
+			$this->fetchExternal('FairMap', 'maps', 'fair', $this->id, 'sortorder');
+
+			$last_map_index = count($this->maps) - 1;
+			foreach ($this->maps as $index => $map) {
+				if ($index > 0) {
+					$map->can_move_up = true;
+				}
+
+				if ($index < $last_map_index) {
+					$map->can_move_down = true;
+				}
+			}
+
 			if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg')) {
 				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.jpg';
 			} else if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
 				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.png';
 			}
+
 			//if (!$disregardLocked)
 				//$this->isLocked();
 			$this->fetchExternal('Exhibitor', 'exhibitors', 'fair', $this->id);
 			$this->fetchExternal('ExhibitorCategory', 'categories', 'fair', $this->id);
+			$this->fetchExternal("FairExtraOption", "options", "fair", $this->id);
 
 			$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE fair = ?");
 			$stmt->execute(array($this->id));
@@ -36,6 +50,64 @@ class Fair extends Model {
 			}
 		}
 
+	}
+
+	private function getMapIndex($map_id) {
+		foreach ($this->maps as $index => $map) {
+			if ($map->get('id') == $map_id) {
+				return array(
+					'index' => $index, 
+					'map' => $map
+				);
+			}
+		}
+
+		return null;
+	}
+
+	private function saveMapSortorders() {
+		// Save new sortorders
+		$sortorder = 1;
+		foreach ($this->maps as $map) {
+			$map->set('sortorder', $sortorder);
+			$map->save();
+
+			++$sortorder;
+		}
+	}
+
+	public function moveMapUp($map_id) {
+		$map = $this->getMapIndex($map_id);
+
+		if ($map !== null) {
+			if ($map['map']->can_move_up) {
+				$previous_index = $map['index'] - 1;
+				$previous = $this->maps[$previous_index];
+
+				// Do the switch
+				$this->maps[$previous_index] = $map['map'];
+				$this->maps[$map['index']] = $previous;
+
+				$this->saveMapSortorders();
+			}
+		}
+	}
+
+	public function moveMapDown($map_id) {
+		$map = $this->getMapIndex($map_id);
+
+		if ($map !== null) {
+			if ($map['map']->can_move_down) {
+				$next_index = $map['index'] + 1;
+				$next = $this->maps[$next_index];
+
+				// Do the switch
+				$this->maps[$next_index] = $map['map'];
+				$this->maps[$map['index']] = $next;
+
+				$this->saveMapSortorders();
+			}
+		}
 	}
 	
 	public function publicView() {
@@ -115,6 +187,8 @@ class Fair extends Model {
 		if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
 			unlink(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png');
 		}
+		
+		Alias::remove($this->get("url"));
 
 		parent::delete();
 

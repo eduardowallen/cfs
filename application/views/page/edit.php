@@ -24,7 +24,7 @@
 			<td><?php echo $page['page']; ?></td>
 			
 			<?php foreach ($langs as $lang): ?>
-			<td class="center"><a href="page/edit/<?php echo $page['page']; ?>/<?php echo  $lang['id']; ?>"><img src="images/icons/pencil.png" alt=""/></a></td>
+			<td class="center"><a href="page/edit/<?php echo $page['page']; ?>/<?php echo  $lang['id']; ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $edit_label; ?>" /></a></td>
 			<?php endforeach; ?>
 			
 		</tr>

@@ -32,53 +32,56 @@
 			<td class="container">
 				<table style="min-width:100%;">
 					<tr>
-						<td><?php echo $th_fair ?>: <a href="mapTool/map/<?php echo $fair->get('id'); ?>"><?php echo $fair->get('name'); ?></a></td>
+						<td><?php echo $th_fair ?>: <a href="mapTool/map/<?php echo $fair->id; ?>"><?php echo $fair->name; ?></a></td>
 						<td><?php echo $th_approved ?>: 
 							<?php
-								if($fair->get('approved') == 2){
+								if ($fair->approved == 2) {
 									echo '<span class="error">'.$app_locked.'</span>';
-								}elseif($fair->get('approved') == 1){
+								} else if ($fair->approved == 1) {
 									echo '<span class="ok">'.$app_yes.'</span>';
 			
-								}elseif($fair->get('approved') == 0){
+								} else if($fair->approved == 0) {
 									echo '<span class="error">'.$app_no.'</span>';
 								}
 							?>
 						</td>
-						<td><?php echo $th_booked ?>: <?php echo $fair->get('booked'); ?></td>
+						<td><?php echo $th_booked ?>: <?php echo $fair->booked_cnt; ?></td>
 					</tr>
 					<tr>
-						<td><?php echo $th_max_positions ?>: <?php echo $fair->get('max_positions') ?></td>
-						<td><?php echo $th_maps ?>: <a href="fair/maps/<?php echo $fair->get('id'); ?>"><?php echo count($fair->get('maps')); ?></a></td>
-						<td><?php echo $th_reserved ?>: <?php echo $fair->get('reserved'); ?></td>
+						<td><?php echo $th_max_positions ?>: <?php echo $fair->max_positions ?></td>
+						<td><?php echo $th_maps ?>: <a href="fair/maps/<?php echo $fair->id; ?>"><?php echo $fair->maps_cnt; ?></a></td>
+						<td><?php echo $th_reserved ?>: <?php echo $fair->reserved_cnt; ?></td>
 					</tr>
 					<tr>
-						<td><?php echo $th_page_views ?>: <?php echo $fair->get('page_views') ?></td>
-						<td><?php echo $th_available ?>: <?php echo $fair->get('total') - $fair->get('booked') - $fair->get('reserved') ?></td>
-						<td><?php echo $th_created ?>: <?php echo date('d-m-Y H:i:s', $fair->get('creation_time')); ?></td>
+						<td><?php echo $th_page_views ?>: <?php echo $fair->page_views ?></td>
+						<td><?php echo $th_available ?>: <?php echo $fair->total_cnt - $fair->booked_cnt - $fair->reserved_cnt ?></td>
+						<td><?php echo $th_created ?>: <?php echo date('d-m-Y H:i:s', $fair->creation_time); ?></td>
 						
 					</tr>
 					<tr>
-						<td><?php echo $th_total ?>: <?php echo $fair->get('total'); ?></td>
-						<td><?php echo $th_auto_publish ?>: <?php echo date('d-m-Y H:i:s', $fair->get('auto_publish')); ?></td>
-						<td><?php echo $th_auto_close ?>: <?php echo date('d-m-Y H:i:s', $fair->get('auto_close')); ?></td>
+						<td><?php echo $th_total ?>: <?php echo $fair->total_cnt; ?></td>
+						<td><?php echo $th_auto_publish ?>: <?php echo date('d-m-Y H:i:s', $fair->auto_publish); ?></td>
+						<td><?php echo $th_auto_close ?>: <?php echo date('d-m-Y H:i:s', $fair->auto_close); ?></td>
 					</tr>
 					<?php if (userLevel() > 3): ?>
 					<tr>
-						<td colspan="2"><?php echo $th_arranger_name ?>: <a href="arranger/info/<?php echo $fair->get('created_by')?>"><?php echo $fair->get('arranger_name'); ?></a></td>
-						<td><?php echo $th_arranger_cnr ?>: <?php echo $fair->get('arranger_cnr'); ?></td>
+						<td colspan="2"><?php echo $th_arranger_name ?>: <a href="arranger/info/<?php echo $fair->created_by; ?>"><?php echo $fair->arranger_name; ?></a></td>
+						<td><?php echo $th_arranger_cnr ?>: <?php echo $fair->arranger_cnr; ?></td>
 					</tr>
 					<?php endif; ?>
 					<tr>
 						<td colspan="3">
-							<span class="td_button"><a href="fair/categories/<?php echo $fair->get('id'); ?>"><?php echo $th_categories ?></a></span>
-							<span class="td_button"><a href="administrator/overview/<?php echo $fair->get('id'); ?>"><?php echo $th_admins ?></a></span>
-							<span class="td_button"><a href="exhibitor/exhibitors/<?php echo $fair->get('id'); ?>"><?php echo $th_exhibitors ?></a></span>
-							<span class="td_button"><a href="fair/edit/<?php echo $fair->get('id'); ?>"><?php echo $th_settings ?></a></span>
-							<?php if(/*$fair->get('approved') != 2 && */userLevel() == 4) : ?>
-							<span class="td_button"><a	href="fair/delete/<?php echo $fair->get('id'); ?>"><?php echo $th_delete ?></a></span>
+							<a class="td_button" href="fair/categories/<?php echo $fair->id; ?>"><?php echo $th_categories ?></a>
+							<a class="td_button" href="administrator/overview/<?php echo $fair->id; ?>"><?php echo $th_admins ?></a>
+							<a class="td_button" href="exhibitor/exhibitors/<?php echo $fair->id; ?>"><?php echo $th_exhibitors ?></a>
+							<a class="td_button" href="fair/edit/<?php echo $fair->id; ?>"><?php echo $th_settings ?></a>
+							<a class="td_button" href="fair/maps/<?php echo $fair->id; ?>"><?php echo $th_maps ?></a>
+							<a class="td_button" href="fair/event_mail/<?php echo $fair->id; ?>"><?php echo $th_mailSettings; ?></a>
+							<?php if(/*$fair->approved != 2 && */userLevel() == 4) : ?>
+							<a class="td_button" href="fair/sms/<?php echo $fair->id; ?>"><?php echo $th_smsSettings ?></a>
+							<a class="td_button" href="fair/delete/<?php echo $fair->id; ?>"><?php echo $th_delete ?></a>
 							<?php endif; ?>
-							<span class="td_button floatright<?php if ($fair->get('approved') == 2) echo ' td_button_disabled'; ?>"><a href="<?php echo ($fair->get('approved') == 2 ? '#' : 'fair/makeclone/' . $fair->get('id')); ?>" class="fair-clone-confirm"><?php echo $th_clone ?></a></span>
+							<span class="td_button floatright<?php if ($fair->approved == 2) echo ' td_button_disabled'; ?>"><a href="<?php echo ($fair->approved == 2 ? '#' : 'fair/makeclone/' . $fair->id); ?>" class="fair-clone-confirm"><?php echo $th_clone ?></a></span>
 						</td>
 					</tr>
 				</table>

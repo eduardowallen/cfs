@@ -4,11 +4,12 @@ class Mail extends Model {
 	
   protected $to;
   protected $from;
+  protected $fromName;
   protected $subject;
   protected $content;
 	protected $variables = array();
   
-  function __construct($to='', $mailtemplate='', $from='')
+  function __construct($to='', $mailtemplate='', $from='', $fromName = "")
   {
     parent::__construct();
     if($mailtemplate=='')
@@ -16,6 +17,7 @@ class Mail extends Model {
     
     $this->to = $to;
     $this->from = $from;
+    $this->fromName = $fromName;
     
     // Attempts to get template according to currently selected language, if template exists for that language
     //  otherwise gets template for the default language
@@ -44,7 +46,11 @@ class Mail extends Model {
 		$this->from = EMAIL_FROM_ADDRESS;
 	}
 
-    return sendMailHTML($this->to, $this->subject, $this->content, array($this->from => EMAIL_FROM_NAME));
+  if ($this->fromName === "") {
+    $this->fromName = EMAIL_FROM_NAME;
+  }
+
+    return sendMailHTML($this->to, $this->subject, $this->content, array($this->from => $this->fromName));
   }
 	
 }

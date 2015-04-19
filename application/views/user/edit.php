@@ -29,6 +29,7 @@
   return;
   
   $country_list = array(
+		"Sweden",
 		"Afghanistan",
 		"Albania",
 		"Algeria",
@@ -194,7 +195,6 @@
 		"Sudan",
 		"Suriname",
 		"Swaziland",
-		"Sweden",
 		"Switzerland",
 		"Syria",
 		"Taiwan",
@@ -320,9 +320,9 @@
 
 	<label for="invoice_email"><?php echo $invoice_email_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="invoice_email" id="invoice_email" value="<?php echo $user->get('invoice_email'); ?>"/>
-		<div style="">
+		<div>
 			<label for="presentation"><?php echo $presentation_label; ?></label>
-			<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 570, 'presentation') ?>
+			<?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation'); ?>
 			<textarea name="presentation" class="presentation" id="presentation"><?php echo $user->get('presentation'); ?></textarea>
 		</div>
 	</div>

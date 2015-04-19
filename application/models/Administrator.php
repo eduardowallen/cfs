@@ -39,12 +39,15 @@ class Administrator extends User {
 			$str = substr(implode('', $arr), 0, 10);
 			
 			$this->setPassword($str);
-
+			
+			$fair = new Fair;
+			$fair->load($_SESSION['user_fair'], 'id');		
+			
 			$me = new User;
 			$me->load($_SESSION['user_id'], 'id');
 			
-			$mail = new Mail($_POST['email'], 'administrator_new_account');
-			$mail->setMailVar('url', BASE_URL.$_SESSION['outside_fair_url']);
+			$mail = new Mail($_POST['email'], 'administrator_new_account', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+			$mail->setMailVar("url", BASE_URL . $fair->get("url"));
 			$mail->setMailVar('alias', $this->alias);
 			$mail->setMailVar('password', $str);
 			$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));

@@ -6,6 +6,37 @@ class FairController extends Controller {
 		
 	}
 
+	public function search() {
+		setAuthLevel(1);
+
+		$stmt_open_fairs = $this->db->prepare("SELECT f.*, u.website, COUNT(ex.id) AS cnt_exhibitors, COUNT(pb.id) AS cnt_prel_bookings FROM fair AS f
+				LEFT JOIN user AS u ON u.id = f.created_by
+				LEFT JOIN exhibitor AS ex ON ex.fair = f.id AND ex.user = ?
+				LEFT JOIN preliminary_booking AS pb ON pb.fair = f.id AND pb.user = ?
+				WHERE f.approved = 1
+				AND f.hidden_search = 0
+				AND f.auto_publish <= UNIX_TIMESTAMP()
+				AND f.auto_close > UNIX_TIMESTAMP()
+				GROUP BY f.id
+				ORDER BY f.name
+		");
+		$stmt_open_fairs->execute(array($_SESSION['user_id'], $_SESSION['user_id']));
+
+		$fairs = $stmt_open_fairs->fetchAll(PDO::FETCH_CLASS);
+
+		$this->setNoTranslate('fairs', $fairs);
+		$this->set('label_headline', 'Eventsearch');
+		$this->set('label_fairname', 'Fair name');
+		$this->set('label_closing_date', 'Closing date');
+		$this->set('label_homepage', 'Homepage');
+		$this->set('label_bookings', 'Bookings');
+		$this->set('label_registration', 'Registration');
+		$this->set('label_go_to_event', 'Go to event');
+		$this->set('label_hidden', 'Hidden');
+		$this->set('label_open', 'Open');
+		$this->set('label_no_fairs', 'Found no fairs.');
+	}
+
 	function overview($param='') {
 		setAuthLevel(3);
 		$this->setNoTranslate('param', $param);
@@ -32,6 +63,8 @@ class FairController extends Controller {
 		$this->set('th_admins', 'Administrators');
 		$this->set('th_exhibitors', 'Exhibitors');
 		$this->set('th_settings', 'Settings');
+		$this->set('th_mailSettings', 'Mail settings');
+		$this->set('th_smsSettings', 'SMS Settings');
 		$this->set('th_delete', 'Delete');
 		$this->set('th_clone', 'Clone');
 		$this->set('app_yes', 'Yes');
@@ -46,68 +79,47 @@ class FairController extends Controller {
 			$this->set('msg_cloning_complete', 'Cloning of the event complete.');
 		}
 
-		switch(userLevel()) {
+		$sql = "SELECT f.id, f.name, approved, max_positions, creation_time, page_views, auto_publish, auto_close, f.created_by,
+				COUNT(fmap.id) AS maps_cnt,
+				u.company AS arranger_name, u.customer_nr AS arranger_cnr,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 2) AS booked_cnt,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 1) AS reserved_cnt,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id) AS total_cnt
+				FROM fair AS f
+				LEFT JOIN fair_map AS fmap ON fmap.fair = f.id
+				LEFT JOIN user AS u ON f.created_by = u.id";
 
+		switch (userLevel()) {
 			case 4:
-				$sql = "SELECT id FROM fair";
 				$params = array();
+
 				if ($param == 'new') {
-					$sql.= " WHERE approved = ?";
+					$sql .= " WHERE approved = ?";
 					array_push($params, '0');
 				} else if ((int) $param > 0) {
-					$sql.= " WHERE created_by = ?";
+					$sql .= " WHERE f.created_by = ?";
 					array_push($params, $param);
 				}
-			$sql.= " ORDER BY approved, name";
+
 				break;
+
 			case 3:
-				$sql= "SELECT id FROM fair WHERE created_by = ?";
+				$sql .= " WHERE f.created_by = ?";
 				$params = array($_SESSION['user_id']);
 				break;
+
 			default:
 				toLogin();
 				break;
 		}
 
+		$sql .= " GROUP BY f.id ORDER BY approved, name";
+
 		$stmt = $this->Fair->db->prepare($sql);
 		$stmt->execute($params);
+		$fairs = $stmt->fetchAll(PDO::FETCH_CLASS);
 
-		$res = $stmt->fetchAll();
-		$fairs = array();
-
-		if ($res > 0) {
-
-			foreach ($res as $result) {
-				$f = new Fair;
-				$f->load($result['id'], 'id', true);
-
-				$arr = new User;
-				$arr->load($f->get('created_by'), 'id');
-
-				$stmt = $f->db->prepare("SELECT pos.* FROM fair_map_position AS pos LEFT JOIN fair_map AS map ON pos.map = map.id WHERE map.fair = ?");
-				$stmt->execute(array($f->get('id')));
-				$positions = $stmt->fetchAll();
-				$total = 0;
-				$booked = 0;
-				$reserved = 0;
-				foreach ($positions as $pos) {
-					$total++;
-					if ($pos['status'] == 2) {
-						$booked++;
-					} else if ($pos['status'] == 1) {
-						$reserved++;
-					}
-				}
-				$f->set('booked', $booked);
-				$f->set('reserved', $reserved);
-				$f->set('total', $total);
-				$f->set('arranger_name', $arr->get('name'));
-				$f->set('arranger_cnr', $arr->get('customer_nr'));
-				$fairs[] = $f;
-			}
-			$this->setNoTranslate('fairs', $fairs);
-		}
-
+		$this->setNoTranslate('fairs', $fairs);
 	}
 
 	public function categories($fairId, $do='', $item=0) {
@@ -225,38 +237,54 @@ class FairController extends Controller {
 					$this->Fair->set('approved', 1);
 				}
 				$this->Fair->set('hidden', $_POST['hidden']);
+				$this->Fair->set('allow_registrations', $_POST['allow_registrations']);
+				$this->Fair->set('hidden_search', $_POST['hidden_search']);
 				for ($i = 1; $i <= 3; $i++) {
 					$this->Fair->set('reminder_day' . $i, $_POST['reminder_day' . $i]);
 					$this->Fair->set('reminder_note' . $i, $_POST['reminder_note' . $i]);
 				}
+
 				$fId = $this->Fair->save();
-				if ($id == 'new') {
-					$_SESSION['user_fair'] = $fId;
-					$user = new User;
-					$user->load($_SESSION['user_id'], 'id');
 
-					if((strlen($fairmail) > 1)):
-						Alias::addNew($fairmail, array('info'));
-					endif;
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+					foreach ($_POST["options"] as $option) {
+						$fairOption = new FairExtraOption();
+						$fairOption->load($option, "text", $fId, "fair");
 
-					if (userLevel() == 3) {
-						
-						/* Alias */
-						/*					
-						$organizermail = $user->get('email');
-						$fairmail = $_POST['name'];
-						require('lib/classes/Alias.php');
-
-						if((strlen($organizermail) > 1) && (strlen($fairmail) > 1)):
-							Alias::addNew($fairmail, $organizermail);
-						endif;
-						*/
-
-					    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-					    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
-					    $mail->setMailVar('company', $user->get('company'));
-					    $mail->send();
+						$fairOption->set("text", $option);
+						$fairOption->set("fair", $fId);
+						$fairOption->save();
 					}
+				}
+				
+				if ($id == 'new') {
+					$userLevel = userLevel();
+
+					$_SESSION['user_fair'] = $fId;
+					$user = new User();
+
+					if ($userLevel === "4") {
+						$user->load($_POST['arranger'], 'id');
+					} else if ($userLevel === "3") {
+						$user->load($_SESSION['user_id'], 'id');
+					}
+						
+					/* Alias */
+					$organizermail = $user->get('email');
+					$fairmail = $_POST['name'];
+
+					if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
+						Alias::addNew($fairmail, array($organizermail));
+					}
+
+					if ($userLevel === "3") {
+				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
+					$mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
+					$mail->setMailVar('company', $user->get('company'));
+					$mail->setMailVar('event_name', $this->Fair->get('name'));
+				    $mail->send();
+				  }
+
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
 				} else {
@@ -313,14 +341,27 @@ class FairController extends Controller {
 			$this->set('reminder_3_label', '3rd reminder');
 			$this->set('no_reminder_label', 'No reminder');
 			$this->set('edit_label', 'Edit');
+			$this->set('delete_label', 'Delete');
 			$this->set('edit_note_1_label', 'Edit message for 1st reminder');
 			$this->set('edit_note_2_label', 'Edit message for 2nd reminder');
 			$this->set('edit_note_3_label', 'Edit message for 3rd reminder');
 			$this->set('save_label', 'Save');
 			$this->set('cancel_label', 'Cancel');
 			$this->set('hide_fair_for_label', 'Hide fair for unauthorized accounts');
+			$this->set('hide_fair_search_label', 'Hide fair in the "fair search"');
+			$this->set('allow_registrations_label', 'Allow registrations when fair is hidden');
 			$this->set('false_label', 'false');
 			$this->set('true_label', 'true');
+			$this->set("options_when_booking_label", "Options when booking");
+			$this->set("new_option_label", "New option");
+
+			if ($id === "new") {
+				$options = array();
+			} else {
+				$stmt = $this->db->query("SELECT `id`, `text` FROM `fair_extra_option` WHERE `fair` = " . $this->Fair->get("id"));
+				$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$this->setNoTranslate("options_when_booking", $options);
+			}
 		}
 	}
 
@@ -361,7 +402,26 @@ class FairController extends Controller {
 				$fair_clone->set('auto_close', strtotime($_POST['auto_close']));
 				$fair_clone->set('max_positions', $this->Fair->get('max_positions'));
 				$fair_clone->set('hidden', $this->Fair->get('hidden'));
+				$fair_clone->set('reminder_day1', $this->Fair->get('reminder_day1'));
+				$fair_clone->set('reminder_note1', $this->Fair->get('reminder_note1'));
+				$fair_clone->set('reminder_day2', $this->Fair->get('reminder_day2'));
+				$fair_clone->set('reminder_note2', $this->Fair->get('reminder_note2'));
+				$fair_clone->set('reminder_day3', $this->Fair->get('reminder_day3'));
+				$fair_clone->set('reminder_note3', $this->Fair->get('reminder_note3'));
+				$fair_clone->set('mail_settings', $this->Fair->get('mail_settings'));
 				$fair_clone_id = $fair_clone->save();
+
+				//Save options
+				/*if (isset($_POST['options']) && is_array($_POST['options'])) {
+					foreach ($_POST["options"] as $option) {
+						$fairOption = new FairExtraOption();
+						$fairOption->load($option, "text", $fair_clone_id, "fair");
+
+						$fairOption->set("text", $option);
+						$fairOption->set("fair", $fair_clone_id);
+						$fairOption->save();
+					}
+				}*/
 
 				/* Hämta alla kartor */
 				$statement = $this->db->prepare('SELECT * FROM fair_map WHERE fair = ?');
@@ -409,15 +469,15 @@ class FairController extends Controller {
 				}
 
 				/* Hämta alla preliminärbokningar */
-				$statement = $this->db->prepare('SELECT * FROM preliminary_booking WHERE fair = ?');
+				/*$statement = $this->db->prepare('SELECT * FROM preliminary_booking WHERE fair = ?');
 				$statement->execute(array($this->Fair->get('id')));
 				$preliminary_booking = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 				foreach ($preliminary_booking as $booking) {
-					/* Kopiera bokningen */
+					/* Kopiera bokningen *//*
 					$statement = $this->db->prepare("INSERT INTO preliminary_booking (user, fair, position, categories, commodity, arranger_message, booking_time) VALUES (?, ?, ?, ?, ?, ?, ?)");
 					$statement->execute(array($booking['user'], $fair_clone_id, $position_ids[$booking['position']], $booking['categories'], $booking['commodity'], $booking['arranger_message'], $booking['booking_time']));
-				}
+				}*/
 
 				/* Hämta alla utställarkategorier */
 				$statement = $this->db->prepare('SELECT * FROM exhibitor_category WHERE fair = ?');
@@ -432,8 +492,21 @@ class FairController extends Controller {
 					$ex_cat_ids[$category['id']] = $this->db->lastInsertId();
 				}
 
-				/* Hämta alla utställare */
-				$statement = $this->db->prepare('SELECT * FROM exhibitor WHERE fair = ?');
+				/* Hämta alla extra tillval */
+				$statement = $this->db->prepare('SELECT * FROM fair_extra_option WHERE fair = ?');
+				$statement->execute(array($this->Fair->get('id')));
+				$fair_options = $statement->fetchAll(PDO::FETCH_ASSOC);
+				$ex_option_ids = array();
+
+				foreach ($fair_options as $option) {
+					/* Kopiera tillvalet */
+					$statement = $this->db->prepare("INSERT INTO fair_extra_option (text, fair) VALUES (?, ?)");
+					$statement->execute(array($option['text'], $fair_clone_id));
+					$ex_option_ids[$option['id']] = $this->db->lastInsertId();
+				}
+
+				/* Hämta de utställare som är BOKADE på eventet */
+				$statement = $this->db->prepare('SELECT ex.* FROM exhibitor AS ex INNER JOIN fair_map_position AS fmp ON fmp.id = ex.position WHERE ex.fair = ? AND fmp.status = 2');
 				$statement->execute(array($this->Fair->get('id')));
 				$exhibitors = $statement->fetchAll(PDO::FETCH_ASSOC);
 
@@ -455,24 +528,46 @@ class FairController extends Controller {
 							$statement->execute(array($exhibitor_clone_id, $ex_cat_ids[$relation['category']]));
 						}
 					}
+
+					/* Hämta alla kopplingar mellan utställare och extra tillval */
+					$statement = $this->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ?');
+					$statement->execute(array($exhibitor['id']));
+					$ex_option_relations = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+					foreach ($ex_option_relations as $relation) {
+						/* Kopiera kopplingen */
+						if (isset($ex_option_ids[$relation['option']])) {
+							$statement = $this->db->prepare("INSERT INTO exhibitor_option_rel (`exhibitor`, `option`) VALUES (?, ?)");
+							$statement->execute(array($exhibitor_clone_id, $ex_option_ids[$relation['option']]));
+						}
+					}
 				}
 
 				$_SESSION['user_fair'] = $fair_clone_id;
-				$user = new User;
-				$user->load($_SESSION['user_id'], 'id');
+				$user = new User();
+
+				$userLevel = userLevel();
 
 				/* Alias */					
-				$fairmail = $_POST['name'];
-
-				if ((strlen($fairmail) > 1)) {
-					Alias::addNew($fairmail, array($user->get('email')));
+				if ($userLevel === "4") {
+					$user->load($this->Fair->get('created_by'), 'id');
+				} else if ($userLevel === "3") {
+					$user->load($_SESSION['user_id'], 'id');
 				}
 
-				if (userLevel() == 3) {
+				$organizermail = $user->get('email');
+				$fairmail = $_POST['name'];
+
+				if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
+					Alias::addNew($fairmail, array($organizermail));
+				}
+
+				if ($userLevel === "3") {
 				    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-				    $mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
-				    $mail->setMailVar('company', $user->get('company'));
-				    $mail->send();
+					$mail->setMailVar('url', BASE_URL.$fair_clone->get('url'));
+					$mail->setMailVar('company', $user->get('company'));
+					$mail->setMailVar('event_name', $fair_clone->get('name'));
+					$mail->send();
 				}
 
 				header("Location: ".BASE_URL."fair/overview/cloning_complete");
@@ -490,6 +585,12 @@ class FairController extends Controller {
 			$this->set('contact_label', 'Contact information');
 			$this->set('clone_label', 'Complete cloning');
 			$this->set('dialog_clone_complete_info', 'In connection with completing the cloning of your event, you will be billed according to the agreed contractual.');
+			$this->set("options_when_booking_label", "Options when booking");
+			$this->set("new_option_label", "New option");
+
+			$stmt = $this->db->query("SELECT `text` FROM `fair_extra_option` WHERE `fair` = " . $id);
+			$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$this->setNoTranslate("options_when_booking", $options);
 		}
 	}
 
@@ -516,14 +617,39 @@ class FairController extends Controller {
 
 			$this->set('headline', 'Map overview');
 			$this->set('create_link', 'New map');
-			$this->set('th_name', 'Map');
+			$this->set('th_name', 'Map name');
 			$this->set("th_file", "File");
 			$this->set('th_view', 'View');
 			$this->set('th_edit', 'Edit');
 			$this->set('th_delete', 'Delete');
+			$this->set('th_move_up', 'Move up');
+			$this->set('th_move_down', 'Move down');
 			$this->setNoTranslate('fair', $this->Fair);
 
 		}
+	}
+
+	public function move_map($direction = null, $fair_id = null, $map_id = null) {
+		setAuthLevel(3);
+
+		$this->Fair->load($fair_id, 'id');
+		if (!$this->Fair->wasLoaded()) {
+			header('Location: ' . BASE_URL . 'fair');
+			die();
+		}
+
+		switch ($direction) {
+			case 'up':
+				$this->Fair->moveMapUp($map_id);
+				break;
+
+			case 'down':
+				$this->Fair->moveMapDown($map_id);
+				break;
+		}
+
+		header('Location: ' . BASE_URL . 'fair/maps/' . $this->Fair->get('id'));
+		die();
 	}
 
 	public function delete($id, $confirmed='') {
@@ -550,7 +676,78 @@ class FairController extends Controller {
 
 	}
 
+	public function sms($id = null) {
+		setAuthLevel(4);
+	
+		$fair = new Fair();
+		$fair->load($id, "id");
+		
+		if ($fair->wasLoaded()) {
+			if (isset($_POST["save"])) {
+				unset($_POST["save"]);
+				$fair->set("sms_settings", json_encode($_POST));
+				$fair->save();
+			}
+			$this->set("headline", "SMS-settings for fair (other fair settings will also be set here in the future)");
+			$this->set("smsFunction", "SMS-function setting for this fair");
+			$this->set("active", "active");
+			$this->set("save", "Save");
+			
+			$smsSettings = json_decode($fair->get("sms_settings"));
+			if (!is_object($smsSettings)) {
+				$smsSettings = new stdClass();
+			}
 
+			$this->setNoTranslate("smsSettings", $smsSettings);
+			$this->setNoTranslate("id", $id);
+			
+		}
+	}
+	public function event_mail($id = NULL) {
+		setAuthLevel(3);
+
+		$fair = new Fair();
+		$fair->load($id, "id");
+
+		if ($fair->wasLoaded()) {
+			if (isset($_POST["save"])) {
+				unset($_POST["save"]);
+				$fair->set("mail_settings", json_encode($_POST));
+				$fair->save();
+			}
+
+			$this->set("heading", "Automatically send a mail when I:");
+			$this->set("toMyself", "To myself");
+			$this->set("toExhibitor", "To the Exhibitor");
+			$this->set("toCurrentUser", "To the currently administrating user");
+			$this->set("bookingCreated", "Make a booking");
+			$this->set("bookingEdited", "Edit a booking");
+			$this->set("bookingCancelled", "Cancel a booking or reservation");
+			$this->set("reservationCreated", "Make a reservation");
+			$this->set("reservationEdited", "Edit a reservation");
+			$this->set("recievePreliminaryBooking", "Recieve a preliminary booking");
+			$this->set("acceptPreliminaryBooking", "Accept a preliminary booking");
+			$this->set("cancelPreliminaryBooking", "Cancel a preliminary booking");
+			$this->set("save", "Save");
+
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (!is_object($mailSettings)) {
+				$mailSettings = new stdClass();
+			}
+
+			$this->setNoTranslate("mailSettings", $mailSettings);
+			$this->setNoTranslate("id", $id);
+		}
+	}
+	public function updateAliases() {
+			$result = $this->Fair->db->query("SELECT `fair`.`url`, `user`.`email` FROM `fair` INNER JOIN `user` ON `fair`.`created_by` = `user`.`id` ");
+
+			Alias::clear();
+
+			while (($fair = $result->fetch(PDO::FETCH_ASSOC))) {
+				Alias::addNew($fair["url"], array($fair["email"]));
+			}
+		}
 }
 
 ?>

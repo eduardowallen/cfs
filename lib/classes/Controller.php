@@ -59,7 +59,7 @@ class Controller {
 	}
 
 	protected function createJsonResponse() {
-		$this->_template = new JsonResponse();
+		$this->_template = new JsonResponse('', '');
 	}
 
 	public function changeAction($new_action, $args = array()) {
@@ -69,7 +69,7 @@ class Controller {
 		call_user_func_array(array($this, $new_action), $args);
 	}
 
-	function __destruct() {
+	function render() {
 		$this->_template->render();
 	}
 

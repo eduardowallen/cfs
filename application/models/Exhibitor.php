@@ -4,10 +4,27 @@ class Exhibitor extends User {
 
 	protected $fairs;
 	protected $exhibitor_categories = array();
+	protected $exhibitor_options = array();
 
 	public function __construct() {
 		parent::__construct();
 		$this->table_name = 'user';
+	}
+
+	public function load2($key, $by) {
+
+		$stmt1 = $this->db->prepare("SELECT * FROM fair WHERE `id` = ?");
+		$stmt2 = $this->db->prepare("SELECT * FROM exhibitor WHERE `fair` = ?");
+		$stmt3 = $this->db->prepare("SELECT * FROM user LEFT JOIN exhibitor ON user.id = exhibitor.user WHERE `exhibitor.fair` = ?");
+		$stmt4 = $this->db->prepare("SELECT * FROM fair_user_relation WHERE `fair` = ?");
+		$stmt5 = $this->db->prepare("SELECT * FROM exhibitor_category WHERE `fair` = ?");
+		$stmt6 = $this->db->prepare("SELECT * FROM exhibitor_category_rel LEFT JOIN exhibitor ON exhibitor_category_rel.exhibitor = exhibitor.id WHERE `exhibitor.fair` = ?");
+		$stmt7 = $this->db->prepare("SELECT * FROM fair_extra_option WHERE `fair` = ?");
+		$stmt8 = $this->db->prepare("SELECT * FROM exhibitor_option_rel LEFT JOIN exhibitor ON exhibitor_option_rel.exhibitor = exhibitor.id WHERE `exhibitor.fair` = ?");
+		$stmt9 = $this->db->prepare("SELECT * FROM preliminary_booking WHERE `fair` = ?");
+		$allstmt = "$stmt1$stmt2$stmt3$stmt4$stmt5$stmt6$stmt7$stmt8$stmt9";
+		$allstmt->execute(array($key));
+		$result = $allstmt->fetchAll(PDO::FETCH_ASSOC);
 	}
 
 	public function load($key, $by) {
@@ -48,6 +65,15 @@ class Exhibitor extends User {
 				}
 			}
 
+			$stmt = $this->db->prepare("SELECT * FROM exhibitor_option_rel WHERE exhibitor = ?");
+			$stmt->execute(array($this->exhibitor_id));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if ($result > 0) {
+				foreach ($result as $res) {
+					$this->exhibitor_options[] = $res['option'];
+				}
+			}
+
 			return true;
 		}
 
@@ -74,7 +100,8 @@ class Exhibitor extends User {
 	}
 
 	public function delete() {
-		
+		$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ?");
+		$stmt->execute(array($this->exhibitor_id));
 	}
 
 
@@ -104,6 +131,13 @@ class Exhibitor extends User {
 		return parent::get($att);
 	}
 
+	/* Static methods */
+
+	public static function fetchAll() {
+		global $globalDB;
+		$stmt = $globalDB->query("SELECT u.*, ex.id AS exhibitor_id FROM exhibitor AS ex INNER JOIN user AS u ON u.id = ex.user GROUP BY u.id ORDER BY company");
+		return $stmt->fetchAll(PDO::FETCH_CLASS, 'Exhibitor');
+	}
 }
 
 ?>

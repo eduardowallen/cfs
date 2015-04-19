@@ -11,6 +11,7 @@
   return;
 ?>
 <?php $country_list = array(
+		"Sweden",
 		"Afghanistan",
 		"Albania",
 		"Algeria",
@@ -176,7 +177,6 @@
 		"Sudan",
 		"Suriname",
 		"Swaziland",
-		"Sweden",
 		"Switzerland",
 		"Syria",
 		"Taiwan",

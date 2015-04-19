@@ -37,9 +37,9 @@
 			<?php foreach ($langs as $lang): ?>
         <td class="center"><a href="mail/edit/<?php echo $mail['mail']; ?>/<?php echo $lang['id']; ?>">
           <?php if(isset($mail[$lang['id']])): ?>
-            <img src="images/icons/pencil.png" alt=""/>
+            <img src="images/icons/pencil.png" alt="" title="<?php echo $edit_label; ?>" />
           <?php else: ?>
-            <img src="images/icons/add.png" alt=""/>
+            <img src="images/icons/add.png" alt="" title="<?php echo $add_label; ?>" />
           <?php endif; ?>
         </a></td>
 			<?php endforeach; ?>

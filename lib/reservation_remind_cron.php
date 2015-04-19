@@ -34,7 +34,7 @@ if (!function_exists('__autoload')) {
 }
 
 if (!defined('LANGUAGE')) {
-	define('LANGUAGE', 'eng');
+	define('LANGUAGE', 'sv');
 }
 
 $globalDB = new Database;
@@ -48,7 +48,8 @@ $statement = $globalDB->prepare("SELECT fmp.id,
 								u.email AS exhibitor_email, 
 								u.name AS user_name, 
 								uc.email AS organizer_email, 
-								f.url, 
+								f.url,
+								f.name AS fair_name,
 								DATEDIFF(fmp.expires, ?) AS diff, 
 								fmp.expires, 
 								reminder_day1, 
@@ -84,13 +85,15 @@ foreach ($expiring_positions as $position) {
 	// Send mail to exhibitor
 	$to = $position->exhibitor_email;
 	if (defined('TESTSERV')) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
-#$to = "christoffer@trinax.se";
-	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . '@chartbooker.com');
+
+	$mail = new Mail($to, 'stand_place_remind' . $number, $position->url . EMAIL_FROM_DOMAIN);
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
-	$mail->setMailVar('name', $position->user_name);
-	$mail->setMailVar('stand_space_name', $position->position_name);
+	$mail->setMailVar('event_name', $position->fair_name);
+	$mail->setMailVar('url', BASE_URL . $position->url);
+	$mail->setMailVar('exhibitor_name', $position->user_name);
+	$mail->setMailVar('position_name', $position->position_name);
 	$mail->setMailVar('date_expires', $position->expires);
 	$mail->setMailVar('days_until_expiration', $position->diff);
 	$mail->send();
@@ -98,13 +101,15 @@ foreach ($expiring_positions as $position) {
 	// Send mail to organizer
 	$to = $position->organizer_email;
 	if (defined('TESTSERV')) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
-#$to = "christoffer@trinax.se";
-	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . '@chartbooker.com');
+
+	$mail = new Mail($to, 'stand_place_remind_org' . $number, $position->url . EMAIL_FROM_DOMAIN);
 	$mail->setMailVar('reminder_note', $position->{'reminder_note' . $number});
-	$mail->setMailVar('name', $position->user_name);
-	$mail->setMailVar('stand_space_name', $position->position_name);
+	$mail->setMailVar('event_name', $position->fair_name);
+	$mail->setMailVar('url', BASE_URL . $position->url);
+	$mail->setMailVar('exhibitor_name', $position->user_name);
+	$mail->setMailVar('position_name', $position->position_name);
 	$mail->setMailVar('date_expires', $position->expires);
 	$mail->setMailVar('days_until_expiration', $position->diff);
 	$mail->send();

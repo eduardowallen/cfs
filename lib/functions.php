@@ -42,7 +42,7 @@ function userCanAdminFair($fair_id, $map_id) {
 		if ($result) {
 
 			$accessible_maps = explode('|', $result->map_access);
-			if (in_array($map_id, $accessible_maps)) {
+			if ($map_id == 0 || in_array($map_id, $accessible_maps)) {
 				return true;
 			}
 		}
@@ -50,6 +50,30 @@ function userCanAdminFair($fair_id, $map_id) {
 	}
 
 	return false;
+}
+
+function getMyFairs() {
+	global $globalDB;
+
+	if (userLevel() == 2) {
+		$stmt = $globalDB->prepare("SELECT id, name
+				FROM fair_user_relation AS fur
+				LEFT JOIN fair ON fur.fair = fair.id
+				WHERE user = ? ORDER BY name");
+
+		$stmt->execute(array($_SESSION['user_id']));
+		return $stmt->fetchAll(PDO::FETCH_OBJ);
+
+	} else if (userLevel() == 3) {
+		$stmt = $globalDB->prepare("SELECT id, name FROM fair WHERE created_by = ? ORDER BY name");
+		$stmt->execute(array($_SESSION['user_id']));
+		return $stmt->fetchAll(PDO::FETCH_OBJ);
+
+	} else {
+		$stmt = $globalDB->prepare("SELECT id, name FROM fair ORDER BY name");
+		$stmt->execute(array($_SESSION['user_id']));
+		return $stmt->fetchAll(PDO::FETCH_OBJ);
+	}
 }
 
 function getTableName($classname) {
@@ -90,9 +114,9 @@ function sendMail($to, $subject, $msg, $from='') {
 	/*mail($to, $subject, $msg, 'From:Chartbooker<no-reply@chartbooker.com>');
 	return;*/
 
-	// If the code runs on testserver, send ALL emails to example@chartbooker.com!
+	// If the code runs on testserver, send ALL emails to example@chartbooking.com!
 	if (defined('TESTSERV') && TESTSERV) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
 
 	require_once ROOT.'lib/Swift-4.1.7/swift_required.php';
@@ -123,9 +147,9 @@ function sendMail($to, $subject, $msg, $from='') {
 //  send images as part of the mail.
 function sendMailHTML($to, $subject, $msg, $from='') {
 
-	// If the code runs on testserver, send ALL emails to example@chartbooker.com!
+	// If the code runs on testserver, send ALL emails to example@chartbooking.com!
 	if (defined('TESTSERV') && TESTSERV) {
-		$to = 'example@chartbooker.com';
+		$to = 'example@chartbooking.com';
 	}
 
 	require_once ROOT.'lib/Swift-4.1.7/swift_required.php';
@@ -202,8 +226,8 @@ function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 	        		theme_advanced_buttons3 : "",
 	        		theme_advanced_buttons4 : "",';
 	} else {*/
-		$toolbar = 'theme_advanced_buttons1 : "undo,redo,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste",
-	        		theme_advanced_buttons2 : "tablecontrols,|,hr,charmap,|,outdent,indent,|,insertdate,inserttime,|,preview,fullscreen,code",
+		$toolbar = 'theme_advanced_buttons1 : "undo,redo,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste,code",
+	        		theme_advanced_buttons2 : "",
 	        		theme_advanced_buttons3 : "",
 	        		theme_advanced_buttons4 : "",';
 	//}
@@ -276,6 +300,21 @@ function accessLevelToText($level)
     case 2: return $translator->{'Administrator'};
     default: return $translator->{'Exhibitor'};
   endswitch;
+}
+
+function posStatusToText($status) {
+	global $translator;
+
+	switch ($status) {
+		case 0:
+			return $translator->{'available'};
+		case 1:
+			return $translator->{'reserved'};
+		case 2:
+			return $translator->{'booked'};
+		case 3:
+			return $translator->{'preliminary booked'};
+	}
 }
 
 function getGMToffset() {

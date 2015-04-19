@@ -12,9 +12,10 @@
 					<?php if($f->get('hidden') == 1 && userIsConnectedTo($f->get('id')) || ($f->get('hidden') == 1 && userLevel() > 1) || $f->get('hidden') == 0) :?>
 						<div id="right_sidebar">
 								<div>
-									<h2><?php echo uh($translator->{'Maps'}); ?></h2>
-
-									<?php if (userLevel() > 1 && $hasRights): ?><p><a href="javascript:void(0);" class="" id="create_position"><?php echo $create_position; ?></a></p> 							<?php endif; ?>
+								
+									<?php if (userLevel() > 1 && $hasRights): ?><p><a href="javascript:void(0);" class="" id="create_position"><?php echo $create_position; ?></a></p> <?php endif; ?>
+									<?php if (userLevel() < 2): ?><img src="/images/navigate-maps.png" alt="" id="navigate-maps"/><h2><?php echo uh($translator->{'Maps'}); ?></h2><?php endif; ?>
+									
 									<select name="maps" id="map_select">
 										<?php foreach ($f->get('maps') as $map): ?>
 										<option value="<?php echo $map->get('id'); ?>"><?php echo $map->get('name'); ?></option>
@@ -31,7 +32,7 @@
 												<?php echo makeOptions($f->db, 'exhibitor_category', 0, 'fair='.$f->get('id')); ?>
 											</select>
 					
-										<p><label id="search_label" for="search_filter"><?php echo uh($translator->{'Search'}); ?></label>
+										<p><label id="search_label" for="search_filter"><?php echo uh($translator->{'Search exhibitor'}); ?></label>
 
 										<input type="text" name="search_filter" id="search_filter"/></p>
 									</div>
@@ -44,7 +45,7 @@
 			</div>
 		</div><!-- end content-->
 	</div><!-- end wrapper-->
-	<div id="footer"></div>
-	
+<!--	<div id="footer"></div>
+	<div id="maintenance-message"><?php echo uh($translator->{'Meddelande för driftinformation.'}); ?></div> -->
 </body>
 </html>

@@ -8,10 +8,16 @@ function hookUpPasswdMeter() {
 		$(this).removeClass('hasIndicator');
 		var input = $(this);
 		var meter = $('<span class="passwd_meter"/>');
-		
-		input.after(meter);
+		var help_icon = input.siblings('.helpicon_map');
+
+		if (help_icon.length > 0) {
+			help_icon.after(meter);
+		} else {
+			input.after(meter);
+		}
 		
 		meter.css({
+			paddingRight: '10px',
 			paddingLeft: '10px',
 			fontWeight: 'bold'
 		});
@@ -38,21 +44,21 @@ function hookUpPasswdMeter() {
 			}
 			
 			if (strength > 4) {
-				meter.css('color', 'green').text('Super strong');
+				meter.css('color', 'green').text(lang.passwd_superstrong);
 				$(this).css('border', 'solid 1px #00FF00')
 			} else if (strength > 3) {
-				meter.css('color', 'green').text('Strong');
+				meter.css('color', 'green').text(lang.passwd_strong);
 				$(this).css('border', 'solid 1px #00FF00')
 			} else if (strength > 2) {
-				meter.css('color', 'orange').text('Medium');
-				$(this).css('border', 'solid 1px #FF0000')
+				meter.css('color', 'orange').text(lang.passwd_medium);
+				$(this).css('border', 'solid 1px #00FF00')
 			} else {
-				meter.css('color', 'red').text('Weak');
-				$(this).css('border', 'solid 1px #FF0000')
+				meter.css('color', 'red').text(lang.passwd_weak);
+				$(this).css('border', 'solid 1px #00FF00')
 			}
 			
 			
-			if (strength > 3) {
+			if (strength > 1) {
 				$('input[type="submit"]', input.parent()).removeAttr('disabled');
 			} else {
 				$('input[type="submit"]', input.parent()).attr('disabled', 'disabled');

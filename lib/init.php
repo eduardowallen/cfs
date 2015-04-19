@@ -1,10 +1,11 @@
 <?php
+define('APP_VERSION', '1.5.0');
 
 //Display errors in dev mode
 function setReporting() {
 	if (DEV == true) {
 		error_reporting(E_ALL);
-		ini_set('display_errors','false');
+		ini_set('display_errors','true');
 	} else {
 		error_reporting(0);
 		ini_set('display_errors','false');
@@ -62,6 +63,29 @@ function callHook() {
 		}
 	}
 
+	// Make sure that signed in users can't use the system without terms approval!
+
+	if (isset($_SESSION['user_id'])) {
+/*		$me = new User;
+		$me->load($_SESSION['user_id'], 'id');
+		if ($me->get('last_login') != 0) {*/
+
+/*		if (!isset($_SESSION['user_terms_approved'])) {
+			header('Location: ' . BASE_URL . 'user/logout');
+			exit;
+		}*/
+
+		if (!isset($_SESSION['user_terms_approved'])) {
+			$url = $urlArray[0] . '/' . $action;
+			// Whitelist URLs that can be accessed without approved terms
+			if (!in_array($url, array('user/terms', 'translate/language', 'user/confirm/*/*'))) {
+				header('Location: ' . BASE_URL . 'user/terms?next=' . $url);
+				exit;
+			}
+		}
+	}
+//}
+
 	$dispatch = new $controller($model, $controllerName, $action);
 	if (isset($countView)) {
 		$stmt = $dispatch->db->prepare("UPDATE fair SET page_views = `page_views`+1 WHERE url = ?");
@@ -70,9 +94,10 @@ function callHook() {
 
 	if (method_exists($controller, $action)) {
 		call_user_func_array(array($dispatch, $action), array_slice($urlArray, 2));
+		$dispatch->render();
 	} else {
 		//Error handling
-		throw new Exception("404");
+		throw new Exception('Action ' . $action . ' not found on ' . $controller, 404);
 	}
 }
 
@@ -111,4 +136,10 @@ if (!defined("ENT_HTML5")) {
 }
 
 setReporting();
-callHook();
+
+try {
+	callHook();
+} catch (Exception $ex) {
+
+}
+?>

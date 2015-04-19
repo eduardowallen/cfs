@@ -5,7 +5,10 @@ class FairMap extends Model {
 	protected $image;
 	protected $large_image;
 	protected $positions = array();
-	
+
+	public $can_move_up = false;
+	public $can_move_down = false;
+
 	public function load($key, $by) {
 		
 		parent::load($key, $by);

@@ -41,24 +41,38 @@ class User extends Model {
 		$this->set('password_changed', time());
 	}
 
-	public function getPreliminaries($id=null) {
+	public function getMyPreliminaries($id=null) {
 		$id = ($id != null) ? $id : $this->id ;
-		$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE user = ?");
+		$stmt = $this->db->prepare("SELECT * FROM preliminary_booking LEFT JOIN fair_map_position AS pos ON preliminary_booking.position = pos.id WHERE user = ? AND pos.status = 0");
 		$stmt->execute(array($id));
-		$res = $stmt->fetchAll();
+		$res = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$prels = array();
 		if (count($res) > 0) {
 			foreach ($res as $r) {
 				$category_ids = explode("|", $r["categories"]);
 				//Get categories for prel booking
+				$r["category_list"] = array();
 				foreach ($category_ids as $catid) {
 					$stmt = $this->db->prepare("SELECT * FROM exhibitor_category WHERE id = ?");
 					$stmt->execute(array($catid));
 					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 					if ($result > 0) {
-						$r["category_list"] = array();
 						foreach ($result as $row) {
 							$r["category_list"][] = $row['name'];
+						}
+					}
+				}
+
+				$option_ids = explode("|", $r["options"]);
+				//Get options for prel booking
+				$r["option_list"] = array();
+				foreach ($option_ids as $optid) {
+					$stmt = $this->db->prepare("SELECT * FROM fair_extra_option WHERE `id` = ?");
+					$stmt->execute(array($optid));
+					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					if ($result > 0) {
+						foreach ($result as $row) {
+							$r["option_list"][] = $row['text'];
 						}
 					}
 				}
@@ -68,6 +82,52 @@ class User extends Model {
 				$prels[] = $r;
 			}
 		}
+
+		return $prels;
+	}
+	
+	public function getPreliminaries($id=null) {
+		$id = ($id != null) ? $id : $this->id ;
+		$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE user = ?");
+		$stmt->execute(array($id));
+		$res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$prels = array();
+		if (count($res) > 0) {
+			foreach ($res as $r) {
+				$category_ids = explode("|", $r["categories"]);
+				//Get categories for prel booking
+				$r["category_list"] = array();
+				foreach ($category_ids as $catid) {
+					$stmt = $this->db->prepare("SELECT * FROM exhibitor_category WHERE id = ?");
+					$stmt->execute(array($catid));
+					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					if ($result > 0) {
+						foreach ($result as $row) {
+							$r["category_list"][] = $row['name'];
+						}
+					}
+				}
+
+				$option_ids = explode("|", $r["options"]);
+				//Get options for prel booking
+				$r["option_list"] = array();
+				foreach ($option_ids as $optid) {
+					$stmt = $this->db->prepare("SELECT * FROM fair_extra_option WHERE `id` = ?");
+					$stmt->execute(array($optid));
+					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					if ($result > 0) {
+						foreach ($result as $row) {
+							$r["option_list"][] = $row['text'];
+						}
+					}
+				}
+				$r["presentation"] = $this->get("presentation");
+				$r["website"] = $this->get("website");
+				$r["company"] = $this->get("company");
+				$prels[] = $r;
+			}
+		}
+
 		return $prels;
 	}
 
@@ -77,20 +137,25 @@ class User extends Model {
 			$stmt = $this->db->prepare("SELECT id FROM user WHERE `alias` = ? LIMIT 0,1");
 			$stmt->execute(array($user));
 		} else {*/
-			$stmt = $this->db->prepare("SELECT id FROM user WHERE `alias` = ? AND password = ? AND locked = ? LIMIT 0,1");
-			$stmt->execute(array($user, $this->bCrypt($pass, $user), 0));
+		$stmt = $this->db->prepare("SELECT `id`, `alias`, `password` FROM `user` WHERE `alias` = ? AND `locked` = 0 LIMIT 0, 1");
+		$stmt->execute(array($user));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+			//$stmt = $this->db->prepare("SELECT id FROM user WHERE `alias` = ? AND password = ? AND locked = ? LIMIT 0,1");
+			//$stmt->execute(array($user, $this->bCrypt($pass, $user), 0));
 		//}
-		$res = $stmt->fetch();
-		if ($res > 0) {
-			$this->load($res['id'], 'id');
-			$this->set('last_login', time());
-			$this->set('total_logins', $this->get('total_logins') + 1);
-			$this->save();
-			$this->load($res['id'], 'id');
-			return true;
-		} else {
-			return false;
+		if (!empty($res)) {
+			if ($res["password"] === $this->bCrypt($pass, $res["alias"])) {
+				$this->load($res['id'], 'id');
+				$this->set('last_login', time());
+				$this->set('total_logins', $this->get('total_logins') + 1);
+				$this->save();
+				$this->load($res['id'], 'id');
+
+				return true;
+			}
 		}
+
+		return false;
 	}
 
 	public function emailExists($email = '') {
@@ -177,6 +242,20 @@ class User extends Model {
 			$users[] = $user;
 		}
 		return $users;
+	}
+
+	public static function getExhibitorsForMyFairs() {
+		if (userLevel() == 3) {
+			return self::getExhibitorsForArranger($_SESSION['user_id']);
+		} else {
+			$users = array();
+
+			foreach (getMyFairs() as $fair) {
+				return self::getExhibitorsForFair($fair->id);
+			}
+
+			return $users;
+		}
 	}
 }
 

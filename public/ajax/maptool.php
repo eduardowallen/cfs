@@ -7,7 +7,10 @@ define('ROOT', implode('/', $parts).'/');
 session_start();
 require_once ROOT.'config/config.php';
 require_once ROOT.'lib/functions.php';
-require_once ROOT.'lib/classes/Translator.php';
+
+$lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
+define('LANGUAGE', $lang);
+$translator = new Translator($lang);
 
 $globalDB = new Database;
 global $globalDB;
@@ -20,9 +23,6 @@ function __autoload($className) {
 		require_once(ROOT.'application/models/'.$className.'.php');
 	}
 }
-
-$lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
-define('LANGUAGE', $lang);
 
 function userHasAccess() {
 	
@@ -46,6 +46,60 @@ if (isset($_POST['markPositionAsNotBeingEdited'])) {
 	$pos->save();
 	exit;
 	
+}
+
+if (isset($_POST['delete_copied_fairreg'])) {
+	$fair_registration = new FairRegistration();
+	$fair_registration->load($_POST['delete_copied_fairreg'], 'id');
+	if ($fair_registration->wasLoaded()) {
+		unset($_SESSION['copied_fair_registration']);
+		$fair_registration->delete();
+	}
+}
+
+if (isset($_GET['getBusyStatus'])) {
+	$pos = new FairMapPosition();
+	$pos->load($_GET['getBusyStatus'], 'id');
+
+	$map = new FairMap;
+	$map->load($pos->get('map'), 'id');
+
+	$num_prel_bookings = 0;
+
+	if (userLevel() > 1 && userCanAdminFair($map->get('fair'), $map->get('id'))) {
+		// Prepare a SQL statement for getting the number of prelimnary bookings for a position
+		$num_prel_booking_stmt = $globalDB->prepare("SELECT COUNT(*) AS cnt FROM preliminary_booking WHERE position = ?");
+
+		// Fetch any preliminary bookings for this position
+		$num_prel_booking_stmt->execute(array($pos->get('id')));
+		$num_prel_result = $num_prel_booking_stmt->fetchObject();
+
+		if (isset($num_prel_result->cnt)) {
+			$num_prel_bookings = $num_prel_result->cnt;
+		}
+
+	} else if (userLevel() == 1) {
+		// Check if this Exhibitor has preliminary booked this position
+		$user = new User;
+		$user->load($_SESSION['user_id'], 'id');
+		$preliminaries = $user->getPreliminaries();
+		foreach ($preliminaries as $p) {
+			if ($p['position'] == $pos->get('id')) {
+				++$num_prel_bookings;
+				break;
+			}
+		}
+	}
+
+	header('Content-type: application/json; charset=utf-8');
+	echo json_encode(array(
+		'position' => $pos->get('id'),
+		'being_edited' => ($pos->get('being_edited') > 0),
+		'edit_started' => $pos->get('edit_started'),
+		'statusText' => ($num_prel_bookings > 0 && $pos->get('status') == 0 ? 'applied' : $pos->getStatusText())
+	));
+
+	exit;
 }
 
 if (isset($_POST['getPreliminary'])) {
@@ -96,6 +150,7 @@ if (isset($_POST['init'])) {
 	foreach ($map->get('positions') as $pos) {
 		$ex = $pos->get('exhibitor');
 		$cats = array();
+		$opts = array();
 		$num_prel = 0;
 		$applied = 0;
 		unset($ex->password);
@@ -112,6 +167,17 @@ if (isset($_POST['init'])) {
 			}
 			
 			$ex->set('categories', $cats);
+
+			foreach ($ex->get('exhibitor_options') as $opt) {
+				$o = new FairExtraOption;
+				$o->load($opt, 'id');
+				if ($o->wasLoaded()) {
+					$o->set('option_id', $opt);
+					$opts[] = $o;
+				}
+			}
+
+			$ex->set("options", $opts);
 			
 		} else if (userLevel() > 1) {
 
@@ -131,6 +197,14 @@ if (isset($_POST['init'])) {
 		} else if (in_array($pos->get('id'), $prels)) {
 			$applied = 1;
 
+		}
+
+		// If this position has been edited for a very long time, reset the flags!
+		// Maybe the user just shut down the page or some error occured?
+		if ($pos->get('being_edited') > 0 && $pos->get('edit_started')+60*3 < time()) {
+			$pos->set('being_edited', 0);
+			$pos->set('edit_started', 0);
+			$pos->save();
 		}
 
 		$length = array_push($ret["positions"], array(
@@ -170,6 +244,7 @@ if (isset($_POST['pasteExhibitor'])) {
 	$pos = new FairMapPosition;
 	$pos->load($_POST['pasteExhibitor'], 'id');
 	$pos->set('status', 2);
+	$pos->set('expires', '0000-00-00 00:00:00');
 	$pos->save();
 
 	if (preg_match('/uid/', $_SESSION['copied_exhibitor'])) {
@@ -242,28 +317,131 @@ if (isset($_POST['bookPosition'])) {
 	$ex->set('presentation', '');
 	$ex->set('edit_time', 0);
 	$exId = $ex->save();
-	
-	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
-	foreach ($_POST['categories'] as $cat) {
-		$stmt->execute(array($exId, $cat));
+
+	$categoryNames = array();
+
+	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+		$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+		foreach ($_POST['categories'] as $cat) {
+			$category = new ExhibitorCategory();
+			$category->load($cat, "id");
+			if ($category->wasLoaded()) {
+				$categoryNames[] = $category->get("name");
+			}
+
+			$stmt->execute(array($exId, $cat));
+		}
 	}
 	
-	$pos->set('status', 2);
+	
+	$options = array();
+
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exId, $opt));
+
+			$ex_option = new FairExtraOption();
+			$ex_option->load($opt, 'id');
+			$options[] = $ex_option->get('text');			
+		}
+	}
+
+	$previous_status = $pos->get('status');
+	$status = 2;
+	$pos->set('status', $status);
+	$pos->set('expires', '0000-00-00 00:00:00');
 	$pos->save();
 
-	exit;
+	// If this is derived from a preliminary booking, then delete that booking
+	if (isset($_POST['prel_booking'])) {
+		$previous_status = 3;
 
+		$prel_booking = new PreliminaryBooking();
+		$prel_booking->load($_POST['prel_booking'], 'id');
+
+		if ($prel_booking->wasLoaded()) {
+			$prel_booking->delete();
+		}
+	}
+
+	// Send mail
+	$categories = implode(', ', $categoryNames);
+	$options = implode(', ', $options);
+	$time_now = date('d-m-Y H:i');
+	
+	$pos = new FairMapPosition();
+	$pos->load($ex->get('position'), 'id');
+
+	$fair = new Fair();
+	$fair->load($ex->get('fair'), 'id');
+	
+	$organizer = new User();
+	$organizer->load($fair->get('created_by'), 'id');
+
+	$ex_user = new User();
+	$ex_user->load($ex->get('user'), 'id');
+
+	
+	//Check mail settings and send only if setting is set
+	if ($fair->wasLoaded()) {
+		$mailSettings = json_decode($fair->get("mail_settings"));
+		if (is_array($mailSettings->bookingCreated)) {
+			$previous_status = posStatusToText($previous_status);
+			$status = posStatusToText($status);
+
+			if (in_array("0", $mailSettings->bookingCreated)) {
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+				$mail_organizer->setMailvar('previous_status', $previous_status);
+				$mail_organizer->setMailvar('status', $status);
+				$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_organizer->setMailvar("company_name", $ex_user->get("company"));
+				$mail_organizer->setMailvar("event_name", $fair->get("name"));
+				$mail_organizer->setMailVar("position_name", $pos->get("name"));
+				$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_organizer->setMailVar("position_information", $pos->get("information"));
+				$mail_organizer->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_organizer->setMailVar("exhibitor_category", $categories);
+				$mail_organizer->setMailVar('exhibitor_options', $options);
+				$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->send();
+			}
+			if (in_array("1", $mailSettings->bookingCreated)) {
+				$mail_user = new Mail($ex_user->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+				$mail_user->setMailvar('previous_status', $previous_status);
+				$mail_user->setMailvar('status', $status);
+				$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_user->setMailvar("company_name", $ex_user->get("company"));
+				$mail_user->setMailvar("event_name", $fair->get("name"));
+				$mail_user->setMailVar("position_name", $pos->get("name"));
+				$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_user->setMailVar("position_information", $pos->get("information"));
+				$mail_user->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_user->setMailVar("exhibitor_category", $categories);
+				$mail_user->setMailVar('exhibitor_options', $options);
+				$mail_user->setMailVar('arranger_message', $_POST['message']);
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->send();
+			}
+		}	
+	}
+
+	exit;
 }
+
 
 if (isset($_POST['reservePosition'])) {
 
 	if (userLevel() < 1)
 		exit;
 
-	$map = new FairMap;
+	$map = new FairMap();
 	$map->load($_POST['map'], 'id');
 
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	$pos->load($_POST['reservePosition'], 'id');
 	
 	//Delete existing exhibitor if position is booked
@@ -281,6 +459,7 @@ if (isset($_POST['reservePosition'])) {
 		$ex->set('user', $_POST['user']);
 	else
 		$ex->set('user', $_SESSION['user_id']);
+		
 	$ex->set('position', $_POST['reservePosition']);
 	$ex->set('map', $_POST['map']);
 	$ex->set('fair', $map->get('fair'));
@@ -290,15 +469,115 @@ if (isset($_POST['reservePosition'])) {
 	$ex->set('presentation', '');
 	$ex->set('edit_time', 0);
 	$exId = $ex->save();
-	
-	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
-	foreach ($_POST['categories'] as $cat) {
-		$stmt->execute(array($exId, $cat));
+
+	$categoryNames = array();
+
+	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+		$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+		foreach ($_POST['categories'] as $cat) {
+			$category = new ExhibitorCategory();
+			$category->load($cat, "id");
+			if ($category->wasLoaded()) {
+				$categoryNames[] = $category->get("name");
+			}
+
+			$stmt->execute(array($exId, $cat));
+		}
 	}
 	
-	$pos->set('status', 1);
+	
+	$options = array();	
+	
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exId, $opt));
+			
+			$ex_option = new FairExtraOption();
+			$ex_option->load($opt, 'id');
+			$options[] = $ex_option->get('text');					
+		}
+	}
+	
+	$previous_status = $pos->get('status');
+	$status = 1;
+	$pos->set('status', $status);
 	$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 	$pos->save();
+	
+	// If this is derived from a preliminary booking, then delete that booking
+	if (isset($_POST['prel_booking'])) {
+		$previous_status = 3;
+
+		$prel_booking = new PreliminaryBooking();
+		$prel_booking->load($_POST['prel_booking'], 'id');
+
+		if ($prel_booking->wasLoaded()) {
+			$prel_booking->delete();
+		}
+	}
+	
+	// Send mail
+	$categories = implode(', ', $categoryNames);
+	$options = implode(', ', $options);
+	$time_now = date('d-m-Y H:i');
+	
+	$pos = new FairMapPosition();
+	$pos->load($ex->get('position'), 'id');
+
+	$fair = new Fair();
+	$fair->load($ex->get('fair'), 'id');
+	
+	$organizer = new User();
+	$organizer->load($fair->get('created_by'), 'id');
+
+	$ex_user = new User();
+	$ex_user->load($ex->get('user'), 'id');
+
+	if ($fair->wasLoaded()) {
+		$mailSettings = json_decode($fair->get("mail_settings"));
+		if (is_array($mailSettings->reservationCreated)) {
+			$previous_status = posStatusToText($previous_status);
+			$status = posStatusToText($status);
+
+			if (in_array("0", $mailSettings->reservationCreated)) {
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+				$mail_organizer->setMailvar('previous_status', $previous_status);
+				$mail_organizer->setMailvar('status', $status);
+				$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_organizer->setMailvar("company_name", $ex_user->get("company"));
+				$mail_organizer->setMailvar("event_name", $fair->get("name"));
+				$mail_organizer->setMailVar("position_name", $pos->get("name"));
+				$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_organizer->setMailVar("position_information", $pos->get("information"));
+				$mail_organizer->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_organizer->setMailVar("exhibitor_category", $categories);
+				$mail_organizer->setMailVar('exhibitor_options', $options);
+				$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+				$mail_organizer->setMailVar('edit_time', $time_now);
+				$mail_organizer->send();
+			}
+			if (in_array("1", $mailSettings->reservationCreated)) {
+				$mail_user = new Mail($ex_user->get('email'), 'booking_' . ($previous_status > 0 ? 'approved' : 'created') . '_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+				$mail_user->setMailvar('previous_status', $previous_status);
+				$mail_user->setMailvar('status', $status);
+				$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
+				$mail_user->setMailvar("company_name", $ex_user->get("company"));
+				$mail_user->setMailvar("event_name", $fair->get("name"));
+				$mail_user->setMailVar("position_name", $pos->get("name"));
+				$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_user->setMailVar("position_information", $pos->get("information"));
+				$mail_user->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_user->setMailVar("exhibitor_category", $categories);
+				$mail_user->setMailVar('exhibitor_options', $options);
+				$mail_user->setMailVar('arranger_message', $_POST['message']);
+				$mail_user->setMailVar('edit_time', $time_now);
+				$mail_user->send();
+			}
+		}	
+	}
 
 	exit;
 
@@ -332,24 +611,46 @@ if (isset($_POST['editBooking'])) {
 	else
 		$ex->set('user', $_SESSION['user_id']);
 
-	//$ex->set('position', $_POST['editBooking']);
-	//$ex->set('map', $_POST['map']);
-	//$ex->set('fair', $map->get('fair'));
 	$ex->set('commodity', $_POST['commodity']);
 	$ex->set('arranger_message', $_POST['message']);
-	//$ex->set('category', 0);
-	//$ex->set('presentation', '');
 	
 	$exId = $ex->save();
-	
+	// Remove old categories for this booking
 	$map->db->query("DELETE FROM exhibitor_category_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
 	
-	$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
-	foreach ($_POST['categories'] as $cat) {
-		$stmt->execute(array($exId, $cat));
+	// Set new categories for this booking
+	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+		$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+		foreach ($_POST['categories'] as $cat) {
+			$stmt->execute(array($exId, $cat));
+		}
 	}
+
+	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
+
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exId, $opt));
+		}
+	}
+	// Remove old options for this booking	
+	$map->db->query("DELETE FROM exhibitor_option_rel WHERE exhibitor = '".intval($_POST['exhibitor_id'])."'");
 	
-	//$pos->set('status', 1);
+	// Set new options for this booking
+	$options = array();
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($ex->get('exhibitor_id'), $opt));
+						
+			$ex_option = new FairExtraOption();
+			$ex_option->load($opt, 'id');
+			$options[] = $ex_option->get('text');			
+		}
+	}
+
+	// If this is a reservation (status is 1), then also set the expiry date
 	if (isset($_POST['expires'])) {
 		$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 		$pos->save();
@@ -367,35 +668,64 @@ if (isset($_POST['editBooking'])) {
 	}
 
 	$categories = implode(', ', $categories);
+	$options = implode(', ', $options);				
 	$time_now = date('d-m-Y H:i');
 
-	$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_edited_confirm');
-	$mail_organizer->setMailVar('position_name', $pos->get('name'));
-	$mail_organizer->setMailVar('position_information', $pos->get('information'));
-	$mail_organizer->setMailVar('edit_time', $time_now);
-	$mail_organizer->setMailVar('arranger_message', $_POST['message']);
-	$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity']);
-	$mail_organizer->setMailVar('exhibitor_category', $categories);
+	$mailSetting = $mail_type . "Edited";
 
-	if ($mail_type == 'reservation') {
-		$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+	//Check mail settings and send only if setting is set
+	if ($fair->wasLoaded()) {
+		$mailSettings = json_decode($fair->get("mail_settings"));
+		if (is_array($mailSettings->$mailSetting)) {
+			$status = posStatusToText($pos->get('status'));
+
+			if (in_array("0", $mailSettings->$mailSetting)) {
+				$mail_organizer = new Mail($organizer->get('email'), 'booking_edited_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+				$mail_organizer->setMailvar('status', $status);
+				$mail_organizer->setMailvar("exhibitor_name", $ex->get("name"));
+				$mail_organizer->setMailvar("company_name", $ex->get("company"));
+				$mail_organizer->setMailvar("event_name", $fair->get("name"));
+				$mail_organizer->setMailVar("position_name", $pos->get("name"));
+				$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_organizer->setMailVar("position_information", $pos->get("information"));
+				$mail_organizer->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_organizer->setMailVar("exhibitor_category", $categories);
+				$mail_organizer->setMailVar('exhibitor_options', $options);
+				$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+				$mail_organizer->setMailVar('edit_time', $time_now);
+
+				if ($mail_type == 'reservation') {
+					$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+				}
+
+				$mail_organizer->send();
+			}
+
+			if (in_array("1", $mailSettings->$mailSetting)) {
+				$mail_user = new Mail($ex->get('email'), 'booking_edited_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+				$mail_user->setMailvar('status', $status);
+				$mail_user->setMailvar("exhibitor_name", $ex->get("name"));
+				$mail_user->setMailvar("company_name", $ex->get("company"));
+				$mail_user->setMailvar("event_name", $fair->get("name"));
+				$mail_user->setMailVar("position_name", $pos->get("name"));
+				$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+				$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
+				$mail_user->setMailVar("position_information", $pos->get("information"));
+				$mail_user->setMailVar("exhibitor_commodity", $_POST['commodity']);
+				$mail_user->setMailVar("exhibitor_category", $categories);
+				$mail_user->setMailVar('exhibitor_options', $options);
+				$mail_user->setMailVar('arranger_message', $_POST['message']);
+				$mail_user->setMailVar('edit_time', $time_now);
+
+				if ($mail_type == 'reservation') {
+					$mail_user->setMailVar('date_expires', $_POST['expires']);
+				}
+
+				$mail_user->send();
+			}
+		}
 	}
-
-	$mail_organizer->send();
-
-	$mail_user = new Mail($ex->get('email'), $mail_type . '_edited_receipt');
-	$mail_user->setMailVar('position_name', $pos->get('name'));
-	$mail_user->setMailVar('position_information', $pos->get('information'));
-	$mail_user->setMailVar('edit_time', $time_now);
-	$mail_user->setMailVar('arranger_message', $_POST['message']);
-	$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity']);
-	$mail_user->setMailVar('exhibitor_category', $categories);
-
-	if ($mail_type == 'reservation') {
-		$mail_user->setMailVar('date_expires', $_POST['expires']);
-	}
-
-	$mail_user->send();
 
 	exit;
 	
@@ -420,11 +750,22 @@ if (isset($_POST['preliminary'])) {
 				$position = new FairMapPosition();
 				$position->load($prel, 'id');
 
+				$categories = '';
+				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+					$categories = implode('|', $_POST['categories'][$index]);
+				}
+
+				$options = '';
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+					$options = implode("|", $_POST["options"][$index]);
+				}
+
 				$pb = new PreliminaryBooking();
 				$pb->set('user', $user->get('id'));
 				$pb->set('fair', $fair->get('id'));
 				$pb->set('position', $position->get('id'));
-				$pb->set('categories', implode('|', $_POST['categories'][$index]));
+				$pb->set('categories', $categories);
+				$pb->set("options", $options);
 				$pb->set('commodity', $_POST['commodity'][$index]);
 				$pb->set('arranger_message', $_POST['message'][$index]);
 				$pb->set('booking_time', time());
@@ -433,36 +774,74 @@ if (isset($_POST['preliminary'])) {
 				$time_now = date('d-m-Y H:i');
 
 				$categories = array();
-				foreach ($_POST['categories'][$index] as $category_id) {
-					$ex_category = new ExhibitorCategory();
-					$ex_category->load($category_id, 'id');
-					$categories[] = $ex_category->get('name');
+				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+					foreach ($_POST['categories'][$index] as $category_id) {
+						$ex_category = new ExhibitorCategory();
+						$ex_category->load($category_id, 'id');
+						$categories[] = $ex_category->get('name');
+					}
 				}
 
 				$categories = implode(', ', $categories);
 
-				$mail_organizer = new Mail($organizer->get('email'), 'new_preliminary_booking');
-				$mail_organizer->setMailVar('position_name', $position->get('name'));
-				$mail_organizer->setMailVar('position_information', $position->get('information'));
-				$mail_organizer->setMailVar('booking_time', $time_now);
-				$mail_organizer->setMailVar('arranger_message', $_POST['message'][$index]);
-				$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
-				$mail_organizer->setMailVar('exhibitor_category', $categories);
-				$mail_organizer->setMailVar('exhibitor_name', $user->get('name'));
-				$mail_organizer->send();
+				$options = array();
+				if (isset($_POST['options']) && is_array($_POST['options'])) {
+					foreach ($_POST['options'][$index] as $option_id) {
+						$ex_option = new FairExtraOption();
+						$ex_option->load($option_id, 'id');
+						$options[] = $ex_option->get('text');
+					}
+				}
 
-				$mail_user = new Mail($user->get('email'), 'receipt_preliminary_booking');
-				$mail_user->setMailVar('position_name', $position->get('name'));
-				$mail_user->setMailVar('position_information', $position->get('information'));
-				$mail_user->setMailVar('booking_time', $time_now);
-				$mail_user->setMailVar('arranger_message', $_POST['message'][$index]);
-				$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
-				$mail_user->setMailVar('exhibitor_category', $categories);
-				$mail_user->setMailVar('exhibitor_name', $user->get('name'));
-				$mail_user->send();
+				$options = implode(', ', $options);
+				$status = posStatusToText(3);
+
+		
+	//Check mail settings and send only if setting is set
+			if ($fair->wasLoaded()) {
+				$mailSettings = json_decode($fair->get("mail_settings"));
+				if (is_array($mailSettings->recievePreliminaryBooking)) {
+					if (in_array("0", $mailSettings->recievePreliminaryBooking)) {
+						$mail_organizer = new Mail($organizer->get('email'), 'preliminary_created_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+						$mail_organizer->setMailvar('status', $status);
+						$mail_organizer->setMailVar('url', BASE_URL . $fair->get('url'));
+						$mail_organizer->setMailVar('event_name', $fair->get('name'));
+						$mail_organizer->setMailvar("company_name", $user->get("company"));
+						$mail_organizer->setMailVar('position_name', $position->get('name'));
+						$mail_organizer->setMailVar('position_information', $position->get('information'));
+						$mail_organizer->setMailVar('booking_time', $time_now);
+						$mail_organizer->setMailVar('arranger_message', $_POST['message'][$index]);
+						$mail_organizer->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
+						$mail_organizer->setMailVar('exhibitor_category', $categories);
+						$mail_organizer->setMailVar('exhibitor_options', $options);
+						$mail_organizer->setMailVar('exhibitor_name', $user->get('name'));
+						$mail_organizer->setMailVar('edit_time', $time_now);
+						$mail_organizer->send();
+					}
+				}
+
+					
+						$mail_user = new Mail($user->get('email'), 'preliminary_created_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+						$mail_user->setMailvar('status', $status);
+						$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
+						$mail_user->setMailVar('event_name', $fair->get('name'));
+						$mail_user->setMailvar("company_name", $user->get("company"));
+						$mail_user->setMailVar('position_name', $position->get('name'));
+						$mail_user->setMailVar('position_information', $position->get('information'));
+						$mail_user->setMailVar('booking_time', $time_now);
+						$mail_user->setMailVar('arranger_message', $_POST['message'][$index]);
+						$mail_user->setMailVar('exhibitor_commodity', $_POST['commodity'][$index]);
+						$mail_user->setMailVar('exhibitor_category', $categories);
+						$mail_user->setMailVar('exhibitor_options', $options);
+						$mail_user->setMailVar('exhibitor_name', $user->get('name'));
+						$mail_user->setMailVar('edit_time', $time_now);
+						$mail_user->send();
+					
+				
 			}
 		}
 	}
+}
 
 	exit;
 }
@@ -485,14 +864,83 @@ if (isset($_POST['cancelBooking'])) {
 
 	if (userLevel() > 1) {
 
-		$pos = new FairMapPosition($db);
+		$pos = new FairMapPosition();
 		$pos->load($_POST['cancelBooking'], 'id');
+
+		$previous_status = $pos->get('status');
 		$pos->set('status', 0);
 		$pos->save();
 
-		$stmt = $pos->db->prepare("DELETE FROM exhibitor WHERE position = ?");
-		$stmt->execute(array($_POST['cancelBooking']));
+		$exhibitor = new Exhibitor();
+		$exhibitor->load($_POST['cancelBooking'], 'position');
+		$exhibitor->delete();
 
+		//Get mail settings for fair
+		$fairMap = new FairMap();
+		$fairMap->load($pos->get("map"), "id");
+
+		$fair = new Fair();
+		$fair->load($fairMap->get('fair'), 'id');
+
+		$organizer = new User();
+		$organizer->load($fair->get('created_by'), 'id');
+		
+		$me = new User();
+		$me->load($_SESSION['user_id'], 'id');
+
+		$time_now = date('d-m-Y H:i');
+		
+		if ($fair->wasLoaded()) {
+			//Check mail settings and send only if setting is set
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (is_array($mailSettings->bookingCancelled)) {
+				$previous_status = posStatusToText($previous_status);
+				
+
+				if (in_array("0", $mailSettings->bookingCancelled)) {
+					$mail_organizer = new Mail($organizer->get('email'), 'booking_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+					$mail_organizer->setMailVar('url', BASE_URL . $fair->get('url'));
+					$mail_organizer->setMailVar('previous_status', $previous_status);
+					$mail_organizer->setMailvar("event_name", $fair->get("name"));
+					$mail_organizer->setMailVar('position_name', $pos->get('name'));
+					$mail_organizer->setMailVar('exhibitor_name', $exhibitor->get('name'));
+					$mail_organizer->setMailvar("company_name", $exhibitor->get("company"));
+					$mail_organizer->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail_organizer->setMailVar('cancelled_name', $me->get('name'));
+					$mail_organizer->setMailVar('edit_time', date('d-m-Y H:i'));
+					$mail_organizer->setMailVar('comment', $_POST['comment']);
+					$mail_organizer->send();
+				}
+				if (in_array("1", $mailSettings->bookingCancelled)) {
+					$mail_user = new Mail($exhibitor->get('email'), 'booking_cancelled_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+					$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
+					$mail_user->setMailVar('previous_status', $previous_status);
+					$mail_user->setMailvar("event_name", $fair->get("name"));
+					$mail_user->setMailVar('position_name', $pos->get('name'));
+					$mail_user->setMailvar("company_name", $exhibitor->get("company"));
+					$mail_user->setMailVar('exhibitor_name', $exhibitor->get('name'));
+					$mail_user->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail_user->setMailVar('cancelled_name', $me->get('name'));
+					$mail_user->setMailVar('edit_time', date('d-m-Y H:i'));
+					$mail_user->setMailVar('comment', $_POST['comment']);
+					$mail_user->send();
+				}
+				if (in_array("2", $mailSettings->bookingCancelled)) {
+					$mail_currentuser = new Mail($me->get('email'), 'booking_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
+					$mail_currentuser->setMailVar('url', BASE_URL . $fair->get('url'));
+					$mail_currentuser->setMailVar('previous_status', $previous_status);
+					$mail_currentuser->setMailvar("event_name", $fair->get("name"));
+					$mail_currentuser->setMailVar('position_name', $pos->get('name'));
+					$mail_currentuser->setMailVar('exhibitor_name', $exhibitor->get('name'));
+					$mail_currentuser->setMailvar("company_name", $exhibitor->get("company"));
+					$mail_currentuser->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail_currentuser->setMailVar('cancelled_name', $me->get('name'));
+					$mail_currentuser->setMailVar('edit_time', date('d-m-Y H:i'));
+					$mail_currentuser->setMailVar('comment', $_POST['comment']);
+					$mail_currentuser->send();
+				}				
+			}
+		}
 	}
 
 	exit;
@@ -555,8 +1003,13 @@ if (isset($_POST['emailExists'])) {
 	exit;
 }
 
+if (isset($_POST["aliasExists"])) {
+	$user = new User();
+	$user->load($_POST["alias"], "alias");
+	echo json_encode(array("aliasExists" => $user->wasLoaded()));
+}
+
 if (isset($_POST['connectToFair'])) {
-	$trans = new Translator((isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng');
 	$response = array();
 	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
 		$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`, `connected_time`) VALUES (?,?,?)";
@@ -564,42 +1017,13 @@ if (isset($_POST['connectToFair'])) {
 		$stmt->execute(array($_POST['fairId'], $_SESSION['user_id'], time()));
 		$fair = new Fair;
 		$fair->load($_POST['fairId'], 'id');
-		$response['message'] = $trans->{'Connected to fair'}.' '.$fair->get('name');
+		$response['message'] = $translator->{'Connected to fair'}.' '.$fair->get('name');
 		$response['success'] = true;
 	} else {
-		$response['message'] = $trans->{'Unable to connect to fair.'};
+		$response['message'] = $translator->{'Unable to connect to fair.'};
 		$response['success'] = false;
 	}
 	echo json_encode($response);
-}
-
-if(isset($_POST['makeComment'])){
-	session_start();
-	$comment = new Comment;
-	$me = new User;
-	$me->load($_SESSION['user_id'], 'id');
-	$author = $me->get('name');
-	$dt = $comment->set($_POST['fair'], $_POST['exhibitor'], $author, date('Y-m-d H:i:s'), $_POST['text'], $_POST['position']);
-	echo $dt;
-}
-
-if(isset($_POST['getComment'])){
-	$comment = new Comment;
-	$data = $comment->load($_POST['fair'], $_POST['exhibitor'], $_POST['position']);?>
-	<ul>
-	<?php foreach($data as $comments): ?>
-		<li>
-			<div class="comment">
-			<ul>
-				<li><?php echo $comments['author']?> (<?php echo $comments['date']?>) :</li>
-			</ul>
-			<ul>
-				<li><?php echo $comments['comment']?></li>
-			</ul>
-		</li>
-	<?php endforeach; ?>
-	</ul>
-	<?php
 }
 
 if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
@@ -614,7 +1038,7 @@ if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 
 		if ($fair_map->wasLoaded() && userCanAdminFair($fair_map->get('fair'), $fair_map->get('id'))) {
 
-			$stmt = $globalDB->prepare("SELECT id, user, categories, position, commodity, arranger_message, booking_time FROM preliminary_booking WHERE position = ?");
+			$stmt = $globalDB->prepare("SELECT id, user, categories, options, position, commodity, arranger_message, booking_time FROM preliminary_booking WHERE position = ?");
 			$stmt->execute(array($position->get('id')));
 			$result = array();
 
@@ -626,9 +1050,9 @@ if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 				$user = new User();
 				$user->load($prel_booking->user, 'id');
 				$prel_booking->company = $user->get('company');
-				$prel_booking->booking_time = date('d-m-Y H:i', $prel_booking->booking_time) . ' UTC';
+				$prel_booking->booking_time = date('d-m-Y H:i', $prel_booking->booking_time) . ' GMT+1';
 				$prel_booking->standSpace = $position;
-				$prel_booking->denyUrl = BASE_URL . '/administrator/deleteBooking/' . $prel_booking->id;
+				$prel_booking->denyUrl = BASE_URL . 'administrator/deleteBooking/' . $prel_booking->id . "/" . $_GET["position"];
 				$prel_booking->denyImgUrl = BASE_URL . 'images/icons/delete.png';
 				$prel_booking->baseUrl = BASE_URL;
 				$result[] = $prel_booking;
@@ -642,36 +1066,140 @@ if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 
 if (isset($_POST['approve_preliminary'])) {
 
+	if (userLevel() < 1)
+		exit;
+
+	$map = new FairMap();
+	$map->load($_POST['map'], 'id');
+	
 	$prel_booking = new PreliminaryBooking();
 	$prel_booking->load($_POST['approve_preliminary'], 'id');
-
+	
 	if ($prel_booking->wasLoaded()) {
 
-		$position = new FairMapPosition();
-		$position->load($prel_booking->get('position'), 'id');
+		$pos = new FairMapPosition();
+		$pos->load($prel_booking->get('position'), 'id');
 
-		$exhibitor = new Exhibitor();
-		$exhibitor->set('user', $_POST['user']);
-		$exhibitor->set('fair', $prel_booking->get('fair'));
-		$exhibitor->set('position', $position->get('id'));
-		$exhibitor->set('category', 0);
-		$exhibitor->set('presentation', '');
-		$exhibitor->set('commodity', $_POST['commodity']);
-		$exhibitor->set('arranger_message', $_POST['message']);
-		$exhibitor->set('edit_time', time());
-		$exhibitor_id = $exhibitor->save();
-		
-		$stmt = $position->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
+		$ex = new Exhibitor();
+		$ex->set('user', $_POST['user']);
+		$ex->set('position', $pos->get('id'));
+		$ex->set('map', $_POST['map']);
+		$ex->set('fair', $prel_booking->get('fair'));		
+		$ex->set('commodity', $_POST['commodity']);
+		$ex->set('arranger_message', $_POST['message']);
+		$ex->set('category', 0);
+		$ex->set('presentation', '');
+		$ex->set('edit_time', time());
+		$ex->set('booking_time', time());
+		$exId = $ex->save();
+
+	$categoryNames = array();
+
+	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+		$stmt = $pos->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
 		foreach ($_POST['categories'] as $cat) {
-			$stmt->execute(array($exhibitor_id, $cat));
+			$category = new ExhibitorCategory();
+			$category->load($cat, "id");
+			if ($category->wasLoaded()) {
+				$categoryNames[] = $category->get("name");
+			}
+
+			$stmt->execute(array($exId, $cat));
 		}
+	}
+	
+	
+	$options = array();	
+	
+	if (isset($_POST['options']) && is_array($_POST['options'])) {
+		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+		foreach ($_POST['options'] as $opt) {
+			$stmt->execute(array($exId, $opt));
+			
+			$ex_option = new FairExtraOption();
+			$ex_option->load($opt, 'id');
+			$options[] = $ex_option->get('text');					
+		}
+	}
+
+		$categories = implode(', ', $categoryNames);
+		$options = implode(', ', $options);
+		$time_now = date('d-m-Y H:i');
 		
-		$position->set('status', 1);
-		$position->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
-		$position->save();
+		$previous_status = 3;
+		$status = 1;
+		$pos->set('status', $status);
+		$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+		$pos->save();
 
 		$prel_booking->delete();
+
+		$fair = new Fair();
+		$fair->load($prel_booking->get('fair'), 'id');
+
+		$organizer = new User();
+		$organizer->load($fair->get('created_by'), 'id');
+
+		$me = new User();
+		$me->load($_SESSION['user_id'], 'id');
+
+		$ex_user = new User();
+		$ex_user->load($ex->get('user'), 'id');
+		
+		//Check mail settings and send only if setting is set
+		if ($fair->wasLoaded()) {
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (is_array($mailSettings->acceptPreliminaryBooking)) {
+				$previous_status = posStatusToText($previous_status);
+				$status = posStatusToText($status);
+
+				if (in_array("0", $mailSettings->acceptPreliminaryBooking)) {
+					$mail_organizer = new Mail($organizer->get('email'), 'preliminary_approved_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+					$mail_organizer->setMailVar('previous_status', $previous_status);
+					$mail_organizer->setMailVar('status', $status);
+					$mail_organizer->setMailvar("exhibitor_name", $ex_user->get("name"));
+					$mail_organizer->setMailvar("company_name", $ex_user->get("company"));
+					$mail_organizer->setMailvar("event_name", $fair->get("name"));
+					$mail_organizer->setMailVar("position_name", $pos->get("name"));
+					$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+					$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
+					$mail_organizer->setMailVar("position_information", $pos->get("information"));
+					$mail_organizer->setMailVar("exhibitor_commodity", $_POST['commodity']);
+					$mail_organizer->setMailVar("exhibitor_category", $categories);
+					$mail_organizer->setMailVar('exhibitor_options', $options);
+					$mail_organizer->setMailVar('arranger_message', $_POST['message']);
+					$mail_organizer->setMailVar('edit_time', $time_now);
+					$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+					$mail_organizer->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail_organizer->setMailVar('creator_name', $me->get('name'));
+					$mail_organizer->send();
+				}
+
+				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
+					$mail_user = new Mail($ex_user->get('email'), 'preliminary_approved_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+					$mail_user->setMailVar('previous_status', $previous_status);
+					$mail_user->setMailVar('status', $status);
+					$mail_user->setMailvar("exhibitor_name", $ex_user->get("name"));
+					$mail_user->setMailvar("company_name", $ex_user->get("company"));
+					$mail_user->setMailvar("event_name", $fair->get("name"));
+					$mail_user->setMailVar("position_name", $pos->get("name"));
+					$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($ex->get("booking_time"))));
+					$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
+					$mail_user->setMailVar("position_information", $pos->get("information"));
+					$mail_user->setMailVar("exhibitor_commodity", $_POST['commodity']);
+					$mail_user->setMailVar("exhibitor_category", $categories);
+					$mail_user->setMailVar('exhibitor_options', $options);
+					$mail_user->setMailVar('arranger_message', $_POST['message']);
+					$mail_user->setMailVar('edit_time', $time_now);
+					$mail_user->setMailVar('date_expires', $_POST['expires']);
+					$mail_user->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
+					$mail_user->setMailVar('creator_name', $me->get('name'));
+					$mail_user->send();
+				}
+			}
+		}
 	}
+	exit;
 }
 
 if (isset($_POST["getGridSettings"])) {

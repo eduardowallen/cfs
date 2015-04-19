@@ -41,8 +41,8 @@
 				<td class="center"><?php echo $admin['fair_count']; ?></td>
 				<td class="center"><?php if ($admin['last_login']) { echo date('d-m-Y H:i:s', $admin['last_login']); } ?></td>
 				<td class="center"><?php echo ($admin['locked']) ? $locked_yes : $locked_no; ?></td>
-				<td class="center"><a href="administrator/edit/<?php echo $admin['id']; ?>"><img src="images/icons/pencil.png" alt="" title="Edit"/></a></td>
-				<td class="center"><a href="administrator/delete/<?php echo $admin['id']; ?>/no/all"><img src="images/icons/delete.png" alt=""/></a></td>
+				<td class="center"><a href="administrator/edit/<?php echo $admin['id']; ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+				<td class="center"><a href="administrator/delete/<?php echo $admin['id']; ?>/no/all"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>
