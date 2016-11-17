@@ -232,12 +232,8 @@ class Fair extends Model {
 		if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
 			unlink(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png');
 		}
-		
-		Alias::remove($this->get("url"));
-		Alias::commit();
 
 		parent::delete();
-
 	}
 
 	public function get($property) {

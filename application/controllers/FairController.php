@@ -589,7 +589,9 @@ class FairController extends Controller {
 					chmod($target_dir, 0775);
 					unlink(ROOT.'public/images/tmp/'.$now.'.png');
 				}
-				
+
+				$this->updateAliases();
+
 				if ($id == 'new') {
 					$userLevel = userLevel();
 
@@ -600,15 +602,6 @@ class FairController extends Controller {
 						$user->load($_POST['arranger'], 'id');
 					} else if ($userLevel === "3") {
 						$user->load($_SESSION['user_id'], 'id');
-					}
-
-					/* Alias */
-					$organizermail = $_POST['contact_email'];
-					$fairmail = $this->Fair->get('name');
-
-					if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
-						Alias::addNew($fairmail, array($organizermail));
-						Alias::commit();
 					}
 
 					if ($userLevel === "3") {
@@ -624,16 +617,6 @@ class FairController extends Controller {
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
 				} else {
-
-					/* Alias */
-					$organizermail = $_POST['contact_email'];
-					$fairmail = $this->Fair->get('name');
-
-					if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
-						Alias::edit($fairmail, array($organizermail));
-						Alias::commit();
-					}
-
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
 				}
@@ -960,19 +943,13 @@ class FairController extends Controller {
 
 				$userLevel = userLevel();
 
-				/* Alias */					
 				if ($userLevel === "4") {
 					$user->load($this->Fair->get('created_by'), 'id');
 				} else if ($userLevel === "3") {
 					$user->load($_SESSION['user_id'], 'id');
 				}
 
-				$organizermail = $user->get('email');
-				$fairmail = $_POST['name'];
-
-				if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
-					Alias::addNew($fairmail, array($organizermail));
-				}
+				$this->updateAliases();
 
 			    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
 				$mail->setMailVar('url', BASE_URL.$fair_clone->get('url'));
@@ -1117,6 +1094,9 @@ class FairController extends Controller {
 				toLogin();
 			} else {
 				$this->Fair->delete();
+
+				$this->updateAliases();
+
 				header("Location: ".BASE_URL."fair/overview");
 				exit;
 			}
@@ -1211,18 +1191,20 @@ class FairController extends Controller {
 			$this->setNoTranslate("id", $id);
 		}
 	}
-	public function updateAliases() {
-		$result = $this->Fair->db->query("SELECT `fair`.`url`, `user`.`email` FROM `fair` INNER JOIN `user` ON `fair`.`created_by` = `user`.`id` ");
 
-		Alias::clear();
+	public function updateAliases() {
+		$result = $this->Fair->db->query("SELECT `fair`.`url`, `user`.`email`
+			FROM `fair`
+			INNER JOIN `user` ON (`user`.`id` = `fair`.`created_by`)
+			ORDER BY `fair`.`url` ASC
+			");
 
 		while (($fair = $result->fetch(PDO::FETCH_ASSOC))) {
-			Alias::addNew($fair["url"], array($fair["email"]));
+			Alias::add($fair["url"], array($fair["email"]));
 		}
 
 		Alias::commit();
 	}
-
 
 	public function exportToRainDance($id) {
 
