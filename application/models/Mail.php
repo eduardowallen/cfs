@@ -1,58 +1,83 @@
 <?php
-// Mail model is used to generate and send mails using editable mail templates.
-class Mail extends Model {
-	
-  protected $to;
-  protected $from;
-  protected $fromName;
-  protected $subject;
-  protected $content;
+/**
+ * Send mail using editable mail templates.
+ */
+class Mail {
+	protected $db;
+	protected $mail;
+
+	protected $subject;
+	protected $content;
 	protected $variables = array();
-  
-  function __construct($to='', $mailtemplate='', $from='', $fromName = "")
-  {
-    parent::__construct();
-    if($mailtemplate=='')
-      return;
-    
-    $this->to = $to;
-    $this->from = $from;
-    $this->fromName = $fromName;
-    
-    // Attempts to get template according to currently selected language, if template exists for that language
-    //  otherwise gets template for the default language
-    $stmt = $this->db->prepare("SELECT * FROM mail_content LEFT JOIN language ON mail_content.language = language.id WHERE mail = ? AND (language = ? OR `default` = 1) ORDER BY `default` ASC LIMIT 1");
-    $stmt->execute(array($mailtemplate, LANGUAGE));
-    $mailContent = $stmt->fetch(PDO::FETCH_ASSOC);
-    $this->subject = $mailContent['subject'];
-    $this->content = $mailContent['content'];
-  }
-	
-	//Setter
-	function setMailVar($name,$value) {
+
+	/**
+	 * Skicka ett mail med template till $to
+	 * @param array  $recipients   [ 'email' => 'name', ...]
+	 * @param string $mailtemplate
+	 * @param array  $from         [ 'email' => 'name' ]
+	 */
+	function __construct(array $recipients, $mailtemplate, array $from = null) {
+		global $globalDB;
+		$this->db = $globalDB;
+
+		$this->mail = new libMail();
+
+		if($from)
+			$this->mail->setFromArray($from);
+
+		$this->mail->setRecipients($recipients);
+
+		// Attempts to get template according to currently selected language.
+		// If no template exists for the selected language it gets one for the default language.
+		$stmt = $this->db->prepare("SELECT * FROM `mail_content`
+			LEFT JOIN `language` ON `mail_content`.`language` = `language`.`id`
+			WHERE `mail` = ?
+			AND (
+				`language` = ?
+				OR `default` = 1
+				)
+			ORDER BY `default` ASC");
+
+		$stmt->execute(array($mailtemplate, LANGUAGE));
+		$mailContent = $stmt->fetch(PDO::FETCH_ASSOC);
+		$this->subject = $mailContent['subject'];
+		$this->content = $mailContent['content'];
+	}
+
+	/**
+ 	* Funktion för bakåtkompabilitet.
+ 	* @see Mail::set
+ 	* @param string $name
+ 	* @param        $value
+ 	*/
+	public function setMailVar($name,$value) {
+		$this->set($name, $value);
+	}
+
+	public function set($name, $value) {
 		$this->variables[$name] = $value;
 	}
-  
-  // Sends a mail using a predefined, editable mail template
-  function send()
-  {
-    // Replace in-text variables with values
-    foreach($this->variables as $key => $value){
-      $this->subject = str_replace('$'.$key, $value, $this->subject);
-      $this->content = str_replace('$'.$key, $value, $this->content);
-    }
 
-	if ($this->from == '') {
-		$this->from = EMAIL_FROM_ADDRESS;
+	public function attachFile($filename) {
+		$this->mail->addFileAttachment($filename);
+	}
+	public function attach($data, $filename, $contenttype) {
+		$this->mail->addAttachment($data, $filename, $contenttype);
 	}
 
-  if ($this->fromName === "") {
-    $this->fromName = EMAIL_FROM_NAME;
-  }
+	function send() {
+		// Replace in-text variables with values
+		$subject = $this->subject;
+		$body = $this->content;
+		foreach($this->variables as $key => $value){
+			$subject = str_replace('$'.$key, $value, $subject);
+			$body = str_replace('$'.$key, $value, $body);
+		}
 
-    return sendMailHTML($this->to, $this->subject, $this->content, array($this->from => $this->fromName));
-  }
-	
+		$this->mail->setSubject($subject);
+		$this->mail->setBody($body);
+		return $this->mail->send() > 0;
+	}
 }
 
 ?>

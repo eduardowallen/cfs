@@ -70,10 +70,42 @@ class PageController extends Controller {
 		$pageContent = $stmt->fetch(PDO::FETCH_ASSOC);
 		
 		$content = $pageContent['content'];
-		if (array_key_exists('email', $pageContent))
+		if (is_array($pageContent) && array_key_exists('email', $pageContent))
 			$content = '<h3><a href="mailto:'.$pageContent['email'].'">'.$pageContent['email'].'</a></h3>'.$content;
 		
 		$this->setNoTranslate('content', $content);
+		
+	}
+
+	function rules($fairUrl='') {
+
+		if ($this->is_ajax) {
+			$this->setNoTranslate('onlyContent', true);
+		}
+
+		$this->set('headline', 'Event rules');
+		$this->set('dates', 'Dates');
+		$this->set('openinghours', 'Opening hours');
+		
+		if ($fairUrl != '' && (int)$fairUrl == 0) {
+			$stmt = $this->Page->db->prepare("SELECT event_start, event_stop, windowtitle, rules AS content FROM fair WHERE url = ?");
+			$stmt->execute(array($fairUrl));
+		} else if($fairUrl != '') {
+			$stmt = $this->Page->db->prepare("SELECT event_start, event_stop, windowtitle, rules AS content FROM fair WHERE id = ?");
+			$stmt->execute(array($fairUrl));
+		}
+		
+		$pageContent = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		$content = $pageContent['content'];
+		$name = $pageContent['windowtitle'];
+		$eventstart = $pageContent['event_start'];
+		$eventstop = $pageContent['event_stop'];
+		setlocale(LC_ALL,"sv_SE.UTF8");
+		$this->setNoTranslate('content', $content);
+		$this->setNoTranslate('eventName', $name);
+		$this->setNoTranslate('eventstart', $eventstart);
+		$this->setNoTranslate('eventstop', $eventstop);
 		
 	}
 	
@@ -119,7 +151,7 @@ class PageController extends Controller {
 			$f->load($_SESSION['user_fair'], 'id');
 			$_SESSION['fair_windowtitle'] = $f->get('windowtitle');
 			// This decides the link for the event buttons 'opts'
-			header("Location: ".BASE_URL."mapTool/map/" . $f->get('id'));
+			header("Location: ".BASE_URL."start/home");
 			exit;
 		}
 		
@@ -135,7 +167,6 @@ class PageController extends Controller {
 			$this->set('to', '');
 			$this->setNoTranslate('fair_app', '');
 		}
-		
 	}
 	
 }

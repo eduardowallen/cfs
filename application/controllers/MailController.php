@@ -72,7 +72,7 @@ class MailController extends Controller {
 			// Showing a list of mails to edit
       
 			$this->set('headline', 'Edit mails');
-			$this->set('th_mail', 'Mail');
+			$this->setNoTranslate('th_mail', 'Mail');
 			$this->set('th_subject', 'Subject');
 			$this->set('edit_label', 'Edit');
 			$this->set('add_label', 'Add');

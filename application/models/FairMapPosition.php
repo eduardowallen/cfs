@@ -18,6 +18,8 @@ class FairMapPosition extends Model {
 					$this->set('expires', '0000-00-00');
 					$this->save();
 					//Delete exhibitor for position
+					$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history SELECT * FROM exhibitor WHERE position = ?");
+					$stmt_history->execute(array($this->id));				
 					$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE position = ?");
 					$stmt->execute(array($this->id));
 				} else {
@@ -40,6 +42,14 @@ class FairMapPosition extends Model {
 
 	}
 
+	public function load2($val, $key) {
+
+		parent::load($val, $key);
+		if ($this->wasLoaded()) {
+			$this->statusText = $this->getStatusText();
+		}
+	}
+
 	public function getStatusText() {
 		$statuses = array('open', 'reserved', 'booked');
 		return $statuses[$this->status];
@@ -49,7 +59,7 @@ class FairMapPosition extends Model {
 		if (!$this->wasLoaded()) {
 			$this->set('created_by', $_SESSION['user_id']);
 		} else {
-			logToDB($this->db, 'POSITION_UPDATED', array('val'=>'something'));
+			//logToDB($this->db, 'POSITION_UPDATED', array('val'=>'something'));
 		}
 		return parent::save();
 	}
@@ -57,13 +67,16 @@ class FairMapPosition extends Model {
 	public function delete() {
 
 		$params = array($this->id);
-
+		$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history SELECT * FROM exhibitor WHERE position = ?");
+		$stmt_history->execute($params);			
 		$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE position = ?");
 		$stmt->execute($params);
-
+		$stmt_history = $this->db->prepare("INSERT INTO preliminary_booking_history SELECT * FROM preliminary_booking WHERE position = ?");
+		$stmt_history->execute($params);
 		$stmt = $this->db->prepare("DELETE FROM preliminary_booking WHERE position = ?");
 		$stmt->execute($params);
-
+		$stmt_history = $this->db->prepare("INSERT INTO fair_map_position_history SELECT * FROM fair_map_position WHERE id = ?");
+		$stmt_history->execute($params);
 		parent::delete();
 
 	}

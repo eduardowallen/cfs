@@ -7,7 +7,7 @@ function filterTable(table, str, results) {
 	if (table.hasClass('scrolltable')) {
 		table.floatThead('reflow');
 	}
-
+	
 	var hits = new Array;
 	var hit_count = 0;
 
@@ -27,7 +27,7 @@ function filterTable(table, str, results) {
 			hit_count++;
 		}
 	});
-	results.text(hit_count + ' matching rows.');
+	results.text(hit_count + ' ' + lang.matching_rows);
 
 
 }
@@ -108,63 +108,66 @@ function filterTableTable(table, str, results) {
 			}
 		}
 	}*/
-	$(document).ready(function() {
-<<<<<<< HEAD
-	var html = '<div style="width:600px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
-=======
-	var html = '<div style="width:400px; padding-bottom:10px; float:left;"><input type="text" id="search_input"/>'
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
-			 + '<input type="button" class="search_button" id="search_button" value="' + lang.search + '" /><span id="search_results" style="padding-left:10px;"></span>';	
+
+	
+$(document).ready(function() {
+	var html = '<div style="width:50em; padding-bottom:0.833em; display:inline;"><input type="text" style="height:2.0833em; margin:0 -2em 0.833em 0;" id="search_input"/>'
+			 + '<input type="button" class="search_button" id="search_button" /><span id="search_results" style="padding-left:0.833em;"></span>';	
 		$('.std_table').each(function() {
-			var parstd_table = $(this);
-			var std_table = parstd_table;
-			if (!std_table.parent().hasClass('floatThead-container')) {
-				searchfield = $('<p></p>');
-				searchfield = searchfield.prepend(html);
-				var url = document.URL;
-				var site = "";
+			if (!$(this).parent().hasClass('no-search')) {
 
-				
-				if(url.indexOf('newReservations') > 0){
-					site = "newRes";
-				}
-				if(url.indexOf('forFair')  > 0){
-					site = "forFair";
-				}
-				
-				if (parstd_table.hasClass('scrolltable')) {
-					parstd_table.parent().parent().before(searchfield);
 
-				} else {
-					parstd_table.before(searchfield);
-				}
-				
-				searchfield.find("#search_button").click(function() {
-					filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
+				var parstd_table = $(this);
+				var std_table = parstd_table;
+				if (!std_table.parent().hasClass('floatThead-container')) {
+					searchfield = $('<p style="display:inline;"></p>');
+					searchfield = searchfield.prepend(html);
+					var url = document.URL;
+					var site = "";
 
-					/*if(site == "forFair"){
-						resizeForFair();
+					
+					if(url.indexOf('newReservations') > 0){
+						site = "newRes";
 					}
-					if(site == "newRes"){
-						resizeNewRes();
-					}*/
-				});
+					if(url.indexOf('forFair')  > 0){
+						site = "forFair";
+					}
+					
+					if (parstd_table.hasClass('scrolltable')) {
+						parstd_table.parent().parent().before(searchfield);
 
-				searchfield.find("#search_input").keydown(function(e) {
-					if (e.keyCode == 13) {
-						e.preventDefault();
-
-						filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
+					} else {
+						parstd_table.before(searchfield);
+					}
+					
+					searchfield.find("#search_button").click(function() {
+						filterTable(std_table, $(this).parent().find("#search_input").first().val(), $(this).parent().find("#search_results").first());
 
 						/*if(site == "forFair"){
 							resizeForFair();
 						}
-
 						if(site == "newRes"){
 							resizeNewRes();
 						}*/
-					}
-				});
+					});
+
+					searchfield.find("#search_input").keydown(function(e) {
+						if (e.keyCode == 13) {
+							e.preventDefault();
+
+							filterTable(std_table, $(this).val(), $(this).parent().find("#search_results").first());
+
+							/*if(site == "forFair"){
+								resizeForFair();
+							}
+
+							if(site == "newRes"){
+								resizeNewRes();
+							}*/
+						}
+					});
+				}
+
 			}
 		});
 });

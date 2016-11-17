@@ -37,6 +37,11 @@
 				<p>
 					<strong><?php echo $label_categories; ?>:</strong> <?php echo $category_names; ?>
 				</p>
+			<?php if ($option_texts): ?>
+				<p>
+					<strong><?php echo $label_options; ?>:</strong> <?php echo $option_texts; ?>
+				</p>
+			<?php endif; ?>
 			</div>
 
 			<h4><?php echo $label_presentation; ?></h4>

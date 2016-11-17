@@ -1,4 +1,4 @@
-<script type="text/javascript" src="js/tablesearch.js"></script>
+<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		var headerd = $('.tblHeader');

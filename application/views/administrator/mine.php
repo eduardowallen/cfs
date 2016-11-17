@@ -1,7 +1,8 @@
-<script type="text/javascript" src="js/tablesearch.js"></script>
+<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
 <h1><?php echo $headline; ?></h1>
 <br>
-<a class="button add" href="administrator/edit/new/"><?php echo $button_new ?></a>
+<a class="button new_exhibitor" href="administrator/edit/new/"><?php echo $button_new ?></a><br /><br />
 <table class="std_table" style="width:100%;">
 	<thead>
 		<tr>
@@ -29,8 +30,8 @@
 			<td class="center"><?php echo $admin['fair_count']; ?></td>
 			<td class="center"><?php if ($admin['last_login']) { echo date('d-m-Y H:i:s', $admin['last_login']); } ?></td>
 			<td class="center"><?php echo ($admin['locked']) ? $locked_yes : $locked_no; ?></td>
-			<td class="center"><a href="administrator/edit/<?php echo $admin['id']; ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
-			<td class="center"><a href="administrator/delete/<?php echo $admin['id']; ?>/no/mine"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
+			<td class="center"><a href="administrator/edit/<?php echo $admin['id']; ?>"><img src="images/icons/pencil.png" class="icon_img" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+			<td class="center"><a href="administrator/delete/<?php echo $admin['id']; ?>/no/mine"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 		</tr>
 		<?php endforeach; ?>
 	</tbody>

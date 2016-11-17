@@ -1,4 +1,4 @@
-<script type="text/javascript" src="js/tablesearch.js"></script>
+<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
 <h1><?php echo $headline; ?></h1>
 
 <p><a class="button add" href="administrator/newExhibitor"><?php echo $create_link; ?></a></p>
@@ -31,8 +31,8 @@
 			<td class="center"><?php echo $pos->get('exhibitor')->get('name'); ?></td>
 			<td class="center"><?php echo $pos->get('exhibitor')->get('email'); ?></td>
 			<td class="center"><a target="_blank" href="<?php echo $pos->get('exhibitor')->get('website'); ?>"><?php echo $pos->get('exhibitor')->get('website'); ?></a></td>
-			<td class="center"><a href="exhibitor/profile/<?php echo $pos->get('exhibitor')->get('id'); ?>"><img src="images/icons/user.png" alt=""/></a></td>
-			<td class="center"><a href="administrator/exhibitors/copy/<?php echo $pos->get('exhibitor')->get('exhibitor_id'); ?>"><img src="images/icons/user_go.png" alt=""/></a></td>
+			<td class="center"><a href="exhibitor/profile/<?php echo $pos->get('exhibitor')->get('id'); ?>"><img src="images/icons/user.png" class="icon_img" alt=""/></a></td>
+			<td class="center"><a href="administrator/exhibitors/copy/<?php echo $pos->get('exhibitor')->get('exhibitor_id'); ?>"><img src="images/icons/user_go.png" class="icon_img" alt=""/></a></td>
 		</tr>
 		<?php endif; ?>
 		<?php endforeach; ?>

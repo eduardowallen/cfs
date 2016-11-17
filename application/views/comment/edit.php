@@ -1,4 +1,5 @@
-		<h3><?php echo uh($label_headline); ?></h3>
+<h3><?php echo uh($label_headline); ?></h3>
+<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
 
 <?php if (isset($error)): ?>
 		<p class="error"><?php echo uh($error); ?></p>
@@ -20,16 +21,9 @@
 				</select>
 			</p>
 			<p>
-<<<<<<< HEAD
 				<textarea name="comment" cols="30" class="insert_comment_text" rows="7"><?php echo uh($comment->get('comment')); ?></textarea>
 			</p>
 			<p>
-				<button type="submit" class="comment-btn" name="save" value="1"><?php echo uh($label_comment_save); ?></button>
-=======
-				<textarea name="comment" cols="30" rows="7"><?php echo uh($comment->get('comment')); ?></textarea>
-			</p>
-			<p>
-				<button name="save" value="1"><?php echo uh($label_comment_save); ?></button>
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+				<button type="submit" class="greenbutton mediumbutton" name="save" value="1"><?php echo uh($label_comment_save); ?></button>
 			</p>
 		</form>

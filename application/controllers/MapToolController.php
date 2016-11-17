@@ -50,6 +50,8 @@ class MapToolController extends Controller {
 		$fair = new Fair;
 		if (preg_match('/^\d+$/', $fairId)) {
 			$fair->load($fairId, 'id');
+		} else if (!$fairId) {
+			header('Location: /fair/search/');
 		} else {
 			$fair->load($fairId, 'url');
 		}
@@ -57,10 +59,16 @@ class MapToolController extends Controller {
 		if (userLevel() > 1 || $fair->get('approved') == 1 ) {
 
 			if ($fair->wasLoaded()) {
-				
+
 				//Update session to selected fair
 				$_SESSION['user_fair'] = $fair->get('id');
 				$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
+
+				$sql = "SELECT COUNT(required) FROM fair_article WHERE fair = ? AND required = 0";
+				$prep = $this->db->prepare($sql);
+				$prep->execute(array($_SESSION['user_fair']));
+				$result = $prep->fetch();
+				$this->setNoTranslate('available_articles', $result[0]);
 
 				//Save latest visited fair
 				if (!empty($_SESSION["user_id"]) && $saveVisit) {
@@ -90,6 +98,7 @@ class MapToolController extends Controller {
 				$this->set('opening_time', 'Opening time');
 				$this->set('closing_time', 'Closing time');
 				$this->setNoTranslate('notfound', false);
+				$this->setNoTranslate('currency', $fair->get('currency'));
 				$this->setNoTranslate('fair_url', $fair->get('url'));
 				($position === null || $position == 'none') ?  $this->set('position', '\'false\'') : $this->set('position', $position) ;
 				($map === null ) ?  $this->set('myMap', '\'false\'') : $this->set('myMap', (int)$map) ;
@@ -132,8 +141,11 @@ class MapToolController extends Controller {
 
 		if (is_numeric($map_id) && is_numeric($position_id)) {
 
+
 			$map = new FairMap();
 			$map->load($map_id, 'id');
+			$fairId = null;
+			$fairId = $map->get('fair');
 
 			if ($map->wasLoaded()) {
 				$map_position = null;
@@ -153,11 +165,47 @@ class MapToolController extends Controller {
 						$category_obj->load($category, 'id');
 						$category_names[] = $category_obj->get('name');
 					}
-
+					$option_texts = array();
+					foreach ($map_position->get('exhibitor')->get('exhibitor_options') as $option) {
+						$option_obj = new FairExtraOption();
+						$option_obj->load($option, 'id');
+						$option_texts[] = $option_obj->get('text');
+					}
 					$this->setNoTranslate('map', $map);
 					$this->setNoTranslate('position', $map_position);
 					$this->setNoTranslate('exhibitor', $map_position->get('exhibitor'));
 					$this->setNoTranslate('category_names', implode(', ', $category_names));
+					
+				if( userLevel() == 2 ){
+					$fair = new Fair;
+					$fair->load($fairId, 'id');
+					$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
+					$prep = $this->db->prepare($sql);
+					$prep->execute(array($_SESSION['user_id'], $fairId));
+					$result = $prep->fetch();
+					$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
+					if (!$result) {
+
+					} else {
+						$this->setNoTranslate('option_texts', implode(', ', $option_texts));
+					}
+				} elseif( userLevel()  == 3 ){
+					$fair = new Fair;
+					$fair->load($fairId, 'id');
+					$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
+					$prep = $this->db->prepare($sql);
+					$prep->execute(array($_SESSION['user_id'], $fairId));
+					$result = $prep->fetchAll();
+					if (!$result) {
+
+					} else {
+						$this->setNoTranslate('option_texts', implode(', ', $option_texts));
+					}
+				} else if (userLevel() == 4) {
+						$this->setNoTranslate('option_texts', implode(', ', $option_texts));
+				} else {
+
+				}
 					$this->set('label_status', 'Status');
 					$this->set('label_area', 'Area');
 					$this->set('label_by', 'by');
@@ -165,6 +213,7 @@ class MapToolController extends Controller {
 					$this->set('label_presentation', 'Presentation');
 					$this->set('label_commodity', 'Commodity');
 					$this->set('label_categories', 'Categories');
+					$this->set('label_options', 'Extra options');
 					$this->set('label_no_presentation_text', 'The company has not specified any information.');
 					$this->set('label_website', 'Website');
 				} else {

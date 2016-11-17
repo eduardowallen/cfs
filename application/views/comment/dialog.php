@@ -1,5 +1,6 @@
 <?php if (!isset($exhibitors)): ?>
 		<h3><?php echo uh(sprintf($label_headline, $label_headline_name)); ?></h3>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
 <?php endif; ?>
 
 <?php if (isset($error)): ?>
@@ -29,29 +30,20 @@
 		<form action="comment/dialog/<?php echo uh($params); ?>" method="POST">
 <?php if (isset($exhibitors)): ?>
 			<h3><?php echo uh($label_comment_add_headline); ?></h3>
+			<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />
 
 			<p>
-<<<<<<< HEAD
 				<strong><?php echo $label_exhibitor; ?></strong><br />
-=======
-				<strong><?php echo $label_exhibitor; ?>: </strong><br />
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<select name="exhibitor" class="js-user-select">
 <?php	foreach ($exhibitors as $exhibitor): ?>
 					<option value="<?php echo $exhibitor->get('id'); ?>"><?php echo uh($exhibitor->get('company')); ?></option>
 <?php	endforeach; ?>
 				</select>
-<<<<<<< HEAD
 			</p>
 <?php endif; ?>
 			<p>
 				<h3><?php echo uh($label_comment_add_headline); ?></h3>
 				<br/>
-=======
-			</P>
-<?php endif; ?>
-			<p>
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				<strong><?php echo uh($label_comment_type_of); ?></strong><br />
 				<select name="type">
 					<option value="1"><?php echo uh($label_comment_positive); ?></option>
@@ -62,7 +54,7 @@
 			<p>
 				<strong><?php echo uh($label_comment_valid_for); ?></strong><br />
 
-<?php if (isset($fairs)): ?>
+<?php if (isset($fairs)) { ?>
 				<input type="hidden" name="validfor" value="3" />
 				<select name="fair">
 					<option value="0"><?php echo uh($label_all_exhibitor_fairs); ?></option>
@@ -70,25 +62,23 @@
 					<option value="<?php echo $fair->id; ?>"><?php echo uh($fair->name); ?></option>
 <?php	endforeach; ?>
 				</select>
-<?php else: ?>
+<?php } else if (!isset($position) && ($position = -1)) { ?>
+				<select name="validfor">
+					<option value="1"><?php echo uh($label_comment_fair_only); ?></option>
+					<option value="2"><?php echo uh($label_comment_all_fairs); ?></option>
+				</select>
+<?php } else { ?>
 				<select name="validfor">
 					<option value="0"><?php echo uh($label_comment_pos_only); ?></option>
 					<option value="1"><?php echo uh($label_comment_fair_only); ?></option>
 					<option value="2"><?php echo uh($label_comment_all_fairs); ?></option>
 				</select>
-<?php endif; ?>
+<?php } ?>
 			</p>
 			<p>
-<<<<<<< HEAD
 				<textarea name="comment" cols="30" class="insert_comment_text" rows="7"></textarea>
 			</p>
 			<p>
-				<button type="submit" class="comment-btn" name="save" value="1"><?php echo uh($label_comment_add); ?></button>
-=======
-				<textarea name="comment" cols="30" rows="7"></textarea>
-			</p>
-			<p>
-				<button name="save" value="1"><?php echo uh($label_comment_add); ?></button>
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+				<button type="submit" class="greenbutton mediumbutton" name="save" value="1"><?php echo uh($label_comment_add); ?></button>
 			</p>
 		</form>

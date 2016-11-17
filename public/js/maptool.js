@@ -38,9 +38,11 @@ var update = true;
 // If you come from My bookings with a id you want to hover over that position
 function preHover(id){
 	//if( ! isNaN(id) ){
+	$(document).ready(function() {
 		setTimeout(function() {
 			$('#info-' + id).show();
 		}, 2000);
+	});
 	//}
 }
 
@@ -89,11 +91,41 @@ maptool.isOnMap = function(x, y) {
 
 	return true;
 }
+//Open multiform
+maptool.openForm = function(id) {
+	$('input#search_user_input').val("");
+	$('.exhibitorNotFound').css('display', 'none');
+	$("#overlay").show(0, function() {
+		$(this).css({
+			height: $(document).height() + 'px'
+		});
+		$("#" + id).show();
+	});
+
+}
+
+//Close any open multiforms
+maptool.closeForms = function() {
+	if (userIsEditing > 0) {
+		maptool.markPositionAsNotBeingEdited();
+
+	} else if (movingMarker !== null) {
+		maptool.endMovePosition();
+	}
+
+	$(".form:visible").last().hide(0, function() {
+		// Hide the overlay if no more forms are visible
+		if ($(".form:visible").length === 0) {
+			$("#overlay").fadeOut();
+		}
+	});
+
+
+}
 
 //Open dialogue
 maptool.openDialogue = function(id) {
 	$('input#search_user_input').val("");
-	$('input#search_user_input').css('border-color', '#666666');		
 	$('.exhibitorNotFound').css('display', 'none');
 	$("#overlay").show(0, function() {
 		$(this).css({
@@ -103,7 +135,6 @@ maptool.openDialogue = function(id) {
 		positionDialogue(id);
 	});
 
-	$('input, textarea').placeholder();
 }
 
 //Close any open dialogues
@@ -120,7 +151,7 @@ maptool.closeDialogues = function() {
 
 		// Hide the overlay if no more dialogs are visible
 		if ($(".dialogue:visible").length === 0) {
-			$("#overlay").hide();
+			$("#overlay").fadeOut();
 		}
 
 		$("#popupform").remove();
@@ -131,6 +162,11 @@ maptool.closeDialogues = function() {
 		$("#apply_category_scrollbox").css("border-color", "");
 		$("#nouser_dialogue").remove();
 	});
+	$(".booking_dialogue:visible").last().hide(0, function() {
+		if ($(".booking_dialogue:visible").length === 0) {
+			$("#overlay").fadeOut();
+		}
+	});
 }
 
 //Populate list of exhibitors
@@ -139,9 +175,9 @@ maptool.populateList = function() {
 	var prevSelectedId = -1;
 	var filtered;
 
-	if ($('#right_sidebar ul li.selected:first').length != 0) {
-		prevSelectedId = $('#right_sidebar ul li.selected:first').attr("id").replace("map-li-", "");
-		$('#right_sidebar ul li.selected:first #list_commodity').show();
+	if ($('#right_sidebar ol li.selected:first').length != 0) {
+		prevSelectedId = $('#right_sidebar ol li.selected:first').attr("id").replace("map-li-", "");
+		$('#right_sidebar ol li.selected:first #list_commodity').show();
 	}
 
 	//Filter out elements that do not have a company name
@@ -151,10 +187,10 @@ maptool.populateList = function() {
 
 	//Sort filtered list of companies
 	filtered.sort(function (a, b) {
-		return a.exhibitor.company.toUpperCase().localeCompare(b.exhibitor.company.toUpperCase(), lang.locale);
+		return alphanum(a.name, b.name);
 	});
 
-	$("#right_sidebar ul").html('');
+	$("#right_sidebar ol").html('');
 	for (var i=0; i<filtered.length; i++) {
 		if (filtered[i].exhibitor !== null) {
 			var hide = false;
@@ -190,11 +226,11 @@ maptool.populateList = function() {
 				}
 			}
 			if (!hide) {
-				var item = $('<li id="map-li-' + filtered[i].id + '">' + filtered[i].exhibitor.company + '<p id="list_commodity">' + filtered[i].exhibitor.spot_commodity + '</p></li>');
+				var item = $('<li id="map-li-' + filtered[i].id + '"><p id="list_position_name">' + filtered[i].name + '</p>' + filtered[i].exhibitor.company + '<p id="list_commodity">' + filtered[i].exhibitor.spot_commodity + '</p></li>');
 				item.children('#list_commodity').hide();
 				item.click(function() {
-					$('#right_sidebar ul li').removeClass('selected');
-					$('#right_sidebar ul li #list_commodity').hide();
+					$('#right_sidebar ol li').removeClass('selected');
+					$('#right_sidebar ol li #list_commodity').hide();
 					$(this).addClass('selected');
 					$(this).children('#list_commodity').show();
 					var index = $(this).attr("id").replace("map-li-", "");
@@ -204,7 +240,7 @@ maptool.populateList = function() {
 				if (filtered[i].id == prevSelectedId) {
 					item.addClass('selected');
 				}
-				$("#right_sidebar ul").append(item);
+				$("#right_sidebar ol").append(item);
 				$('#list_commodity').hide();
 			}
 		}
@@ -237,37 +273,90 @@ maptool.placeMarkers = function() {
 		if (movingMarker != null && movingMarker.attr('id') == markerId) {
 			continue;
 		}
-		var marker = $('<img src="images/icons/marker_' + maptool.map.positions[i].statusText + '.png" alt="" class="marker" id="' + markerId + '"/>');
-		var tooltip = '<div class="marker_tooltip" id="info-' + maptool.map.positions[i].id + '">';
-
-		//Tooltip content
-		tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ' :</strong> ' + maptool.map.positions[i].area + '</p>';
-		
-		if (maptool.map.positions[i].status > 0 && maptool.map.positions[i].exhibitor) { 
-			tooltip += '<p><strong>' + lang.StatusText(maptool.map.positions[i].statusText).charAt(0).toUpperCase() + lang.StatusText(maptool.map.positions[i].statusText).substr(1) + ' ' + lang.by + ':</strong> ' + maptool.map.positions[i].exhibitor.company + '</p>';
-			if (maptool.map.positions[i].status == 1) {
-				tooltip += '<p><strong>' + lang.reservedUntil + ':</strong> ' + maptool.map.positions[i].expires + '</p>';
+		if (maptool.map.userlevel > 0) {
+			var marker = $('<img src="images/icons/marker_' + maptool.map.positions[i].statusText + '.png" alt="" class="marker" id="' + markerId + '"/>');
+		} else {
+			if (maptool.map.positions[i].status == 2) {
+				var marker = $('<img src="images/icons/marker_booked.png" alt="" class="marker" id="' + markerId + '"/>');
+			} else if (maptool.map.positions[i].status == 1) {
+				var marker = $('<img src="images/icons/marker_reserved.png" alt="" class="marker" id="' + markerId + '"/>');
+			} else {
+				var marker = $('<img src="images/icons/marker_open.png" alt="" class="marker" id="' + markerId + '"/>');
 			}
-			tooltip += '<strong>' + lang.commodity_label + ':</strong> <span class="info">';
-			tooltip += maptool.map.positions[i].exhibitor.commodity + '</span>';
+		}
+
+		var tooltip = '<div class="marker_tooltip" id="info-' + maptool.map.positions[i].id + '">';
+		//Tooltip content
+		if (maptool.map.userlevel > 0) {
+			if (!hasRights) {
+			tooltip += '<h3>'+ maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ': </strong>';
+			} else {
+				if (maptool.map.positions[i].exhibitor && maptool.map.positions[i].exhibitor.clone > 0) {
+						tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + ' <strong>' + lang.cloned + '</strong><br/><strong>' + lang.area + ': </strong>';
+				} else {
+					tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ': </strong>';
+				}
+			}
+		} else {
+			if (maptool.map.positions[i].status == 2) {
+				tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ': </strong>';
+			} else {
+				tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ': </strong>';
+			}
+		}		
+		//tooltip += '<h3>'+maptool.map.positions[i].name + ' </h3><p><strong>' + lang.status + ': </strong>' + lang.StatusText(maptool.map.positions[i].statusText) + '<br/><strong>' + lang.area + ': </strong> ';
+		//Tooltip content
+		if (maptool.map.positions[i].area != '') {
+			tooltip += maptool.map.positions[i].area + '<br/>';
+		} else {
+			tooltip += lang.info_missing + '<br>';
+		}
+
+		if (hasRights) {
+				tooltip += '<strong>' + lang.price + ': </strong>' + maptool.map.positions[i].price + ' ' + maptool.map.currency + '</p>';
+		} else {
+			if (maptool.map.positions[i].status == 0 && maptool.map.userlevel > 0) {
+				if (maptool.map.positions[i].price != 0) {
+					tooltip += '<strong>' + lang.price + ': </strong>' + maptool.map.positions[i].price + ' ' + maptool.map.currency + '</p>';
+				} else {
+					tooltip += '<strong>' + lang.price + ': </strong>' + lang.info_missing + '</p>';
+				}
+			}
+		}
+
+		if (maptool.map.positions[i].status > 0 && maptool.map.positions[i].exhibitor && maptool.map.positions[i].status != 2) { 
+			tooltip += '<p><strong>' + lang.StatusText(maptool.map.positions[i].statusText).charAt(0).toUpperCase() + lang.StatusText(maptool.map.positions[i].statusText).substr(1) + ' ' + lang.by + ': </strong>' + maptool.map.positions[i].exhibitor.company + '</p>';
+			if (maptool.map.positions[i].status == 1) {
+				tooltip += '<p><strong>' + lang.reservedUntil + ': </strong>' + maptool.map.positions[i].expires + '</p>';
+			}
+			tooltip += '<p><strong>' + lang.commodity_label + ': </strong>';
+			tooltip += maptool.map.positions[i].exhibitor.commodity + '</p>';
+		} else if (maptool.map.positions[i].status == 2) {
+			tooltip += '<p><strong>' + lang.bookedBy + ': </strong>' + maptool.map.positions[i].exhibitor.company + '</p>';
+			tooltip += '<p><strong>' + lang.commodity_label + ': </strong>';
+			if (maptool.map.positions[i].exhibitor.commodity != '') {
+				tooltip += maptool.map.positions[i].exhibitor.commodity + '</p>';
+			} else {
+				tooltip += lang.no_commodity + '</p>';
+			}
 		} else {
 			var info =  maptool.map.positions[i].information;
 			info = info.substr(0, 100);
 			if(info.length == 100){
 				info += "...";			
 			}
-			tooltip+= '<p style="width:210px; overflow-y:hidden; line-height:14px; word-wrap:break-word;">';
+			tooltip+= '<p id="tooltip_assortment">';
 			tooltip+=info;
 			tooltip+='</p>';
 
 			if (maptool.map.userlevel > 0) {
-				tooltip += '<p><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
+				tooltip += '<p style="margin-top: 0.25em;"><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
 			} 
 			freeSpots++;
 		}
 
 		if(maptool.map.userlevel == 0){
-			tooltip += '<p><strong>' + lang.clickToViewMoreInfo + '</strong></p>';
+			tooltip += '<p><strong>' + lang.loginToViewMoreInfo + '</strong></p>';
 		}
 		tooltip += '</div>';
 
@@ -284,7 +373,11 @@ maptool.placeMarkers = function() {
 		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id) {
 			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
 		}
-
+		if (maptool.map.positions[i].exhibitor && hasRights) {
+			if (maptool.map.positions[i].exhibitor.clone > 0) {
+				marker.attr('src', 'images/icons/Reserverad-gray.png');
+			}
+		}
 		// Add HTML to blob.
 		markerHTML += marker[0].outerHTML;
 		tooltipHTML += tooltip;
@@ -292,56 +385,113 @@ maptool.placeMarkers = function() {
 	$("#mapHolder #map").prepend(markerHTML);
 	$("#mapHolder").prepend(tooltipHTML);
 
-	// Pause update
-	/*
-	$(".marker", mapContext).hover(function() {
-		maptool.pauseUpdate();
-	}, function() {
-		maptool.resumeUpdate();
-	});
-	*/
 
 	//Display tooltip on hover
 	$(".marker", mapContext).hover(function(e) {
 
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		var marker = $(this);
-
+		// Fix tooltip when too close to map canvas margin
 		if (!tooltip.is(":visible")) {
-			// Övre kant
-			if ((tooltip.height() > marker.offset().top) && (tooltip.width() < marker.offset().left*2)) {
+
+			// Upper margin
+			if ((tooltip.height() > marker.offset().top/1.2) && (tooltip.width() < marker.offset().left*2)) {
 				tooltip.addClass('marker_tooltip_flipped'); 
 				tooltip.css({
 					left: marker.offset().left,
 					top: marker.offset().top + 20 - config.positionTopOffset
 				});
+				if(jQuery.browser.mobile){
+					tooltip.css({
+						left: marker.offset().left,
+						top: marker.offset().top + 20 - config.positionTopOffset
+					});
+				}
 			}
-			// Vänster övre kant
+			// Upper left margin
 			else if ((tooltip.width() > marker.offset().left*2) && (tooltip.height() > marker.offset().top)){
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left + tooltip.width()/2,
 					top: marker.offset().top + 15 - config.positionTopOffset
 				});
+				if(jQuery.browser.mobile){
+					tooltip.css({
+						left: marker.offset().left + tooltip.width()/2,
+						top: marker.offset().top + 15 - config.positionTopOffset
+					});
+				}
 			}
-			// Vänster undre kant && Vänster kant
+			
+
+			// Left lower margin & left margin
 			else if ((tooltip.width() > marker.offset().left*2) && (tooltip.height() < marker.offset().top)){
 				tooltip.addClass('marker_tooltip_flipped');
 				tooltip.css({
-					left: marker.offset().left + tooltip.width()/2,
+					left: marker.offset().left + tooltip.width()/2 + 30,
 					top: marker.offset().top - tooltip.height() - 15 - config.positionTopOffset
 				});
+				if(jQuery.browser.mobile){
+					tooltip.css({
+						left: marker.offset().left + tooltip.width()/2 + 30,
+						top: marker.offset().top - tooltip.height() - 15 - config.positionTopOffset
+					});
+				}
 			}
-			// Under kant
+			// Lower margin
 			else if ((tooltip.height() < marker.offset().top) ) {
 				tooltip.removeClass('marker_tooltip_flipped');
 				tooltip.css({
 					left: marker.offset().left,
 					top: marker.offset().top - tooltip.height() - 20 - config.positionTopOffset
 				});
+				if(jQuery.browser.mobile){
+					tooltip.css({
+						left: marker.offset().left + 70,
+						top: marker.offset().top - tooltip.height() - 20 - config.positionTopOffset
+					});
+				}
 			}
-			//$(".marker_tooltip", mapHolderContext).hide();
+			
 			tooltip.css('display', 'inline');
+
+			// Right lower margin & right margin
+			if ((tooltip.offset().left + 300) > $('#mapHolder').width() && tooltip.height() < marker.offset().top) {
+				tooltip.css({
+					left: marker.offset().left - tooltip.width() + 100,
+					top: marker.offset().top - tooltip.height() + 50 - config.positionTopOffset
+				});
+				if(jQuery.browser.mobile){
+					tooltip.css({
+						left: marker.offset().left - tooltip.width() + 120,
+						top: marker.offset().top - tooltip.height() + 50 - config.positionTopOffset
+					});
+				}
+			}
+			// Upper right margin
+			else if ((marker.offset().left + 300) > $('#mapHolder').width() && tooltip.height() > marker.offset().top) {
+				tooltip.addClass('marker_tooltip_flipped');
+				tooltip.css({
+					left: marker.offset().left - tooltip.width()/2,
+					top: marker.offset().top + 15 - config.positionTopOffset
+				});
+				if(jQuery.browser.mobile){
+					tooltip.css({
+						left: marker.offset().left - tooltip.width()/2,
+						top: marker.offset().top + 15 - config.positionTopOffset
+					});
+				}
+			}
+/*			Kod för att ta reda på avstånd osv.
+			var leftinfo = tooltip.offset().left;
+			var mapholderinfo = $('#mapHolder').width();
+			console.log(mapholderinfo);
+			console.log(leftinfo);
+			console.log(marker.offset().left + 300);
+			console.log('mapHolder width: ' + $('#mapHolder').width());
+			console.log('Tooltip height: ' + tooltip.height());
+			console.log('Marker offset top: ' + marker.offset().top);			
+*/
 
 			var infoText = tooltip.children('.info');
 			var textHeight = tooltip.children('.info').height();
@@ -353,27 +503,21 @@ maptool.placeMarkers = function() {
 		var tooltip = $("#info-" + $(this).attr("id").replace("pos-", ""));
 		tooltip.css('display', 'none');
 	});
-	
-	//display dialogue on marker click (or touch, for iDevices)
-	$(".marker", mapContext).bind("click touch", function() {
-		maptool.showContextMenu($(this).attr("id").replace('pos-', ''), $(this));
-	});
-	
+	if (jQuery.browser.mobile) {
+		$(".marker", mapContext).bind("touch doubletap", function() {
+			maptool.showContextMenu($(this).attr("id").replace('pos-', ''), $(this));
+		});
+	} else {
+		// Display dialogue on marker click (or touch, for iDevices)
+		$(".marker", mapContext).bind("click", function() {
+			maptool.showContextMenu($(this).attr("id").replace('pos-', ''), $(this));
+		});
+	}
+
 	maptool.placeFocusArrow();
 	
-	/*if ($('#spots_free').text() == "") {
-	for (var i=0; i<maptool.map.positions.length; i++) {
-		if (maptool.map.positions[i].statusText == "open") {
-		var actual_map = maptool.map.id;
-		var next_map = document.getElementById(actual_map);
-		if next_map = 
-			$('#spots_free').text(freeSpots);
-		}
-	}
-	}
-	*/
 
-		$('#spots_free').text(freeSpots);
+	$('#spots_free').text(freeSpots);
 	
 	for (var i=0; i<maptool.map.positions.length; i++) {
 		var markerId = "pos-"+maptool.map.positions[i].id;
@@ -381,7 +525,6 @@ maptool.placeMarkers = function() {
 		if (categoryFilter > 0) {
 			if(maptool.map.positions[i].exhibitor != null){
 				if(maptool.map.positions[i].exhibitor.categories.length > 0){
-				//console.log(maptool.map.positions[i].exhibitor.categories);
 				var ct = 0;
 				$(maptool.map.positions[i].exhibitor.categories).each(function(){
 					var markerCatId = this.category_id;					
@@ -427,14 +570,21 @@ maptool.updateBusyStatus = function(position_id, callback) {
 			var marker = $('#pos-' + position_id);
 			var busy;
 
-			if (response.being_edited > 0 && response.being_edited != maptool.map.user_id) {
-				marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
-				busy = true;
+			if (maptool.map.userlevel > 0) {
+				if (response.being_edited > 0 && response.being_edited != maptool.map.user_id) {
+					marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
+					busy = true;
+				} else if (response.exhibitor) {
+					if (response.exhibitor.clone > 0) {
+						marker.attr('src', 'images/icons/Reserverad-gray.png');
+					} else {					
+						marker.attr('src', 'images/icons/marker_' + response.statusText + '.png').removeClass('busy');
+						busy = false;
+					}
+				}
 			} else {
-				marker.attr('src', 'images/icons/marker_' + response.statusText + '.png').removeClass('busy');
 				busy = false;
 			}
-
 			callback(busy);
 		}
 	});
@@ -459,17 +609,14 @@ maptool.showContextMenu = function(position, marker) {
 		}
 
 		var contextMenu = $('<ul id="cm-' + position + '" class="contextmenu"></ul>');
-		var todayDt = $('#todayDt').attr('td');
-		var closeDt = $('#closeDt').attr('td');
-		var publishDt = $('#publishDt').attr('td');
 		if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
 			contextMenu.append('<li id="cm_book">' + lang.bookStandSpace + '</li><li id="cm_reserve">' + lang.reserveStandSpace + '</li>');
 			if (copiedExhibitor || copiedFairRegistration) {
 				contextMenu.append('<li id="cm_paste">' + lang.pasteExhibitor + '</li>');
 			}
-		} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
+		} else if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && !maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
 			contextMenu.append('<li id="cm_apply">' + lang.preliminaryBookStandSpace + '</li>');
-		} else if (((todayDt > publishDt) && (todayDt < closeDt)) && maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
+		} else if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 1 && maptool.map.positions[objIndex].applied && maptool.ownsMap()) {
 			contextMenu.append('<li id="cm_cancel">' + lang.cancelPreliminaryBooking + '</li>');
 		}
 		
@@ -504,12 +651,10 @@ maptool.showContextMenu = function(position, marker) {
 
 			contextMenu.css({
 				left: $("#pos-" + position).offset().left + config.iconOffset,
-				top: $("#pos-" + position).offset().top + config.iconOffset - 35
+				top: $("#pos-" + position).offset().top + config.iconOffset + 10
 			}).show();
 
-			//Clear click events
-			//$(".contextmenu li").off("click");
-			
+		
 			//click handlers for context menu
 			if(maptool.map.userlevel > 0 && (maptool.map.userlevel == 1 || (hasRights || maptool.map.userlevel == 4))) {
 				$("#mapHolder").prepend(contextMenu);
@@ -548,6 +693,8 @@ maptool.showContextMenu = function(position, marker) {
 						maptool.showPreliminaryBookings(maptool.map.positions[objIndex]);
 					}
 				}); 		
+			} else if (maptool.map.positions[objIndex].status == 0 && maptool.map.userlevel == 0) {
+				return;
 			} else {
 				maptool.positionInfo(maptool.map.positions[objIndex]);
 			}
@@ -615,92 +762,554 @@ maptool.pasteFairRegistration = function(e) {
 	maptool.markPositionAsBeingEdited(window.pasteOnPosition);
 
 	var type = $('#paste_fair_registration_type').val();
-	var id_prefix = '';
+	var prefix = '';
 	var categories = copiedFairRegistration.categories.split('|');
 	var options = copiedFairRegistration.options.split('|');
+	var articles = copiedFairRegistration.articles.split('|');
+	var artamount = copiedFairRegistration.amount.split('|');
 
+	$('.standSpaceName').html("");
 	if (type == 0) {
-		id_prefix = 'book';
+		prefix = 'book';
+		dialogue = '#book_position_form ';
+		$('#book_position_form .standSpaceName').text(lang.bookStandSpace + ': ' + pasteOnPosition.name);
 
 	} else if (type == 1) {
-		id_prefix = 'reserve';
+		prefix = 'reserve';
+		dialogue = '#reserve_position_form ';
+		$('#reserve_position_form .standSpaceName').text(lang.reserveStandSpace + ': ' + pasteOnPosition.name);
+	}
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + pasteOnPosition.area + '</p><br/><label>' + lang.price +  ': </label><p>' + pasteOnPosition.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + pasteOnPosition.information) + '</p>';
+	$('#' + prefix + '_category_input').css('border-color', '#666');
+	$('#' + prefix + '_category_scrollbox').css('border-color', '#000000');
+	$('#' + prefix + '_category_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#' + prefix + '_option_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#' + prefix + '_article_scrollbox > tbody > tr > td > div > input').val(0);
+
+	$.each(categories, function(index, category) {
+		$('#' + prefix + '_category_scrollbox > tbody > tr > td > input[value=' + category + ']').prop('checked', true);
+
+	});
+
+	if (options != "") {
+		$.each(options, function(index, option) {
+			$('#' + prefix + '_option_scrollbox > tbody > tr > td > input[value=' + option + ']').prop('checked', true);
+		});
 	}
 
-	$('#' + id_prefix + '_category_input').css('border-color', '#666');
-	$('#' + id_prefix + '_category_scrollbox').css('border-color', '#000000');
-	$('#' + id_prefix + '_category_scrollbox input').prop('checked', false);
-	$('#' + id_prefix + '_option_scrollbox input').prop('checked', false);
+	for (var i = 0; i < articles.length; i++){
+				
+		//var oInput = document.getElementById(articles[i]);
+		
+			$('#' + prefix + '_article_scrollbox > tbody > tr > td > div').each(function() {
+				if($(this).children().attr('id') == articles[i]) {
+					$(this).children().val(artamount[i]);
+				}
+		});
+	}		
 
-	$('#' + id_prefix + '_category_scrollbox input').prop('checked', false);
-	$.each(categories, function(index, category) {
-		$('#' + id_prefix + '_category_scrollbox input[value=' + category + ']').prop('checked', true);
+	$('#' + prefix + '_commodity_input').val(copiedFairRegistration.commodity);
+	$('#' + prefix + '_message_input').val(copiedFairRegistration.arranger_message);
+	$('#' + prefix + '_user_input').val(copiedFairRegistration.user);
+
+	maptool.openForm(prefix + '_position_form');
+	positionDialogue(prefix + '_position_form');
+
+	$('#' + prefix + '_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
+		var count = 0;
+
+		
+
+		$('#' + prefix + '_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
+		});
+		
+		var catnamesStr = '';
+
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
+		}
+
+		count = 0;
+
+		$('#' + prefix + '_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
+		});
+
+
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
+
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#' + prefix + '_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
+
+
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+		html += '<tr style="height:1em"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + pasteOnPosition.name + '</td>';
+			html += '<td class="left price">' + pasteOnPosition.price + '</td>';
+			html += '<td class="amount">1</td>';
+			if (pasteOnPosition.vat) {
+				html += '<td class="moms">' + pasteOnPosition.vat + '%</td>';
+			} else {
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(pasteOnPosition.price).toFixed(2) + '</td>';
+		html += '</tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + pasteOnPosition.information + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';
+		if (pasteOnPosition.price) {
+			if (parseFloat(pasteOnPosition.vat) == 25) {
+				excludeVatPrice25 += parseFloat(pasteOnPosition.price);
+			} else if (parseFloat(pasteOnPosition.vat) == 18) {
+				excludeVatPrice18 += parseFloat(pasteOnPosition.price);
+			} else {
+				excludeVatPrice0 += parseFloat(pasteOnPosition.price);
+			}
+		}
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + maptool.map.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($("#" + prefix + "_commodity_input").val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($("#" + prefix + "_message_input").val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+		$(dialogue + '#review_user').html("");
+
+		$(dialogue + '#review_user').append($('#' + prefix + '_user_input').find(":selected").text());
+
 	});
 
-	$('#' + id_prefix + 'option_scrollbox input').prop('checked', false);
-	$.each(options, function(index, option) {
-		$('#' + id_prefix + 'option_scrollbox input[value=' + option + ']').prop('checked', true);
-	});
-
-	$('#' + id_prefix + '_commodity_input').val(copiedFairRegistration.commodity);
-	$('#' + id_prefix + '_message_input').val(copiedFairRegistration.arranger_message);
-	$('#' + id_prefix + '_user_input').val(copiedFairRegistration.user);
-
-	maptool.openDialogue(id_prefix + '_position_dialogue');
-
-	// Listen on save-button$('#book_post').unbind('click');
-	$('#' + id_prefix + '_post').click(function() {
+	$('#' + prefix + '_post').click(function(e) {
+		e.preventDefault();
 		var cats = [];
 		var options = [];
+		var articles = [];
+		var artamount = [];
+		var count = 0;
 
-		$('#' + id_prefix + '_category_scrollbox input:checked').each(function(index, input) {
-			cats.push('categories[]=' + input.value);
+		$('#' + prefix + '_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
 		});
 
-		$('#' + id_prefix + '_option_scrollbox input:checked').each(function(index, input) {
-			options.push('options[]=' + input.value);
+		var catStr = '';
+
+		for (var j=0; j<cats.length; j++) {
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#' + prefix + '_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				options[count] = val;
+				count = count+1;
+			}
 		});
 
-		var dataString = id_prefix + 'Position=' + window.pasteOnPosition.id
-				   + '&commodity=' + encodeURIComponent($('#' + id_prefix + '_commodity_input').val())
-				   + '&message=' + encodeURIComponent($('#' + id_prefix + '_message_input').val())
+		var optStr = '';
+
+
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
+			}
+		}
+
+		count = 0;
+
+		$('#' + prefix + '_article_scrollbox > tbody > tr > td > div').each(function() {
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
+		});
+		
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
+			}
+		}
+
+		var dataString = prefix + 'Position=' + window.pasteOnPosition.id
+				   + '&commodity=' + encodeURIComponent($('#' + prefix + '_commodity_input').val())
+				   + '&message=' + encodeURIComponent($('#' + prefix + '_message_input').val())
 				   + '&map=' + maptool.map.id
-				   + '&' + cats.join('&')
-				   + '&' + options.join('&')
+				   + catStr
+				   + optStr
+				   + artStr
+				   + amountStr
 				   + '&delete_copied_fairreg=' + copiedFairRegistration.id;
 
 		if (maptool.map.userlevel > 1) {
-			dataString += '&user=' + encodeURIComponent($('#' + id_prefix + '_user_input').val());
+			dataString += '&user=' + encodeURIComponent($('#' + prefix + '_user_input').val());
 		}
 
-		if (id_prefix == 'reserve') {
+		if (prefix == 'reserve') {
 			dataString += '&expires=' + $('#reserve_expires_input').val();
-		}
-
-		if (cats.length > 0) {
-			$.ajax({
-				url: 'ajax/maptool.php',
-				type: 'POST',
-				data: dataString,
-				success: function(response) {
-					maptool.markPositionAsNotBeingEdited();
-					maptool.update();
-					maptool.closeDialogues();
-					window.pasteOnPosition = null;
-					copiedFairRegistration = null;
-
-					$('#' + id_prefix + '_position_dialogue input[type="text"], #' + id_prefix + '_position_dialogue textarea').val('');
+			if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
+				var dateParts = $("#reserve_expires_input").val().split('-');
+				dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
+				// Add one day, since it should be up to and including.
+				dt.setDate(dt.getDate(+1));
+				if (dt < new Date()) {
+					$("#reserve_expires_input").css('border-color', 'red');
+					return;
 				}
-			});
-
-		} else {
-			$('#' + id_prefix + '_category_scrollbox').css('border', '2px solid #f00');
+			} else {
+				$("#reserve_expires_input").css('border-color', 'red');
+				return;
+			}				
 		}
+
+		
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: dataString,
+			success: function(response) {
+				maptool.markPositionAsNotBeingEdited();
+				maptool.update();
+				maptool.closeDialogues();
+				maptool.closeForms();
+				window.pasteOnPosition = null;
+				copiedFairRegistration = null;
+
+				$('#' + prefix + '_position_form input[type="text"], #' + prefix + '_position_form textarea').val('');
+			}
+		});
+
 	});
 };
 
 //Create new position
 maptool.addPosition = function(clickEvent) {
-	$("#position_name_input, #position_area_input, #position_info_input").val("");
+	$("#position_name_input, #position_area_input, #position_price_input, #position_info_input").val("");
 
 	if (maptool.map.userlevel < 2)
 		return;
@@ -727,6 +1336,7 @@ maptool.addPosition = function(clickEvent) {
 		if (maptool.isOnMap(e.clientX, e.clientY)) {
 			$(document).off('mousemove', 'body', maptool.traceMouse);
 			$("#position_id_input").val("new");
+			$('#edit_position_dialogue .standSpaceName').text(lang.newStandSpace);
 			maptool.openDialogue("edit_position_dialogue");
 			$('#position_name_input').focus();
 			$("#post_position").click(function() {
@@ -822,7 +1432,10 @@ maptool.editPosition = function(positionObject) {
 	$("#position_id_input").val(positionObject.id);
 	$("#position_name_input").val(positionObject.name);
 	$("#position_area_input").val(positionObject.area);
+	$("#position_price_input").val(positionObject.price);
 	$("#position_info_input").val(positionObject.information);
+	$('.standSpaceName').html("");
+	$('#edit_position_dialogue .standSpaceName').text(lang.editStandSpace + ': ' + positionObject.name);
 	maptool.openDialogue("edit_position_dialogue");
 	$('#position_name_input').focus();
 	//$("#post_position").click(function() {
@@ -858,25 +1471,22 @@ maptool.traceMouse = function(e) {
 	});
 }
 
-//Book open position
 maptool.bookPosition = function(positionObject) {
-	$('#book_category_input').css('border-color', '#666');
-	$('#book_category_scrollbox').css('border-color', '#000000');
-	$('#book_category_scrollbox input').prop('checked', false);
-	$('#book_option_scrollbox input').prop('checked', false);
-<<<<<<< HEAD
+		dialogue = '#book_position_form ';
 		var sel = $('#book_user_input');
 		var opts_list = sel.find('option');
-		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase(); });
+		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase() ? 1 : -1; });
 		sel.html(opts_list);
-		
-=======
+		$('#book_category_scrollbox').css('border-color', '#000000');
+		$('#book_category_scrollbox > tbody > tr > td > input').prop('checked', false);
+		$('#book_option_scrollbox > tbody > tr > td > input').prop('checked', false);
+		$('#book_article_scrollbox > tbody > tr > td > div > input').val(0);
+		$("#book_commodity_input, #book_message_input").val("");
 
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	if (maptool.map.userlevel < 2) {
 		$('#book_user_input, label[for="book_user_input"]').hide();
 	}
-	
+
 	if (positionObject.status < 2 && positionObject.exhibitor) {
 		$("#book_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#book_message_input").val(positionObject.exhibitor.arranger_message);
@@ -884,24 +1494,80 @@ maptool.bookPosition = function(positionObject) {
 
 		var categories = positionObject.exhibitor.categories, 
 			options = positionObject.exhibitor.options, 
+			articles = positionObject.exhibitor.articles, 
+			amount = positionObject.exhibitor.amount, 
 			i;
 
-		for (i = 0; i < categories.length; i++) {
-			$('#book_category_scrollbox input[value=' + (typeof categories[i] === 'object' ? categories[i].category_id : categories[i]) + ']').prop('checked', true);
+	// Categories
+		for(i = 0; i < categories.length; i++){
+			$('#book_category_scrollbox > tbody > tr > td').each(function(){
+				var value = $(this).children().val();
+				
+				if (typeof categories[i] === "string") {
+					 if (value == categories[i]) {
+					 	$(this).children().prop("checked", true);
+					 }
+				} else {
+					if(value == categories[i].category_id){
+							$(this).children().prop('checked', true);
+					}
+				}
+			});
 		}
 
-		for (i = 0; i < options.length; i++) {
-			$('#book_option_scrollbox input[value=' + (typeof options[i] === 'object' ? options[i].option_id : options[i]) + ']').prop('checked', true);
+	// Extra Options
+		for(i = 0; i < options.length; i++){
+			$('#book_option_scrollbox > tbody > tr > td').each(function(){
+				var value = $(this).children().val();
+				
+				if (typeof options[i] === "string") {
+					 if (value == options[i]) {
+					 	$(this).children().prop("checked", true);
+					 }
+				} else {
+					if(value == options[i].option_id){
+							$(this).children().prop('checked', true);
+					}
+				}
+			});
 		}
+
+// Articles
+	
+	for (var i = 0; i < articles.length; i++){		
+		$('#book_article_scrollbox > tbody > tr > td > div').each(function() {
+			if($(this).children().attr('id') == articles[i].article_id) {
+				$(this).children().val(articles[i].amount);
+			}
+		});
+	}
+
 	} else {
+		$('#book_category_scrollbox').css('border-color', '#000000');
+		$('#book_category_scrollbox > tbody > tr > td > input').prop('checked', false);
+		$('#book_option_scrollbox > tbody > tr > td > input').prop('checked', false);
+		$('#book_article_scrollbox > tbody > tr > td > div > input').val(0);
 		$("#book_commodity_input, #book_message_input").val("");
 	}
-	
-	maptool.openDialogue('book_position_dialogue');
 
-	$('#book_position_dialogue h3 .standSpaceName').text(positionObject.name);
+	maptool.openForm('book_position_form');
+	positionDialogue('book_position_form');
+	$('#book_position_form ul#progressbar li').removeClass('active');
+	$('#book_position_form fieldset').css({
+		'transform': 'scale(1)',
+		'display': 'none',
+		'opacity': '0',
+	});				
+	$('#book_position_form ul#progressbar li:first-child').attr('class', 'active');
+	$('#book_position_form fieldset:first-of-type').css({
+		'transform': 'scale(1)',
+		'display': 'block',
+		'opacity': '1',
+	});
+	$('.standSpaceName').html("");
+	$('#book_position_form .standSpaceName').text(lang.bookStandSpace + ': ' + positionObject.name);
 	$('.ssinfo').html("");
-	$('.ssinfo').html('<strong>'+lang.area +  ' </strong>: ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + positionObject.area + '</p><br/><label>' + lang.price +  ': </label><p>' + positionObject.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + positionObject.information) + '</p>';
 
 	$('#book_user_input').unbind('change');
 	$('#book_user_input').change(function() {
@@ -918,9 +1584,9 @@ maptool.bookPosition = function(positionObject) {
 		});
 	});
 
-	$('#book_position_dialogue > #search_user_input').unbind('keyup');
-	$('#book_position_dialogue > #search_user_input').val('');
-	$('#book_position_dialogue > #search_user_input').keyup(function(e) {
+	$('#book_position_form > fieldset > div > #search_user_input').unbind('keyup');
+	$('#book_position_form > fieldset > div > #search_user_input').val('');
+	$('#book_position_form > fieldset > div > #search_user_input').keyup(function(e) {
 		if (e.keyCode == 13) {
 			$('#book_user_input').change();
 		} else {
@@ -945,19 +1611,413 @@ maptool.bookPosition = function(positionObject) {
 		}
 	});
 
+	$('#book_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
+		var count = 0;
 
+		
+
+		$('#book_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
+		});
+		
+		var catnamesStr = '';
+
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
+		}
+
+		count = 0;
+
+		$('#book_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
+		});
+
+
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
+
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#book_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
+
+
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+		html += '<tr style="height:1em"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.name + '</td>';
+			html += '<td class="left price">' + positionObject.price + '</td>';
+			html += '<td class="amount">1</td>';
+			if (positionObject.vat) {
+				html += '<td class="moms">' + positionObject.vat + '%</td>';
+			} else {
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(positionObject.price).toFixed(2) + '</td>';
+		html += '</tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.information + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';		
+
+		if (positionObject.price) {
+			if (parseFloat(positionObject.vat) == 25) {
+				excludeVatPrice25 += parseFloat(positionObject.price);
+			} else if (parseFloat(positionObject.vat) == 18) {
+				excludeVatPrice18 += parseFloat(positionObject.price);
+			} else {
+				excludeVatPrice0 += parseFloat(positionObject.price);
+			}
+		}
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + maptool.map.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($("#book_commodity_input").val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($("#book_message_input").val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+		$(dialogue + '#review_user').html("");
+
+		$(dialogue + '#review_user').append($('#book_user_input').find(":selected").text());
+
+	});
+
+	$('#book_post').unbind('keyup');
+	$('#book_post').unbind('keydown');
 	$('#book_post').unbind('click');
-	$("#book_post").click(function() {
+	$('#book_position_form').on('keyup keypress', function(e) {
+	  var code = e.keyCode || e.which;
+	  if (code == 13) { 
+	    e.preventDefault();
+	    return false;
+	  }
+	});
+
+	$("#book_post").click(function(e) {
+		e.preventDefault();
 		var cats = [];
 		var options = [];
+		var articles = [];
+		var artamount = [];
 		var count = 0;
-		$('#book_category_scrollbox > p').each(function(){
+
+		$('#book_category_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
 				count = count+1;
 			}
 		});
+
+		if (count == 0) {
+			$('#book_category_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
+
 		var catStr = '';
 
 		for (var j=0; j<cats.length; j++) {
@@ -967,21 +2027,44 @@ maptool.bookPosition = function(positionObject) {
 		}
 
 		count = 0;
-		$('#book_option_scrollbox > p').each(function() {
+
+		$('#book_option_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
-			
-			if (val != "undefined") {
+			if(val != "undefined"){
 				options[count] = val;
-				count++;
+				count = count+1;
 			}
 		});
-		
+
 		var optStr = '';
 
 
-		for (var j = 0; j < options.length; j++) {
-			if (options[j] != undefined) {
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
 				optStr += '&options[]=' + options[j];
+			}
+		}
+
+		count = 0;
+
+		$('#book_article_scrollbox > tbody > tr > td > div').each(function() {
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
+		});
+		
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
 			}
 		}
 		
@@ -990,7 +2073,9 @@ maptool.bookPosition = function(positionObject) {
 				   + '&message=' + encodeURIComponent($("#book_message_input").val())
 				   + '&map=' + maptool.map.id
 				   + catStr
-				   + optStr;
+				   + optStr
+				   + artStr
+				   + amountStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
@@ -1009,25 +2094,541 @@ maptool.bookPosition = function(positionObject) {
 					maptool.markPositionAsNotBeingEdited();
 					maptool.update();
 					maptool.closeDialogues();
-					$('#book_position_dialogue input[type="text"], #book_position_dialogue textarea').val("");
+					maptool.closeForms();
+					$('#book_position_form input[type="text"], #book_position_form textarea').val("");
 					$('.ssinfo').html('');
 				}
 			});
 		} else {
-			$('#book_category_scrollbox').css('border', '2px solid #f00');
+			$('#book_category_scrollbox_div').css('border', '0.166em solid #f00');
 		}
 	});
 }
 
-maptool.markForApplication = function(positionObject) {
-	$('#apply_category_input').css('border', '1px solid #666');
-	$('#apply_category_input, #apply_commodity_input').css('border-color', '#000000');
-	$('#apply_mark_dialogue textarea, #apply_mark_dialogue select').val("");
-	$('.ssinfo').html("");
-	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+maptool.applyForFair = function() {
+	dialogue = '#fair_registration_form ';
+	$('#registration_category_input').css('border', '1px solid #666');
+	$('#registration_category_input, #registration_commodity_input').css('border-color', '#B09D9D');
+	$('#fair_registration_form textarea, #fair_registration_form select').val("");
+	$('.standSpaceName').html("");
+	$('.standSpaceName').text(lang.applyForFair);
 
-	maptool.openDialogue('apply_mark_dialogue');
+	maptool.openForm('fair_registration_form');
+	positionDialogue('fair_registration_form');
+	$('#fair_registration_form ul#progressbar li').removeClass('active');
+	$('#fair_registration_form fieldset').css({
+		'transform': 'scale(1)',
+		'display': 'none',
+		'opacity': '0',
+	});				
+	$('#fair_registration_form ul#progressbar li:first-child').attr('class', 'active');
+	$('#fair_registration_form fieldset:first-of-type').css({
+		'transform': 'scale(1)',
+		'display': 'block',
+		'opacity': '1',
+	});	
+	$('#registration_commodity_input').change(function() {
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: 'getUserCommodity=1&userId=' + maptool.map.user_id,
+			success: function(response) {
+				if (response) {
+					r = JSON.parse(response);
+					$('#registration_commodity_input').val(r.commodity);
+				}
+			}
+		});
+	});
 	
+	$('#registration_commodity_input').change();
+	$('#registration_commodity_input').unbind('change');
+	$('#registration_confirm').unbind('click');
+
+	$('#fair_registration_form').on('keyup keypress', function(e) {
+	  var code = e.keyCode || e.which;
+	  if (code == 13) { 
+	    e.preventDefault();
+	    return false;
+	  }
+	});	
+
+	$('#registration_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
+		var count = 0;
+
+		
+
+		$('#registration_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
+		});
+		
+		var catnamesStr = '';
+
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
+		}
+
+		count = 0;
+
+		$('#registration_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
+		});
+
+
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
+
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#registration_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
+
+
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + lang.preliminary_amount + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="preliminary_totalprice">' + lang.amount_no_standspace + '</td>';
+		html2 += '</tr>';
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($("#registration_commodity_input").val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($("#registration_message_input").val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+		$(dialogue + '#review_registration_area').html("");
+		$(dialogue + '#review_registration_area').append($("#registration_area_input").val());
+
+
+	});
+
+	$('#registration_confirm').click(function(e) {
+		e.preventDefault();
+		if ($("#registration_commodity_input").val() == "") {
+			$('#registration_commodity_input').css('border-color', 'red');
+			return;
+		}
+		var cats = [];
+		var options = [];
+		var articles = [];
+		var artamount = [];
+		var count = 0;
+
+		$('#registration_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		if (count == 0) {
+			$('#registration_category_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
+
+		var catStr = '';
+
+		for (var j=0; j<cats.length; j++) {
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#registration_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				options[count] = val;
+				count = count+1;
+			}
+		});
+
+		var optStr = '';
+
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
+			}
+		}
+
+		count = 0;
+
+		$('#registration_article_scrollbox > tbody > tr > td > div').each(function() {
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
+		});
+
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
+			}
+		}
+
+		var dataString = 'fairRegistration='
+				   + '&commodity=' + encodeURIComponent($('#registration_commodity_input').val())
+				   + '&message=' + encodeURIComponent($('#registration_message_input').val())
+				   + '&area=' + encodeURIComponent($('#registration_area_input').val())
+				   + catStr
+				   + optStr
+				   + artStr
+				   + amountStr;
+		
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: dataString,
+			success: function(response) {
+				maptool.update();
+				maptool.closeDialogues();
+				maptool.closeForms();
+				$('#fair_registration_form input[type="text"], #fair_registration_form textarea').val("");
+				maptool.openDialogue("fairRegistrationConfirm");
+				positionDialogue("fairRegistrationConfirm", 0);
+			}
+		});
+	});
+	
+}
+
+maptool.markForApplication = function(positionObject) {
+	dialogue = '#apply_mark_form ';
+	$('#apply_category_input').css('border', '1px solid #666');
+	$('#apply_category_input, #apply_commodity_input').css('border-color', '#B09D9D');
+	$('#apply_mark_form textarea, #apply_mark_form select').val("");
+	$('.standSpaceName').html("");
+	$('.standSpaceName').text(lang.preliminaryBookStandSpace + ': ' + positionObject.name);
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + positionObject.area + '</p><br/><label>' + lang.price +  ': </label><p>' + positionObject.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + positionObject.information) + '</p>';
+
+	maptool.openForm('apply_mark_form');
+	positionDialogue('apply_mark_form');
+	$('#apply_mark_form ul#progressbar li').removeClass('active');
+	$('#apply_mark_form fieldset').css({
+		'transform': 'scale(1)',
+		'display': 'none',
+		'opacity': '0',
+	});				
+	$('#apply_mark_form ul#progressbar li:first-child').attr('class', 'active');
+	$('#apply_mark_form fieldset:first-of-type').css({
+		'transform': 'scale(1)',
+		'display': 'block',
+		'opacity': '1',
+	});	
 	$('#apply_commodity_input').change(function() {
 		$.ajax({
 			url: 'ajax/maptool.php',
@@ -1044,17 +2645,401 @@ maptool.markForApplication = function(positionObject) {
 	
 	$('#apply_commodity_input').change();
 	$('#apply_commodity_input').unbind('change');
-	$("#apply_choose_more").unbind('click');
-	$('#apply_choose_more').click(function() {
+	$('#apply_confirm').unbind('click');
+
+	$('#apply_mark_form').on('keyup keypress', function(e) {
+	  var code = e.keyCode || e.which;
+	  if (code == 13) { 
+	    e.preventDefault();
+	    return false;
+	  }
+	});	
+
+	$('#apply_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
+		var count = 0;
+
+		
+
+		$('#apply_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
+		});
+		
+		var catnamesStr = '';
+
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
+		}
+
+		count = 0;
+
+		$('#apply_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
+		});
+
+
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
+
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#apply_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
+
+
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+		html += '<tr style="height:1em"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.name + '</td>';
+			html += '<td class="left price">' + positionObject.price + '</td>';
+			html += '<td class="amount">1</td>';
+			if (positionObject.vat) {
+				html += '<td class="moms">' + positionObject.vat + '%</td>';
+			} else {
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(positionObject.price).toFixed(2) + '</td>';
+		html += '</tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.information + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';				
+
+		if (positionObject.price) {
+			if (parseFloat(positionObject.vat) == 25) {
+				excludeVatPrice25 += parseFloat(positionObject.price);
+			} else if (parseFloat(positionObject.vat) == 18) {
+				excludeVatPrice18 += parseFloat(positionObject.price);
+			} else {
+				excludeVatPrice0 += parseFloat(positionObject.price);
+			}
+		}
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + maptool.map.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($("#apply_commodity_input").val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($("#apply_message_input").val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+
+	});
+
+	$('#apply_confirm').click(function(e) {
+		e.preventDefault();
 		if ($("#apply_commodity_input").val() == "") {
 			$('#apply_commodity_input').css('border-color', 'red');
 			return;
 		}
-		
-		var cats = new Array();
+		var cats = [];
+		var options = [];
+		var articles = [];
+		var artamount = [];
 		var count = 0;
 
-		$('#apply_category_scrollbox > p').each(function(){
+		$('#apply_category_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
@@ -1062,65 +3047,68 @@ maptool.markForApplication = function(positionObject) {
 			}
 		});
 
+		if (count == 0) {
+			$('#apply_category_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
+
 		var catStr = '';
+
 		for (var j=0; j<cats.length; j++) {
 			if(cats[j] != undefined){
 				catStr += '&categories[]=' + cats[j];
 			}
 		}
 
-		if (cats.length == 0) {
-			$('#apply_category_scrollbox').css('border', '2px solid #f00');
-			return;
-		}
-		
-		var exists = false;
-		for (var i=0; i<markedAsBooked.length; i++) {
-			if (markedAsBooked[i].id == positionObject.id)
-				exists = true;
-		}
-		
-		if (!exists) {
-			positionObject.user_commodity = $("#apply_commodity_input").val();
-			positionObject.user_message = $("#apply_message_input").val();
-			positionObject.user_categories = catStr;
-			markedAsBooked.push(positionObject);
-		}
-		maptool.closeDialogues();
-	});
-	
-	$('#apply_confirm').unbind('click');
-	$('#apply_confirm').click(function() {
-		if ($("#apply_commodity_input").val() == "") {
-			$('#apply_commodity_input').css('border-color', 'red');
-			return;
-		}
-		var cats = new Array();
-		var count = 0;
-		$('#apply_category_scrollbox > p').each(function(){
+		count = 0;
+
+		$('#apply_option_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
-			if(val != null){
-				cats[count] = val;
+			if(val != "undefined"){
+				options[count] = val;
 				count = count+1;
 			}
 		});
 
 		if (count == 0) {
-			$('#apply_category_scrollbox').css('border', '2px solid #f00');
+			$('#apply_option_scrollbox').css('border', '0.166em solid #f00');
 			return;
 		}
 
-		var opts = [];
-		var count = 0;
-		$('#apply_option_scrollbox > p').each(function() {
-			var val = $(this).children('input:checked').val();
-			if(val != null){
-				opts[count] = val;
-				count = count+1;
+		var optStr = '';
+
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
 			}
+		}
+
+		count = 0;
+
+		$('#apply_article_scrollbox > tbody > tr > td > div').each(function() {
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
 		});
 
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
+			}
+		}
+
 		var exists = false;
+
+
 		for (var i=0; i<markedAsBooked.length; i++) {
 			if (markedAsBooked[i].id == positionObject.id)
 				exists = true;
@@ -1130,89 +3118,42 @@ maptool.markForApplication = function(positionObject) {
 			positionObject.user_commodity = $("#apply_commodity_input").val();
 			positionObject.user_message = $("#apply_message_input").val();
 			positionObject.user_categories = cats;
-			positionObject.user_options = opts;
+			positionObject.user_options = options;
 
 			markedAsBooked.push(positionObject);
 		}
-		
-		maptool.closeDialogues();
-		maptool.applyForPositions();
-	});
-	
-}
 
-maptool.editMarking = function(id) {
-	
-	var obj = null;
-	for (var i=0; i<markedAsBooked.length; i++) {
-		if (markedAsBooked[i].id == id)
-			obj = markedAsBooked[i];
-	}
-	
-	$("#apply_commodity_input").val(obj.user_commodity);
-	$("#apply_message_input").val(obj.user_message);
-	
-	$('.mssinfo').html('<strong>' + lang.space + ' ' + obj.name + '<br/>' + lang.area + ':</strong> ' + obj.area + '<br/><strong>' + lang.info + ': </strong>' + obj.information);
-	maptool.openDialogue('apply_mark_dialogue');
-	
-}
 
-maptool.applyForPositions = function() {
-	if (markedAsBooked.length < 1)
-		return;
-	
-	var html = '';
-	for (var i=0; i<markedAsBooked.length; i++) {
-		var posStr = '';
-		var msgStr = '';
-		var catStr = '';
-		var optStr = '';
-		var comStr = '';
-		for (var i=0; i<markedAsBooked.length; i++) {
-			
-			posStr += 'preliminary[' + i + ']=' + markedAsBooked[i].id + '&';
-			msgStr += 'message[' + i + ']=' + markedAsBooked[i].user_message + '&';
-			comStr += 'commodity[' + i + ']=' + markedAsBooked[i].user_commodity + '&';
-			
-			for (var j=0; j<markedAsBooked[i].user_categories.length; j++) {
-				catStr += 'categories[' + i + '][]=' + markedAsBooked[i].user_categories[j] + '&';
-			}
-
-			for (var j = 0; j < markedAsBooked[i].user_options.length; j++) {
-				optStr += 'options[' + i + '][]=' + markedAsBooked[i].user_options[j] + '&';
-			}
-		}
-		
-		var dataString = posStr
-				   + msgStr
-				   + comStr
-				   + 'map=' + maptool.map.id
-				   + '&' + catStr
-				   + "&" + optStr;
+		var dataString = 'preliminary=' + positionObject.id
+				   + '&commodity=' + encodeURIComponent($('#apply_commodity_input').val())
+				   + '&message=' + encodeURIComponent($('#apply_message_input').val())
+				   + catStr
+				   + optStr
+				   + artStr
+				   + amountStr;
 		
 		$.ajax({
 			url: 'ajax/maptool.php',
 			type: 'POST',
 			data: dataString,
 			success: function(response) {
+				markedAsBooked.push(positionObject);
 				maptool.update();
 				maptool.closeDialogues();
-				$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
-				markedAsBooked = new Array;
-
+				maptool.closeForms();
+				$('#apply_mark_form input[type="text"], #apply_mark_form textarea').val("");
 				maptool.openDialogue("preliminaryConfirm");
 				positionDialogue("preliminaryConfirm", 0);
 			}
 		});
-	}
-	
+	});
 	
 }
 
 maptool.applyForPosition = function(positionObject) {
 	$('#apply_category_input').css('border', '1px solid #666');
 	$('.ssinfo').html("");
-	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ': </strong>' + positionObject.area + '<br/><strong>' + lang.price + ': </strong>' + positionObject.price + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
 	
 	maptool.openDialogue('apply_position_dialogue');
 	$("#apply_post").click(function() {
@@ -1251,7 +3192,7 @@ maptool.applyForPosition = function(positionObject) {
 				}
 			});
 		}  else {
-			$('#apply_category_scrollbox').css('border', '2px solid #f00');
+			$('#apply_category_scrollbox').css('border', '0.166em solid #f00');
 		}
 	});
 }
@@ -1269,24 +3210,35 @@ maptool.cancelApplication = function(positionObject) {
 
 maptool.editBooking = function(positionObject) {
 
+
+	$('.standSpaceName').html("");
 	if (positionObject.status == 2 || positionObject.status == 0) {
 		//booked
-		//maptool.openDialogue('book_position_dialogue');
 		var prefix = 'book';
+		dialogue = '#book_position_form ';
+		$('#' + prefix + '_position_form .standSpaceName').text(lang.editBookedStandSpace + ': ' + positionObject.name);	
 	} else if (positionObject.status == 1) {
 		//reserved
-		//maptool.openDialogue('reserve_position_dialogue');
 		var prefix = 'reserve';
+		dialogue = '#reserve_position_form ';
+		$('#' + prefix + '_position_form .standSpaceName').text(lang.editReservedStandSpace + ': ' + positionObject.name);			
 		$('#' + prefix + '_expires_input').val(positionObject.expires);
 	}
 
-	$('#'+prefix+'_category_input').css('border', '1px solid #666');
+	$('#' + prefix + '_category_input').css('border', '1px solid #666');
 	$('.ssinfo').html("");
-	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ':</strong> ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + positionObject.area + '</p><br/><label>' + lang.price +  ': </label><p>' + positionObject.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + positionObject.information) + '</p>';
+	
 	var categories = positionObject.exhibitor.categories;
-	$('#'+prefix+'_category_scrollbox > p > input').prop('checked', false);
+	var options = positionObject.exhibitor.options;
+	var articles = positionObject.exhibitor.articles;
+
+	$('#' + prefix + '_category_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#' + prefix + '_option_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#' + prefix + '_article_scrollbox > tbody > tr > td > div > input').val(0);
+// Categories
 	for(var i = 0; i < categories.length; i++){
-		$('#'+prefix+'_category_scrollbox > p').each(function(){
+		$('#' + prefix + '_category_scrollbox > tbody > tr > td').each(function(){
 			var value = $(this).children().val();
 			
 			if (typeof categories[i] === "string") {
@@ -1301,10 +3253,9 @@ maptool.editBooking = function(positionObject) {
 		});
 	}
 
-	var options = positionObject.exhibitor.options;
-	$('#'+prefix+'_option_scrollbox > p > input').prop('checked', false);
-	for (var i = 0; i < options.length; i++){
-		$('#'+prefix+'_option_scrollbox > p').each(function() {
+// Extra Options
+	for(var i = 0; i < options.length; i++){
+		$('#' + prefix + '_option_scrollbox > tbody > tr > td').each(function(){
 			var value = $(this).children().val();
 			
 			if (typeof options[i] === "string") {
@@ -1319,33 +3270,45 @@ maptool.editBooking = function(positionObject) {
 		});
 	}
 
-	$('#'+prefix+'_user_input').unbind('change');
-	$('#'+prefix+'_user_input').change(function() {
+// Articles
+	
+	for (var i = 0; i < articles.length; i++){		
+		$('#' + prefix + '_article_scrollbox > tbody > tr > td > div').each(function() {
+			if($(this).children().attr('id') == articles[i].article_id) {
+				$(this).children().val(articles[i].amount);
+			}
+		});
+	}
+
+// Get commodity from user input
+	$('#' + prefix + '_user_input').unbind('change');
+	$('#' + prefix + '_user_input').change(function() {
 		$.ajax({
 			url: 'ajax/maptool.php',
 			type: 'POST',
-			data: 'getUserCommodity=1&userId=' + $('#'+prefix+'_user_input').val(),
+			data: 'getUserCommodity=1&userId=' + $('#' + prefix + '_user_input').val(),
 			success: function(response) {
 				if (response) {
 					r = JSON.parse(response);
-					$('#'+prefix+'_commodity_input').val(r.commodity);
+					$('#' + prefix + '_commodity_input').val(r.commodity);
 				}
 			}
 		});
 	});
-	
-	$('#' + prefix + '_position_dialogue > #search_user_input').unbind('keyup');
-	$('#' + prefix + '_position_dialogue > #search_user_input').val('');
-	$('#' + prefix + '_position_dialogue > #search_user_input').keyup(function(e) {
+
+// Search for user	
+	$('#' + prefix + '_position_form > fieldset > div > #search_user_input').unbind('keyup');
+	$('#' + prefix + '_position_form > fieldset > div > #search_user_input').val('');
+	$('#' + prefix + '_position_form > fieldset > div > #search_user_input').keyup(function(e) {
 		if (e.keyCode == 13) {
-			$('#'+prefix+'_user_input').change();
+			$('#' + prefix + '_user_input').change();
 		} else {
 			var query = $(this).val().toLowerCase();
 			var selectedFirst = false;
 			if (query == "") {
-				$('#'+prefix+'_user_input > option').show();
+				$('#' + prefix + '_user_input > option').show();
 			} else {
-				$('#'+prefix+'_user_input > option').each(function() {
+				$('#' + prefix + '_user_input > option').each(function() {
 					if ($(this).text().toLowerCase().indexOf(query) == -1) {
 						$(this).prop('selected', false);
 						$(this).hide();
@@ -1362,30 +3325,416 @@ maptool.editBooking = function(positionObject) {
 	});
 	
 
-	maptool.openDialogue(prefix + '_position_dialogue');
+	maptool.openForm(prefix + '_position_form');
+	positionDialogue(prefix + '_position_form');
+	$('#' + prefix + '_position_form ul#progressbar li').removeClass('active');
+	$('#' + prefix + '_position_form fieldset').css({
+		'transform': 'scale(1)',
+		'display': 'none',
+		'opacity': '0',
+	});				
+	$('#' + prefix + '_position_form ul#progressbar li:first-child').attr('class', 'active');
+	$('#' + prefix + '_position_form fieldset:first-of-type').css({
+		'transform': 'scale(1)',
+		'display': 'block',
+		'opacity': '1',
+	});	
 	$('#' + prefix + '_commodity_input').val(positionObject.exhibitor.commodity);
 	$('#' + prefix + '_message_input').val(positionObject.exhibitor.arranger_message);
 	$('#' + prefix + '_user_input option[value="' + positionObject.exhibitor.user + '"]').prop('selected', true);
-	
-	$('#' + prefix + '_category_input option').prop("selected", false);
-	var categories = positionObject.exhibitor.categories;
-	//$('#' + prefix + '_category_scrollbox > p > input').prop('checked', false);
-	for (var i=0; i<positionObject.exhibitor.categories.length; i++) {
-		$('#'+prefix+'_category_scrollbox').children().each(function(j){
-			if(positionObject.exhibitor.categories[i].category_id == $(this).children('input').val()){
-				//$(this).children('input').prop('checked', true);
-			}
-		});
-	}
-	
+
+
 	$("#" + prefix + "_post").unbind("click");
-	$("#" + prefix + "_post").click(function() {
-		
-		var cats = new Array();
-		var opts = [];
+	$('#' + prefix + '_position_form').on('keyup keypress', function(e) {
+	  var code = e.keyCode || e.which;
+	  if (code == 13) { 
+	    e.preventDefault();
+	    return false;
+	  }
+	});	
+	$('#' + prefix + '_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
 		var count = 0;
 
-		$('#'+prefix+'_category_scrollbox > p').each(function(){
+		
+
+		$('#' + prefix + '_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
+		});
+		
+		var catnamesStr = '';
+
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
+		}
+
+		count = 0;
+
+		$('#' + prefix + '_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
+		});
+
+
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
+
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#' + prefix + '_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
+
+
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+		html += '<tr style="height:1em"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.name + '</td>';
+			html += '<td class="left price">' + positionObject.price + '</td>';
+			html += '<td class="amount">1</td>';
+			if (positionObject.vat) {
+				html += '<td class="moms">' + positionObject.vat + '%</td>';
+			} else {
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(positionObject.price).toFixed(2) + '</td>';
+		html += '</tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.information + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';		
+		if (positionObject.price) {
+			if (parseFloat(positionObject.vat) == 25) {
+				excludeVatPrice25 += parseFloat(positionObject.price);
+			} else if (parseFloat(positionObject.vat) == 18) {
+				excludeVatPrice18 += parseFloat(positionObject.price);
+			} else {
+				excludeVatPrice0 += parseFloat(positionObject.price);
+			}
+		}
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + maptool.map.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($(dialogue + '#' + prefix + '_commodity_input').val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($(dialogue + '#' + prefix + '_message_input').val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+		$(dialogue + '#review_user').html("");
+
+		$(dialogue + '#review_user').append($('#' + prefix + '_user_input').find(":selected").text());
+
+	});
+	$("#" + prefix + "_post").click(function(e) {
+		e.preventDefault();
+		var cats = [];
+		var options = [];
+		var articles = [];
+		var artamount = [];
+		var count = 0;
+
+
+		$('#' + prefix + '_category_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
@@ -1393,27 +3742,65 @@ maptool.editBooking = function(positionObject) {
 			}
 		});
 
-		$('#'+prefix+'_option_scrollbox > p').each(function(){
-			var val = $(this).children('input:checked').val();
-			if(val != "undefined"){
-				opts[count] = val;
-				count = count+1;
-			}
-		});
+		if (count == 0) {
+			$('#' + prefix + '_category_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
 
 		var catStr = '';
+
 		for (var j=0; j<cats.length; j++) {
 			if(cats[j] != undefined){
 				catStr += '&categories[]=' + cats[j];
 			}
 		}
+		count = 0;
+
+		$('#' + prefix + '_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				options[count] = val;
+				count = count+1;
+			}
+		});
+
+		if (count == 0) {
+			$('#' + prefix + '_option_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
 
 		var optStr = '';
-		for (var j = 0; j < opts.length; j++) {
-			if (opts[j] != undefined){
-				optStr += '&options[]=' + opts[j];
+
+
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
 			}
 		}
+		count = 0;
+
+		$('#' + prefix + '_article_scrollbox > tbody > tr > td > div').each(function(){
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
+		});
+		
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
+			}
+		}
+
 
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
@@ -1421,7 +3808,9 @@ maptool.editBooking = function(positionObject) {
 				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
 				   + '&map=' + maptool.map.id
 				   + catStr
-				   + optStr;
+				   + optStr
+				   + artStr
+				   + amountStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + $("#" + prefix + "_user_input").val();
@@ -1429,9 +3818,22 @@ maptool.editBooking = function(positionObject) {
 		
 		if (positionObject.status == 1) {
 			dataString += '&expires=' + $("#" + prefix + "_expires_input").val();
+			if ($("#" + prefix + "_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
+				var dateParts = $("#" + prefix + "_expires_input").val().split('-');
+				dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
+				// Add one day, since it should be up to and including.
+				dt.setDate(dt.getDate(+1));
+				if (dt < new Date()) {
+					$("#" + prefix + "_expires_input").css('border-color', 'red');
+					return;
+				}
+			} else {
+				$("#" + prefix + "_expires_input").css('border-color', 'red');
+				return;
+			}			
 		}
-
-		if(catStr.length > 0){
+		
+		if(catStr.length != 0){
 			$.ajax({
 				url: 'ajax/maptool.php',
 				type: 'POST',
@@ -1440,52 +3842,62 @@ maptool.editBooking = function(positionObject) {
 					maptool.markPositionAsNotBeingEdited();
 					maptool.update();
 					maptool.closeDialogues();
-					$('#' + prefix + 'book_position_dialogue input[type="text"], #' + prefix + '_position_dialogue textarea').val("");
+         			maptool.closeForms();
+					$('#' + prefix + '_position_form input[type="text"], #' + prefix + '_position_form textarea').val("");
 					$('.ssinfo').html('');
 				}
 			});
 		} else {
-			$('#'+prefix+'_category_scrollbox').css('border', '2px solid #f00');
+			$('#' + prefix + '_category_scrollbox_div').css('border', '0.166em solid #f00');
 		}
 	});
 	
 }
 
 maptool.cancelBooking = function(positionObject) {
-	var comment = prompt(lang.cancelBookingComment, '');
-
-	if (comment !== null) {
-		if (confirm(lang.cancel_booking_confirm_text + ' ' + positionObject.name + '?')) {
-			$.ajax({
-				url: 'ajax/maptool.php',
-				type: 'POST',
-				data: 'cancelBooking=' + positionObject.id + '&comment=' + comment,
-				success: function(response) {
-					maptool.update();
-				}
-			});
-		}
-	}
+    $.confirm({
+        title: ' ',
+        content: deletion + '<textarea style="margin-top: 0.5em" cols="50" rows="5" placeholder="' + lang.deletion_comment_placeholder + '"></textarea>',
+        confirm: function(){
+        	var message = this.$content.find('textarea').val();
+          $.confirm({
+			title: ' ',
+			content: lang.cancel_booking_confirm_text + ' ' + positionObject.name + '?',
+			confirm: function(){
+				$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: 'cancelBooking=' + positionObject.id + '&comment=' + message,
+					success: function(response) {
+						maptool.update();
+					}
+				});
+			},
+			cancel: function() {
+			}
+          });
+        },
+        cancel: function() {
+        }
+    });
 }
 
 //Reserve open position
 maptool.reservePosition = function(positionObject) {
-	$('#reserve_category_input').css('border-color', '#666');
+		dialogue = '#reserve_position_form ';
 	$('#reserve_category_scrollbox').css('border-color', '#000000');
-	$('#reserve_category_scrollbox input').prop('checked', false);
-	$('#reserve_option_scrollbox input').prop('checked', false);
-<<<<<<< HEAD
+	$('#reserve_category_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#reserve_option_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#reserve_article_scrollbox > tbody > tr > td > div > input').val(0);
+	$("#reserve_commodity_input, #reserve_message_input").val("");
 		var sel = $('#reserve_user_input');
 		var opts_list = sel.find('option');
-		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase(); });
+		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase() ? 1 : -1; });
 		sel.html(opts_list);
-=======
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
-
+		
 	if (maptool.map.userlevel < 2) {
 		$('#reserve_user_input, label[for="reserve_user_input"]').hide();
 	}
-	
 	if (positionObject.status == 2 && positionObject.exhibitor) {
 		$("#reserve_commodity_input").val(positionObject.exhibitor.commodity);
 		$("#reserve_message_input").val(positionObject.exhibitor.arranger_message);
@@ -1493,24 +3905,72 @@ maptool.reservePosition = function(positionObject) {
 
 		var categories = positionObject.exhibitor.categories, 
 			options = positionObject.exhibitor.options, 
+			articles = positionObject.exhibitor.articles, 
+			amount = positionObject.exhibitor.amount, 
 			i;
 
-		for (i = 0; i < categories.length; i++) {
-			$('#reserve_category_scrollbox input[value=' + (typeof categories[i] === 'object' ? categories[i].category_id : categories[i]) + ']').prop('checked', true);
+	// Categories
+		for(i = 0; i < categories.length; i++){
+			$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
+				var value = $(this).children().val();
+				
+				if (typeof categories[i] === "string") {
+					 if (value == categories[i]) {
+					 	$(this).children().prop("checked", true);
+					 }
+				} else {
+					if(value == categories[i].category_id){
+							$(this).children().prop('checked', true);
+					}
+				}
+			});
 		}
 
-		for (i = 0; i < options.length; i++) {
-			$('#reserve_option_scrollbox input[value=' + (typeof options[i] === 'object' ? options[i].option_id : options[i]) + ']').prop('checked', true);
+	// Extra Options
+		for(i = 0; i < options.length; i++){
+			$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
+				var value = $(this).children().val();
+				
+				if (typeof options[i] === "string") {
+					 if (value == options[i]) {
+					 	$(this).children().prop("checked", true);
+					 }
+				} else {
+					if(value == options[i].option_id){
+							$(this).children().prop('checked', true);
+					}
+				}
+			});
 		}
-	} else {
-		$("#reserve_commodity_input, #reserve_message_input, #reserve_expires_input").val("");
-	}
+
+// Articles
 	
-	maptool.openDialogue('reserve_position_dialogue');
-
-	$('#reserve_position_dialogue h3 .standSpaceName').text(positionObject.name);
+	for (var i = 0; i < articles.length; i++){		
+		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
+			if($(this).children().attr('id') == articles[i].article_id) {
+				$(this).children().val(articles[i].amount);
+			}
+		});
+	}
+	}
+	maptool.openForm('reserve_position_form');
+	positionDialogue('reserve_position_form');
+	$('#reserve_position_form ul#progressbar li').removeClass('active');
+	$('#reserve_position_form fieldset').css({
+		'transform': 'scale(1)',
+		'display': 'none',
+		'opacity': '0',
+	});				
+	$('#reserve_position_form ul#progressbar li:first-child').attr('class', 'active');
+	$('#reserve_position_form fieldset:first-of-type').css({
+		'transform': 'scale(1)',
+		'display': 'block',
+		'opacity': '1',
+	});
+	$('.standSpaceName').html("");
+	$('#reserve_position_form .standSpaceName').text(lang.reserveStandSpace + ': ' + positionObject.name);
 	$('.ssinfo').html("");
-	$('.ssinfo').html('<strong>'+lang.area +  ' </strong>: ' + positionObject.area + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
+	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + positionObject.area + '</p><br/><label>' + lang.price +  ': </label><p>' + positionObject.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + positionObject.information) + '</p>';
 
 	$('#reserve_user_input').unbind('change');
 	$('#reserve_user_input').change(function() {
@@ -1527,9 +3987,9 @@ maptool.reservePosition = function(positionObject) {
 		});
 	});
 
-	$('#reserve_position_dialogue > #search_user_input').unbind('keyup');
-	$('#reserve_position_dialogue > #search_user_input').val('');
-	$('#reserve_position_dialogue > #search_user_input').keyup(function(e) {
+	$('#reserve_position_form > fieldset > div > #search_user_input').unbind('keyup');
+	$('#reserve_position_form > fieldset > div > #search_user_input').val('');
+	$('#reserve_position_form > fieldset > div > #search_user_input').keyup(function(e) {
 		if (e.keyCode == 13) {
 			$('#reserve_user_input').change();
 		} else {
@@ -1553,40 +4013,407 @@ maptool.reservePosition = function(positionObject) {
 			}
 		}
 	});
-<<<<<<< HEAD
+
+	$('#reserve_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
+		var count = 0;
+
+		
+
+		$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
+		});
+		
+		var catnamesStr = '';
+
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
+		}
+
+		count = 0;
+
+		$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
+		});
 
 
-=======
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
+
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
 
 
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+		html += '<tr style="height:1em"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.name + '</td>';
+			html += '<td class="left price">' + positionObject.price + '</td>';
+			html += '<td class="amount">1</td>';
+			if (positionObject.vat) {
+				html += '<td class="moms">' + positionObject.vat + '%</td>';
+			} else {
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(positionObject.price).toFixed(2) + '</td>';
+		html += '</tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + positionObject.information + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';		
+		if (positionObject.price) {
+			if (parseFloat(positionObject.vat) == 25) {
+				excludeVatPrice25 += parseFloat(positionObject.price);
+			} else if (parseFloat(positionObject.vat) == 18) {
+				excludeVatPrice18 += parseFloat(positionObject.price);
+			} else {
+				excludeVatPrice0 += parseFloat(positionObject.price);
+			}
+		}
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + maptool.map.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($("#reserve_commodity_input").val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($("#reserve_message_input").val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+		$(dialogue + '#review_user').html("");
+
+		$(dialogue + '#review_user').append($('#reserve_user_input').find(":selected").text());
+
+	});
+
+	$('#reserve_post').unbind('keyup');
+	$('#reserve_post').unbind('keydown');
 	$('#reserve_post').unbind('click');
-	$("#reserve_post").click(function() {
+	$('#reserve_position_form').on('keyup keypress', function(e) {
+	  var code = e.keyCode || e.which;
+	  if (code == 13) { 
+	    e.preventDefault();
+	    return false;
+	  }
+	});	
+	$("#reserve_post").click(function(e) {
+		e.preventDefault();
 		var cats = [];
 		var options = [];
+		var articles = [];
+		var artamount = [];
 		var count = 0;
-		$('#reserve_category_scrollbox > p').each(function(){
+
+		$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				cats[count] = val;
 				count = count+1;
 			}
 		});
-		
-		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
-			var dateParts = $("#reserve_expires_input").val().split('-');
-			dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
-			// Add one day, since it should be up to and including.
-			dt.setDate(dt.getDate()+1);
-			if (dt < new Date()) {
-				$("#reserve_expires_input").css('border-color', 'red');
-				return;
-			}
-		} else {
-			$("#reserve_expires_input").css('border-color', 'red');
-			return;
-		}	
-		
+
 		var catStr = '';
 
 		for (var j=0; j<cats.length; j++) {
@@ -1596,38 +4423,64 @@ maptool.reservePosition = function(positionObject) {
 		}
 
 		count = 0;
-		$('#reserve_option_scrollbox > p').each(function() {
+
+		$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
-			
-			if (val != "undefined") {
+			if(val != "undefined"){
 				options[count] = val;
-				count++;
+				count = count+1;
 			}
 		});
-		
+
+		if (count == 0) {
+			$('#reserve_option_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
+
 		var optStr = '';
 
 
-		for (var j = 0; j < options.length; j++) {
-			if (options[j] != undefined) {
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
 				optStr += '&options[]=' + options[j];
+			}
+		}
+
+		count = 0;
+		
+		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
+		});
+		
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
 			}
 		}
 		
 		var dataString = 'reservePosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
-				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())				   
+		           + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
 				   + '&map=' + maptool.map.id
 				   + catStr
-				   + optStr;
+				   + optStr
+				   + artStr
+				   + amountStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
-		}
-
-		if (positionObject.exhibitor && positionObject.exhibitor.preliminary_reserveing) {
-			dataString += '&prel_booking=' + positionObject.exhibitor.preliminary_reserveing;
 		}
 
 		if(catStr.length != 0){
@@ -1639,12 +4492,13 @@ maptool.reservePosition = function(positionObject) {
 					maptool.markPositionAsNotBeingEdited();
 					maptool.update();
 					maptool.closeDialogues();
-					$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
+					maptool.closeForms();
+					$('#reserve_position_form input[type="text"], #reserve_position_form textarea').val("");
 					$('.ssinfo').html('');
 				}
 			});
 		} else {
-			$('#reserve_category_scrollbox').css('border', '2px solid #f00');
+			$('#reserve_category_scrollbox_div').css('border', '0.166em solid #f00');
 		}
 	});
 }
@@ -1673,6 +4527,7 @@ maptool.savePosition = function() {
 	var dataString = 'savePosition=' + encodeURIComponent($("#position_id_input").val())
 				   + '&name=' + encodeURIComponent($("#position_name_input").val())
 				   + '&area=' + encodeURIComponent($("#position_area_input").val())
+				   + '&price=' + encodeURIComponent($("#position_price_input").val())
 				   + '&information=' + encodeURIComponent($("#position_info_input").val())
 				   + '&x=' + xPercent
 				   + '&y=' + yPercent
@@ -1685,7 +4540,6 @@ maptool.savePosition = function() {
 		success: function(result) {
 			$('#edit_position_dialogue input[type="text"], #edit_position_dialogue textarea').val("");
 			maptool.markPositionAsNotBeingEdited();
-			//maptool.reload();
 			maptool.closeDialogues();
 			maptool.update();
 		}
@@ -1702,6 +4556,7 @@ maptool.deletePosition = function(id) {
 			data: 'deleteMarker=' + id,
 			success: function(res) {
 				$("#pos-" + id).remove();
+				maptool.update();
 			}
 		});
 	}
@@ -1720,32 +4575,95 @@ maptool.positionInfo = function(positionObject) {
 			}
 		}
 	}
-
+	var language = $('#languages > a.selected > img:nth-child(1)').attr("alt");
 	$("#more_info_dialogue h3").text("");
 	$('#more_info_dialogue h4').text("");
-	$("#more_info_dialogue .presentation").html("");
-	$("#more_info_dialogue p.website_link").html("");
+	$('#more_info_dialogue h4').css('display', 'block');
+	$("#more_info_dialogue #column .info #area").text("");
+	$("#more_info_dialogue #column .info #price").text("");
+	$("#more_info_dialogue #column .presentation").html("");
+	$("#more_info_dialogue #column .info #commodity").html("");
+	$("#more_info_dialogue #column .info #categories").html("");
+	$("#more_info_dialogue #column .info #options").html("");
+	$("#more_info_dialogue #column .website_link").html("");
+	$("#more_info_dialogue #more_info_print").html("");
+	$("#more_info_dialogue #ex_logo").attr("src", "../images/images/no_logo_"+language+".png");
 
-	if (positionObject.exhibitor) {
-		$("#more_info_dialogue h3").text(positionObject.name + ': ' + positionObject.exhibitor.company);
+
+	var tt = '';
+	var info = $("#more_info_dialogue .igfdogskd");
+	var mid_standSpaceName = $("#more_info_dialogue .standSpaceName");
+	var mid_area = $("#more_info_dialogue #area");
+	var mid_price = $("#more_info_dialogue #price");
+	var mid_status = $("#more_info_dialogue #status");
+	var mid_commodity = $("#more_info_dialogue #commodity");
+	var mid_categories = $("#more_info_dialogue #categories");
+	var mid_options = $("#more_info_dialogue #options");
+//	var mid_website = $("#more_info_dialogue #website");
+	var mid_ex_logo = $("#more_info_dialogue #ex_logo");
+//	var mid_presentation = $("#more_info_dialogue #presentation");
+	
+	var i_area = '<h3>' + lang.area + '</h3>';
+	var i_price = '<h3>' + lang.price + '</h3>';
+
+	if (positionObject.area != '') {
+		i_area += '<p>' + positionObject.area + '</p>';
 	} else {
-		$("#more_info_dialogue h3").text(positionObject.name);
+		i_area += '<p>' + lang.info_missing + '</p>';
 	}
 
-	var tt = '<p><strong>' + lang.status + ': </strong>' + lang.StatusText(positionObject.statusText) + '<br/><strong>' + lang.area + ':</strong> ' + positionObject.area + '</p>';
-	var info = $("#more_info_dialogue .info");
+	if (positionObject.price != 0) {
+		i_price += '<p>' + positionObject.price + ' ' + ' ' + maptool.map.currency + '</p>';
+	} else {
+		i_price += '<p>' + lang.info_missing + '</p>';
+	}
 
-	info.html(tt);
+	var i_status = '<h3>' + lang.status + '</h3> <p style="font-weight: 600; color:#337ab7;">' + lang.StatusText(positionObject.statusText) + '</p>';
+	//var i_ex_logo = 
 
-	if (positionObject.exhibitor)
-		info.append('<p><strong>' + lang.StatusText(positionObject.statusText).charAt(0).toUpperCase() + lang.StatusText(positionObject.statusText).substr(1) + ' ' + lang.by + ':</strong> ' + positionObject.exhibitor.company + '</p>');
+	mid_area.html(i_area);
+	mid_status.html(i_status);
+//	mid_categories.html(i_categories);
+//	mid_website.html(i_website);
+	
+
+//	mid_presentation.html(i_presentation);
+	mid_standSpaceName.append(positionObject.name);
 
 	if (positionObject.status == 1) {
-		info.append('<p><strong>' + lang.reservedUntil + ':</strong> ' + positionObject.expires + '</p>');
+		mid_status.append('<p>(' + positionObject.expires + ')</p>');
 	}
-	if (positionObject.exhibitor) {		
-		var categories = [], 
-			options = [], 
+	if (positionObject.exhibitor) {
+		mid_price.css('display', 'none');
+		if (hasRights) {
+		mid_area.css('padding', '2em 0 1em 0');
+		mid_status.css('padding', '2em 0 1em 0');		
+		} else {
+			mid_area.css('display', 'none');
+			mid_status.css('display', 'none');
+		}
+		mid_ex_logo.css('display', 'block');
+		var folder = '../images/exhibitors/' + positionObject.exhibitor.user + '/';
+
+		$.ajax({
+		    url : folder,
+		    success: function (data) {
+		        $(data).find("a").attr("href", function (i, val) {
+		            if( val.match(/\.jpg|\.png|\.gif/) ) { 
+		               mid_ex_logo.attr('src', folder + val);
+		            }
+		        });
+		    }
+		});
+
+
+		if (hasRights)
+			mid_standSpaceName.append(' - ' + '<a href="exhibitor/profile/' + positionObject.exhibitor.user + '" class="showProfileLink" style="font-weight: 600;">' + positionObject.exhibitor.company + '</a>');
+		if (!hasRights)
+			mid_standSpaceName.append(' - ' + positionObject.exhibitor.company);
+	
+		var categories = [],
+			options = [],
 			i;
 
 		for (i = 0; i < positionObject.exhibitor.categories.length; i++) {
@@ -1755,14 +4673,28 @@ maptool.positionInfo = function(positionObject) {
 		if (hasRights) {
 			for (i = 0; i < positionObject.exhibitor.options.length; i++) {
 				options.push(positionObject.exhibitor.options[i].text);
+				$("#more_info_dialogue .presentation").css('max-height', 17 + i + 'em');
 			}
 		}
 
-		$('#more_info_dialogue h4').text(lang.presentation + ":");
-		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + positionObject.exhibitor.commodity + '</p><p><strong>' + lang.category + ':</strong> ' + categories.join(', ') + '</p>');
+		var i_commodity = '<h3>' + lang.commodity_label + '</h3><p> ' + positionObject.exhibitor.commodity + '</p>';
+		var i_categories = '<h3>' + lang.category + '</h3><p> ' + categories.join(', ') + '</p>';
+		var i_options = '<h3>' + lang.extra_options + '</h3><p> ' + options.join('<br/> ') + '</p>';
 
+		$('#more_info_dialogue h4').text(lang.ex_presentation);
+
+		mid_commodity.html(i_commodity);
+		mid_categories.html(i_categories);
+		if (positionObject.exhibitor.commodity == '') {
+			mid_commodity.append(lang.no_commodity);
+		}		
+		$('#more_info_dialogue #options').css('display', 'none');
 		if (hasRights) {
-			info.append('<p><strong>' + lang.extra_options + ':</strong> ' + options.join(', ') + '</p>');
+			mid_options.html(i_options);
+			$('#more_info_dialogue #options').css('display', 'inline-block');
+			if (positionObject.exhibitor.options.length === 0) {
+				mid_options.append(lang.no_options);
+			}
 		}
 
 		$("#more_info_dialogue .presentation").empty();
@@ -1778,27 +4710,75 @@ maptool.positionInfo = function(positionObject) {
 			if (website.indexOf("http://") == -1) {
 				website = "http://" + website;
 			}
-			$("#more_info_dialogue p.website_link").html('<strong>' + lang.website + ':</strong> <a href="' + website + '" target="_blank">' + positionObject.exhibitor.website + '</a>');
-		} else
-			$("#more_info_dialogue p.website_link").html('');
+			$("#more_info_dialogue div.website_link").html('<h3>' + lang.website_label + '</h3><a href="' + website + '" target="_blank">' + website + '</a>');
+		} else {
+			$("#more_info_dialogue div.website_link").html('');
+		}
 		
 	} else if (preliminary) {
-		info.append('<p><strong>' + lang.StatusText(positionObject.statusText).charAt(0).toUpperCase() + lang.StatusText(positionObject.statusText).substr(1) + ' ' + lang.by + ':</strong> ' + preliminary.company + '</p>');
-		info.append('<p><strong>' + lang.commodity_label + ':</strong> ' + preliminary.commodity + '</p>');
+			mid_price.css('display', 'none');
+			mid_area.css({
+				'padding': '2em 0 1em 0',
+				'display': 'inline-block',
+			});
+			mid_status.css('display', 'inline-block');
+			mid_status.css('padding', '2em 0 1em 0');
+			mid_ex_logo.css('display', 'block');
+			mid_standSpaceName.append(' - ' + preliminary.company);
+			var folder = '../images/exhibitors/' + preliminary.user + '/';
+
+		$.ajax({
+		    url : folder,
+		    success: function (data) {
+		        $(data).find("a").attr("href", function (i, val) {
+		            if( val.match(/\.jpg|\.png|\.gif/) ) { 
+		               mid_ex_logo.attr('src', folder + val);
+		            }
+		        });
+		    }
+		});
+		var categories = [],
+			options = [],
+			i;
 
 		if (preliminary.category_list.length) {
-			info.append("<p><strong>" + lang.category + ":</strong> " + preliminary.category_list.join(', ') + "</p>");
+			categories.push(preliminary.category_list.join('<br />'));
 		}
 
 		if (preliminary.option_list.length) {
-			info.append("<p><strong>" + lang.extra_options + ":</strong> " + preliminary.option_list.join(', ') + "</p>");
+			options.push(preliminary.option_list.join('<br />'));
 		}
 
+		$("#more_info_dialogue .presentation").css('max-height', 17 + i + 'em');
+
+		var i_commodity = '<h3>' + lang.commodity_label + '</h3><p> ' + preliminary.commodity + '</p>';
+		var i_categories = '<h3>' + lang.category + '</h3><p> ' + categories + '</p>';
+		var i_options = '<h3>' + lang.extra_options + '</h3><p> ' + options + '</p>';
+
+		$('#more_info_dialogue h4').text(lang.ex_presentation);
+
+		mid_commodity.html(i_commodity);
+		mid_categories.html(i_categories);
+		if (preliminary.commodity == '') {
+			mid_commodity.append(lang.no_commodity);
+		}		
+		$('#more_info_dialogue #options').css('display', 'none');
+		if (hasRights) {
+			mid_options.html(i_options);
+			$('#more_info_dialogue #options').css('display', 'inline-block');
+			if (preliminary.option_list.length === 0) {
+				mid_options.append(lang.no_options);
+			}
+		}
+
+		$("#more_info_dialogue .presentation").empty();
+		$('#more_info_dialogue .presentation').css('display', 'block');
+		
 		if (preliminary.presentation.length) {
 			$("#more_info_dialogue .presentation").append(preliminary.presentation);
 		} else {
 			$("#more_info_dialogue .presentation").append(lang.noPresentationText);
-		}
+		}		
 
 		if (preliminary.website !== null && preliminary.website !== "") {
 			var website = preliminary.website;
@@ -1806,22 +4786,45 @@ maptool.positionInfo = function(positionObject) {
 			if (website.indexOf("http://") == -1) {
 				website = "http://" + website;
 			}
-			$("#more_info_dialogue p.website_link").html('<strong>' + lang.website + ':</strong> <a href="' + website + '" target="_blank">' + preliminary.website + '</a>');
+			$("#more_info_dialogue div.website_link").html('<h3>' + lang.website_label + '</h3><a href="' + website + '" target="_blank">' + website + '</a>');
 		} else {
-			$("#more_info_dialogue p.website_link").html('');
+			$("#more_info_dialogue div.website_link").html('');
 		}
+
 	} else {
+		mid_price.html(i_price);
+		mid_ex_logo.css('display', 'none');
+		mid_area.css({
+			'padding': '0',
+			'padding-left': '1.5em',
+			'display': 'inline-block'
+		});
+		mid_price.css('display', 'block');
+		mid_status.css('display', 'inline-block');
+		mid_status.css('padding', '0');
 		if(positionObject.information.length < 1){
+			$("#more_info_dialogue h4").css('display', 'none');
 			$('#more_info_dialogue .presentation').css('display', 'none');
 		} else {
+			$("#more_info_dialogue h4").css('display', 'block');
+			$("#more_info_dialogue h4").html(lang.standSpaceInformation);
 			$('#more_info_dialogue .presentation').css('display', 'block');
-			$("#more_info_dialogue .presentation").html(positionObject.information.replace(/\n/g, '<br/>')); //replace(/ /g, '&nbsp;')
+			$("#more_info_dialogue .presentation").html(positionObject.information.replace(/\n/g, '<br/>'));
 		}
 	}
 
 	if (positionObject.exhibitor) {
 		$('#printLink').remove();
-		info.parent().append('<a href="/mapTool/print_position/' + maptool.map.id + '/' + positionObject.id + '" target="_blank" class="link-button" id="printLink">' + lang.print + '</a>');
+		$("#more_info_dialogue #more_info_print").append('<a href="/mapTool/print_position/' + maptool.map.id + '/' + positionObject.id + '" target="_blank" class="link-button greenbutton mediumbutton" id="printLink"><img src="images/icons/print.png" id="print_img"/>' + ' ' + lang.print + '</a>');
+
+		if (positionObject.exhibitor.facebook)
+			$("#more_info_dialogue #more_info_print").append('<a href="' + positionObject.exhibitor.facebook + '" target="_blank" ><img src="images/icons/facebook.png" class="socialicon_map" title="' + lang.visit_us_facebook + '" /></a>');
+		if (positionObject.exhibitor.twitter)
+			$("#more_info_dialogue #more_info_print").append('<a href="' + positionObject.exhibitor.twitter + '" target="_blank" ><img src="images/icons/twitter.png" class="socialicon_map" title="' + lang.visit_us_twitter + '" /></a>');
+		if (positionObject.exhibitor.google_plus)
+			$("#more_info_dialogue #more_info_print").append('<a href="' + positionObject.exhibitor.google_plus + '" target="_blank" ><img src="images/icons/google.png" class="socialicon_map" title="' + lang.visit_us_google + '" /></a>');
+		if (positionObject.exhibitor.youtube)
+			$("#more_info_dialogue #more_info_print").append('<a href="' + positionObject.exhibitor.youtube + '" target="_blank" ><img src="images/icons/youtube.png" class="socialicon_map" title="' + lang.visit_us_youtube + '" /></a>');		
 	}
 
 	maptool.openDialogue('more_info_dialogue');
@@ -1844,6 +4847,8 @@ maptool.showPreliminaryBookings = function(position_data) {
 		tbody = $('tbody', dialogue);
 
 	tbody.html('');
+	$('.standSpaceName').html("");
+	$('#preliminary_bookings_dialogue .standSpaceName').text(lang.showPreliminaryBookings);
 	maptool.openDialogue('preliminary_bookings_dialogue');
 
 	$.ajax({
@@ -1864,88 +4869,745 @@ maptool.showPreliminaryBookings = function(position_data) {
 							+ response[i].company +
 						'</a></td><td>'
 							+ response[i].commodity +
-						'</td><td>'
+						'</td><td style="min-width:10em;">'
 							+ response[i].booking_time +
 						'</td><td style="display: none"></td><td class="center" title=\'' + response[i].arranger_message.replace("'", '&#039;') + '\'>'
 							+ (response[i].arranger_message.length > 0 ? '<a href="administrator/arrangerMessage/preliminary/' + response[i].id + '" class="open-arranger-message">'
-								+ '<img src="images/icons/script.png" alt="' + lang.messageToOrganizer + '" />'
+								+ '<img src="images/icons/script.png" class="icon_img" alt="' + lang.messageFromExhibitor + '" />'
 							+ '</a>' : '') +
 						'</td><td style="display: none">' + response[i].categories + '</td>' + 
 						'<td class="center"><a style="cursor: pointer;" onclick="denyPrepPosition(\''
 							+ response[i].denyUrl + '\', \'' + response[i].standSpace.name + '\', \'Preliminary Booking\', this)"' +
 						'</a><img src="'
 							+ response[i].denyImgUrl + 
-						'" /></td><td class="approve" style="display:none;">' + response[i].baseUrl + 'administrator/newReservations/approve/</td>'
-						+ '<td class="center"><a style="cursor: pointer" class="open-approve-form" data-index="' + i + '"><img src="images/icons/add.png"' + 
+						'" class="icon_img" /></td><td class="approve" style="display:none;">' + response[i].baseUrl + 'administrator/newReservations/approve/</td>'
+						+ '<td class="center"><a style="cursor: pointer" class="open-approve-form" data-index="' + i + '"><img src="images/icons/add.png" class="icon_img"' + 
 						' alt="approve" /></a></td><td class="center"><a href="#" class="open-reservation-form" data-index="'
 							+ i
-							+ '"><img src="images/icons/reserve.png" alt="+" /></a></td></tr>'
+							+ '"><img src="images/icons/reserve.png" class="icon_img" alt="+" /></a></td></tr>'
 				);
 			}
 
 			// Save this list data for later use, in reservePreliminaryBooking()
+
 			maptool.prel_bookings_data = response;
 
 			dialogue.on('click', '.open-reservation-form', function(e) {
 				e.preventDefault();
 				maptool.reservePreliminaryBooking(position_data, maptool.prel_bookings_data[$(this).data('index')]);
 				dialogue.hide();
-			}).on('click', '.open-approve-form', function(e) {
+			});
+			dialogue.on('click', '.open-approve-form', function(e) {
 				e.preventDefault();
-
-				var positions = maptool.map.positions;
-
-				for (var i = positions.length - 1; i >= 0; i--) {
-					if (positions[i].id === position_data.id) {
-						break;
-					}
-				}
-
-				if (i !== -1) {
-					positions[i].exhibitor = response[$(this).data("index")];
-
-					if (typeof positions[i].exhibitor.categories === "string") {
-						positions[i].exhibitor.categories = positions[i].exhibitor.categories.split("|");
-					}
-
-					if (typeof positions[i].exhibitor.options === "string") {
-						positions[i].exhibitor.options = positions[i].exhibitor.options.split("|");
-					}
-
-					positions[i].exhibitor.preliminary_booking = maptool.prel_bookings_data[$(this).data('index')].id;
-					maptool.bookPosition(positions[i]);
-					dialogue.hide();
-				}
+				maptool.bookPreliminaryBooking(position_data, maptool.prel_bookings_data[$(this).data('index')]);
+				dialogue.hide();
 			});
 		}
 	});
 };
-//Reserve preliminary booking
-maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 
-	$('#reserve_commodity_input').val(prel_booking_data.commodity);
-	$('#reserve_message_input').val(prel_booking_data.arranger_message);
-	$('#reserve_user_input').val(prel_booking_data.user);
+//Book preliminary booking
+maptool.bookPreliminaryBooking = function(position_data, prel_booking_data) {
+	dialogue = '#book_position_form ';
+	$('#book_commodity_input').val(prel_booking_data.commodity);
+	$('#book_message_input').val(prel_booking_data.arranger_message);
+	$('#book_user_input').val(prel_booking_data.user);
+	$('#book_category_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#book_option_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#book_article_scrollbox > tbody > tr > td > div > input').val(0);
 
 	var categories = prel_booking_data.categories.split('|'),
 		options = prel_booking_data.options.split('|'),
+		articles = prel_booking_data.articles.split('|'),
+		amount = prel_booking_data.amount.split('|'),
 		i;
 
-	$('#reserve_category_scrollbox input').prop('checked', false);
+// Categories
+	for(var i = 0; i < categories.length; i++){
+		$('#book_category_scrollbox > tbody > tr > td').each(function(){
+			var value = $(this).children().val();
+			
+			if (typeof categories[i] === "string") {
+				 if (value == categories[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == categories[i].category_id){
+						$(this).children().prop('checked', true);
+				}
+			}
+		});
+	}
+
+// Extra Options
+	for(var i = 0; i < options.length; i++){
+		$('#book_option_scrollbox > tbody > tr > td').each(function(){
+			var value = $(this).children().val();
+			
+			if (typeof options[i] === "string") {
+				 if (value == options[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == options[i].option_id){
+						$(this).children().prop('checked', true);
+				}
+			}
+		});
+	}
+
+// Articles
+	for (var i = 0; i < articles.length; i++){
+		$('#book_article_scrollbox > tbody > tr > td > div').each(function() {
+			if($(this).children().attr('id') == articles[i]) {
+				$(this).children().val(amount[i]);
+			}
+		});
+	}
+
+/*
+	for (i = 0; i < categories.length; i++) {
+		$('#book_category_scrollbox input[value=' + categories[i] + ']').prop('checked', true);
+	}
+
+	for (i = 0; i < options.length; i++) {
+		$('#book_option_scrollbox input[value=' + options[i] + ']').prop('checked', true);
+	}
+*/
+	$('#book_position_form').show();
+	$('#book_position_form ul#progressbar li').removeClass('active');
+	$('#book_position_form fieldset').css({
+		'transform': 'scale(1)',
+		'display': 'none',
+		'opacity': '0',
+	});				
+	$('#book_position_form ul#progressbar li:first-child').attr('class', 'active');
+	$('#book_position_form fieldset:first-of-type').css({
+		'transform': 'scale(1)',
+		'display': 'block',
+		'opacity': '1',
+	});
+	$('#book_position_form .standSpaceName').text(lang.bookPrelStandSpace + ': ' + position_data.name);
+	$('.ssinfo').html("");
+	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + position_data.area + '</p><br/><label>' + lang.price +  ': </label><p>' + position_data.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + position_data.information) + '</p>';
+
+	$('#book_user_input').unbind('change');
+	$('#book_user_input').change(function() {
+		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'POST',
+			data: 'getUserCommodity=1&userId=' + encodeURIComponent($('#book_user_input').val()),
+			success: function(response) {
+				if (response) {
+					r = JSON.parse(response);
+					$('#book_commodity_input').val(r.commodity);
+				}
+			}
+		});
+	});
+
+	$('#book_position_form > fieldset > div > #search_user_input').unbind('keyup');
+	$('#book_position_form > fieldset > div > #search_user_input').val('');
+	$('#book_position_form > fieldset > div > #search_user_input').keyup(function(e) {
+		if (e.keyCode == 13) {
+			$('#book_user_input').change();
+		} else {
+			var query = $(this).val().toLowerCase();
+			var selectedFirst = false;
+			if (query == "") {
+				$('#book_user_input > option').show();
+			} else {
+				$('#book_user_input > option').each(function() {
+					if ($(this).text().toLowerCase().indexOf(query) == -1) {
+						$(this).prop('selected', false);
+						$(this).hide();
+					} else {
+						if (!selectedFirst) {
+							$(this).prop("selected", true);
+							selectedFirst = true;
+						}
+						$(this).show();
+					}
+				});
+			}
+		}
+	});
+
+	$('#book_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
+		var count = 0;
+
+		
+
+		$('#book_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
+		});
+		
+		var catnamesStr = '';
+
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
+		}
+
+		count = 0;
+
+		$('#book_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
+		});
+
+
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
+
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#book_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
+
+
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+		html += '<tr style="height:1em"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + position_data.name + '</td>';
+			html += '<td class="left price">' + position_data.price + '</td>';
+			html += '<td class="amount">1</td>';
+			if (position_data.vat) {
+				html += '<td class="moms">' + position_data.vat + '%</td>';
+			} else {
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(position_data.price).toFixed(2) + '</td>';
+		html += '</tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + position_data.information + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';		
+		if (position_data.price) {
+			if (parseFloat(position_data.vat) == 25) {
+				excludeVatPrice25 += parseFloat(position_data.price);
+			} else if (parseFloat(position_data.vat) == 18) {
+				excludeVatPrice18 += parseFloat(position_data.price);
+			} else {
+				excludeVatPrice0 += parseFloat(position_data.price);
+			}
+		}
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + maptool.map.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($("#book_commodity_input").val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($("#book_message_input").val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+		$(dialogue + '#review_user').html("");
+
+		$(dialogue + '#review_user').append($('#book_user_input').find(":selected").text());
+
+	});
+	$('#book_post').unbind('keyup');
+	$('#book_post').unbind('keydown');
+	$('#book_post').unbind('click');
+	$('#book_position_form').on('keyup keypress', function(e) {
+	  var code = e.keyCode || e.which;
+	  if (code == 13) { 
+	    e.preventDefault();
+	    return false;
+	  }
+	});	
+	$("#book_post").click(function(e) {
+		e.preventDefault();
+		var cats = [];
+		var options = [];
+		var articles = [];
+		var artamount = [];
+		var count = 0;
+
+		$('#book_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		if (count == 0) {
+			$('#book_category_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
+
+		var catStr = '';
+
+		for (var j=0; j<cats.length; j++) {
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#book_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				options[count] = val;
+				count = count+1;
+			}
+		});
+
+		var optStr = '';
+
+
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
+			}
+		}
+
+		count = 0;
+		
+		$('#book_article_scrollbox > tbody > tr > td > div').each(function() {
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
+		});
+		
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
+			}
+		}
+		
+		var dataString = 'book_preliminary=' + prel_booking_data.id
+				   + '&commodity=' + encodeURIComponent($("#book_commodity_input").val())
+				   + '&message=' + encodeURIComponent($("#book_message_input").val())
+				   + '&map=' + maptool.map.id
+				   + catStr
+				   + optStr
+				   + artStr
+				   + amountStr;
+
+		if (maptool.map.userlevel > 1) {
+			dataString += '&user=' + encodeURIComponent($("#book_user_input").val());
+		}
+
+		if (position_data.exhibitor && position_data.exhibitor.preliminary_booking) {
+			dataString += '&prel_booking=' + position_data.exhibitor.preliminary_booking;
+		}
+
+		if(catStr.length != 0){
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: dataString,
+				success: function(response) {
+					maptool.markPositionAsNotBeingEdited();
+					maptool.update();
+					maptool.closeDialogues();
+					maptool.closeForms();
+					$('#book_position_form input[type="text"], #book_position_form textarea').val("");
+					$('.ssinfo').html('');
+				}
+			});
+		} else {
+			$('#book_category_scrollbox_div').css('border', '0.166em solid #f00');
+		}
+	});
+};
+
+//Reserve preliminary booking
+maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
+	dialogue = '#reserve_position_form ';
+	$('#reserve_commodity_input').val(prel_booking_data.commodity);
+	$('#reserve_message_input').val(prel_booking_data.arranger_message);
+	$('#reserve_user_input').val(prel_booking_data.user);
+	$('#reserve_category_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#reserve_option_scrollbox > tbody > tr > td > input').prop('checked', false);
+	$('#reserve_article_scrollbox > tbody > tr > td > div > input').val(0);
+
+	var categories = prel_booking_data.categories.split('|'),
+		options = prel_booking_data.options.split('|'),
+		articles = prel_booking_data.articles.split('|'),
+		amount = prel_booking_data.amount.split('|'),
+		i;
+
+// Categories
+	for(var i = 0; i < categories.length; i++){
+		$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
+			var value = $(this).children().val();
+			
+			if (typeof categories[i] === "string") {
+				 if (value == categories[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == categories[i].category_id){
+						$(this).children().prop('checked', true);
+				}
+			}
+		});
+	}
+
+// Extra Options
+	for(var i = 0; i < options.length; i++){
+		$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
+			var value = $(this).children().val();
+			
+			if (typeof options[i] === "string") {
+				 if (value == options[i]) {
+				 	$(this).children().prop("checked", true);
+				 }
+			} else {
+				if(value == options[i].option_id){
+						$(this).children().prop('checked', true);
+				}
+			}
+		});
+	}
+
+// Articles
+	for (var i = 0; i < articles.length; i++){
+		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
+			if($(this).children().attr('id') == articles[i]) {
+				$(this).children().val(amount[i]);
+			}
+		});
+	}
+
+/*
 	for (i = 0; i < categories.length; i++) {
 		$('#reserve_category_scrollbox input[value=' + categories[i] + ']').prop('checked', true);
 	}
 
-	$('#reserve_option_scrollbox input').prop('checked', false);
 	for (i = 0; i < options.length; i++) {
 		$('#reserve_option_scrollbox input[value=' + options[i] + ']').prop('checked', true);
 	}
-
-	$('#reserve_position_dialogue').show();
-
-	$('#reserve_position_dialogue h3 .standSpaceName').text(position_data.name);
+*/
+	$('#reserve_position_form').show();
+	$('#reserve_position_form ul#progressbar li').removeClass('active');
+	$('#reserve_position_form fieldset').css({
+		'transform': 'scale(1)',
+		'display': 'none',
+		'opacity': '0',
+	});				
+	$('#reserve_position_form ul#progressbar li:first-child').attr('class', 'active');
+	$('#reserve_position_form fieldset:first-of-type').css({
+		'transform': 'scale(1)',
+		'display': 'block',
+		'opacity': '1',
+	});
+	$('#reserve_position_form .standSpaceName').text(lang.reservePrelStandSpace + ': ' + position_data.name);
 	$('.ssinfo').html("");
-	$('.ssinfo').html('<strong>' + lang.space + ' ' + position_data.name + '<br/>' + lang.area + ':</strong> ' + position_data.area + '<br/><strong>' + lang.info + ': </strong>' + position_data.information);
+	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + position_data.area + '</p><br/><label>' + lang.price +  ': </label><p>' + position_data.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + position_data.information) + '</p>';
 
 	$('#reserve_user_input').unbind('change');
 	$('#reserve_user_input').change(function() {
@@ -1962,9 +5624,9 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 		});
 	});
 
-	$('#reserve_position_dialogue > #search_user_input').unbind('keyup');
-	$('#reserve_position_dialogue > #search_user_input').val('');
-	$('#reserve_position_dialogue > #search_user_input').keyup(function(e) {
+	$('#reserve_position_form > fieldset > div > #search_user_input').unbind('keyup');
+	$('#reserve_position_form > fieldset > div > #search_user_input').val('');
+	$('#reserve_position_form > fieldset > div > #search_user_input').keyup(function(e) {
 		if (e.keyCode == 13) {
 			$('#reserve_user_input').change();
 		} else {
@@ -1989,67 +5651,498 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 		}
 	});
 
-	$("#reserve_post").unbind("click");
-	$("#reserve_post").click(function() {
-		var cats = [], 
-			opts = [];
+	$('#reserve_review').click(function(e) {
+		var catnames = [];
+		var optcids = [];
+		var optnames = [];
+		var optprices = [];
+		var optvats = [];
+		var artcids = [];
+		var artnames = [];
+		var artprices = [];
+		var artvats = [];
+		var artamounts = [];
+		var count = 0;
 
-		$('#reserve_category_scrollbox input:checked').each(function() {
-			cats.push($(this).val());
+		
+
+		$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
+				count = count+1;
+			}
 		});
+		
+		var catnamesStr = '';
 
-		if (cats.length == 0) {
-			$('#reserve_category_scrollbox').css('border-color', 'red');
-			return;
-		} else {
-			$('#reserve_category_scrollbox').css('border-color', '#000000');
+		for (var j=0; j<catnames.length; j++) {
+			if(catnames[j] != ""){
+				catnamesStr += '|' + catnames[j];
+			}
 		}
 
-		$('#reserve_option_scrollbox input:checked').each(function() {
-			opts.push($(this).val());
+		count = 0;
+
+		$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
+				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
+				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
+				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
+				count = count+1;
+			}
 		});
 
 
-		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
-			var dateParts = $("#reserve_expires_input").val().split('-');
-			dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
-			// Add one day, since it should be up to and including.
-			dt.setDate(dt.getDate()+1);
-			if (dt < new Date()) {
-				$("#reserve_expires_input").css('border-color', 'red');
-				return;
-			}
-		} else {
-			$("#reserve_expires_input").css('border-color', 'red');
-			return;
-		}	
+		var optcidsStr = '';
+		var optnamesStr = '';
+		var optpricesStr = '';
+		var optvatsStr = '';
 
-		var dataString = 'approve_preliminary=' + prel_booking_data.id
+		for (var j=0; j<optnames.length; j++) {
+			if(optnames[j] != ""){
+				optcidsStr += '|' + optcids[j];
+				optnamesStr += '|' + optnames[j];
+				optpricesStr += '|' + optprices[j];
+				optvatsStr += '|' + optvats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function(){
+			if ($(this).children().val() > 0) {
+				artcids[count] = $(this).parent().siblings('td').eq(0).text();
+				artnames[count] = $(this).parent().siblings('td').eq(1).text();
+				artprices[count] = $(this).parent().siblings('td').eq(2).text();
+				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
+				artamounts[count] = $(this).children().val();
+				
+				count = count+1;
+			}
+		});
+
+		var artcidsStr = '';
+		var artnamesStr = '';
+		var artpricesStr = '';
+		var artvatsStr = '';
+		var artqntsStr = '';
+
+		for (var j=0; j<artnames.length; j++) {
+			if(artnames[j] != ""){
+				artcidsStr += '|' + artcids[j];
+				artnamesStr += '|' + artnames[j];
+				artpricesStr += '|' + artprices[j];
+				artvatsStr += '|' + artvats[j];
+				artqntsStr += '|' + artamounts[j];
+			}
+		}
+
+		catname = catnamesStr.split('|');
+		optcid = optcidsStr.split('|');
+		optname = optnamesStr.split('|');
+		optprice = optpricesStr.split('|');
+		optvat = optvatsStr.split('|');
+		artcid = artcidsStr.split('|');
+		artname = artnamesStr.split('|');
+		artprice = artpricesStr.split('|');
+		artvat = artvatsStr.split('|');
+		artqnt = artqntsStr.split('|');
+
+
+
+		var totalPrice = 0;
+		var VatPrice0 = 0;
+		var VatPrice12 = 0;
+		var VatPrice18 = 0;
+		var VatPrice25 = 0;
+		var excludeVatPrice0 = 0;
+		var excludeVatPrice12 = 0;
+		var excludeVatPrice18 = 0;
+		var excludeVatPrice25 = 0;
+
+
+		$(dialogue + '#review_category_list').html("");
+		for (i = 0; i < catname.length; i++) {
+			if (catname[i] != "") {
+				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
+			}
+		}
+
+		$(dialogue + '#review_list').html("");
+		$(dialogue + '#review_list2').html("");
+		html = '<thead>';
+			html += '<tr style="background-color:#efefef;">';
+				html += '<th>ID</th>';
+				html += '<th class="left">' + lang.description + '</th>';
+				html += '<th class="left">' + lang.price + '</th>';
+				html += '<th>' + lang.amount + '</th>';
+				html += '<th>' + lang.tax + '</th>';
+				html += '<th class="total">' + lang.subtotal + '</th>';
+			html += '</tr>';
+		html += '</thead>';
+
+		html += '<tbody>';
+		html += '<tr style="height:1em"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + position_data.name + '</td>';
+			html += '<td class="left price">' + position_data.price + '</td>';
+			html += '<td class="amount">1</td>';
+			if (position_data.vat) {
+				html += '<td class="moms">' + position_data.vat + '%</td>';
+			} else {
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(position_data.price).toFixed(2) + '</td>';
+		html += '</tr>';
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + position_data.information + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';		
+		if (position_data.price) {
+			if (parseFloat(position_data.vat) == 25) {
+				excludeVatPrice25 += parseFloat(position_data.price);
+			} else if (parseFloat(position_data.vat) == 18) {
+				excludeVatPrice18 += parseFloat(position_data.price);
+			} else {
+				excludeVatPrice0 += parseFloat(position_data.price);
+			}
+		}
+
+		if (optname != "") {
+			html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
+			for (i = 0; i < optname.length; i++) {
+					html += '<tr>';
+						html += '<td class="id">' + optcid[i] + '</td>';
+						html += '<td class="left name">' + optname[i] + '</td>';
+						html += '<td class="left price">' + optprice[i] + '</td>';
+						if (optprice[i]) {
+							html += '<td class="amount">1</td>';
+						} else {
+							html += '<td class="amount"></td>';
+						}
+						if (optvat[i]) {
+							html += '<td class="moms">' + optvat[i] + '%</td>';
+						} else {
+							html += '<td class="moms"></td>';	
+						}
+
+					if ((optprice[i]) && (optvat[i])) {
+						html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
+						//totalprice += parseFloat(optPrice[i]);
+						if (optvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(optprice[i]);
+						}
+						if (optvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(optprice[i]);
+						}										
+					}
+
+					html += '</tr>';
+			}
+		}
+	if (artname != "") {
+		html += '<tr style="height:1em"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
+		for (i = 0; i < artname.length; i++) {
+				html += '<tr>';
+					html += '<td class="id">' + artcid[i] + '</td>';
+					html += '<td class="left name">' + artname[i] + '</td>';
+					html += '<td class="left price">' + artprice[i] + '</td>';
+					html += '<td class="amount">' + artqnt[i] + '</td>';
+					if (artvat[i]) {
+						html += '<td class="moms">' + artvat[i] + '%</td>';	
+					} else {
+						html += '<td class="moms"></td>';	
+					}
+					if ((artprice[i]) && (artqnt[i])) {
+						html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
+					}
+				html += '</tr>';
+
+					if ((artprice[i]) && (artvat[i])) {
+						if (artvat[i] == 25) {
+							excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 18) {
+							excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 12) {
+							excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
+						}
+						if (artvat[i] == 0) {
+							excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
+						}										
+					}			
+		}
+	}
+		html += '<tr style="height:1em"></tr>';
+		html += '</tbody>';
+
+// return integer part - may be negative
+Math.trunc = function(n) {
+    return (n < 0) ? Math.ceil(n) : Math.floor(n);
+}
+Math.frac = function(n) {
+    return n - Math.trunc(n);
+}
+VatPrice0 = parseFloat(excludeVatPrice0);
+VatPrice12 = parseFloat(excludeVatPrice12*0.12);
+VatPrice18 = parseFloat(excludeVatPrice18*0.18);
+VatPrice25 = parseFloat(excludeVatPrice25*0.25);
+totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
+
+totalPriceRounded = Math.trunc(totalPrice);
+cents = (totalPriceRounded - totalPrice);
+if (cents < -0.49) {
+	cents += 1;
+	totalPriceRounded += 1;
+}
+
+html2 = '<thead>';
+	html2 += '<tr>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+		html2 += '<th></th>';
+	html2 += '</tr>';
+html2 += '</thead>';
+html2 += '<tbody>';
+
+		html2 += '<tr style="height:1em">';					
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td>' + lang.net + ':</td>';
+			html2 += '<td>' + lang.tax + ' %</td>';
+			html2 += '<td>' + lang.tax + ':</td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+		html2 += '</tr>';
+if (excludeVatPrice0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice12 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
+	html2 += '<td class="vat">12.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice18 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
+	html2 += '<td class="vat">18.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 != 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
+	html2 += '<td class="vat">25.00</td>';
+	html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';
+}
+
+if (excludeVatPrice25 == 0 && excludeVatPrice18 == 0 && excludeVatPrice12 == 0 && excludeVatPrice0 == 0) {
+html2 += '<tr>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td class="vat">0.00</td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+	html2 += '<td></td>';
+html2 += '</tr>';	
+}
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+		html2 += '<tr>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td></td>';
+			html2 += '<td class="totalprice">' + maptool.map.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '</tr>';
+
+			$(dialogue + '#review_list').append(html);
+			$(dialogue + '#review_list2').append(html2);
+
+	$(dialogue + '#review_commodity_input').html("");
+	$(dialogue + '#review_commodity_input').append($("#reserve_commodity_input").val());
+		if($(dialogue + '#review_commodity_input').html().length == 0) {
+			$(dialogue + '#review_commodity_input').append(lang.no_commodity);
+		}	
+	$(dialogue + '#review_message').html("");
+	$(dialogue + '#review_message').append($("#reserve_message_input").val());
+		if($(dialogue + '#review_message').html().length == 0) {
+			$(dialogue + '#review_message').append(lang.no_message);
+		}
+		$(dialogue + '#review_user').html("");
+
+		$(dialogue + '#review_user').append($('#reserve_user_input').find(":selected").text());
+
+	});
+
+	$('#reserve_post').unbind('keyup');
+	$('#reserve_post').unbind('keydown');
+	$('#reserve_post').unbind('click');
+	$('#reserve_position_form').on('keyup keypress', function(e) {
+	  var code = e.keyCode || e.which;
+	  if (code == 13) { 
+	    e.preventDefault();
+	    return false;
+	  }
+	});	
+	$("#reserve_post").click(function(e) {
+		e.preventDefault();
+		var cats = [];
+		var options = [];
+		var articles = [];
+		var artamount = [];
+		var count = 0;
+
+		$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				cats[count] = val;
+				count = count+1;
+			}
+		});
+
+		if (count == 0) {
+			$('#reserve_category_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
+
+		var catStr = '';
+
+		for (var j=0; j<cats.length; j++) {
+			if(cats[j] != undefined){
+				catStr += '&categories[]=' + cats[j];
+			}
+		}
+
+		count = 0;
+
+		$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
+			var val = $(this).children('input:checked').val();
+			if(val != "undefined"){
+				options[count] = val;
+				count = count+1;
+			}
+		});
+
+		if (count == 0) {
+			$('#reserve_option_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
+
+		var optStr = '';
+
+
+		for (var j=0; j<options.length; j++) {
+			if(options[j] != undefined){
+				optStr += '&options[]=' + options[j];
+			}
+		}
+
+		count = 0;
+		
+		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
+			var val = $(this).children().val();
+			var artid = $(this).children().attr("id");
+				if (val > 0) {
+					articles[count] = artid;
+					artamount[count] = val;
+					count++;
+				}
+		});
+		
+		var artStr = '';
+		var amountStr = '';
+
+		for (var j = 0; j < articles.length; j++) {
+			if (articles[j] != 0) {
+				artStr += '&articles[]=' + articles[j];
+				amountStr += '&artamount[]=' + artamount[j];
+				
+			}
+		}
+		
+		var dataString = 'reserve_preliminary=' + prel_booking_data.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&message=' + encodeURIComponent($("#reserve_message_input").val())
 				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
-				   + '&categories[]=' + cats.join('&categories[]=') 
-				   + '&options[]=' + opts.join('&options[]=');
+				   + '&map=' + maptool.map.id
+				   + catStr
+				   + optStr
+				   + artStr
+				   + amountStr;
 
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
 		}
 
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: dataString,
-			success: function(response) {
-				maptool.markPositionAsNotBeingEdited();
-				maptool.update();
-				maptool.closeDialogues();
-				$('#reserve_position_dialogue input[type="text"], #reserve_position_dialogue textarea').val("");
-				$('.ssinfo').html('');
-			}
-		});
+		if(catStr.length != 0){
+			$.ajax({
+				url: 'ajax/maptool.php',
+				type: 'POST',
+				data: dataString,
+				success: function(response) {
+					maptool.markPositionAsNotBeingEdited();
+					maptool.update();
+					maptool.closeDialogues();
+					maptool.closeForms();
+					$('#reserve_position_form input[type="text"], #reserve_position_form textarea').val("");
+					$('.ssinfo').html('');
+				}
+			});
+		} else {
+			$('#reserve_category_scrollbox_div').css('border', '0.166em solid #f00');
+		}
 	});
-
-	positionDialogue("reserve_position_dialogue");
 };
 
 //Zoom to 0
@@ -2083,8 +6176,6 @@ maptool.zoomToLevel = function(e, level) {
 	});
 	maptool.adjustZoomMarker();
 	maptool.reCalculatePositions();
-	//if (e !== null)
-	//	maptool.centerOn(e, currentWidth, currentHeight, 'in');
 }
 
 maptool.zoomAdjust = function(e, factor) {
@@ -2101,12 +6192,10 @@ maptool.zoomAdjust = function(e, factor) {
 	var offsetTop = $("#mapHolder").offset().top;
 	var offsetX = e.originalEvent.pageX - offsetLeft;
 	var offsetY = e.originalEvent.pageY - offsetTop;
-	//var scrollX = $("#mapHolder").scrollLeft();
-	//var scrollY = $("#mapHolder").scrollTop();
 
 	oldWidth = $("#map #map_img").width();
 	oldHeight = $("#map #map_img").height();
-	//var newWidth = maptool.map.canvasWidth * factor;
+
 	$("#map #map_img").css({
 		maxWidth: 'none',
 		maxHeight: 'none',
@@ -2120,9 +6209,6 @@ maptool.zoomAdjust = function(e, factor) {
 
 	var newScrollX = scrollX + (newWidth - oldWidth)/2 + (offsetX - $("#mapHolder").width()/2) * (factorDiff);
 	var newScrollY = scrollY + (newHeight - oldHeight)/newHeight*(scrollY+offsetY) - ($("#mapHolder").height()/2 - offsetY) * (factorDiff)/newHeight*(scrollY+offsetY);
-
-	//newScrollX += (offsetX - $("#mapHolder").width()/2) * (factorDiff);
-	//newScrollY -= ($("#mapHolder").height()/2 - offsetY) * (factorDiff);
 
 	$("#mapHolder").scrollLeft(newScrollX);
 	$("#mapHolder").scrollTop(newScrollY);
@@ -2151,6 +6237,7 @@ maptool.zoomOut = function(e) {
 	$(".marker_tooltip").hide();
 	var currentWidth = $('#map #map_img').width();
 	var currentHeight = $('#map #map_img').height();
+
 	if (maptool.map.zoomlevel > 1) {
 		maptool.zoomAdjust(e, maptool.map.zoomlevel - config.zoomStep);
 		maptool.adjustZoomMarker();
@@ -2221,13 +6308,9 @@ maptool.Grid = (function() {
 		coord_y: changeCoords,
 		width: changeDimensions,
 		height: changeDimensions
-		//width_rat: changeDimensionsChained,
-		//height_rat: changeDimensionsChained
 	};
 
-	/**
-	 * Generates the grid as HTML
-	 */
+	// Generates the grid as HTML
 	function generateGrid() {
 		var html = '', 
 			num_cols = Math.ceil((grid.width() + settings.width * 2) / settings.width), 
@@ -2244,9 +6327,7 @@ maptool.Grid = (function() {
 		grid_frame.html(html);
 	}
 
-	/**
-	 * Save grid settings to database
-	 */
+	// Save grid settings to database
 	function setGridSettings() {
 		$.ajax({
 			url: "ajax/maptool.php",
@@ -2258,24 +6339,24 @@ maptool.Grid = (function() {
 		});
 	}
 
-	/**
-	 * Fetch grid settings from database
-	*/
+	// Fetch grid settings from database
 	function getGridSettings() {
-		$.ajax({
-			url: "ajax/maptool.php",
-			type: "POST",
-			data: {
-				"getGridSettings": _mapId
-			},
-			success: function (response) {
-				if (response) {
-					settings = JSON.parse(response);
-					
-					setSettings();
+		if (hasRights){
+			$.ajax({
+				url: "ajax/maptool.php",
+				type: "POST",
+				data: {
+					"getGridSettings": _mapId
+				},
+				success: function (response) {
+					if (response) {
+						settings = JSON.parse(response);
+						
+						setSettings();
+					}
 				}
-			}
-		});
+			});
+		}
 	}
 
 	/**
@@ -2360,7 +6441,7 @@ maptool.Grid = (function() {
 
 		if ($maptoolbox.hasClass("minimized")) {
 			maptoolbox.style.top = 0;
-			maptoolbox.style.left = "20px";
+			maptoolbox.style.left = "2em";
 
 			maptoolboxHeader.off("mousedown", toolboxStartMove);
 
@@ -2428,6 +6509,20 @@ maptool.Grid = (function() {
 		}
 	}
 
+	function toggleButtonWhite() {
+		if ($('#maptool_grid_white').prop('checked') === false) {
+			$('#maptool_grid_white').prop('checked', true);
+			$("#maptool_grid_white")[0];
+			$("#maptool_grid_white2").val(lang.black_grid);
+			toggleWhite();
+		} else if ($('#maptool_grid_white').prop('checked') === true) {
+			$('#maptool_grid_white').prop('checked', false);
+			$("#maptool_grid_white2").val(lang.white_grid);
+			$("#maptool_grid_white")[1];
+			toggleWhite();
+		} 
+	}
+
 	function toggleSnapMarkers() {
 		settings.snap_markers = {
 			x: $('#maptool_grid_snap_markers_x').prop('checked'),
@@ -2450,7 +6545,7 @@ maptool.Grid = (function() {
 			y = parseInt($('#maptool_grid_coord_y').val(), 10);
 
 		validateCoordsAndSet(x, y);
-	}
+	}  
 
 	function changeDimensions() {
 		settings.width = Math.max(10, parseInt($('#maptool_grid_width').val(), 10));
@@ -2470,14 +6565,26 @@ maptool.Grid = (function() {
 		}
 	}
 
+	function toggleButtonActivated() {
+		if ($('#maptool_grid_activated').prop('checked') === false) {
+			$('#maptool_grid_activated').prop('checked', true);
+			$("#maptool_grid_activated")[0];
+			toggleActivated();
+		} else if ($('#maptool_grid_activated').prop('checked') === true) {
+			$('#maptool_grid_activated').prop('checked', false);
+			$("#maptool_grid_activated")[1];
+			toggleActivated();
+		}		
+	}
+
 	function toggleActivated() {
 		settings.activated = $("#maptool_grid_activated")[0].checked;
-
-		generateGrid();
+		generateGrid();			
 	}
 
 	function resetGrid() {
-		$('#maptool_grid_width_rat').val(20).trigger('change');
+		$('#maptool_grid_width').val(20).trigger('change');
+		$('#maptool_grid_height').val(20).trigger('change');
 		updateCoords(0, 0);
 	}
 
@@ -2514,9 +6621,7 @@ maptool.Grid = (function() {
 
 		//Set dimensions
 		$("#maptool_grid_width").val(settings.width);
-		//$("#maptool_grid_width_rat").val(settings.width);
 		$("#maptool_grid_height").val(settings.height);
-		//$("#maptool_grid_height_rat").val(settings.height);
 		changeDimensions();
 	}
 
@@ -2656,7 +6761,6 @@ maptool.Grid = (function() {
 
 			maptoolboxHeader = $("#maptoolbox_header");
 			maptoolbox = $("#maptoolbox")[0];
-
 			getGridSettings();
 
 			$('.spinner').spinner({
@@ -2668,6 +6772,7 @@ maptool.Grid = (function() {
 
 			//Only run if tool box exists
 			if (maptoolbox) {
+
 				// Toolbox events
 				for (var property in setting_listeners) {
 					if (setting_listeners.hasOwnProperty(property)) {
@@ -2681,6 +6786,8 @@ maptool.Grid = (function() {
 			$('#maptool_grid_reset').on('click', resetGrid);
 			$('#maptool_grid_save').on('click', setGridSettings);
 			$("#maptoolbox_header").on("mousedown", toolboxStartMove);
+			$('#maptool_grid_activated2').on('click', toggleButtonActivated);
+			$('#maptool_grid_white2').on('click', toggleButtonWhite);
 
 			// Grid movement events
 			grid.on('mousemove', mouseMoved);
@@ -2699,6 +6806,7 @@ maptool.Grid = (function() {
 			// Window resize events
 			$(window).on('resize', windowSizeChanged);
 			windowSizeChanged();
+	
 		}
 	}
 
@@ -2753,8 +6861,6 @@ maptool.reCalculatePositions = function() {
 }
 
 maptool.centerOn = function(e, previousWidth, previousHeight, dir) {
-	
-	//maptool.clearMarkers();
 	
 	if (!e.originalEvent.offsetX) { //firefox
 		x = e.originalEvent.layerX;
@@ -2820,8 +6926,6 @@ maptool.focusOn = function(position) {
 	$('#mapHolder').scrollLeft(scrollX);
 	$('#mapHolder').scrollTop(scrollY);
 	
-	//maptool.placeMarkers();
-	
 	var img = $('<img src="images/icons/crosshair.png" id="focus_arrow"/>');
 	img.data('position', positionObject.id);
 	
@@ -2866,17 +6970,16 @@ maptool.adjustZoomMarker = function(zoomLevel) {
 	}
 	
 	if (zoomLevel == 1) {
-		tm = 124;
+		tm = 67;
 	} else {
 		var steps = (config.maxZoom - 1) / config.zoomStep;
-		var currentStep = (zoomLevel-1) / config.zoomStep;
-		
-		var slideHeight = $('#zoombar').height() - $('#zoombar #in').height() - $('#zoombar #out').height() - $('#zoombar img').height();
-		var tm = (slideHeight / steps) * currentStep;
-		tm = $('#zoombar #in').height() + slideHeight - tm;
+		var currentStep = (zoomLevel - 1) / config.zoomStep;
+		var slideWidth = $('#zoombar').width() - 138;
+		var tm = (slideWidth / steps) * currentStep;
+		tm = $('#zoombar #in').width()  + $('#zoombar #out').width() + tm;
 	}
 	$('#zoombar img').css({
-		marginTop: tm + 'px'
+		marginLeft: tm + 'px'
 	});
 }
 
@@ -2990,23 +7093,93 @@ maptool.init = function(mapId) {
 			}
 
 			$("#map > #map_img").attr("src", maptool.map.image+"?date="+ new Date().getTime());
-			
-			var holderHeight = $(document).height() - $('#header').height() -48;
-			var listHeight = holderHeight - $('#right_sidebar div:first-child').height() - $('#right_sidebar .pre_list').height() - 84;
+			var h = window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight;
+			//var holderHeight = h - $('#header').height() -10;
 
+			var isiPad = /ipad/i.test(navigator.userAgent.toLowerCase());
+
+			if(jQuery.browser.mobile){
 			$('#mapHolder').css({
 				width: '100%',
-				height: holderHeight + 'px'
-			});
-			$('#right_sidebar ul').css({
-				height: listHeight + 'px'
-			});
+				height: h + 'px'
+			});				
+			} else if (isiPad) {
+				var h = $(window).height();
+				var w = $(window).width();
+				if (w > h) {
+					$('#mapHolder').css({
+						width: '100%',
+						height: 768 + 'px'
+					});
+				} else {
+					$('#mapHolder').css({
+						width: '100%',
+						height: 1024 + 'px'
+					});					
+				}
+			} else {
+				$('#mapHolder').css({
+					width: '100%',
+					height: h + 'px'
+				});				
+			}			
+			var mapHeight = $('#mapHolder').height();
+
+			var sidebars = $('#right_sidebar div.pre_list').height() + ($('#right_sidebar hr').css('marginTop').replace('px', '')*1) + $('#right_sidebar div h2#exh2').height() + $('#right_sidebar div').height();
+
+			sidebarsheight = sidebars + 57;
+
+
+			if (maptool.map.userlevel > 0) {
+
+				if(jQuery.browser.mobile){
+					$('#right_sidebar ol').css({
+						height: mapHeight + $('#header').height() - sidebarsheight + 'px'
+					});
+				} else {
+					if (mapHeight > 665) {
+						$('#right_sidebar ol').css({
+							height: mapHeight - sidebarsheight + 'px'
+						});
+					} else {
+						$('#right_sidebar ol').css({
+							height: mapHeight - sidebarsheight + 7 + 'px'
+						});
+					}
+					$('#new_header').css({
+						height: mapHeight + 1 + 'px'
+					});
+				}
+			} else {
+
+				if(jQuery.browser.mobile){
+					$('#right_sidebar ol').css({
+						height: mapHeight + $('#header').height() - sidebarsheight - 1 + 'px'
+					});
+					console.log('mobile');
+				} else {
+					if (mapHeight > 665) {
+						$('#right_sidebar ol').css({
+							height: mapHeight - sidebarsheight - 1 + 'px'
+						});
+					} else {
+						$('#right_sidebar ol').css({
+							height: mapHeight - sidebarsheight + 7 + 'px'
+						});
+					}
+					$('#new_header').css({
+						height: mapHeight + 1 + 'px'
+					});
+				}
+			}
+
 			$("#map #map_img").css({
 				width: '100%',
 				height: 'auto',
 				display: 'inline'
 			});
-			
+
+
 			$("#map #map_img").load(function() {
 				
 				maptool.map.canvasWidth = $("#mapHolder").width();
@@ -3025,6 +7198,11 @@ maptool.init = function(mapId) {
 	});
 
 	$(".closeDialogue").click(function() {
+		maptool.closeDialogues();
+		maptool.closeForms();
+	});
+	$(".cancelbutton").click(function() {
+		maptool.closeForms();
 		maptool.closeDialogues();
 	});
 
@@ -3062,67 +7240,6 @@ maptool.init = function(mapId) {
 	}
 }
 
-maptool.Touch = (function() {
-	function pinchListener(e) {
-		var scale = e.scale;
-
-		if (scale < 1) {
-			scale = Math.abs(scale / 50 - 1);
-		} else {
-			scale = scale / 100 + 1;
-		}
-
-		var new_zoomlevel = Math.min(config.maxZoom, scale * maptool.map.zoomlevel);
-		maptool.zoomAdjust({
-			originalEvent: {
-				pageX: e.center.x,
-				pageY: e.center.y
-			}
-		}, new_zoomlevel);
-	}
-
-	function panListener(e) {
-		if (e.pointerType !== 'mouse') {
-			moveMap({
-				stopPropagation: function() {},
-				preventDefault: function() {},
-				pageX: e.deltaX,
-				pageY: e.deltaY
-			});
-		}
-	}
-
-	function panStartListener(e) {
-		if (e.pointerType !== 'mouse') {
-			start.x = e.deltaX;
-			start.y = e.deltaY;
-		}
-	}
-
-	$(function() {
-		if ($('#mapHolder').length > 0) {
-			var mc = new Hammer.Manager($('#mapHolder')[0]);
-			mc.add(new Hammer.Pinch());
-			mc.add(new Hammer.Pan());
-
-			mc.on('pinchstart', function(e) {
-				$('.marker, #focus_arrow').hide();
-			});
-
-			mc.on('pinchend', function(e) {
-				$('.marker, #focus_arrow').show();
-				maptool.adjustZoomMarker();
-				maptool.reCalculatePositions();
-			});
-
-			mc.on('pinchmove', pinchListener);
-
-			mc.on('panstart', panStartListener);
-			mc.on('pan', panListener);
-		}
-	});
-}());
-
 //Event handlers
 $(document).ready(function() {
 	$('.order').click(function() {
@@ -3136,7 +7253,29 @@ $(document).ready(function() {
 		});
 
 	});
+	
+		$("#right_sidebar_show").click(function() {
+			var mapHeight = $('#mapHolder').height();
+			var sidebars = $('#right_sidebar div.pre_list').height() + ($('#right_sidebar hr').css('marginTop').replace('px', '')*1) + $('#right_sidebar div h2#exh2').height() + $('#right_sidebar div').height();
+			sidebarsheight = sidebars + 37;
 
+			if (maptool.map.userlevel > 0) {
+					$('#right_sidebar ol').css({
+						height: mapHeight - sidebarsheight + 'px'
+					});
+			} else {
+					$('#right_sidebar ol').css({
+						height: mapHeight - sidebarsheight - 1 + 'px'
+					});				
+			}
+		});
+		
+		$("#overlay").click(function() {
+			if (maptool.map.userlevel < 1) {
+			maptool.closeDialogues();
+			}
+		});
+	
 	$('#category_filter').change(function() {
 		categoryFilter = $(this).val();
 		maptool.placeMarkers();
@@ -3225,6 +7364,8 @@ $(document).ready(function() {
 	$(document).keydown(function(e) {
 		if (e.keyCode == 27 && ($("#nouser_dialogue:visible").length === 0))
 			maptool.closeDialogues();
+		if (e.keyCode == 27 && ($("#nouser_dialogue:visible").length === 0))
+			maptool.closeForms();
 	});
 
 	$('#search_filter').keyup(function() {
@@ -3234,9 +7375,9 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		var isiPad = /ipad/i.test(navigator.userAgent.toLowerCase());
 		if(jQuery.browser.mobile){
-
+			maptool.placeMarkers();
 		} else if (isiPad) {
-
+			maptool.placeMarkers();
 		} else {
 			maptool.placeMarkers();
 		}
@@ -3321,7 +7462,6 @@ function chooseThis(thisd){
 	var text = $(thisd).text();
 	var id = $(thisd).val();
 	$('.exhibitorNotFound').css('display', 'none');
-	$('input#search_user_input').css('border-color','#00FF00');
 	$('input#search_user_input').val(text);
 	$('input#reserve_user_input').val(id);
 	$('#hiddenExhibitorList').hide();
@@ -3332,7 +7472,6 @@ function chooseThisBook(thisd){
 	var id = $(thisd).val();
 	$('.exhibitorNotFound').css('display', 'none');
 	$('input#search_user_input').val(text);
-	$('input#search_user_input').css('border-color','#00FF00');
 	$('input#book_user_input').val(id);
 	$('#hiddenExhibitorList').hide();
 }

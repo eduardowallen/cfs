@@ -1,4 +1,5 @@
-<script type="text/javascript" src="js/tablesearch.js"></script>
+<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
 <h1><?php echo $headline; ?></h1>
 <?php
 	//CurrencyCalculator::convertValues("SEK", "USD");
@@ -24,7 +25,7 @@
 				<th><?php echo $th_position_count; ?></th>
 				<th><?php echo $th_positions_edited; ?></th>
 				<th><?php echo $th_total_fairs; ?></th>
-				<th><?php echo $th_lastlogin; ?></th>
+				<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $th_lastlogin; ?></th>
 				<th><?php echo $th_locked; ?></th>
 				<th><?php echo $th_edit; ?></th>
 				<th><?php echo $th_delete; ?></th>
@@ -41,8 +42,8 @@
 				<td class="center"><?php echo $admin['fair_count']; ?></td>
 				<td class="center"><?php if ($admin['last_login']) { echo date('d-m-Y H:i:s', $admin['last_login']); } ?></td>
 				<td class="center"><?php echo ($admin['locked']) ? $locked_yes : $locked_no; ?></td>
-				<td class="center"><a href="administrator/edit/<?php echo $admin['id']; ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
-				<td class="center"><a href="administrator/delete/<?php echo $admin['id']; ?>/no/all"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
+				<td class="center"><a href="administrator/edit/<?php echo $admin['id']; ?>"><img src="images/icons/pencil.png" class="icon_img" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+				<td class="center"><a href="administrator/delete/<?php echo $admin['id']; ?>/no/all"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

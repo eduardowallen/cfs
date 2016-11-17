@@ -135,7 +135,7 @@
 		"Panama",
 		"Papua New Guinea",
 		"Paraguay",
-		"Peru",
+		"Perú",
 		"Philippines",
 		"Poland",
 		"Portugal",
@@ -207,6 +207,7 @@
 		<?php endforeach; ?>
 	</select>
 	<br class="clear">
+	<br class="clear">
 
   <div class="form_column" id="form_column1">
     <h3><?php echo htmlspecialchars($translator->{'Company'}); ?></h3>
@@ -221,7 +222,7 @@
     <input type="text" name="company" id="company" title="<?php echo ujs($translator->{"Insert the name of your organization."}); ?>" value="<?php echo $user->get('company'); ?>"/>
     
     <label for="commodity"><?php echo htmlspecialchars($translator->{'Commodity'}); ?> *</label>
-    <textarea rows="3" style="width:250px; height:40px; resize:none;" name="commodity" title="<?php echo ujs($translator->{"Insert the commodity that your organization represents."}); ?>" id="commodity"><?php echo $user->get('commodity'); ?></textarea>
+    <textarea rows="3" maxlength="200" style="width:250px; height:40px; resize:none;" name="commodity" title="<?php echo ujs($translator->{"Insert the commodity that your organization represents."}); ?>" id="commodity"><?php echo $user->get('commodity'); ?></textarea>
     
     <label for="address"><?php echo htmlspecialchars($translator->{'Address'}); ?> *</label>
     <input type="text" name="address" id="address" title="<?php echo ujs($translator->{"Insert the address of your organization."}); ?>" value="<?php echo $user->get('address'); ?>"/>
@@ -260,9 +261,7 @@
   <div class="form_column" id="form_column2">
         
     <h3><?php echo htmlspecialchars($translator->{'Billing address'}); ?></h3>
-            
-    <input type="checkbox" id="copy"/>
-    <label class="inline-block" for="copy"><?php echo htmlspecialchars($translator->{'Copy from company details'}); ?></label>
+    <input type="checkbox" id="copy" style="margin:0;"/><label class="squaredFour" style="display:inline-block; margin-right: 7px; vertical-align:inherit;" for="copy"></label><?php echo htmlspecialchars($translator->{'Copy from company details'}); ?>
 	
     <label for="invoice_email"><?php echo htmlspecialchars($translator->{'E-mail'}); ?> *</label>
     <input type="text" autocomplete="off" name="invoice_email" id="invoice_email" title="<?php echo ujs($translator->{"Insert the email address at which we can reach the organization for invoice."}); ?>" value="<?php echo $user->get('invoice_email'); ?>"/>
@@ -294,7 +293,7 @@
         <?php tiny_mce($path='js/tiny_mce/tiny_mce.js', 565, 'presentation'); ?>
         <textarea style="height:355px;" name="presentation" id="presentation" class="presentation"><?php echo $user->get('presentation'); ?></textarea>
   <p>
-    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
+    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="greenbutton bigbutton" />
   </p>		
 
 

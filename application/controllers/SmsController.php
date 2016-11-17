@@ -8,18 +8,52 @@ class SmsController extends Controller {
 	}
 
 	public function index() {
-		setAuthLevel(4);
+		setAuthLevel(2);
 
-		$stmt_sent_sms = $this->db->prepare("SELECT sms.*, COUNT(sr.sms_id) AS num_recipients, fair.name AS fair_name, user.name AS author_name
-											FROM sms
-											LEFT JOIN sms_recipient AS sr ON sr.sms_id = sms.id
-											LEFT JOIN fair ON fair.id = fair_id
-											LEFT JOIN user ON user.id = author_user_id
-											GROUP BY sms.id
-											ORDER BY sent_time DESC");
-		$stmt_sent_sms->execute();
-		$this->setNoTranslate('sent_sms', $stmt_sent_sms->fetchAll(PDO::FETCH_OBJ));
-
+		if (userLevel() == 4) {
+			$stmt_sent_sms = $this->db->prepare("SELECT 
+				sms.*, COUNT(sr.sms_id) AS num_recipients, fair.name AS fair_name, user.name AS author_name
+				FROM sms
+				LEFT JOIN sms_recipient AS sr ON sr.sms_id = sms.id
+				LEFT JOIN fair ON fair.id = fair_id
+				LEFT JOIN user ON user.id = author_user_id
+				GROUP BY sms.id
+				ORDER BY sent_time DESC
+			");
+			$stmt_sent_sms->execute();
+			$this->setNoTranslate('sent_sms', $stmt_sent_sms->fetchAll(PDO::FETCH_OBJ));
+		}
+		if (userLevel() == 3) {
+			$stmt_sent_sms = $this->db->prepare("SELECT 
+				sms.*, COUNT(sr.sms_id) AS num_recipients, 
+				fair.name AS fair_name, 
+				user.name AS author_name
+				FROM sms
+				LEFT JOIN sms_recipient AS sr ON sr.sms_id = sms.id
+				LEFT JOIN fair ON fair.id = fair_id
+				LEFT JOIN user ON user.id = author_user_id
+				WHERE `fair`.`created_by` = ?
+				GROUP BY sms.id
+				ORDER BY sent_time DESC
+			");
+			$stmt_sent_sms->execute(array($_SESSION['user_id']));
+			$this->setNoTranslate('sent_sms', $stmt_sent_sms->fetchAll(PDO::FETCH_OBJ));
+		}
+		if (userLevel() == 2) {
+			$stmt_sent_sms = $this->db->prepare("SELECT 
+				sms.*, COUNT(sr.sms_id) AS num_recipients, fair.name AS fair_name, user.name AS author_name, fair_user_relation.user AS fur_user
+				FROM sms
+				LEFT JOIN sms_recipient AS sr ON sr.sms_id = sms.id
+				LEFT JOIN fair ON fair.id = fair_id
+				LEFT JOIN user ON user.id = author_user_id
+				LEFT JOIN fair_user_relation ON fair.id = fair_user_relation.fair
+				WHERE `fair_user_relation`.`user` = ?
+				GROUP BY sms.id
+				ORDER BY sent_time DESC
+			");
+			$stmt_sent_sms->execute(array($_SESSION['user_id']));
+			$this->setNoTranslate('sent_sms', $stmt_sent_sms->fetchAll(PDO::FETCH_OBJ));
+		}
 		// Labels
 		$this->set('label_sms_stats', 'SMS statistics');
 		$this->set('label_fair', 'Fair');
@@ -32,12 +66,31 @@ class SmsController extends Controller {
 	}
 
 	public function details($id) {
-		setAuthLevel(4);
+		setAuthLevel(2);
 
+			$sms = new Sms();
+			$sms->load($id, 'id');
+
+			$fair = new Fair();
+			$fair->load($sms->get('fair_id'), 'id');
+
+		if (userLevel() == 3) {
+			if ($fair->wasLoaded() && $fair->get('created_by') != $_SESSION['user_id']) {
+				toLogin();
+			}
+		}
+		if (userLevel() == 2) {
+			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
+			$prep = $this->db->prepare($sql);
+			$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
+			$result = $prep->fetch(PDO::FETCH_ASSOC);
+			$this->setNoTranslate('accessible_maps', explode('|', $result['map_access']));
+			if(!$result) {
+				toLogin();
+			}
+		}
 		$this->Sms->load($id, 'id');
-
 		$this->setNoTranslate('sms', $this->Sms);
-
 		// Labels
 		$this->set('label_sms_details', 'SMS details');
 		$this->set('label_fair', 'Fair');
@@ -47,7 +100,8 @@ class SmsController extends Controller {
 		$this->set('label_num_texts', 'Number of texts');
 		$this->set('label_sent_time', 'Sent time');
 		$this->set('label_details', 'Details 2');
-		$this->set('label_recipient', 'Recipient');
+		$this->set('label_recipient_company', 'Recipient company');
+		$this->set('label_recipient_name', 'Recipient name');
 		$this->set('label_phone', 'Phone');
 		$this->set('label_status', 'Status');
 	}

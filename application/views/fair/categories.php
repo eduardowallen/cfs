@@ -1,21 +1,23 @@
-<h1><?php echo $headline; ?></h1>
-
 <?php if ($do == 'edit'): ?>
-
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/categories/<?php echo $fair_id; ?>'"><?php echo uh($translator->{'Go back'}); ?></button>
+<br />
+<h1><?php echo $headline; ?> <?php echo $fair->get('name'); ?></h1>
 <form action="fair/categories/<?php echo $fair_id; ?>/edit/<?php echo $item; ?>" method="post" style="background:#efefef; border:1px solid #b1b1b1; padding:20px;">
 	<h3><?php echo $form_headline; ?></h3>
 	<label for="name"><?php echo $name_label; ?> *</label>
 	<input type="text" name="name" id="name" value="<?php echo $current_title ?>"/>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
+	<input type="submit" class="greenbutton mediumbutton" name="save" value="<?php echo $save_label; ?>" />
 </form>
 
 <?php else: ?>
-
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/overview'"><?php echo uh($translator->{'Go back'}); ?></button>
+<br />
+<h1><?php echo $headline; ?> <?php echo $fair->get('name'); ?></h1>
 <form action="fair/categories/<?php echo $fair_id; ?>" method="post" style="background:#efefef; border:1px solid #b1b1b1; padding:20px;">
 	<h3><?php echo $form_headline; ?></h3>
 	<label for="name"><?php echo $name_label; ?> *</label>
 	<input type="text" name="name" id="name"/>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
+	<input type="submit" class="greenbutton mediumbutton" name="save" value="<?php echo $save_label; ?>" />
 </form>
 
 <?php if(count($categories) > 0) : ?>

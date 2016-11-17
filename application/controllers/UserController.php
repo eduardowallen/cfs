@@ -134,14 +134,14 @@ class UserController extends Controller {
         }
       }
       
-	if (!isset($halt)) { 
+      if (!isset($halt)) { 
       
         // Company section
         $this->User->set('orgnr', $_POST['orgnr']);
         $this->User->set('company', $_POST['company']);
         $this->User->set('commodity', $_POST['commodity']);
-		if(isset($_POST['customer_nr']))
-		$this->User->set('customer_nr', $_POST['customer_nr']);
+        if(isset($_POST['customer_nr']))
+          $this->User->set('customer_nr', $_POST['customer_nr']);
         $this->User->set('address', $_POST['address']);
         $this->User->set('zipcode', $_POST['zipcode']);
         $this->User->set('city', $_POST['city']);
@@ -151,6 +151,9 @@ class UserController extends Controller {
         $this->User->set('fax', $_POST['fax']);
         // Email is handled in the code above
         $this->User->set('website', $_POST['website']);
+		$this->User->set('facebook', $_POST['facebook']);
+		$this->User->set('twitter', $_POST['twitter']);
+		$this->User->set('google_plus', $_POST['google_plus']);        
         
         // Billing address section
         $this->User->set('invoice_company', $_POST['invoice_company']);
@@ -235,13 +238,16 @@ class UserController extends Controller {
     }
     
     if ($id != 'new' && userLevel() == 4) {
-		$this->setNoTranslate('openFields', true);
+    
+      $this->setNoTranslate('openFields', true);
     } else {
-		$this->setNoTranslate('openFields', false);
+    
+      $this->setNoTranslate('openFields', false);
     }
-		$this->setNoTranslate('edit_id', $id);
-		$this->setNoTranslate('edit_level', $level);
-		$this->setNoTranslate('user', $this->User);
+
+    $this->setNoTranslate('edit_id', $id);
+    $this->setNoTranslate('edit_level', $level);
+    $this->setNoTranslate('user', $this->User);
 	}
 
 	function logout() {
@@ -250,6 +256,8 @@ class UserController extends Controller {
 			$stmt = $this->db->prepare("SELECT url FROM fair WHERE `id` = ?");
 			$stmt->execute(array($_SESSION['user_fair']));
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
+			$stmt2 = $this->db->prepare("UPDATE `user` SET `online` = 0 WHERE `id` = ?");
+			$stmt2->execute(array($_SESSION['user_id']));
 			session_unset();
 			session_destroy();
 
@@ -275,31 +283,34 @@ class UserController extends Controller {
   
 		unset($_SESSION['visitor']);
 		if(isset($_SESSION['user_id'])) :
-			 header("Location: ".BASE_URL."page/loggedin"); 
+			 header("Location: ".BASE_URL."start/home"); 
 		endif;
 
 		$this->setNoTranslate('error', '');
 		$this->setNoTranslate('fair_url', $fUrl);
     
 		if( $status !== null){
-			$this->setNoTranslate('first_time_msg', $translator->{'An email has been sent to the specified email addresses that were entered into during the registration prossesen'});
+			$this->set('first_time_title', $translator->{'Activate your account to login'});
+			$this->set('first_time_email_msg', $translator->{'An activation e-mail from Chartbooker has been sent to '}.$_SESSION['m']);
+			$this->set('first_time_msg', $translator->{'To finalize the registration process, press the activation link inside. If you cannot find your email in your inbox, please check your junkbox.'});
+			$_SESSION['m'] = "";
 		}
 		
 		if( $fUrl == 'confirmed'){
-			$this->setNoTranslate('confirmed_msg', $translator->{'Your account has been activated. Please log in to proceed.'});
+			$this->set('confirmed_msg', $translator->{'Your account has been activated. Please log in to proceed.'});
 		}
-    	elseif( $fUrl == 'alreadyactivated' ) {
-			$this->setNoTranslate('confirmed_msg', $translator->{'Your account has already been activated.'});
-		}
+    elseif( $fUrl == 'alreadyactivated' ) {
+      $this->set('confirmed_msg', $translator->{'Your account has already been activated.'});
+    }
 
 		if( $fUrl == 'ok') :
 			$this->set('good', 'yes');
-			$this->setNoTranslate('res_msg', $translator->{'A new password has been sent to '}.$_SESSION['m']);
+			$this->set('res_msg', $translator->{'A new password has been sent to '}.$_SESSION['m']);
 			$_SESSION['m'] = "";
 
 		elseif($fUrl == 'err') :
 			$this->set('good', 'no');
-			$this->setNoTranslate('res_msg', $translator->{'E-mail address or Username not found.'});
+			$this->set('res_msg', $translator->{'E-mail address or Username not found.'});
 		endif;
 		
 		if(!empty($_SESSION['error'])) :
@@ -367,33 +378,30 @@ class UserController extends Controller {
 					}
 				}
 
-				$fair = new Fair;
-				$fair->load($_SESSION['user_fair'], 'id');
+				/*$timediff = time() - $this->User->get('password_changed');
+				$days = $timediff/60/60/24;*/
 
-<<<<<<< HEAD
-=======
 				//if ($days > 72) {
 				//	header("Location: ".BASE_URL."user/changePassword/remind");
 				//} else {
 				$fair = new Fair;
 				$fair->load($_SESSION['user_fair'], 'id');
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+
 				if ($fair->wasLoaded()) {
 					if (userLevel() > 1) {
-						$redirect_url = BASE_URL.'mapTool/map/'.$fair->get('id');
+						//$redirect_url = BASE_URL.'mapTool/map/'.$fair->get('id');
+						$redirect_url = BASE_URL.'start/home';
 					} else {
-						$redirect_url = BASE_URL.$fair->get('url');
+						$redirect_url = BASE_URL.'start/home';
+						//$redirect_url = BASE_URL.$fair->get('url');
 					}
 				} else {
-					$redirect_url = BASE_URL."page/loggedin";
+					$redirect_url = BASE_URL."start/home";
 				}
-
+			$stmt = $this->db->prepare("UPDATE `user` SET `online` = 1 WHERE `id` = ?");
+			$stmt->execute(array($_SESSION['user_id']));		
 				// Check if user has approved the current User Terms
-<<<<<<< HEAD
 				// (Master level users don't have to approve anything)
-=======
-				// (Master level users doesn't have to approve anything)
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				if ($this->User->get('terms') == USER_TERMS || $this->User->get('level') == 4) {
 					$_SESSION['user_terms_approved'] = true;
 
@@ -413,19 +421,13 @@ class UserController extends Controller {
 
 				if ($this->is_ajax) {
 					$this->createJsonResponse();
-					$this->set('redirect', $redirect_url);
+					$this->setNoTranslate('redirect', $redirect_url);
 					return;
-<<<<<<< HEAD
 
 				} else {
 					header("Location: " . $redirect_url);
 				}
-=======
-				} else {
-					header("Location: " . $redirect_url);
-				}
 				//}
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 				exit;
 
@@ -470,17 +472,13 @@ class UserController extends Controller {
 		$this->set('save_label', 'Save');
 		$this->set('pass_standard', 'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.');
 		$this->setNoTranslate('info', '');
-
-<<<<<<< HEAD
-		$time_now = date('d-m-Y H:i');
-=======
+/*
 		if ($info == 'remind')
 			$this->set('info', "It has been more than a month since you last changed your password. It is recommended that you change it now.");
 		else
-			$this->setNoTranslate('info', '');
+			$this->setNoTranslate('info', '');*/
 			
 	$time_now = date('d-m-Y H:i');
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 	
 		if (isset($_POST['save'])) {
 
@@ -491,21 +489,16 @@ class UserController extends Controller {
 				if ($this->User->wasLoaded()) {
 
 					if ($this->User->login($this->User->get('alias'), $_POST['password_old'])) {
+
 						$this->User->setPassword($_POST['password']);
 						$this->User->save();
 						$this->set('ok', 'Password changed');
-<<<<<<< HEAD
-		            	$mail = new Mail($this->User->email, 'password_changed');
-		      			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-		      			$mail->setMailVar('edit_time', $time_now);
-		     			$mail->send();
 
-=======
-            $mail = new Mail($this->User->email, 'password_changed');
-			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-			$mail->setMailVar('edit_time', $time_now);
-            $mail->send();
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+	    		        $mail = new Mail($this->User->email, 'password_changed');
+	    		      	$mail->setMailVar('exhibitor_name', $this->User->get('name'));
+	    		      	$mail->setMailVar('edit_time', $time_now);
+    		     		$mail->send();
+
 					} else {
 						$this->set('error', 'Your current password was wrong.');
 					}
@@ -535,9 +528,9 @@ class UserController extends Controller {
 						$this->User->save();
 						$this->setNoTranslate('new_pass', $str);
 
-			            $mail = new Mail($this->User->email, 'password_reset');
-			            $mail->setMailVar('password', $str);
-			            $mail->send();
+						$mail = new Mail($this->User->email, 'password_reset');
+						$mail->setMailVar('password', $str);
+						$mail->send();
 
 					} else {
 						die('timeout');
@@ -559,21 +552,13 @@ class UserController extends Controller {
 				$pass = substr($pass, -30, 6);
 				$this->User->setPassword($pass);
 				$this->User->save();
-<<<<<<< HEAD
 
 		        $mail = new Mail($this->User->email, 'password_reset2');
 		        $mail->setMailVar('alias', $this->User->get('alias'));
 		        $mail->setMailVar('password', $pass);
-			    $mail->setMailVar('exhibitor_name', $this->User->get('name'));
+				$mail->setMailVar('exhibitor_name', $this->User->get('name'));
 		        $mail->send();
 
-=======
-        $mail = new Mail($this->User->email, 'password_reset2');
-        $mail->setMailVar('alias', $this->User->get('alias'));
-        $mail->setMailVar('password', $pass);
-		$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-        $mail->send();
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				$_SESSION['m'] = $this->User->email;
 				header('Location: '.BASE_URL.'user/login/ok');
 
@@ -586,21 +571,13 @@ class UserController extends Controller {
 					$pass = substr($pass, -30, 6);
 					$this->User->setPassword($pass);
 					$this->User->save();
-<<<<<<< HEAD
 
 			        $mail = new Mail($this->User->email, 'password_reset2');
 			        $mail->setMailVar('alias', $this->User->alias);
 			        $mail->setMailVar('password', $pass);
-		    		$mail->setMailVar('exhibitor_name', $this->User->name);
+			    	$mail->setMailVar('exhibitor_name', $this->User->name);
 					$mail->send();
 
-=======
-          $mail = new Mail($this->User->email, 'password_reset2');
-          $mail->setMailVar('alias', $this->User->alias);
-          $mail->setMailVar('password', $pass);
-		  $mail->setMailVar('exhibitor_name', $this->User->name);
-          $mail->send();
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 					$_SESSION['m'] = $this->User->email;
 					header('Location: '.BASE_URL.'user/login/ok');
 
@@ -634,8 +611,8 @@ class UserController extends Controller {
 			$this->User->load($_POST['email'], 'email');
 			if ($this->User->wasLoaded()) {
 				$mail = new Mail($this->User->email, 'username_remind');
-		        $mail->setMailVar('alias', $this->User->get('alias'));
-		        $mail->send();
+			    $mail->setMailVar('alias', $this->User->get('alias'));
+			    $mail->send();
 				$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
 			} else {
 				$this->setNoTranslate('error', true);
@@ -654,6 +631,7 @@ class UserController extends Controller {
 
 		$this->User->load($_SESSION['user_id'], 'id');
 
+
 		if (isset($_POST['save'])) {
     
 			$this->User->set('phone1', $_POST['phone1']);
@@ -664,22 +642,25 @@ class UserController extends Controller {
 
 			if (userLevel() != 2) {
       
-   			    // Company section
+        // Company section
 				$this->User->set('orgnr', $_POST['orgnr']);
 				$this->User->set('company', $_POST['company']);
 				$this->User->set('commodity', $_POST['commodity']);
- 			   if(isset($_POST['customer_nr']))
-       		 	$this->User->set('customer_nr', $_POST['customer_nr']);
+ 			  if(isset($_POST['customer_nr']))
+       	 $this->User->set('customer_nr', $_POST['customer_nr']);
 				$this->User->set('address', $_POST['address']);
 				$this->User->set('zipcode', $_POST['zipcode']);
 				$this->User->set('city', $_POST['city']);
 				$this->User->set('country', $_POST['country']);
-        		// Phone1 and Phone2 are handled above
+        // Phone1 and Phone2 are handled above
 				$this->User->set('fax', $_POST['fax']);
-        		// Email is handled above
+        // Email is handled above
 				$this->User->set('website', $_POST['website']);
+				$this->User->set('facebook', $_POST['facebook']);
+				$this->User->set('twitter', $_POST['twitter']);
+				$this->User->set('google_plus', $_POST['google_plus']);				
         
-      			// Billing address section
+        // Billing address section
 				$this->User->set('invoice_company', $_POST['invoice_company']);
 				$this->User->set('invoice_address', $_POST['invoice_address']);
 				$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
@@ -687,10 +668,10 @@ class UserController extends Controller {
 				$this->User->set('invoice_country', $_POST['invoice_country']);
 				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('presentation', $_POST['presentation']);
-        
-		        // Contact section
-		        // Alias field is disabled and should not be changed
-		        // Name and Contact_Phone are handled above
+
+        // Contact section
+        // Alias field is disabled and should not be changed
+        // Name and Contact_Phone are handled above
 				$this->User->set('contact_phone2', $_POST['phone4']);
 				$this->User->set('contact_email', $_POST['contact_email']);
 			}
@@ -703,17 +684,129 @@ class UserController extends Controller {
 		$this->setNoTranslate('user', $this->User);
 	}
 
+	public function uploadlogo() {
+
+		setAuthLevel(1);
+		$now = time();
+		$this->User->load($_SESSION['user_id'], 'id');
+		$this->set('error_notimg', '');
+		$this->set('error_toobig', '');
+		$this->set('error_wrongformat', '');
+		$this->set('error_notuploaded', '');
+		$this->set('error_whenuploaded', '');
+		$this->set('img_wasuploaded', '');
+		$this->set('headline', 'Upload logo');
+		$this->set('image_path', '../images/exhibitors/'.$_SESSION['user_id']).'/';
+		$this->set('name_label', 'Name');
+		$this->set('user', $_SESSION['user_id']);
+		$this->set('save_label', 'Save');
+		$this->set('image_label', 'Image');
+		$this->set('delete', 'Delete');
+
+		if(isset($_POST["submit"])) {
+
+			$target_dir = ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/';
+			$target_file = $target_dir.'/exhibitor_logo'.$now.'.png';
+			/*
+			$uploadOk = 1;
+			$imageFileType = pathinfo($target_file,PATHINFO_EXTENSION);	
+		    $check = getimagesize($_FILES["image"]["tmp_name"]);
+
+
+		    if($check !== false) {
+		    //    echo "File is an image - " . $check["mime"] . ".";
+		        $uploadOk = 1;
+		    } else {
+		    	$this->set('error_notimg', 'File is not an image.');
+		        $uploadOk = 0;
+		    }
+			// Check file size
+			if ($_FILES["image"]["size"] > 50000000) {
+				$this->set('error_toobig', 'Sorry, your file is too large.');
+			    $uploadOk = 0;
+			}
+			// Allow certain file formats
+			if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" 
+				&& $imageFileType != "gif" ) {
+				$this->set('error_wrongformat', 'Sorry, only JPG, JPEG, PNG & GIF files are allowed.');
+			    $uploadOk = 0;
+			}
+			// Check if $uploadOk is set to 0 by an error
+			if ($uploadOk == 0) {
+				$this->set('error_notuploaded', 'Your file was not uploaded.');
+			// if everything is ok, try to upload file
+			} else {
+/*
+			$inFile = $_FILES["image"]["tmp_name"];
+			$outFile = $target_file;
+			$image = new ImageMagick($inFile);
+			$image->thumbnailImage(200, 200);
+			$image->writeImage($outFile);*/
+			if (userLevel() == 4) {
+				
+			}
+
+		if (!file_exists(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'])) {
+			mkdir(ROOT.'public/images/exhibitors/'.$_SESSION['user_id']);
+			chmod(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'], 0775);
+		}
+				if (is_uploaded_file($_FILES['image']['tmp_name'])) {
+					$im = new ImageMagick;
+					$now = time();
+					array_map('unlink', glob(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/*'));
+					move_uploaded_file($_FILES['image']['tmp_name'], ROOT.'public/images/tmp/'.$now.'.png');
+					chmod(ROOT.'public/images/tmp/'.$now.'.png', 0775);
+					//print_r(ROOT.'public/images/tmp/'.$now.'.jpg');
+					$im->IMlogo(ROOT.'public/images/tmp/'.$now.'.png', $target_dir, 84);
+					chmod($target_dir, 0775);
+					unlink(ROOT.'public/images/tmp/'.$now.'.png');
+					/*
+					$im->constrain(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/logotype/exhibitor_logo'.$now.'.jpg', ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/logotype/exhibitor_logo'.$now.'_small.jpg', 253, 71);
+					chmod(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/logotype/exhibitor_logo'.$now.'_small.jpg', 0775);*/
+	/*
+					array_map('unlink', glob(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/*'));
+				    if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
+				    	
+				        chmod(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/', 0775);
+				        $this->set('img_wasuploaded', "The file ". basename( $_FILES["image"]["name"]). " has been uploaded.");
+				    } else {
+				    	$this->set('error_whenuploaded', 'There was an error uploading your file.');
+				    }*/
+				}
+		//	}
+		}
+
+	}
+
+public function deletelogo() {
+	setAuthLevel(1);
+	$this->User->load($_SESSION['user_id'], 'id');
+	if ($this->User->wasLoaded()) {
+		if (file_exists(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'])) {
+			foreach(glob(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/*.*') as $file) {
+			    if(is_file($file)) {
+			        @unlink($file);
+			    }
+			}
+			//unlink(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/.jpg');
+		}
+	}
+
+	header("Location: ".BASE_URL."user/uploadlogo");
+	exit;
+}
+
 	function register($fairUrl='') {
 
 		$error = '';
 
 		if (isset($_POST['save'])) {
 
-     		 // Company section
+      // Company section
 			$this->User->set('orgnr', $_POST['orgnr']);
 			$this->User->set('company', $_POST['company']);
 			$this->User->set('commodity', $_POST['commodity']);
-   		  	// Customer_Nr should not appear here
+      // Customer_Nr should not appear here
 			$this->User->set('address', $_POST['address']);
 			$this->User->set('zipcode', $_POST['zipcode']);
 			$this->User->set('city', $_POST['city']);
@@ -723,10 +816,13 @@ class UserController extends Controller {
 			$this->User->set('fax', $_POST['fax']);
 			$this->User->set('email', $_POST['email']);
 			$this->User->set('website', $_POST['website']);
-  		    // For popups, the presentation is located directly below the first section, not the second
+			$this->User->set('facebook', $_POST['facebook']);
+			$this->User->set('twitter', $_POST['twitter']);
+			$this->User->set('google_plus', $_POST['google_plus']);
+      // For popups, the presentation is located directly below the first section, not the second
 			$this->User->set('presentation', $_POST['presentation']);
       
-    		// Billing address section
+      // Billing address section
 			$this->User->set('invoice_company', $_POST['invoice_company']);
 			$this->User->set('invoice_address', $_POST['invoice_address']);
 			$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
@@ -734,7 +830,7 @@ class UserController extends Controller {
 			$this->User->set('invoice_country', $_POST['invoice_country']);
 			$this->User->set('invoice_email', $_POST['invoice_email']);
       
-     		// Contact section
+      // Contact section
 			$this->User->set('alias', $_POST['alias']);
 			$this->User->set('name', $_POST['name']);
 			$this->User->set('contact_phone', $_POST['phone3']);
@@ -755,6 +851,7 @@ class UserController extends Controller {
 			} else if (!$this->validAlias($_POST["alias"])) {
 
 				$error.= 'The username can only consist of numbers and lowercase letters.';
+				
 			} else {
       
 				if (strlen($_POST['alias']) > 3) {
@@ -764,18 +861,11 @@ class UserController extends Controller {
 						$userId = $this->User->save();
 						$hash = md5($this->User->get('email').BASE_URL.$userId);
 						$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
-<<<<<<< HEAD
 
 			            $mail = new Mail($this->User->email, 'confirm_mail');
-						$mail->setMailVar('exhibitor_name', $this->User->get('name'));
+				      	$mail->setMailVar('exhibitor_name', $this->User->get('name'));
 			            $mail->setMailVar('url', $url);
 			            $mail->send();
-=======
-            $mail = new Mail($this->User->email, 'confirm_mail');
-			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-            $mail->setMailVar('url', $url);
-            $mail->send();
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
             
 						if ($fairUrl != '') {
             
@@ -787,6 +877,7 @@ class UserController extends Controller {
 							require_once ROOT.'application/models/PreliminaryBooking.php';
 							require_once ROOT.'application/models/FairUserRelation.php';
 							require_once ROOT.'application/models/FairExtraOption.php';
+							require_once ROOT.'application/models/FairArticle.php';
               
 							$fair = new Fair;
 							$fair->load($fairUrl, 'url');
@@ -802,7 +893,8 @@ class UserController extends Controller {
 						}
             
             $this->setNoTranslate('noView', true);
-						header('Location: '.BASE_URL.'user/login/'.$fairUrl.'/new');
+            $_SESSION['m'] = $this->User->email;
+			header('Location: '.BASE_URL.'user/login/'.$fairUrl.'/new');
             exit;
             
 					} else {
@@ -821,7 +913,7 @@ class UserController extends Controller {
 		$this->setNoTranslate('fair_url', $fairUrl);
 		$this->setNoTranslate('user', $this->User);
 		$fair = new Fair($this->User->db);
-		$fair->load($_SESSION['outside_fair_url'], 'url');
+		$fair->loadsimple($_SESSION['outside_fair_url'], 'url');
 		$this->setNoTranslate('fair', $fair);
 	}
 
@@ -834,32 +926,32 @@ class UserController extends Controller {
 				$this->User->set('locked', 0);
 				$this->User->save();
         
-		        // Mail here
-		        $stmt = $this->db->prepare("SELECT fair.url FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
-		        $stmt->execute(array($this->User->get('id')));
-		        $fair = $stmt->fetch(PDO::FETCH_ASSOC);
-		        
-		        $mail = new Mail($this->User->get('email'), 'activate_welcome');
-		        $mail->setMailVar('alias', $this->User->get('alias'));
-		        $mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
-		        $mail->setMailVar('url', BASE_URL.$fair['url']);
-		        $mail->send();
-		        
-		        // Log the user in
-				$_SESSION['user_id'] = $this->User->get('id');
-				$_SESSION['user_level'] = $this->User->get('level');
-				$_SESSION['user_password_changed'] = $this->User->get('password_changed');
-		        
-		        // Get fair associated with the user
-		        $stmt = $this->db->prepare("SELECT rel.fair, fair.windowtitle, fair.url FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
-		        $stmt->execute(array($this->User->get('id')));
-		        $result = $stmt->fetch();
-		        $_SESSION['user_fair'] = $result['fair'];
-		        $_SESSION['fair_windowtitle'] = $result['windowtitle'];
-		        
-		        $this->setNoTranslate('noView', true);
+        // Mail here
+        $stmt = $this->db->prepare("SELECT fair.url FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
+        $stmt->execute(array($this->User->get('id')));
+        $fair = $stmt->fetch(PDO::FETCH_ASSOC);
+        
+        $mail = new Mail($this->User->get('email'), 'activate_welcome');
+        $mail->setMailVar('alias', $this->User->get('alias'));
+        $mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
+        $mail->setMailVar('url', BASE_URL.$fair['url']);
+        $mail->send();
+        
+        // Log the user in
+		$_SESSION['user_id'] = $this->User->get('id');
+		$_SESSION['user_level'] = $this->User->get('level');
+		$_SESSION['user_password_changed'] = $this->User->get('password_changed');
+        
+        // Get fair associated with the user
+        $stmt = $this->db->prepare("SELECT rel.fair, fair.windowtitle, fair.url FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? ORDER BY fair.id DESC LIMIT 0,1");
+        $stmt->execute(array($this->User->get('id')));
+        $result = $stmt->fetch();
+        $_SESSION['user_fair'] = $result['fair'];
+        $_SESSION['fair_windowtitle'] = $result['windowtitle'];
+        
+        $this->setNoTranslate('noView', true);
 
-		        header("Location: " . BASE_URL . $result["url"]);
+		    header("Location: " . BASE_URL . $result["url"]);
 		 		if (!$_SESSION['user_terms_approved']) {
 					$url = $urlArray[0] . '/' . $action;
 					// Whitelist URLs that can be accessed without approved terms
@@ -868,7 +960,7 @@ class UserController extends Controller {
 						exit;
 					}
 				}       
-				
+
 				exit;
         
 			} else if( $hash == $userHash ) {
@@ -950,12 +1042,8 @@ class UserController extends Controller {
 	}
 
 	private function validAlias($string) {
-<<<<<<< HEAD
 		// Check if string only consists of numbers or any lowercase letter from any language.
-=======
-		//Check if string only consists of numbers or any lowercase letter from any language.
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
-		return preg_match("/^[0-9\p{Ll}]+$/u", $string);
+		return preg_match("/^[a-z-_0-9]+$/", $string);
 	}
 
 	public function terms() {
@@ -965,11 +1053,7 @@ class UserController extends Controller {
 		$next = (isset($_GET['next']) ? str_replace(BASE_URL, '', $_GET['next']) : 'page/loggedin');
 
 		// When user has changed the application language, this will be true.
-<<<<<<< HEAD
 		// But we can't send the user back to TranslateController because they will
-=======
-		// But we can't send the user back to TranslateController, they will
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 		// get stuck in an infinite loop.
 		if ($next == 'translate/language') {
 			$next = 'page/loggedin';

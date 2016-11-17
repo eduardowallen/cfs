@@ -1,4 +1,5 @@
 <h1 style="text-align:center;"><?php echo $headline; ?></h1>
+<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />
 <!--<input type="text" id="search-criteria"/>
 <input type="button" id="search" value="search"/>-->
 

@@ -357,9 +357,8 @@ if ($fair['approved'] == 2) {
 <?php echo '<strong>'.$label_fair_occupied_spaces.'</strong>: '.$fair['occupied_spaces']; ?><br />
 <?php echo '<strong>'.$label_fair_free_spaces.'</strong>: '.$fair['free_spaces']; ?><br />
 <?php echo '<strong>'.$label_fair_creation_time.'</strong>: '; if ($fair['creation_time']) echo date('d-m-Y H:i:s', $fair['creation_time']); ?><br />
-<?php echo '<strong>'.$auto_publish.'</strong>: '; echo date('d-m-Y H:i:s', $fair['auto_publish']); ?><br />
-<?php echo '<strong>'.$auto_close.'</strong>: '; echo date('d-m-Y H:i:s', $fair['auto_close']); ?><br />
-<?php echo '<strong>'.$label_fair_closing_time.'</strong>: '; if ($fair['closing_time']) echo date('d-m-Y H:i:s', $fair['closing_time']); ?><br />
+<?php echo '<strong>'.$label_fair_event_start.'</strong>: '; echo date('d-m-Y H:i:s', $fair['event_start']); ?><br />
+<?php echo '<strong>'.$label_fair_event_stop.'</strong>: '; echo date('d-m-Y H:i:s', $fair['event_stop']); ?><br />
 	</div>
 <?php
 	endforeach;

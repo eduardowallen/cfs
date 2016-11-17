@@ -5,7 +5,7 @@
 	<input id="name" name="categoryName" type="text" />
 	<label for="num"><?php echo $th_catNumber?></label>
 	<input id="num" name="num" type="text" />
-	<label for="chk"><?php echo $ch_mandatory?></label>
+	<label for="chk"><?php echo $th_catOptional?></label>
 	<input id="chk" name="chk" type="checkbox" />
 
 <table class="std_table">

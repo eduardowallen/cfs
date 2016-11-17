@@ -1,3 +1,4 @@
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
 <h1><?php echo $headline; ?></h1>
 <form action="user/changePassword" method="post">
 	
@@ -15,6 +16,6 @@
 	<label for="password_repeat"><?php echo $password_repeat_label; ?> *</label>
 	<input type="password" name="password_repeat" id="password_repeat"/>
 	
-	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" /></p>
+	<p><input type="submit" name="save" value="<?php echo $save_label; ?>" class="greenbutton mediumbutton" /></p>
 	
 </form>

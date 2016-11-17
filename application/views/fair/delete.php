@@ -1,3 +1,5 @@
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/overview'"><?php echo uh($translator->{'Go back'}); ?></button>
+<br />
 <h1><?php echo $headline; ?></h1>
 
 <p><?php echo $warning; ?></p>

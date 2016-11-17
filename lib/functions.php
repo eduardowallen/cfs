@@ -211,12 +211,12 @@ function makeOptions($db, $table, $sel=0, $where='') {
 	}
 	return $ret;
 }
-
+/*
 function logToDB($db, $action, $data) {
 	$data = (is_array($data)) ? json_encode($data) : $data;
 	$stmt = $db->prepare("INSERT INTO log (user, action, `time`, `data`) VALUES (?, ?, ?, ?)");
 	$stmt->execute(array($_SESSION['user_id'], $action, time(), $data));
-}
+}*/
 
 function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 	
@@ -226,7 +226,7 @@ function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 	        		theme_advanced_buttons3 : "",
 	        		theme_advanced_buttons4 : "",';
 	} else {*/
-		$toolbar = 'theme_advanced_buttons1 : "undo,redo,|,bold,italic,underline,strikethrough,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright,justifyfull,|,cut,copy,paste,code",
+		$toolbar = 'theme_advanced_buttons1 : "bold,italic,underline,|,bullist,numlist,|,link,unlink,|,justifyleft,justifycenter,justifyright|,cut,copy,paste,code",
 	        		theme_advanced_buttons2 : "",
 	        		theme_advanced_buttons3 : "",
 	        		theme_advanced_buttons4 : "",';
@@ -247,6 +247,8 @@ function tiny_mce($path='js/tiny_mce/tiny_mce.js', $width=null, $box=null) {
 		endif;
 		
 	        echo '
+	        skin : "o2k7",
+	        skin_variant : "black",
 	        theme : "advanced",
 	        plugins : "style,table,advimage,advlink,inlinepopups,insertdatetime,preview,paste,fullscreen,noneditable,visualchars,xhtmlxtras",
 

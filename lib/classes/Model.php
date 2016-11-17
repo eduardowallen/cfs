@@ -67,6 +67,87 @@ class Model implements JsonSerializable {
 		}
 	}
 
+	public function loadmsg($key, $by) {
+		$stmt = $this->db->prepare("SELECT `id`, `arranger_message` FROM ".$this->table_name." WHERE `".$by."` = ?");
+		//echo "SELECT * FROM ".$this->table_name." WHERE `".$by."` = ".$key;
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
+
+	public function loadfair($key, $by) {
+		$stmt = $this->db->prepare("SELECT `fair` FROM ".$this->table_name." WHERE `".$by."` = ?");
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
+
+	public function loadid($key, $by) {
+		$stmt = $this->db->prepare("SELECT `id` FROM ".$this->table_name." WHERE `".$by."` = ?");
+		//echo "SELECT * FROM ".$this->table_name." WHERE `".$by."` = ".$key;
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
+
+	public function load2($key, $by) {
+		$stmt = $this->db->prepare("SELECT * FROM ".$this->table_name." WHERE `".$by."` = ?");
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
 	protected function fetchExternal($class, $attribute, $joinedOn, $key, $order_by = null, $order_dir = null) {
 
 		$query = "SELECT id FROM ".$this->getTableName($class)." WHERE `".$joinedOn."` = ?";
@@ -94,7 +175,25 @@ class Model implements JsonSerializable {
 		$this->$attribute = $ret;
 
 	}
+	protected function fetchExternalAll($class, $attribute, $joinedOn, $key, $order_by = null, $order_dir = null) {
 
+		$query = "SELECT * FROM ".$this->getTableName($class)." WHERE `".$joinedOn."` = ?";
+		if ($order_by !== null) {
+			$query .= " ORDER BY `" . $order_by . "`";
+
+			if ($order_dir !== null && ($order_dir == 'ASC' || $order_dir == 'DESC')) {
+				$query .= " " . $order_dir;
+			}
+		}
+
+		$stmt = $this->db->prepare($query);
+
+		$stmt->execute(array($key));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+		$this->$attribute = $result;
+
+	}
 	public function save() {
 
 		$vals = array();
@@ -128,13 +227,20 @@ class Model implements JsonSerializable {
 
 	}
 
+	public function deleteToHistory() {
+
+		$stmt_history = $this->db->prepare("INSERT INTO ".$this->table_name.'_history'." SELECT FROM ".$this->table_name." WHERE id = ?");
+		$stmt_history->execute(array($this->id));
+		$stmt = $this->db->prepare("DELETE FROM ".$this->table_name." WHERE id = ?");
+		$stmt->execute(array($this->id));
+
+	}
 	public function delete() {
 
 		$stmt = $this->db->prepare("DELETE FROM ".$this->table_name." WHERE id = ?");
 		$stmt->execute(array($this->id));
 
 	}
-
 	public function wasLoaded() {
 		return $this->loaded;
 	}

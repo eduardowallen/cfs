@@ -9,20 +9,19 @@ class FairMapController extends Controller {
 
 	}
 
-	public function create($fair) {
+	public function create($fairId) {
 
 		setAuthLevel(3);
 
+		$f = new Fair;
+		$f->load($fairId, 'id');
 		if (userLevel() == 3) {
-			$f = new Fair;
-			$f->load($fair, 'id');
 			if (!$f->wasLoaded() || $f->get('created_by') != $_SESSION['user_id'])
 				toLogin();
-
 		}
 
 		if (isset($_POST['create'])) {
-			$this->FairMap->set('fair', $fair);
+			$this->FairMap->set('fair', $fairId);
 			$this->FairMap->set('name', $_POST['name']);
 
 			if (is_uploaded_file($_FILES['image']['tmp_name'])) {
@@ -36,26 +35,27 @@ class FairMapController extends Controller {
 					$now = time();
 					move_uploaded_file($_FILES['image']['tmp_name'], ROOT.'public/images/tmp/'.$now.'.pdf');
 					chmod(ROOT.'public/images/tmp/'.$now.'.pdf', 0775);
-					$im->pdf2img(ROOT.'public/images/tmp/'.$now.'.pdf', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg');
+					$im->pdf2img(ROOT.'public/images/tmp/'.$now.'.pdf', ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'_large.jpg');
 					
-					$im->constrain(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 100000, 100000);
+					$im->constrain(ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 					unlink(ROOT.'public/images/tmp/'.$now.'.pdf');
 					
 				} else {
-					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 100000, 100000);
+					$im->constrain($_FILES['image']['tmp_name'], ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'_large.jpg', 100000, 100000);
 				}
 				
-				$im->constrain(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'.jpg', 920, 1500);
-				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'_large.jpg', 0775);
-				chmod(ROOT.'public/images/fairs/'.$fair.'/maps/'.$mId.'.jpg', 0775);
+				$im->constrain(ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'_large.jpg', ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'.jpg', 920, 1500);
+				chmod(ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'_large.jpg', 0775);
+				chmod(ROOT.'public/images/fairs/'.$fairId.'/maps/'.$mId.'.jpg', 0775);
 			}
 
-			header("Location: ".BASE_URL."fair/maps/".$fair);
+			header("Location: ".BASE_URL."fair/maps/".$fairId);
 			exit;
 		}
 
-		$this->set('headline', 'Create map');
-		$this->setNoTranslate('fair', $fair);
+		$this->set('headline', 'Create map for');
+		$this->setNoTranslate('fairId', $fairId);
+		$this->setNoTranslate('fair', $f);
 		$this->set('name_label', 'Name');
 		$this->set('save_label', 'Save');
 		$this->set('image_label', 'Image');
@@ -69,11 +69,11 @@ class FairMapController extends Controller {
 		setAuthLevel(3);
 		
 		//echo 'whoami:<p>'.system('whoami', $res).'</p>'.$res;
+		$f = new Fair;
+		$f->load($fair_id, 'id');
 
 		if (userLevel() == 3) {
-			$f = new Fair;
-			$f->load($fair_id, 'id');
-			
+	
 			if (!$f->wasLoaded() || $f->get('created_by') != $_SESSION['user_id']) {
 				toLogin();
 			}
@@ -121,8 +121,9 @@ class FairMapController extends Controller {
 		
 		$this->FairMap->load($map_id, 'id');
 		
-		$this->set('headline', 'Edit map');
+		$this->set('headline', 'Edit map for');
 		$this->setNoTranslate('map_id', $map_id);
+		$this->setNoTranslate('fair', $f);
 		$this->setNoTranslate('mo', $this->FairMap);
 		$this->setNoTranslate('fair_id', $fair_id);
 		$this->set('name_label', 'Name');

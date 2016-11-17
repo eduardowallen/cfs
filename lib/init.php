@@ -1,9 +1,5 @@
 <?php
-<<<<<<< HEAD
-define('APP_VERSION', '1.5.0');
-=======
-define('APP_VERSION', '1.3.7');
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+define('APP_VERSION', '2.4.4');
 
 //Display errors in dev mode
 function setReporting() {
@@ -68,7 +64,6 @@ function callHook() {
 	}
 
 	// Make sure that signed in users can't use the system without terms approval!
-<<<<<<< HEAD
 
 	if (isset($_SESSION['user_id'])) {
 /*		$me = new User;
@@ -84,27 +79,12 @@ function callHook() {
 			$url = $urlArray[0] . '/' . $action;
 			// Whitelist URLs that can be accessed without approved terms
 			if (!in_array($url, array('user/terms', 'translate/language', 'user/confirm/*/*'))) {
-=======
-	if (isset($_SESSION['user_id'])) {
-		if (!isset($_SESSION['user_terms_approved'])) {
-			header('Location: ' . BASE_URL . 'user/logout');
-			exit;
-		}
-
-		if (!$_SESSION['user_terms_approved']) {
-			$url = $urlArray[0] . '/' . $action;
-			// Whitelist URLs that can be accessed without approved terms
-			if (!in_array($url, array('user/terms', 'translate/language'))) {
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 				header('Location: ' . BASE_URL . 'user/terms?next=' . $url);
 				exit;
 			}
 		}
 	}
-<<<<<<< HEAD
 //}
-=======
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
 
 	$dispatch = new $controller($model, $controllerName, $action);
 	if (isset($countView)) {

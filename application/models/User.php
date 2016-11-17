@@ -12,6 +12,10 @@ class User extends Model {
 			
 		}
 	}
+	public function loadid($foo, $bar) {
+		parent::loadid($foo, $bar);
+		if ($this->wasLoaded()) {}
+	}
 
 	public function bCrypt($pass, $user, $rounds=12) {
 
@@ -43,7 +47,7 @@ class User extends Model {
 
 	public function getMyPreliminaries($id=null) {
 		$id = ($id != null) ? $id : $this->id ;
-		$stmt = $this->db->prepare("SELECT * FROM preliminary_booking LEFT JOIN fair_map_position AS pos ON preliminary_booking.position = pos.id WHERE user = ? AND pos.status = 0");
+		$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE user = ?");
 		$stmt->execute(array($id));
 		$res = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$prels = array();
@@ -53,7 +57,7 @@ class User extends Model {
 				//Get categories for prel booking
 				$r["category_list"] = array();
 				foreach ($category_ids as $catid) {
-					$stmt = $this->db->prepare("SELECT * FROM exhibitor_category WHERE id = ?");
+					$stmt = $this->db->prepare("SELECT `name` FROM exhibitor_category WHERE id = ?");
 					$stmt->execute(array($catid));
 					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 					if ($result > 0) {
@@ -67,7 +71,7 @@ class User extends Model {
 				//Get options for prel booking
 				$r["option_list"] = array();
 				foreach ($option_ids as $optid) {
-					$stmt = $this->db->prepare("SELECT * FROM fair_extra_option WHERE `id` = ?");
+					$stmt = $this->db->prepare("SELECT `text` FROM fair_extra_option WHERE `id` = ?");
 					$stmt->execute(array($optid));
 					$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 					if ($result > 0) {
@@ -76,9 +80,6 @@ class User extends Model {
 						}
 					}
 				}
-				$r["presentation"] = $this->get("presentation");
-				$r["website"] = $this->get("website");
-				$r["company"] = $this->get("company");
 				$prels[] = $r;
 			}
 		}

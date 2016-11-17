@@ -1,4 +1,14 @@
 				<li class="comment" data-model="Comment">
+
+						<a href="comment/edit/<?php echo $comment->get('id'); ?>" class="js-comment-action action-edit" style="float:right">
+							<?php echo uh($label_edit) . PHP_EOL; ?>
+							<img src="images/icons/pencil.png" class="icon_img" alt="" />
+						</a>
+						<a href="comment/delete/<?php echo $comment->get('id'); ?>" class="js-comment-action action-delete" style="float:right; padding-top:1em;">
+							<?php echo uh($label_delete) . PHP_EOL; ?>
+							<img src="images/icons/delete.png" class="icon_img" alt="" />
+						</a>
+
 <?php		if ($comment->get('position_name') != ''): ?>
 					<p><strong><?php echo uh('(' . $label_position . '): ' . $comment->get('position_name')); ?></strong></p>
 <?php		elseif ($comment->get('fair_name') != ''): ?>
@@ -6,12 +16,6 @@
 <?php		else: ?>
 					<p><strong>(<?php echo uh($label_generic); ?>)</strong></p>
 <?php		endif; ?>
-					<p>
-						<?php echo uh($comment->get('author')) . ' (' . $comment->get('date') . ')'; ?>:
-					</p>
-
-					<p data-key="comment"><?php echo uh($comment->get('comment')); ?></p>
-
 					<p>
 						<strong><?php echo uh($label_comment_type); ?>:</strong>
 						<span data-key="type"><?php
@@ -28,23 +32,12 @@
 								echo '<span class="comment-positive">' . uh($label_comment_positive);
 								break;
 						}
-<<<<<<< HEAD
 						?></span></span>
-						<a href="comment/delete/<?php echo $comment->get('id'); ?>" class="js-comment-action action-delete" style="float:right">
-							<?php echo uh($label_delete) . PHP_EOL; ?>
-							<img src="images/icons/delete.png" alt="" />
-						</a>
-						<a href="comment/edit/<?php echo $comment->get('id'); ?>" class="js-comment-action action-edit" style="float:right">
-=======
-						?></span></span> -
-						<a href="comment/delete/<?php echo $comment->get('id'); ?>" class="js-comment-action action-delete">
-							<?php echo uh($label_delete) . PHP_EOL; ?>
-							<img src="images/icons/delete.png" alt="" />
-						</a> -
-						<a href="comment/edit/<?php echo $comment->get('id'); ?>" class="js-comment-action action-edit">
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
-							<?php echo uh($label_edit) . PHP_EOL; ?>
-							<img src="images/icons/pencil.png" alt="" />
-						</a>
 					</p>
+					<p>
+						<strong><?php echo uh($comment->get('author')) . "</strong>" . ' (' . $comment->get('date') . ')'; ?>:
+								
+					</p>
+
+					<p data-key="comment"><?php echo uh($comment->get('comment')); ?></p>
 				</li>

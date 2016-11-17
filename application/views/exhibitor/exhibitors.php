@@ -43,7 +43,8 @@ $column_info = array(
 	)
 );
 ?>
-	<script type="text/javascript" src="js/tablesearch.js"></script>
+	<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/overview'"><?php echo uh($translator->{'Go back'}); ?></button>	
 	<h1><?php echo $headline; ?></h1>
 
 <?php if (userLevel() > 2): ?>
@@ -70,47 +71,34 @@ $column_info = array(
 
 	<form action="exhibitor/export2/<?php echo $fairId; ?>" method="post">
 		<div class="floatright right">
-<<<<<<< HEAD
 		<?php 
 		$fair = new Fair;
 		$fair->load($_SESSION['user_fair'], 'id');
-			if($fair->get('sms_settings') === '{"smsFunction":["1"]}') {?>		
-			<button type="submit" class="open-sms-send" name="send_sms" data-for="exhibitors_list" data-fair="<?php echo $fairId; ?>"><?php echo uh($send_sms_label); ?></button><br />
+			if($fair->get('modules') === '{"smsFunction":["1"]}') {?>		
+			<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="exhibitors_list" data-fair="<?php echo $fairId; ?>"></button>
 		<?php } ?>
-=======
-			<button type="submit" class="open-sms-send" name="send_sms" data-for="exhibitors_list" data-fair="<?php echo $fairId; ?>"><?php echo uh($send_sms_label); ?></button><br />
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
-			<button type="submit" class="open-excel-export" name="export_excel" data-for="exhibitors_list"><?php echo uh($export_button); ?></button>
+			<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export_button); ?>" data-for="exhibitors_list"></button>
 		</div>
 
 		<table class="std_table use-scrolltable" id="exhibitors_list">
 			<thead>
 				<tr>
 					<th><?php echo $th_status; ?></th>
-					<th><?php echo $th_name; ?></th>
-					<th><?php echo $th_company; ?></th>
-<<<<<<< HEAD
+					<th class="left"><?php echo $th_name; ?></th>
+					<th class="left"><?php echo $th_company; ?></th>
 <!--				<th><?php echo $th_address; ?></th>-->
-=======
-					<th><?php echo $th_address; ?></th>
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
-					<th><?php echo $th_branch; ?></th>
+					<th class="left"><?php echo $th_branch; ?></th>
 					<th><?php echo $th_phone; ?></th>
-					<th><?php echo $th_contact; ?></th>
-					<th><?php echo $th_email; ?></th>
-<<<<<<< HEAD
+					<th class="left"><?php echo $th_contact; ?></th>
+					<th class="left"><?php echo $th_email; ?></th>
 <!--				<th><?php echo $th_website; ?></th>-->
 					<th data-sorter="false"><?php echo $th_view; ?></th>
 					<?php if (userLevel() > 0): ?>
 <!--				<th data-sorter="false"><?php echo $th_profile; ?></th>-->
-					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows" /></th>
-=======
-					<th><?php echo $th_website; ?></th>
-					<th data-sorter="false"><?php echo $th_view; ?></th>
-					<?php if (userLevel() > 0): ?>
-					<th data-sorter="false"><?php echo $th_profile; ?></th>
-					<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows" checked="checked" /></th>
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+						<th class="last" data-sorter="false">
+							<input type="checkbox" id="check-all" class="check-all" data-group="rows" />
+							<label class="squaredFour" for="check-all" />
+						</th>
 					<?php endif; ?>
 				
 				</tr>
@@ -119,40 +107,24 @@ $column_info = array(
 <?php foreach ($exhibitors as $pos): ?>
 				<tr>
 					<td><?php echo ($pos['posstatus'] == 2 ? $label_booked : ($pos['posstatus'] == 1 ? $label_reserved : '')); ?></td>
-					<td class="center"><?php echo $pos['posname']; ?></td>
-					<td class="center"><?php echo $pos['company']; ?></td>
-<<<<<<< HEAD
+					<td class="left"><?php echo $pos['posname']; ?></td>
+					<td class="left"><?php echo $pos['company']; ?></td>
 <!--				<td class="center"><?php echo $pos['address']; ?></td>-->
-=======
-					<td class="center"><?php echo $pos['address']; ?></td>
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
-					<td class="center">
+					<td class="left">
 					<?php
 						$commodity = $pos['commodity'];
 						echo ( empty( $commodity ) ) ? $pos['excommodity'] : $pos['commodity'] ;
 					?>
 					</td>
-<<<<<<< HEAD
 					<td class="center"><?php echo $pos['contact_phone2']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><?php echo $pos['name']; ?></a></td>
-					<td class="center"><?php echo $pos['email']; ?></td>
+					<td class="left"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><?php echo $pos['name']; ?></a></td>
+					<td class="left"><?php echo $pos['email']; ?></td>
 <!--				<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>-->
-					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt="" title="<?php echo $th_view; ?>" /></a></td>
+					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" class="icon_img" alt="" title="<?php echo $th_view; ?>" /></a></td>
 					<?php if (userLevel() > 0): ?>
 <!--				<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>-->
 				
-					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" data-userid="<?php echo $pos['id']; ?>" /></td>
-=======
-					<td class="center"><?php echo $pos['phone1']; ?></td>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><?php echo $pos['name']; ?></a></td>
-					<td class="center"><?php echo $pos['email']; ?></td>
-					<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>
-					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" alt="" title="<?php echo $th_view; ?>" /></a></td>
-					<?php if (userLevel() > 0): ?>
-					<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>
-				
-					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" data-userid="<?php echo $pos['id']; ?>" checked="checked" /></td>
->>>>>>> 980f404875926bfcc97d750f6b936ab3a0b2c217
+					<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $pos['position']; ?>" data-userid="<?php echo $pos['id']; ?>" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					<?php endif; ?>
 				</tr>
 <?php endforeach; ?>

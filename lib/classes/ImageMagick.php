@@ -2,8 +2,9 @@
 
 class ImageMagick {
     
-    private $convert = '/usr/bin/convert';
-    private $composite = '/usr/bin/composite';
+    private $convert = '/usr/local/bin/convert';
+    private $mogrify = '/usr/local/bin/mogrify';
+    private $composite = '/usr/local/bin/composite';
 	
     public function constrain($origPath, $thumbPath, $maxWidth, $maxHeight) {
         if (file_exists($origPath)) {
@@ -13,7 +14,31 @@ class ImageMagick {
             return false;
         }
     }
-    
+    public function IMlogo($origPath, $thumbPath, $maxHeight) {
+        if (file_exists($origPath)) {
+            exec($this->mogrify." -path ".$thumbPath." -filter Triangle -define filter:support=2 -thumbnail x".$maxHeight." -unsharp 0.25x0.25+8+0.065 -dither None -posterize 136 -quality 82 -define jpeg:fancy-upsampling=off -define png:compression-filter=5 -define png:compression-level=9 -define png:compression-strategy=1 -define png:exclude-chunk=all -interlace none -colorspace sRGB -strip ".$origPath);
+            return true;
+        } else {
+            return false;
+        }             
+    }
+    public function IMEventLogo($origPath, $thumbPath, $maxHeight) {
+        if (file_exists($origPath)) {
+            exec($this->mogrify." -path ".$thumbPath." -filter Triangle -define filter:support=2 -thumbnail x".$maxHeight." -unsharp 0.25x0.25+8+0.065 -dither None -posterize 136 -quality 82 -define jpeg:fancy-upsampling=off -define png:compression-filter=5 -define png:compression-level=9 -define png:compression-strategy=1 -define png:exclude-chunk=all -interlace none -colorspace sRGB -strip ".$origPath);
+            return true;
+        } else {
+            return false;
+        }             
+    }    
+    public function IMmap($origPath, $thumbPath, $maxWidth) {
+        if (file_exists($origPath)) {
+            exec($this->mogrify." -path ".$thumbPath." -filter Triangle -define filter:support=2 -thumbnail ".$maxWidth." -unsharp 0.25x0.25+8+0.065 -dither None -posterize 136 -quality 82 -define jpeg:fancy-upsampling=off -define png:compression-filter=5 -define png:compression-level=9 -define png:compression-strategy=1 -define png:exclude-chunk=all -interlace none -colorspace sRGB -strip ".$origPath);
+            return true;
+        } else {
+            return false;
+        }             
+    }
+
     public function pdf2img($origPath, $thumbPath) {
     	exec($this->convert." -density 96 -quality 96 ".$origPath." ".$thumbPath);
     }

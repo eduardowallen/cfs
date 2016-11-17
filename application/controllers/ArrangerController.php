@@ -68,7 +68,7 @@ class ArrangerController extends Controller {
 		$this->Arranger->load($id, 'id');
 		$this->setNoTranslate('user', $this->Arranger);
 
-		$sql = "SELECT fair.id, fair.name, fair.approved, fair.url, fair.page_views, fair.creation_time, fair.closing_time,fair.auto_publish, fair.auto_close,
+		$sql = "SELECT fair.id, fair.name, fair.approved, fair.url, fair.page_views, fair.creation_time, fair.event_start, fair.event_stop,
 SUM(IF(fmp.status=0, 1, 0)) AS free_spaces, SUM(IF(fmp.status>0, 1, 0)) AS occupied_spaces
 FROM fair
 LEFT JOIN fair_map AS fm ON (fm.fair = fair.id)
@@ -88,7 +88,6 @@ ORDER BY creation_time DESC";
 			foreach ($res as $result) {
 				$fair_id = $result['id'];
 				$fairs[$fair_id] = $result;
-				//$fairs[$fair_id]['auto_publish'] = $result;
 				$sum_free += $result['free_spaces'];
 				$sum_booked += $result['occupied_spaces'];
 				$num_events++;
@@ -103,8 +102,7 @@ ORDER BY creation_time DESC";
 			'last_login' => 'Last login', 'name' => 'Contact person', 'orgnr' => 'Organization number', 'zipcode' => 'Zip/Postal Code', 'city' => 'City', 'country' => 'Country', 'phone1' => 'Phone 1',
 			'phone2' => 'Phone 2', 'phone3' => 'Phone 3', 'fax' => 'Fax', 'website' => 'Website', 'email' => 'E-mail', 'fair_name' => 'Event Name', 'fair_approved' => 'Status', 'fair_url' => 'Website',
 			'fair_page_views' => 'Number of visitors', 'address' => 'Address', 'fair_occupied_spaces' => 'Number of occupied spaces', 'fair_free_spaces' => 'Number of free spaces',
-			'fair_creation_time' => 'Creation time', 'fair_closing_time' => 'Lock time',
-			'total_free' => 'Total free places', 'alias'=>'Username');
+			'fair_creation_time' => 'Creation time', 'fair_event_start' => 'Event start', 'fair_event_stop' => 'Event stop', 'total_free' => 'Total free places', 'alias'=>'Username');
 		foreach ($labels as $key => $value) {
 			$this->setNoTranslate('label_' . $key, $value);// do this to make it add a field to the translation list, adding only the array does not make it show up in translation.
 		}
@@ -112,8 +110,6 @@ ORDER BY creation_time DESC";
 		$this->set('approved_active', 'Active');
 		$this->set('approved_inactive', 'Inactive');
 		$this->set('approved_locked', 'Locked');
-		$this->set('auto_publish', 'Opening time');
-		$this->set('auto_close', 'Closing time');
 		
 	}
 
@@ -197,7 +193,7 @@ ORDER BY creation_time DESC";
     $this->setNoTranslate('edit_id', $id);
     $this->setNoTranslate('user', $this->Arranger);
     
-    $sql = "SELECT fair.id, fair.name, fair.max_positions, fair.approved, fair.url, fair.page_views, fair.creation_time, fair.closing_time,fair.auto_publish, fair.auto_close,
+    $sql = "SELECT fair.id, fair.name, fair.max_positions, fair.approved, fair.url, fair.page_views, fair.creation_time, fair.event_start, fair.event_stop,
 SUM(IF(fmp.status=0, 1, 0)) AS free_spaces, SUM(IF(fmp.status>0, 1, 0)) AS occupied_spaces
 FROM fair
 LEFT JOIN fair_map AS fm ON (fm.fair = fair.id)
@@ -217,7 +213,6 @@ ORDER BY creation_time DESC";
       foreach ($res as $result) {
         $fair_id = $result['id'];
         $fairs[$fair_id] = $result;
-        //$fairs[$fair_id]['auto_publish'] = $result;
         $sum_free += $result['free_spaces'];
         $sum_booked += $result['occupied_spaces'];
         $num_events++;

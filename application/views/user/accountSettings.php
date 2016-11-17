@@ -1,3 +1,4 @@
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
 <?php
 // Load a simpler form for administrators
 if (userLevel() == 2){

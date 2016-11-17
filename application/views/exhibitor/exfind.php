@@ -1,4 +1,4 @@
-<script type="text/javascript" src="js/tablesearch.js"></script>
+<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
 
 <h1><?php echo $headline; ?></h1>
 <p><br> </br></p>

@@ -12,6 +12,3 @@ config/*
 
 # Ignore all local log files
 *.log
-
-# Ignore all language cache files
-application/lang/*

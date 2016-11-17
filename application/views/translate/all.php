@@ -10,8 +10,8 @@
 
 <form action="translate/all" method="post">
 <p>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
-	<a href="translate/toggle" class="link-button toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
+	<input class="greenbutton mediumbutton" type="submit" name="save" value="<?php echo $save_label; ?>" />
+	<a href="translate/toggle" class="redbutton mediumbutton toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
 </p>
 
 <table class="std_table">
@@ -44,8 +44,9 @@
 </table>
 
 <p>
-	<input type="submit" name="save" value="<?php echo $save_label; ?>" class="save-btn" />
-	<a href="translate/toggle" class="link-button toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
+	<br />
+	<input class="greenbutton mediumbutton" type="submit" name="save" value="<?php echo $save_label; ?>" />
+	<a href="translate/toggle" class="redbutton mediumbutton toggle-translate-button"><?php echo ($translation_on ? $translation_off_label : $translation_on_label); ?></a>
 </p>
 
 </form>

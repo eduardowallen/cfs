@@ -1,9 +1,10 @@
 <?php
 
 class FairExtraOption extends Model {
+	
 	public function load($value, $key, $value2 = NULL, $key2 = NULL) {
 		if (!is_null($key2) && !is_null($value2)) {
-			$stmt = $this->db->prepare("SELECT `id` FROM `fair_extra_option` WHERE `{$key}` = ? AND `{$key2}` = ?");
+			$stmt = $this->db->prepare("SELECT * FROM `fair_extra_option` WHERE `{$key}` = ? AND `{$key2}` = ?");
 			$stmt->execute(array($value, $value2));
 			$row = $stmt->fetch(PDO::FETCH_NUM);
 
@@ -18,7 +19,7 @@ class FairExtraOption extends Model {
 	}
 
 	public static function getOptionsForFair($fairId) {
-		$stmt = $this->db->prepare("SELECT `text` FROM `fair_extra_option` WHERE `fair` = ?");
+		$stmt = $this->db->prepare("SELECT * FROM `fair_extra_option` WHERE `fair` = ?");
 		$stmt->execute(array($fairId));
 
 		$options = array();

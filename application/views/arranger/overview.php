@@ -1,5 +1,5 @@
-<script type="text/javascript" src="js/tablesearch.js"></script>
-
+<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
 <h1><?php echo $headline; ?></h1>
 
 <p><a class="button add" href="arranger/edit/new"><?php echo $create_link; ?></a></p>
@@ -22,7 +22,7 @@
 				<th><?php echo $th_eventcount; ?></th>
 				<th><?php echo $th_spots_free; ?></th>
 				<th><?php echo $th_spots_booked; ?></th>
-				<th><?php echo $th_lastlogin; ?></th>
+				<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $th_lastlogin; ?></th>
 				<th><?php echo $th_edit; ?></th>
 				<th><?php echo $th_delete; ?></th>
 			</tr>
@@ -36,8 +36,8 @@
 				<td class="center"><?php echo $spots[$user->get('id')]['open']; ?></td>
 				<td class="center"><?php echo $spots[$user->get('id')]['booked']; ?></td>
 				<td class="center"><?php if ($user->get('last_login')) { echo date('d-m-Y H:i:s', $user->get('last_login')); } ?></td>
-				<td class="center"><a href="arranger/edit/<?php echo $user->get('id'); ?>"><img src="images/icons/pencil.png" alt="" title="<?php echo $th_edit; ?>" /></a></td>
-				<td class="center"><a onclick="confirmBox(event, 'Vill du verkligen ta bort arrangör <?php echo $user->get('name') ?>', 'arranger/delete/<?php echo $user->get('id'); ?>/confirmed')" href="arranger/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" alt="" title="<?php echo $th_delete; ?>" /></a></td>
+				<td class="center"><a href="arranger/edit/<?php echo $user->get('id'); ?>"><img src="images/icons/pencil.png" class="icon_img" alt="" title="<?php echo $th_edit; ?>" /></a></td>
+				<td class="center"><a onclick="confirmBox(event, 'Vill du verkligen ta bort arrangör <?php echo $user->get('name') ?>', 'arranger/delete/<?php echo $user->get('id'); ?>/confirmed')" href="arranger/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

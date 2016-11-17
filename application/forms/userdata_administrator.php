@@ -81,6 +81,18 @@
 	});
 </script>
 <?php endif?>
+<style>
+input[type="checkbox"] {
+	opacity: 1;
+	position:inherit;
+	margin:12px 0px 0px 12px;
+	height:auto;
+	width:auto;
+}
+</style>
+
+<br />
+
 <form action="<?php echo $action; ?>" method="post">
 
   <h1><?php echo $headline; ?></h1>
@@ -88,17 +100,18 @@
   <p class="error"><?php echo (isset($error)?$error:''); ?></p>
   
 <?php if (userLevel() >= 3): ?>
+	<!--
   <p id="permission_search">
     <input type="text" id="search_input"/>
-    <input type="button" id="search_button" value="<?php echo htmlspecialchars($translator->{'Search'}); ?>"/>
-  </p>
+    <input type="button" id="search_button" />
+  </p>-->
   <div id="permission_box">
     <h2><?php echo htmlspecialchars($translator->{'Permissions for user'}); ?></h2>
     <div id="permission_search">
     
     </div>
-    <p style="text-align:center;">
-      <strong style="margin-right:10px;"><?php echo htmlspecialchars($translator->{'OBS! '}); ?></strong><?php echo htmlspecialchars($translator->{'Events without maps are not listed.'}); ?>
+    <p style="text-align:center; padding:10px;">
+      <strong style="margin-right:10px;">OBS! </strong><?php echo htmlspecialchars($translator->{'Events without maps are not listed.'}); ?>
     </p>
     <?php foreach ($fairs as $fair): ?>
       <?php if(count($fair->get('maps')) > 0) :?>
@@ -109,6 +122,7 @@
         <?php foreach($fair->get('maps') as $map): ?>
           <input<?php if(is_array($user_maps) && in_array($map->get('id'), $user_maps)) { echo ' checked="checked"'; } ?> type="checkbox" name="maps[<?php echo $fair->get('id') ?>][]" value="<?php echo $map->get('id'); ?>" id="mapbox<?php echo $map->get('id'); ?>"/>
           <label style="font-weight:normal;" for="mapbox<?php echo $map->get('id'); ?>" class="inline-block"><?php echo $map->get('name'); ?></label>
+          <br>
         <?php endforeach; ?>
       </p>
     </div>
@@ -147,12 +161,12 @@
   
 <?php if (userLevel() >= 3): ?>
 	<label for="#"><?php echo htmlspecialchars($translator->{'Account locked'}); ?></label>
-	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo htmlspecialchars($translator->{'No'}); ?></label>
-	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo htmlspecialchars($translator->{'Yes'}); ?></label>
+	<input<?php echo ($user->get('locked') == 0) ? ' checked="checked"' : ''; ?> type="radio" style="margin-right:3px;" name="locked" value="0" id="locked0"/><label for="locked0" class="inline-block"><?php echo htmlspecialchars($translator->{'No'}); ?></label>
+	<input<?php echo ($user->get('locked') == 1) ? ' checked="checked"' : ''; ?> type="radio" style="margin-right:3px;" name="locked" value="1" id="locked1"/><label for="locked1" class="inline-block"><?php echo htmlspecialchars($translator->{'Yes'}); ?></label>
 <?php endif; ?>
 
   <p>
-    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="save-btn" />
+    <input type="submit" name="save" value="<?php echo htmlspecialchars($translator->{'Save'}); ?>" class="greenbutton bigbutton" />
   </p>
 
 </form>

@@ -5,8 +5,36 @@ class Fair extends Model {
 	protected $maps = array();
 	protected $exhibitors = array();
 	protected $categories = array();
+	protected $extraOptions = array();
+	protected $articles = array();
 	protected $preliminaries = array();
 	protected $logo;
+
+
+	public function loadsimple($key, $by) {
+		parent::load($key, $by);	
+	}
+
+	public function loadself($key, $by) {
+		$stmt = $this->db->prepare("SELECT `id`, `name`, `hidden` FROM `fair` WHERE `".$by."` = ?");
+		$stmt->execute(array($key));
+
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
 
 	public function load($key, $by, $disregardLocked=false) {
 		
@@ -25,17 +53,18 @@ class Fair extends Model {
 				}
 			}
 
-			if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg')) {
-				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.jpg';
-			} else if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.png')) {
-				$this->logo = 'images/fairs/'.$this->id.'/'.$this->id.'.png';
+			if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/logotype/'.$this->id.'_logo.jpg')) {
+				$this->logo = 'images/fairs/'.$this->id.'/logotype/'.$this->id.'_logo.jpg';
+			} else if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/logotype/'.$this->id.'_logo.png')) {
+				$this->logo = 'images/fairs/'.$this->id.'/logotype/'.$this->id.'_logo.png';
 			}
 
 			//if (!$disregardLocked)
 				//$this->isLocked();
 			$this->fetchExternal('Exhibitor', 'exhibitors', 'fair', $this->id);
 			$this->fetchExternal('ExhibitorCategory', 'categories', 'fair', $this->id);
-			$this->fetchExternal("FairExtraOption", "options", "fair", $this->id);
+			$this->fetchExternal("FairExtraOption", 'extraOptions', 'fair', $this->id);
+			$this->fetchExternal("FairArticle", 'articles', 'fair', $this->id);
 
 			$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE fair = ?");
 			$stmt->execute(array($this->id));
@@ -50,6 +79,14 @@ class Fair extends Model {
 			}
 		}
 
+	}
+
+	public function load2($key, $by, $disregardLocked=false) {
+		
+		parent::load2($key, $by);
+		if ($this->wasLoaded()) {
+			$this->fetchExternal('FairMap', 'maps', 'fair', $this->id, 'sortorder');
+		}
 	}
 
 	private function getMapIndex($map_id) {
@@ -146,7 +183,7 @@ class Fair extends Model {
 		
 		if ($this->id == 0) {
 			$stmt = $this->db->prepare("INSERT INTO exhibitor_category (name, fair) VALUES (?, ?)");
-			$stmt->execute(array('Other', $id));
+			$stmt->execute(array('Övrigt', $id));
 		}
 		
 		if (!file_exists(ROOT.'public/images/fairs/'.$id)) {
@@ -155,6 +192,10 @@ class Fair extends Model {
 			chmod(ROOT.'public/images/fairs/'.$id, 0775);
 			chmod(ROOT.'public/images/fairs/'.$id.'/maps', 0775);
 		}
+		if (!file_exists(ROOT.'public/images/fairs/'.$id.'/logotype')) {
+			mkdir(ROOT.'public/images/fairs/'.$id.'/logotype');
+			chmod(ROOT.'public/images/fairs/'.$id.'/logotype', 0775);
+		}		
 
 		return $id;
 
@@ -180,6 +221,10 @@ class Fair extends Model {
 		$stmt = $this->db->prepare("DELETE FROM fair_user_relation WHERE fair = ?");
 		$stmt->execute(array($this->id));
 		
+		if (file_exists(ROOT.'public/images/fairs/'.$this->id)) {
+			unlink(ROOT.'public/images/fairs/'.$this->id);
+		}
+
 		if (file_exists(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg')) {
 			unlink(ROOT.'public/images/fairs/'.$this->id.'/'.$this->id.'.jpg');
 		}
@@ -189,6 +234,7 @@ class Fair extends Model {
 		}
 		
 		Alias::remove($this->get("url"));
+		Alias::commit();
 
 		parent::delete();
 
@@ -201,6 +247,24 @@ class Fair extends Model {
 				return strcmp(mb_strtoupper($a->name, "UTF-8"), mb_strtoupper($b->name, "UTF-8"));
 			});
 		}
+		if ($property === "extraOptions") {
+			usort($result, function ($a, $b) {
+				return strcmp(mb_strtoupper($a->text, "UTF-8"), mb_strtoupper($b->text, "UTF-8"));
+			});
+		}		
+		if ($property === "articles") {
+			usort($result, function ($a, $b) {
+				return strcmp(mb_strtoupper($a->text, "UTF-8"), mb_strtoupper($b->text, "UTF-8"));
+			});
+		}
+		if ($property == 'website') {
+			$val = parent::get($property);
+			if (!preg_match('/^http/', $val) && $val != '')
+				$val = 'http://'.$val;
+			
+			return $val;
+		}
+
 		return $result;
 	}
 

@@ -44,7 +44,7 @@ class TranslateController extends Controller {
 			
 		}
 		
-		$this->set('headline', 'Translate');
+		$this->set('headline', 'Translate (always have an extra window or tab open with the map of an even so that you are not logged out during translation!)');
 		
 		$stmt = $this->db->prepare("SELECT * FROM language ORDER BY `default` DESC, id ASC");
 		$stmt->execute(array());
