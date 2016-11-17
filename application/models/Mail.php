@@ -3,7 +3,7 @@
  * Send mail using editable mail templates.
  */
 class Mail {
-	protected $db;
+	public $db;
 	protected $mail;
 
 	protected $subject;
@@ -16,17 +16,18 @@ class Mail {
 	 * @param string $mailtemplate
 	 * @param array  $from         [ 'email' => 'name' ]
 	 */
-	function __construct(array $recipients, $mailtemplate, array $from = null) {
+	public function __construct() {
 		global $globalDB;
 		$this->db = $globalDB;
 
 		$this->mail = new libMail();
+	}
 
-		if($from)
-			$this->mail->setFromArray($from);
-
+	public function setRecipients(array $recipients) {
 		$this->mail->setRecipients($recipients);
+	}
 
+	public function setTemplate($mailtemplate) {
 		// Attempts to get template according to currently selected language.
 		// If no template exists for the selected language it gets one for the default language.
 		$stmt = $this->db->prepare("SELECT * FROM `mail_content`
@@ -42,6 +43,10 @@ class Mail {
 		$mailContent = $stmt->fetch(PDO::FETCH_ASSOC);
 		$this->subject = $mailContent['subject'];
 		$this->content = $mailContent['content'];
+	}
+
+	public function setFrom(array $from = null) {
+		$this->mail->setFromArray($from);
 	}
 
 	/**
@@ -76,6 +81,7 @@ class Mail {
 
 		$this->mail->setSubject($subject);
 		$this->mail->setBody($body);
+
 		return $this->mail->send() > 0;
 	}
 }

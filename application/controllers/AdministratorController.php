@@ -269,43 +269,72 @@ class AdministratorController extends Controller {
 			$organizer = new User;
 			$organizer->load2($fair->get('created_by'), 'id');
 
-			if ($tbl == 1) {
-				$stmt = $u->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.exhibitor AS exhibitor, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
-					FROM user, exhibitor_invoice AS ex_invoice, exhibitor_invoice_rel AS pos
-					WHERE ex_invoice.ex_user = user.id
-					AND ex_invoice.id = pos.invoice
-					AND pos.type = 'space'
-					AND ex_invoice.fair = ?
-					AND pos.fair = ?
-					AND ex_invoice.status = ?
-					AND ex_invoice.id IN (" . implode(',', $_POST['rows']) . ")");
-				$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair'], 1));
-				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			}
+			if ($tbl != 1)
+				return;
+
+			$stmt = $u->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.exhibitor AS exhibitor, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
+				FROM user, exhibitor_invoice AS ex_invoice, exhibitor_invoice_rel AS pos
+				WHERE ex_invoice.ex_user = user.id
+				AND ex_invoice.id = pos.invoice
+				AND pos.type = 'space'
+				AND ex_invoice.fair = ?
+				AND pos.fair = ?
+				AND ex_invoice.status = ?
+				AND ex_invoice.id IN (" . implode(',', $_POST['rows']) . ")");
+			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair'], 1));
+			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$invoice_files = array();
+
 			foreach ($data_rows as $row) {
-//				var_dump($row);
-//				echo('<br/>');
 				$this->markAsSent($row['exhibitor']);
+
+				$posname = str_replace('/', '-', $row['posname']);
+				$invoice_files[] = ROOT.'public/invoices/fairs/'.$row['fair'].'/exhibitors/'.$row['exhibitor'].'/'.str_replace('/', '-', $row['r_name']) . '-' . $posname . '-' . $row['id'] . '.pdf';
+			}
+
+			try {
 				$arranger_message = $_POST['invoice_mail_comment'];
 				if ($arranger_message == '') {
 					$arranger_message = $this->translate->{'No message was given.'};
 				}
 
-				$posname = str_replace('/', '-', $row['posname']);
-				$mail_user = new Mail(($row['invoice_email']), 'send_invoice', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN => $fair->get("name"));
+				$recipients = array($row['invoice_email'] => $row['invoice_email']);
+
+				$mail_user = new Mail();
+				$mail_user->setTemplate('send_invoice');
+				$mail_user->setFrom($from);
+				$mail_user->setRecipients($recipients);
 				$mail_user->setMailvar("exhibitor_company_name", $row['r_name']);
 				$mail_user->setMailvar("event_name", $fair->get("name"));
 				$mail_user->setMailVar('event_email', $fair->get('contact_email'));
 				$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
 				$mail_user->setMailVar('event_website', $fair->get('website'));
 				$mail_user->setMailvar("arranger_name", $organizer->get("company"));
-				$mail_user->setMailvar("invoice_link", BASE_URL.'invoices/fairs/'.$row['fair'].'/exhibitors/'.$row['exhibitor'].'/'.str_replace('/', '-', $row['r_name']) . '-' . $posname . '-' . $row['id'] . '.pdf');
 				$mail_user->setMailvar("arranger_message", $arranger_message);
+
+				foreach($invoice_files as $file) {
+					if(!file_exists($file))
+						throw new Exception("Kan inte bifoga fil");
+					if(!is_readable($file))
+						throw new Exception("Kan inte öppna bifogad fil för läsning");
+
+					$mail_user->attachFile($file);
+				}
+
 				//$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-				$mail_user->send();
+				if(!$mail_user->send()) {
+					// Kunde inte skicka mail
+				}
+			} catch(Swift_RfcComplianceException $ex) {
+				// Felaktig epost-adress
+			} catch(Exception $ex) {
+				// Okänt fel
 			}
 		}
+
 		header("Location: ".BASE_URL."administrator/invoices");
+		exit;
 	}
 
 	function mailVerifyCloned() {
