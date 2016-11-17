@@ -1193,14 +1193,13 @@ class FairController extends Controller {
 	}
 
 	public function updateAliases() {
-		$result = $this->Fair->db->query("SELECT `fair`.`url`, `user`.`email`
+		$result = $this->Fair->db->query("SELECT `fair`.`url`, `fair`.`contact_email`
 			FROM `fair`
-			INNER JOIN `user` ON (`user`.`id` = `fair`.`created_by`)
 			ORDER BY `fair`.`url` ASC
 			");
 
 		while (($fair = $result->fetch(PDO::FETCH_ASSOC))) {
-			Alias::add($fair["url"], array($fair["email"]));
+			Alias::add($fair['url'], array($fair['contact_email']));
 		}
 
 		Alias::commit();
