@@ -191,7 +191,15 @@ $(document).on({
             <td><?php echo ($invoice['sent'] > 0 ? date('d-m-Y H:i:s', $invoice['sent']) : '-'); ?></td>
             <td><?php echo date('d-m-Y', strtotime($invoice['expires'])); ?></td>
             <td class="center">
-              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/'.str_replace('/', '-', $invoice['r_name']) . '-' . $invoice['posname'] . '-' . $invoice['id'] . '.pdf'?>" target="_blank">
+<?php
+$replace_chars = array(
+	'/' => '-',
+	':' => '_',
+);
+$r_name = strtr($invoice['r_name'], $replace_chars);
+$posname = strtr($invoice['posname'], $replace_chars);
+?>
+              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $invoice['id'] . '.pdf'?>" target="_blank">
                 <img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
               </a>
             </td>
@@ -260,7 +268,15 @@ $(document).on({
             <td><?php echo ($invoice['sent'] > 0 ? date('d-m-Y H:i:s', $invoice['sent']) : '-'); ?></td>
             <td><?php echo date('d-m-Y', strtotime($invoice['expires'])); ?></td>
             <td class="center">
-              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/'.str_replace('/', '-', $invoice['r_name']) . '-' . $invoice['posname'] . '-' . $invoice['id'] . '.pdf'?>" target="_blank">
+<?php
+$replace_chars = array(
+	'/' => '-',
+	':' => '_',
+);
+$r_name = strtr($invoice['r_name'], $replace_chars);
+$posname = strtr($invoice['posname'], $replace_chars);
+?>
+              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $invoice['id'] . '.pdf'?>" target="_blank">
                 <img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
               </a>
             </td>
@@ -326,7 +342,15 @@ $(document).on({
             <td><?php echo date('d-m-Y H:i:s', $invoice['created']); ?></td>
             <td><?php echo ($invoice['sent'] > 0 ? date('d-m-Y H:i:s', $invoice['sent']) : '-'); ?></td>
             <td class="center">
-              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/'.str_replace('/', '-', $invoice['r_name']) . '-' . $invoice['posname'] . '-' . $invoice['cid'] . '_credited.pdf'?>" target="_blank">
+<?php
+$replace_chars = array(
+	'/' => '-',
+	':' => '_',
+);
+$r_name = strtr($invoice['r_name'], $replace_chars);
+$posname = strtr($invoice['posname'], $replace_chars);
+?>
+              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $invoice['cid'] . '_credited.pdf'?>" target="_blank">
                 <img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
               </a>
             </td>
@@ -386,7 +410,15 @@ $(document).on({
             <td><?php echo date('d-m-Y H:i:s', $invoice['cidcreated']); ?></td>
             <td><?php echo ($invoice['sent'] > 0 ? date('d-m-Y H:i:s', $invoice['sent']) : '-'); ?></td>
             <td class="center">
-              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/'.str_replace('/', '-', $invoice['r_name']) . '-' . $invoice['posname'] . '-' . $invoice['id'] . '_cancelled.pdf'?>" target="_blank">
+<?php
+$replace_chars = array(
+	'/' => '-',
+	':' => '_',
+);
+$r_name = strtr($invoice['r_name'], $replace_chars);
+$posname = strtr($invoice['posname'], $replace_chars);
+?>
+              <a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $invoice['id'] . '_cancelled.pdf'?>" target="_blank">
                 <img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
               </a>
             </td>
