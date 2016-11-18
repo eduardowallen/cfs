@@ -4,6 +4,7 @@
 class libMail {
 	private $recipients = array();
 	private $from = array();
+	private $replyTo = array();
 	private $subject;
 	private $body;
 	private $body_contenttype;
@@ -29,6 +30,14 @@ class libMail {
 
 	public function setFromArray(array $from) {
 		$this->from = $from;
+	}
+
+	public function addReplyTo($name, $email) {
+		$this->replyTo[$email] = $name;
+	}
+
+	public function setReplyToArray(array $replyTo) {
+		$this->replyTo = $replyTo;
 	}
 
 	public function setSubject($subject) {
@@ -70,6 +79,10 @@ class libMail {
 			->setTo($this->recipients)
 			->setBody($this->body, $this->body_contenttype)
 			;
+
+		if(count($this->replyTo)) {
+			$message->setReplyTo($this->replyTo);
+		}
 
 		foreach($this->attachments as $attachment) {
 			$message->attach($attachment);

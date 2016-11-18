@@ -10,12 +10,6 @@ class Mail {
 	protected $content;
 	protected $variables = array();
 
-	/**
-	 * Skicka ett mail med template till $to
-	 * @param array  $recipients   [ 'email' => 'name', ...]
-	 * @param string $mailtemplate
-	 * @param array  $from         [ 'email' => 'name' ]
-	 */
 	public function __construct() {
 		global $globalDB;
 		$this->db = $globalDB;
@@ -23,8 +17,43 @@ class Mail {
 		$this->mail = new libMail();
 	}
 
+	public function setFrom(array $from = null) {
+		$this->mail->setFromArray($from);
+	}
+
 	public function setRecipients(array $recipients) {
 		$this->mail->setRecipients($recipients);
+	}
+
+	public function addReplyTo($email, $name) {
+		$this->mail->addReplyTo($email, $name);
+	}
+
+	public function setReplyTo(array $replyTo) {
+		$this->mail->setReplyToArray($replyTo);
+	}
+
+	public function attachFile($filename) {
+		$this->mail->addFileAttachment($filename);
+	}
+
+	public function attach($data, $filename, $contenttype) {
+		$this->mail->addAttachment($data, $filename, $contenttype);
+	}
+
+	function send() {
+		// Replace in-text variables with values
+		$subject = $this->subject;
+		$body = $this->content;
+		foreach($this->variables as $key => $value){
+			$subject = str_replace('$'.$key, $value, $subject);
+			$body = str_replace('$'.$key, $value, $body);
+		}
+
+		$this->mail->setSubject($subject);
+		$this->mail->setBody($body);
+
+		return $this->mail->send() > 0;
 	}
 
 	public function setTemplate($mailtemplate) {
@@ -45,9 +74,6 @@ class Mail {
 		$this->content = $mailContent['content'];
 	}
 
-	public function setFrom(array $from = null) {
-		$this->mail->setFromArray($from);
-	}
 
 	/**
  	* Funktion för bakåtkompabilitet.
@@ -63,27 +89,6 @@ class Mail {
 		$this->variables[$name] = $value;
 	}
 
-	public function attachFile($filename) {
-		$this->mail->addFileAttachment($filename);
-	}
-	public function attach($data, $filename, $contenttype) {
-		$this->mail->addAttachment($data, $filename, $contenttype);
-	}
-
-	function send() {
-		// Replace in-text variables with values
-		$subject = $this->subject;
-		$body = $this->content;
-		foreach($this->variables as $key => $value){
-			$subject = str_replace('$'.$key, $value, $subject);
-			$body = str_replace('$'.$key, $value, $body);
-		}
-
-		$this->mail->setSubject($subject);
-		$this->mail->setBody($body);
-
-		return $this->mail->send() > 0;
-	}
 }
 
 ?>
