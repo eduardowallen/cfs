@@ -284,53 +284,71 @@ class AdministratorController extends Controller {
 			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair'], 1));
 			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$invoice_files = array();
+			$errors = array();
 
 			foreach ($data_rows as $row) {
 				$this->markAsSent($row['exhibitor']);
+				$replace_chars = array(
+					'/' => '-',
+					':' => '_',
+				);
+				$r_name = strtr($row['r_name'], $replace_chars);
+				$posname = strtr($row['posname'], $replace_chars);
 
-				$posname = str_replace('/', '-', $row['posname']);
-				$invoice_files[] = ROOT.'public/invoices/fairs/'.$row['fair'].'/exhibitors/'.$row['exhibitor'].'/'.str_replace('/', '-', $row['r_name']) . '-' . $posname . '-' . $row['id'] . '.pdf';
-			}
+				$invoice_file = ROOT.'public/invoices/fairs/'.$row['fair'].'/exhibitors/'.$row['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $row['id'] . '.pdf';
 
-			try {
-				$arranger_message = $_POST['invoice_mail_comment'];
-				if ($arranger_message == '') {
-					$arranger_message = $this->translate->{'No message was given.'};
-				}
+				try {
+					$arranger_message = $_POST['invoice_mail_comment'];
+					if ($arranger_message == '') {
+						$arranger_message = $this->translate->{'No message was given.'};
+					}
 
-				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN => $fair->get("name"));
-				$recipients = array($row['invoice_email'] => $row['invoice_email']);
+					$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+					$from = array($email => $fair->get("windowtitle"));
 
-				$mail_user = new Mail();
-				$mail_user->setTemplate('send_invoice');
-				$mail_user->setFrom($from);
-				$mail_user->setRecipients($recipients);
-				$mail_user->setMailvar("exhibitor_company_name", $row['r_name']);
-				$mail_user->setMailvar("event_name", $fair->get("name"));
-				$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-				$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-				$mail_user->setMailVar('event_website', $fair->get('website'));
-				$mail_user->setMailvar("arranger_name", $organizer->get("company"));
-				$mail_user->setMailvar("arranger_message", $arranger_message);
+					if($fair->get('contact_name')) {
+						$from = array($email => $fair->get('contact_name'));
+					}
 
-				foreach($invoice_files as $file) {
-					if(!file_exists($file))
+					$recipients = array($row['invoice_email'] => $row['invoice_email']);
+
+					$mail_user = new Mail();
+					$mail_user->setTemplate('send_invoice');
+					$mail_user->setFrom($from);
+					$mail_user->addReplyTo($fair->get('name'), $fair->get('contact_email'));
+					$mail_user->setRecipients($recipients);
+					$mail_user->setMailvar("exhibitor_company_name", $row['r_name']);
+					$mail_user->setMailvar("event_name", $fair->get("name"));
+					$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+					$mail_user->setMailVar('event_website', $fair->get('website'));
+					$mail_user->setMailvar("arranger_name", $organizer->get("company"));
+					$mail_user->setMailvar("arranger_message", $arranger_message);
+
+					if(!file_exists($invoice_file))
 						throw new Exception("Kan inte bifoga fil");
-					if(!is_readable($file))
+					if(!is_readable($invoice_file))
 						throw new Exception("Kan inte öppna bifogad fil för läsning");
 
-					$mail_user->attachFile($file);
-				}
+					$mail_user->attachFile($invoice_file);
 
-				//$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-				if(!$mail_user->send()) {
-					// Kunde inte skicka mail
+					//$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
+					if(!$mail_user->send()) {
+						$errors[] = $row['id'];
+					}
+				} catch(Swift_RfcComplianceException $ex) {
+					// Felaktig epost-adress
+					$errors[] = $row['id'];
+				} catch(Exception $ex) {
+					// Okänt fel
+					$errors[] = $row['id'];
 				}
-			} catch(Swift_RfcComplianceException $ex) {
-				// Felaktig epost-adress
-			} catch(Exception $ex) {
-				// Okänt fel
 			}
+		}
+
+		if($errors) {
+			header("Location: ".BASE_URL."administrator/invoices?errors=" . implode(',', $errors));
+			exit;
 		}
 
 		header("Location: ".BASE_URL."administrator/invoices");
