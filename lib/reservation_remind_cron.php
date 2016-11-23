@@ -1,0 +1,122 @@
+<?php
+
+if (!defined('ROOT')) {
+	define('ROOT', dirname(dirname(__FILE__)).'/');
+	session_start();
+
+
+	require_once ROOT.'config/config.php';
+	require_once ROOT.'lib/functions.php';
+}
+
+//Autoload any classes that are required
+if (!function_exists('__autoload')) {
+	function __autoload($className) {
+		if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
+			require_once(ROOT.'lib/classes/'.$className.'.php');
+			return true;
+
+		} else if (file_exists(ROOT.'application/controllers/'.$className.'.php')) {
+			require_once(ROOT.'application/controllers/'.$className.'.php');
+			return true;
+
+		} else if (file_exists(ROOT.'application/models/'.$className.'.php')) {
+			require_once(ROOT.'application/models/'.$className.'.php');
+			return true;
+		
+		}
+	  
+	  // This is the else without the else, but works exactly as else
+	  error_log("Class not found: ".$className);
+	  //throw new Exception("500");
+	  return false;
+	}
+}
+
+if (!defined('LANGUAGE')) {
+	define('LANGUAGE', 'sv');
+}
+
+$globalDB = new Database;
+global $globalDB;
+
+// Cron job logic starts here
+
+$statement = $globalDB->prepare("SELECT fmp.id, 
+								fmp.name AS position_name, 
+								e.id AS exhibitor, 
+								u.email AS exhibitor_email, 
+								u.name AS user_name, 
+								u.company AS user_company,
+								uc.email AS organizer_email, 
+								f.url,
+								f.name AS fair_name,
+								f.id AS fair_id,
+								DATEDIFF(fmp.expires, ?) AS diff, 
+								fmp.expires, 
+								reminder_day1, 
+								reminder_note1, 
+							FROM fair_map_position AS fmp 
+							INNER JOIN fair_map AS fm ON fm.id = fmp.map 
+							INNER JOIN fair AS f ON f.id = fm.fair 
+							INNER JOIN exhibitor AS e ON e.position = fmp.id 
+							INNER JOIN user AS u ON u.id = e.user 
+							INNER JOIN user AS uc ON uc.id = f.created_by");
+
+$statement->execute(array(date('Y-m-d')));
+$expiring_positions = $statement->fetchAll(PDO::FETCH_CLASS);
+
+foreach ($expiring_positions as $position) {
+
+	// Which of the 3 dates were matched?
+	$number = 1;
+	$fair = new Fair();
+	$fair->loadsimple($position->fair_id, 'id');
+
+	$mailSettings = json_decode($fair->get("mail_settings"));
+	if (is_array($mailSettings->reservationReminders)) {
+		if (in_array("0", $mailSettings->reservationReminders)) {
+			// Send mail to organizer
+			$to = $position->organizer_email;
+			if (defined('TESTSERV')) {
+				$to = 'example@chartbooking.com';
+			}
+
+			$mail = new Mail($to, 'stand_place_remind_org1', $position->url . EMAIL_FROM_DOMAIN);
+			$mail->setMailVar('reminder_note', $position->{'reminder_note1'});
+			$mail->setMailVar('event_name', $position->fair_name);
+			$mail->setMailVar('event_email', $fair->get('contact_email'));
+			$mail->setMailVar('event_phone', $fair->get('contact_phone'));
+			$mail->setMailVar('event_website', $fair->get('website'));
+			$mail->setMailVar('url', BASE_URL . $position->url);
+			$mail->setMailVar('exhibitor_name', $position->user_name);
+			$mail->setMailVar('exhibitor_company', $position->user_company);
+			$mail->setMailVar('position_name', $position->position_name);
+			$mail->setMailVar('date_expires', $position->expires);
+			$mail->setMailVar('days_until_expiration', $position->diff);
+			$mail->send();
+		#echo "Skickade ett meddelande\n";
+		}
+
+		if (in_array("1", $mailSettings->reservationReminders)) {
+
+			// Send mail to exhibitor
+			$to = $position->exhibitor_email;
+			if (defined('TESTSERV')) {
+				$to = 'example@chartbooking.com';
+			}
+
+			$mail = new Mail($to, 'stand_place_remind1', $position->url . EMAIL_FROM_DOMAIN);
+			$mail->setMailVar('reminder_note', $position->{'reminder_note1'});
+			$mail->setMailVar('event_name', $position->fair_name);
+			$mail->setMailVar('url', BASE_URL . $position->url);
+			$mail->setMailVar('exhibitor_name', $position->user_name);
+			$mail->setMailVar('exhibitor_company', $position->user_company);
+			$mail->setMailVar('position_name', $position->position_name);
+			$mail->setMailVar('date_expires', $position->expires);
+			$mail->setMailVar('days_until_expiration', $position->diff);
+			$mail->send();
+		}
+	}
+}
+?>

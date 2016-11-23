@@ -1,0 +1,507 @@
+@media screen and (max-width : 1440px) {
+		#right_sidebar h2 {
+			font-size: 2em;
+		}
+		#right_sidebar hr {
+			margin: 1.7em 0;
+		}
+		#create_position {
+			padding: 0.7em 0;
+		}		
+	}
+@media screen and (max-width : 1224px) {
+		#right_sidebar {
+			top:4.33em;
+		}
+		#nouser_dialogue {
+			left: 40%;
+		}
+		.marker_tooltip {
+			background-color: #EAEAEA;
+			-ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=95)";
+			filter: alpha(opacity=95);
+			opacity: 0.95;
+			padding: 0.416em 0.416em 1em 1.66em;
+			width:25em;
+			position:absolute;
+			z-index:1000;
+			display:none;
+			margin-top:0;
+			font-family:Arial, Helvetica, Sans-serif;
+			line-height: 1.6;
+		-webkit-box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.26);
+		-moz-box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.26);
+		box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.26);
+		}
+		.marker_tooltip_flipped {
+			margin-top: 1em;
+		}		
+	@media screen and (max-width : 1050px) {
+		#right_sidebar {
+			display:none;
+		}
+		#right_sidebar ul {
+			width: 19.83em;
+		}
+		.contextmenu {
+			margin-top: -4.5em;
+		}
+		#right_sidebar_show {
+			z-index:1000;
+		    position: absolute;
+		    display: block;
+		    top: 10.83em;
+		    right: 2.3em;
+		    font-size:1.5em;
+		    background-color: #3c3c3c;
+		    transform: rotate(-90deg);
+		    transform-origin: right top 0;		    
+		    border:none;
+		    border-radius: 5px 3px 0px 0px;
+		    word-break:break-word;
+		    padding:8px;
+		    color:#FFF;
+		}
+		#right_sidebar_hide {
+		    float: left;
+		    display:none;
+		    margin: 8.33em 0px 2px -7.5em;
+		    color: #FFF;
+		    background-color: #3c3c3c;
+		    border: none;
+		    transform: rotate(-90deg);
+		    transform-origin: right top 0;
+		    word-wrap: break-word;
+		    padding: 8px;
+		    border-radius: 5px 3px 0px 0px;			
+		}
+		#map_content {
+			padding: 0;
+		}
+		#map {
+			padding-bottom: 10px;
+			padding-right: 10px;
+		}		
+	}
+	@media screen and (max-width : 480px) {
+		body {
+			font-size: 6px;
+			overflow:hidden;
+		}
+		#right_sidebar_hide {
+			margin: 8.33em 0px 2px -9.5em;
+		}
+		#logo-text {
+			margin-bottom: 0;
+			margin-top: 1.5em;
+			margin-right: 2em;
+		}
+		img#logo {
+			height: 3em;
+			right: 11em;
+		}
+		.marker {
+			width: 2em;
+			height: 2em;
+		}
+		.marker_tooltip {
+			width: 25em;
+			padding: 5px 5px 5px 10px;
+		}
+		.marker_tooltip h3 {
+			padding: 5px 10px;
+			margin: -5px -5px 5px -10px;
+		}
+		.marker_tooltip p strong {
+			font-size: 1em;
+		}
+		#maptoolbox {
+			display:none;
+		}
+	}
+	#header ul {
+		display: none;
+	}
+	#header {
+		height:3.6em;
+	}
+	#dl-menu {
+		display:block;
+	}
+	#dl-menu a:hover{
+		text-decoration: none;
+		cursor:pointer;
+	}
+	#languages {
+		display: none;
+	}	
+
+	#zoombar {
+		width: 10em;
+		height: 4.333333333333333em;
+		margin: 0.8333333333333334em 0 0 0.8333333333333334em;
+		background: url("../images/zoomverktyget2.png") no-repeat;
+		background-size: 10em;
+	}
+	#zoombar a {
+		width: 5em;
+		height: 5em;
+	}
+	#zoombar img {
+		display: none;
+	}
+	#zoombar #in {
+		margin-left: 5em;
+		margin-top: 0em;
+	}
+	#zoombar #out {
+		margin: 0;
+	}
+	#more_info_dialogue #column {
+		width: 48.7%;
+	}
+
+}
+
+@media screen and (-webkit-device-pixel-ratio:3), screen and (-webkit-device-pixel-ratio:2) {
+
+	body {font-size: 6px;}
+
+	#right_sidebar_show {
+		right: 3.1em;
+	}
+	#right_sidebar_hide {
+		margin-left: -9.5em;
+	}	
+	#maptoolbox {
+		display: none;
+	}
+	#maptoolbox_minimize {
+		background-size: 0.7em;
+		top: 0.57em;
+	}
+	#grid_icon {
+		width: 1em;
+	}
+	#wrong_url {
+		padding-top: 0;
+		padding-left: 20%;
+	}
+	#maptool_grid {
+		display:none;
+	}
+	#maptool_grid_frame {
+		display:none;
+	}
+	#maptool_grid_white2, #maptool_grid_save, #maptool_grid_activated2, #maptool_grid_reset {
+		width:9em;
+		height:2.33em;
+	}
+
+	#right_sidebar h2 {
+		font-size: 2em;
+	}
+	#zoombar {
+		width: 10em;
+		height: 4.33em;
+		margin: 0.833em 0 0 0.833em;
+		background: url("../images/zoomverktyget2.png") no-repeat;
+		background-size: 10em;
+	}
+	#zoombar a {
+		width: 5em;
+		height: 5em;
+	}
+	#zoombar img {
+		display: none;
+	}
+	#zoombar #in {
+		margin-left: 5em;
+		margin-top: 0em;
+	}
+	#zoombar #out {
+		margin: 0;
+	}
+	#print_img {
+		height: 1.5em;
+	}
+	#more_info_dialogue {
+		max-height:70em !important;
+		padding-left: 2em;
+		padding-right: 2em;
+	}
+	#more_info_dialogue #column {
+		width: 48.7%;
+	}
+	#nouser_dialogue .link-button {
+		padding:0.666667em 0 !important;
+		width: 8.166667em;
+		font-size:2.083333333333333em;
+		border-radius: 0.3em;
+	}
+	#nouser_dialogue .helpLink {
+	    margin-left: 29px;
+	    max-width: 210px;
+    }
+    #nouser_dialogue .backhref {
+    	padding-left: 4.25em;
+    }
+    .nouser_cfslogo {
+    	width: 43em;
+    	margin-left: 2px;
+    }
+    #nouser_dialogue #inner .center {
+    	font-size: 1.5em;
+    }
+
+
+	@media screen and (-webkit-device-pixel-ratio:2) and (orientation:portrait) {
+		#nouser_dialogue {
+			left: 60em;
+			width: 48.33333333333333em;
+		 	min-height: 12.5em;
+			top: 35%;
+			border-top: none;
+			padding:1.666666666666667em;
+		}
+
+	}
+	@media screen and (-webkit-device-pixel-ratio:2) and (orientation:landscape){
+		#nouser_dialogue {
+			left: 92em;
+			top: 60em;
+		}
+	}
+	@media screen and (-webkit-device-pixel-ratio:2) and (orientation:portrait) and (max-width : 480px) {
+		#nouser_dialogue {
+			left: 40%;
+		}
+		#right_sidebar_show {
+			right: -9.9em;
+		}
+		#right_sidebar ul {
+			width: 18.83em;
+		}
+		#right_sidebar {
+			right: -19.5em;
+		}
+	}
+	@media screen and (-webkit-device-pixel-ratio:2) and (orientation:landscape) and (max-width : 768px) {
+		#nouser_dialogue {
+			left: 40%;
+			top: 23em;
+		}
+		#right_sidebar ul {
+			width: 18.83em;
+		}		
+	}	
+}
+
+
+
+@media screen and (-webkit-device-pixel-ratio:3) and (orientation:portrait){
+	#nouser_dialogue {
+		left: 17.5em;
+		top: 45em;
+	}
+}
+@media screen and (-webkit-device-pixel-ratio:3) and (orientation:landscape){
+	#nouser_dialogue {
+		left: 45em;
+		top: 40em;
+	}		
+}
+
+
+/* ----------- BlackBerry PlayBook ----------- */
+
+/* Portrait */
+@media screen and (device-width: 600px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 1) and (orientation: portrait) {
+	#nouser_dialogue {
+		left: 44%;
+		top: 35%;
+	}
+	#right_sidebar ul {
+		width: 18.83em;
+	}
+}
+
+/* Landscape */
+@media screen and (device-width: 1024px) and (device-height: 600px) and (-webkit-device-pixel-ratio: 1) and (orientation: landscape) {
+	#nouser_dialogue {
+		left: 50%;
+	}	
+}
+
+
+/* ----------- Galaxy S3 ----------- */
+
+/* Portrait */
+@media screen and (device-width: 360px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+  	
+	#nouser_dialogue {
+		left: 30.7em;
+		top: 45em;
+	}
+	#right_sidebar_show {
+		right: -11.5em !important;
+	}
+	#right_sidebar ul {
+		width: 18.83em;
+	}
+	#right_sidebar {
+		right: -22em !important;
+	}
+}
+
+/* Landscape */
+@media screen and (device-width: 640px) and (device-height: 360px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) {
+	#nouser_dialogue {
+		left: 48em;
+		top: 25em;
+	}
+}
+
+/* ----------- Galaxy S4 ----------- */
+
+/* Portrait */
+@media screen and (device-width: 360px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) {
+  	
+	#nouser_dialogue {
+		left: 17.5em;
+		top: 45em;
+	}
+	#right_sidebar_show {
+		right: -11.5em !important;
+	}
+	#right_sidebar ul {
+		width: 18.83em;
+	}
+	#right_sidebar {
+		right: -22em !important;
+	}
+}
+
+/* Landscape */
+@media screen and (device-width: 640px) and (device-height: 360px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape) {
+  	
+	#nouser_dialogue {
+		left: 45em;
+		top: 40em;
+	}
+}
+
+/* ----------- iPad 1 and 2 ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 768px) and (device-height: 1024px) and (orientation: portrait) and (-webkit-device-pixel-ratio: 2) {
+	#nouser_dialogue {
+		top: 25%;
+	}
+}
+
+/* Landscape */
+@media only screen and (device-width: 1024px) and (device-height: 768px) and (orientation: landscape) and (-webkit-device-pixel-ratio: 2) {
+  	#right_sidebar_show {
+  		right: 1.8em;
+  	}
+  	#right_sidebar {
+  		right: -2em;
+  	}
+}
+
+/* ----------- iPhone 4 and 4S ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+  	#right_sidebar_show {
+  		right: -16em;
+  	}
+  	#right_sidebar {
+  		right: -28.6em;
+  	}
+  	#nouser_dialogue {
+  		left: 46.7%;
+  	}
+}
+
+/* Landscape */
+@media only screen and (device-width: 480px) and (device-height: 320px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) {
+  	#right_sidebar_show {
+  		right: 1.8em;
+  	}
+  	#right_sidebar {
+  		right: -2em;
+  	}
+}
+
+/* ----------- iPhone 5 and 5S ----------- */
+
+
+/* Portrait */
+@media only screen and (device-width: 320px) and (device-height: 568px)and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+  	
+  	#right_sidebar_show {
+  		right: -16em;
+  	}
+  	#right_sidebar {
+  		right: -28.6em;
+  	}
+  	#nouser_dialogue {
+  		left: 46.7%;
+  	}
+}
+
+/* Landscape */
+@media only screen and (device-width: 568px) and (device-height: 320px)and (-webkit-device-pixel-ratio: 2)and (orientation: landscape) {  	
+
+}
+
+/* ----------- iPhone 6 ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 375px) and (device-height: 627px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) { 
+  	 
+  	#right_sidebar_show {
+  		right: -9.9em;
+  	}
+  	#right_sidebar {
+  		right: -19.7em;
+  	}
+  	#nouser_dialogue {
+  		left: 46.7%;
+  	}
+}
+
+/* Landscape */
+@media only screen and (device-width: 667px) and (device-height: 375px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) { 
+  	#nouser_dialogue {
+  		left: 48.5em;
+  		top: 23em;
+  	}
+}
+
+/* ----------- iPhone 6+ ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 414px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) { 
+  	
+  	#right_sidebar_show {
+  		right: -5.7em;
+  	}
+  	#right_sidebar {
+  		right: -13em;
+  	}
+  	#nouser_dialogue {
+  		left: 46.7%;
+  	}
+}
+
+/* Landscape */
+@media only screen and (device-width: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape) { 
+
+  	#nouser_dialogue {
+  		left: 60.7em;
+  		top: 38em;
+  	}
+}

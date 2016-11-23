@@ -1,0 +1,538 @@
+@media screen and (max-width : 1440px) {
+	#confirmBox {
+		left:22vw;
+	}
+}
+
+@media screen and (max-width : 1224px) {
+		#header {
+			display:block;
+		}
+		#new_header_show {
+			display:none !important;
+		}
+		#popupform_register {
+			left: 38%;
+			margin-top: 0;
+		}
+		#popupform_login {
+			left: 40%;
+		}
+		.icon_img {
+			max-width:1.5em;
+		}
+		.tab_img_wide {
+			max-width: 5em !important;
+		}
+		.tab_img {
+			max-width: 1.5em !important;
+		}		
+	@media screen and (max-width : 480px) {
+		body {
+			font-size: 6px;
+			overflow:hidden;
+		}
+		.nav>li>a>img {
+			max-width: 1.5em;
+		}
+		.button.add {
+			background-size:3em;
+		}		
+		.dl-menuwrapper button {
+			background: #ccc;
+			border: none;
+			width: 30px;
+			height: 26px;
+			text-indent: -900em;
+			overflow: hidden;
+			position: relative;
+			cursor: pointer;
+			outline: none;
+		}
+		.dl-menuwrapper button:hover,
+		.dl-menuwrapper button.dl-active,
+		.dl-menuwrapper ul {
+			background: #aaa;
+		}
+		.dl-menuwrapper button:after {
+			content: '';
+			position: absolute;
+			width: 70%;
+			height: 2px;
+			background: #fff;
+			top: 6px;
+			left: 13%;
+			box-shadow: 
+				0 6px 0 #fff, 
+				0 12px 0 #fff;
+		}
+		#logo-text {
+			margin-bottom: 0;
+			margin-top: 1.5em;
+			margin-right: 2em;
+		}
+		img#logo {
+			height: 3em;
+			right: 11em;
+		}
+		#tooltip_assortment {
+			width:21em;
+			overflow-y:hidden;
+			line-height:1.16em;
+			word-wrap:break-word;
+		}
+		#popupform_register {
+			left: 24%;
+		}		
+
+	}
+	#languages {
+		display: none;
+	}
+	#header ul {
+		display: none;
+	}
+	#header {
+		height:3.6em;
+	}
+	#dl-menu {
+		display:block;
+		z-index:1;
+	}
+	#dl-menu a:hover{
+		text-decoration: none;
+		cursor:pointer;
+	}
+	.dl-menu.dl-animate-out-1 {
+		animation: MenuAnimOut1 0.4s linear forwards;
+	}
+
+	@keyframes MenuAnimOut1 {
+		75% {
+			transform: translateZ(-31em) rotateY(15deg);
+			opacity: .5;
+		}
+		100% {
+			transform: translateZ(-41.66em) rotateY(0deg);
+			opacity: 0;
+		}
+	}
+	.dl-menu.dl-animate-in-1 {
+		animation: MenuAnimIn1 0.3s linear forwards;
+	}
+	@keyframes MenuAnimIn1 {
+		0% {
+			transform: translateZ(-41.66em) rotateY(0deg);
+			opacity: 0;
+		}
+		100% {
+			transform: translateZ(0px) rotateY(0deg);
+			opacity: 1;
+		}
+	}
+
+
+}
+@media screen and (-webkit-device-pixel-ratio:3), screen and (-webkit-device-pixel-ratio:2) {
+	
+	body {font-size: 6px;}
+	.booking_form {
+		top: 0 !important;
+		left: 14% !important;
+	}
+	.closeDialogue {
+		height:3em;
+		margin-top:-3.5em;
+	}
+	.mceToolbar td {
+	    display:table-row;
+	    float: left;
+	}
+	.o2k7Skin table.mceToolbar {
+		margin-left: 0 !important;
+	}
+	.o2k7Skin .mceToolbar {
+		height: 0 !important;
+	}
+	.o2k7Skin .mceSeparator {
+		width: 0 !important;
+		height: 0 !important;
+	}
+	.dl-menuwrapper button {
+		background: #ccc;
+		border: none;
+		width: 30px;
+		height: 26px;
+		text-indent: -900em;
+		overflow: hidden;
+		position: relative;
+		cursor: pointer;
+		outline: none;
+	}
+
+	.dl-menuwrapper button:hover,
+	.dl-menuwrapper button.dl-active,
+	.dl-menuwrapper ul {
+		background: #aaa;
+	}
+
+	.dl-menuwrapper button:after {
+		content: '';
+		position: absolute;
+		width: 70%;
+		height: 2px;
+		background: #fff;
+		top: 6px;
+		left: 13%;
+		box-shadow: 
+			0 6px 0 #fff, 
+			0 12px 0 #fff;
+	}
+	.dl-menu.dl-animate-out-1 {
+		animation: MenuAnimOut1 0.4s linear forwards;
+	}
+
+	@keyframes MenuAnimOut1 {
+
+		75% {
+			transform: translateZ(-31em) rotateY(15deg);
+			opacity: .5;
+		}
+		100% {
+			transform: translateZ(-41.66em) rotateY(0deg);
+			opacity: 0;
+		}
+	}
+
+	.dl-menu.dl-animate-in-1 {
+		animation: MenuAnimIn1 0.3s linear forwards;
+	}
+
+	@keyframes MenuAnimIn1 {
+		0% {
+			transform: translateZ(-41.66em) rotateY(0deg);
+			opacity: 0;
+		}
+		100% {
+			transform: translateZ(0px) rotateY(0deg);
+			opacity: 1;
+		}
+	}	
+	#header ul {
+		display: none;
+	}
+	#header {
+		height:3.6em;
+	}
+	#dl-menu {
+		display:block;
+	}
+	#dl-menu a:hover{
+		text-decoration: none;
+		cursor:pointer;
+	}
+	#languages {
+		display: none;
+	}		
+	#header {
+		display:block;
+	}
+	#new_header_show {
+		display:none !important;
+	}
+	#note_dialogue {
+		top: 25em;
+	}
+	#note_dialogue .closeDialogue, #note_edit_dialogue .closeDialogue {
+		margin-top: -5.5em !important;
+	}
+	#review_prel_dialogue {
+		top:25% !important;
+		left: 33vw !important;
+	}
+	#showUserDialogue label {
+		margin-bottom: 0;
+	}
+	#popupform_register .closeDialogue {
+		margin-top:-7em;
+		margin-left: 85.4% !important;
+	}	
+    #popupform_login {
+		width: 48.33333333333333em;
+	 	min-height: 12.5em;
+		border-top: none;
+		padding:1.666666666666667em;
+		height: 47em;
+		top:35%;
+    }
+    #popupform_login .login_textfield {
+    	margin: 0;
+    }
+    #popupform_help .closeDialogue {
+    	margin-top: -5.2em;
+    }
+    #edit_position_dialogue {
+    	max-height: 38em !important;
+    }
+	@media screen and (-webkit-device-pixel-ratio:2) and (orientation:landscape){
+		#popupform_login {
+			left: 92em;
+			top:60em;
+		}
+	}
+}
+
+@media screen and (-webkit-device-pixel-ratio:3) and (orientation:portrait){
+
+    #popupform_login {
+		left: 30.7em;
+		top: 45em;
+    }
+}
+@media screen and (-webkit-device-pixel-ratio:3) and (orientation:landscape){
+
+    #popupform_login {
+		left: 66.8em;
+		top: 38em;
+    }			
+}
+
+/* ----------- BlackBerry PlayBook ----------- */
+
+/* Portrait */
+@media screen and (device-width: 600px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 1) and (orientation: portrait) {
+	#popupform_login {
+		left: 44%;
+	}
+	#popupform_register {
+		left: 42%;
+		margin-top: 5%;
+	}
+	#popupformTwo {
+		left: 44% !important;
+	}
+	.booking_form {
+		top: 5% !important;
+	}	
+}
+
+/* Landscape */
+@media screen and (device-width: 1024px) and (device-height: 600px) and (-webkit-device-pixel-ratio: 1) and (orientation: landscape) {
+	#popupform_login {
+		left: 50%;
+		top: 40%;
+	}
+	#popupform_register {
+		left: 58%;
+		margin-top: 5%;
+	}
+	#popupformTwo {
+		left: 44% !important;
+	}
+	.booking_form {
+		top: 10% !important;
+		left: 32% !important;
+	}
+}
+
+/* ----------- Galaxy S3 ----------- */
+
+/* Portrait */
+@media screen and (device-width: 360px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+  	
+    #popupform_login {
+		left: 30.72em;
+		top: 45em;
+    }
+    #popupform_register {
+    	left: 40%;
+    	top: 5%;
+    }
+    #popupform_help {
+    	left: 46%;
+    	top: 15%;
+    }
+}
+
+/* Landscape */
+@media screen and (device-width: 640px) and (device-height: 360px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) {
+    #popupform_register {
+    	left: 45%;
+    }
+    #popupform_login {
+		left: 48em;
+		top: 25em;
+    }
+}
+
+/* ----------- Galaxy S4 ----------- */
+
+/* Portrait */
+@media screen and (device-width: 360px) and (device-height: 640px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) {
+  	
+    #popupform_login {
+		left: 30.7em;
+		top: 45em;
+    }
+}
+
+/* Landscape */
+@media screen and (device-width: 640px) and (device-height: 360px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape) {
+  	
+    #popupform_login {
+		left: 66.8em;
+		top: 38em;
+    }
+    #popupform_register {
+    	left: 45%;
+    }
+}
+
+/* ----------- iPad 1 and 2 ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 768px) and (device-height: 1024px) and (orientation: portrait) and (-webkit-device-pixel-ratio: 2) {
+    #popupform_login {
+		left: 60em;
+		top: 25%;
+    }
+    #popupform_register {
+    	left: 50%;
+    	top: 6%;
+    }
+}
+
+/* Landscape */
+@media only screen and (device-width: 1024px) and (device-height: 768px) and (orientation: landscape) and (-webkit-device-pixel-ratio: 2) {
+  	#popupform_register {
+  		left: 55%;
+  		margin-top: 10%;
+  	}
+}
+
+/* ----------- iPhone 4 and 4S ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 320px) and (device-height: 480px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+    #popupform_login {
+		left: 25em;
+		top: 28em;
+    }
+    #popupform_help {
+    	left: 55%;
+    	top: 7.5em;
+    }
+  	#popupform_register {
+  		left: 40%;
+  		top: 2%;
+  	}
+}
+
+/* Landscape */
+@media only screen and (device-width: 480px) and (device-height: 320px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) {
+    #popupform_login {
+		left: 32em;
+		top: 23em;
+    }
+  	#popupform_register {
+  		left: 38%;
+  		margin-top: 0;
+  	}
+}
+
+/* ----------- iPhone 5 and 5S ----------- */
+
+
+/* Portrait */
+@media only screen and (device-width: 320px) and (device-height: 568px)and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+  	
+  	#popupform_help {
+  		left: 52%;
+  		top: 4.5em;
+  	}
+  	#popupform_login {
+  		left: 24.9em;
+  		top: 33.2em;
+  	}
+  	#popupform_register {
+  		left: 40%;
+  		top: 2%;
+  	}  	
+}
+
+/* Landscape */
+@media only screen and (device-width: 568px) and (device-height: 320px)and (-webkit-device-pixel-ratio: 2)and (orientation: landscape) {
+    #popupform_login {
+		left: 37.9em;
+		top: 23em;
+    }
+    #popupform_register {
+    	left: 42%;
+    	margin-top: 0;
+    }
+}
+
+/* ----------- iPhone 6 ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 375px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait) {
+  	 
+  	#popupform_help {
+  		left: 52%;
+  		top: 4.5em;
+  	}
+  	#popupform_login {
+  		left: 25em;
+  		top: 36.5em;
+  	}
+  	#popupform_register {
+  		left: 40%;
+  		top: 2%;
+  	}  	
+}
+
+/* Landscape */
+@media only screen and (device-width: 667px) and (device-height: 375px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape) {
+
+  	#popupform_login {
+  		left: 48.5em;
+  		top: 23em;
+  	}
+  	#popupform_register {
+  		left: 44%;
+  	}
+}
+
+/* ----------- iPhone 6+ ----------- */
+
+/* Portrait */
+@media only screen and (device-width: 414px) and (device-height: 736px) and (-webkit-device-pixel-ratio: 3) and (orientation: portrait) {
+
+  	#popupform_login {
+  		left: 32.3em;
+  	}
+  	#popupform_help {
+  		left: 40%;
+  		top: 4.5em;
+  	}
+  	#popupform_register {
+  		left: 40%;
+  		top: 2%;
+  	}  	
+}
+
+/* Landscape */
+@media only screen and (device-width: 736px) and (device-height: 414px) and (-webkit-device-pixel-ratio: 3) and (orientation: landscape) { 
+
+  	#popupform_login {
+  		left: 60.8em;
+  	}
+  	#popupform_help {
+  		left: 38%;
+  		top: 4.5em;
+  	}
+  	#popupform_register {
+  		left: 50%;
+  		top: 2%;
+  	}  	
+}

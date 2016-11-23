@@ -1,0 +1,237 @@
+/*form styles*/
+/* PRELIMINARY FORM */
+#apply_mark_form {
+	display:none;
+	position: absolute;
+	z-index:10000;
+	width: 66em;
+	top:10%;
+	left:24%;
+	margin-bottom: 2em;
+	background:transparent;
+	border:none;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:0px;
+}
+#apply_mark_form fieldset {
+	background: white;
+	border: 0 none;
+	padding: 3em;
+	width: 66em;
+	/*stacking fieldsets above each other*/
+	position: absolute;
+}
+/*Hide all except first fieldset*/
+#apply_mark_form fieldset:not(:first-of-type) {
+	display: none;
+}
+
+/* FAIR REGISTRATION FORM */
+#fair_registration_form {
+	display:none;
+	position: absolute;
+	z-index:10000;
+	width: 66em;
+	top:10%;
+	left:24%;
+	margin-bottom: 2em;
+	background:transparent;
+	border:none;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:0px;
+}
+#fair_registration_form fieldset {
+	background: white;
+	border: 0 none;
+	padding: 3em;
+	width: 66em;
+	/*stacking fieldsets above each other*/
+	position: absolute;
+}
+/*Hide all except first fieldset*/
+#fair_registration_form fieldset:not(:first-of-type) {
+	display: none;
+}
+
+
+/* BOOKING FORM */
+#book_position_form {
+	display:none;
+	position: absolute;
+	z-index:10000;
+	width: 66em;
+	top:10%;
+	left:24%;
+	margin-bottom: 2em;
+	background:transparent;
+	border:none;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:0px;
+}
+#book_position_form fieldset {
+	background: white;
+	border: 0 none;
+	padding: 3em;
+	width: auto;
+	width: 66em;
+	/*stacking fieldsets above each other*/
+	position: absolute;
+}
+/*Hide all except first fieldset*/
+#book_position_form fieldset:not(:first-of-type) {
+	display: none;
+}
+
+/* RESERVE FORM */
+#reserve_position_form {
+	display:none;
+	position: absolute;
+	z-index:10000;
+	width: 66em;
+	top:10%;
+	left:24%;
+	margin-bottom: 2em;
+	background:transparent;
+	border:none;
+	-moz-border-radius:8px;
+	-webkit-border-radius:8px;
+	border-radius:0px;
+}
+#reserve_position_form fieldset {
+	background: white;
+	border: 0 none;
+	padding: 3em;
+	width: 66em;
+	/*stacking fieldsets above each other*/
+	position: absolute;
+}
+/*Hide all except first fieldset*/
+#reserve_position_form fieldset:not(:first-of-type) {
+	display: none;
+}
+
+
+
+/*inputs*//*
+#apply_mark_form input, #apply_mark_form textarea {
+	padding: 15px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	margin-bottom: 10px;
+	width: 100%;
+	box-sizing: border-box;
+	color: #2C3E50;
+	font-size: 13px;
+}
+/*buttons*//*
+#apply_mark_form .action-button {
+	display:inline-block;
+	padding: 5px 15px;
+	margin: 10px 5px;
+	font-size: 1.2em;
+	font-weight: 600;
+	cursor:pointer;
+	width: auto;	
+	border:1px solid #34740e;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+	text-decoration:none !important; 
+	text-shadow: -1px -1px 0 rgba(0,0,0,0.3);
+	color: #FFFFFF;
+	background-color: #4ba614; 
+	background-image: -webkit-gradient(linear, left top, left bottom, from(#4ba614), to(#008c00));
+	background-image: -webkit-linear-gradient(top, #4ba614, #008c00);
+	background-image: -moz-linear-gradient(top, #4ba614, #008c00);
+	background-image: -ms-linear-gradient(top, #4ba614, #008c00);
+	background-image: -o-linear-gradient(top, #4ba614, #008c00);
+	background-image: linear-gradient(to bottom, #4ba614, #008c00);
+	filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#4ba614, endColorstr=#008c00);	
+}
+
+#apply_mark_form .action-button:hover, #apply_mark_form .action-button:focus {
+	color: #FFFFFF;
+	border:1px solid #224b09;
+	background-color: #36780f; background-image: -webkit-gradient(linear, left top, left bottom, from(#36780f), to(#005900));
+	background-image: -webkit-linear-gradient(top, #36780f, #005900);
+	background-image: -moz-linear-gradient(top, #36780f, #005900);
+	background-image: -ms-linear-gradient(top, #36780f, #005900);
+	background-image: -o-linear-gradient(top, #36780f, #005900);
+	background-image: linear-gradient(to bottom, #36780f, #005900);
+	filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#36780f, endColorstr=#005900);	
+}*/
+/*headings*/
+.fs-title {
+	font-size: 1.25em;
+	text-transform: uppercase;
+	color: #2C3E50;
+	margin-bottom: 0.833em;
+}
+.fs-subtitle {
+	font-weight: normal;
+	font-size: 1.0833em;
+	color: #666;
+	margin-bottom: 1.66em;
+}
+/*progressbar*/
+#progressbar {
+	margin-bottom: 2.5em;
+	overflow: hidden;
+	/*CSS counters to number the steps*/
+	counter-reset: step;
+	margin: 0px;
+	padding: 1em 0em;
+	text-align: center;
+	width: auto;
+}
+#progressbar li {
+	margin: 0;
+	padding: 0;
+	list-style-type: none;
+	color: #FFF;
+	text-transform: uppercase;
+	font-size: 0.75em;
+	width: 25%;
+	float: left;
+	position: relative;
+}
+#progressbar li:before {
+	content: counter(step);
+	counter-increment: step;
+	width: 3em;
+	line-height: 2em;
+	display: block;
+	font-size: 1.5em;
+	color: #333;
+	background: white;
+	border-radius: 0.25em;
+	margin: 0 auto 0.416em auto;
+}
+/*progressbar connectors*/
+#progressbar li:after {
+	content: '';
+	width: 100%;
+	height: 0.166em;
+	background: white;
+	position: absolute;
+	left: -50%;
+	top: 1.5em;
+	z-index: -1; /*put it behind the numbers*/
+}
+#progressbar li:first-child:after {
+	/*connector not needed before the first step*/
+	content: none; 
+}
+/*marking active/completed steps green*/
+/*The number of the step and the connector before it = green*/
+#progressbar li.active:before,  #progressbar li.active:after{
+	background: #27AE60;
+	color: white;
+}
+
+
+
+
