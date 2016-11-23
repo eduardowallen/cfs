@@ -102,7 +102,7 @@ function callHook() {
 }
 
 //Autoload any classes that are required
-function __autoload($className) {
+function cb_autoload($className) {
 	if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
 		require_once(ROOT.'lib/classes/'.$className.'.php');
 		return true;
@@ -122,6 +122,8 @@ function __autoload($className) {
   //throw new Exception("500");
   return false;
 }
+
+spl_autoload_register( 'cb_autoload' );
 
 $lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
 define('LANGUAGE', $lang);
