@@ -318,6 +318,7 @@ $(document).on({
 			<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 			<div class="floatright right">
 				<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="booked"></button>
+				<button type="submit" class="greenbutton mediumbutton zip-invoices" title="<?php echo uh($translator->{'Export checked invoices and download as zip'}); ?>" data-for="booked"><?php echo uh($translator->{'Download invoices'}); ?></button>
 			</div>
 
 			<table class="std_table use-scrolltable" id="booked">
@@ -386,7 +387,7 @@ $(document).on({
 								<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 							</a>
 						</td>
-						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['invoiceid']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$pos['fair'].'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
