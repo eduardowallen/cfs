@@ -79,7 +79,8 @@ class ExhibitorController extends Controller {
 	}
 	
 	public function all() {
-		
+		error_reporting( E_ALL );
+		ini_set('display_errors', 'on');
 		setAuthLevel(4);
 		
 		//$stmt = $this->Exhibitor->db->prepare("SELECT user.id, exhibitor.fair, COUNT(exhibitor.id) AS ex_count FROM user LEFT JOIN exhibitor ON user.id = exhibitor.user WHERE user.level = ? ORDER BY ?");
@@ -87,13 +88,12 @@ class ExhibitorController extends Controller {
 		$stmt->execute(array(1, 'exhibitor.fair'));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$exhibitors = array();
-		$fairs = 0;
 		$currentFair = 0;
 		$counter = array();
 		foreach ($result as $res) {
 			if (intval($res['id']) > 0) {
 				$ex = new User;
-				$ex->load($res['id'], 'id');
+				$ex->loadAllView($res['id'], 'id');
 				//$ex->set('ex_count', $res['ex_count']);
 				
 				$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
@@ -103,7 +103,6 @@ class ExhibitorController extends Controller {
 				
 				$exhibitors[] = $ex;
 				if ($res['fair'] != $currentFair) {
-					$fairs++;
 					$currentFair = $res['fair'];
 				}
 				if (array_key_exists($res['id'], $counter))
@@ -135,7 +134,6 @@ class ExhibitorController extends Controller {
 		$this->set('th_delete', 'Delete');
 		$this->set('send_sms_label', 'Send SMS to selected Exhibitors');
 		$this->set('th_resend', 'Reset');
-		$this->setNoTranslate('fairs', $fairs);
 		$this->setNoTranslate('users', $unique);		
 	}
 	

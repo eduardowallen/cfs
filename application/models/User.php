@@ -17,6 +17,27 @@ class User extends Model {
 		if ($this->wasLoaded()) {}
 	}
 
+	public function loadAllView($key, $by) {
+		$stmt = $this->db->prepare("SELECT `id`, `company`, `orgnr`, `name`, `email`, `last_login`, `created`, `contact_phone2` FROM ".$this->table_name." WHERE `".$by."` = ?");
+		//echo "SELECT * FROM ".$this->table_name." WHERE `".$by."` = ".$key;
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
+
 	public function bCrypt($pass, $user, $rounds=12) {
 
 	    //Make sure rounds are between 4 and 31

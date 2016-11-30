@@ -1,4 +1,3 @@
-<script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
 <script type="text/javascript">
 	function destroyPopup(){
 		$('#overlay').remove();
@@ -36,6 +35,14 @@
 			});	
 		}
 	}
+
+	$(document).ready( function () {
+	    $('#exhibitors_list').DataTable({
+	    	//ajax: '/api/my'
+	    });
+	    $('#exhibitors_list').show();
+	});
+
 </script>
 <style>
 #popupform {
@@ -64,6 +71,8 @@
 #popupform p {
 	text-align:center;
 }
+	.squaredFour{width:1.416em; height:1.416em;}
+	.squaredFour:before{left:0.33em;top:0.33em;}
 </style>
 <button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
 <h1><?php echo $headline; ?></h1>
@@ -71,10 +80,10 @@
 <p><a class="button add" href="user/edit/new/1"><?php echo $create_link; ?></a></p>
 <br />
 	<form method="post">
-			<div class="floatright right">
+		<div class="floatright right">
 			<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="exhibitors_list" data-fair="1337"></button>
 		</div>
-	<table class="std_table" id="exhibitors_list">
+	<table class="std_table" id="exhibitors_list" style="display:none">
 		<thead>
 			<tr>
 				<th><?php echo $th_company ?></th>
@@ -89,7 +98,10 @@
 				<th><?php echo $th_edit ?></th>
 				<th><?php echo $th_delete ?></th>
 				<th><?php echo $th_resend ?></th>
-				<th data-sorter="false"><input type="checkbox" class="check-all" data-group="rows" /></th>
+				<th class="last" data-sorter="false">
+					<input type="checkbox" class="check-all" data-group="rows" />
+					<label class="squaredFour" for="check-all" />
+				</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -108,7 +120,7 @@
 				<td class="center"><a href="exhibitor/deleteExhibitor/<?php echo $user->get('id'); ?>/no/all"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 				<td class="center"><a onclick="resendDetails(<?php echo $user->get('id') ?>, '<?php echo htmlspecialchars($user->get('name')); ?>')"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_resend; ?>" /></a></td>
 
-				<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" /></td>
+				<td><input type="checkbox" name="rows[]" class="rows" value="<?php echo $user->get('id'); ?>" data-userid="<?php echo $user->get('id'); ?>" /><label class="squaredFour" for="<?php echo $user->get('id'); ?>" /></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

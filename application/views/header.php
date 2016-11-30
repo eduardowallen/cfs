@@ -26,6 +26,7 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 <link rel="stylesheet" type="text/css" href="css/jquery-ui-timepicker-addon.min.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/jquery-multi-step-form.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/jquery-confirm.min.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="css/DataTables/css/jquery.dataTables.min.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/generic.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/main.css<?php echo $unique?>" />
 
@@ -70,6 +71,7 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 <script type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/modernizr.custom.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/alphanum.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="js/DataTables/media/js/jquery.dataTables.min.js"></script>
 
 <script type="text/javascript">
 
