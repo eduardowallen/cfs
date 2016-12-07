@@ -3890,6 +3890,9 @@ maptool.reservePosition = function(positionObject) {
 	$('#reserve_option_scrollbox > tbody > tr > td > input').prop('checked', false);
 	$('#reserve_article_scrollbox > tbody > tr > td > div > input').val(0);
 	$("#reserve_commodity_input, #reserve_message_input").val("");
+	if (maptool.map.defaultreservationdate !== '01-01-1970 00:00') {
+		$("#reserve_expires_input").val(maptool.map.defaultreservationdate);
+	}
 		var sel = $('#reserve_user_input');
 		var opts_list = sel.find('option');
 		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase() ? 1 : -1; });

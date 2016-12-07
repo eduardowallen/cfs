@@ -89,6 +89,10 @@
 		<input type="text" class="dialogueInput datetime datepicker" name="accepted_clone_date" id="accepted_clone_date" />
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date that cloned reservations are set to when accepted by the Exhibitor.'}); ?>" />
 
+		<label for="default_reservation_date"><?php echo $default_reservation_date; ?> <br>(DD-MM-YYYY HH:MM) *</label>
+		<input type="text" class="dialogueInput datetime datepicker" name="default_reservation_date" id="default_reservation_date" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date that will be used when creating new reservations.'}); ?>" />
+
 		<label for="website"><?php echo $website_label; ?> *</label>
 		<input type="text" name="website" id="website" value="<?php echo $fair->get('website'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter the website of your event. This will be used for automatically generated email (through CFS).'}); ?>" />

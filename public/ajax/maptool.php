@@ -142,6 +142,7 @@ if (isset($_POST['init'])) {
 		'preliminaries' => $prels,
 		'id'=> $map->get('id'),
 		'fair'=> $map->get('fair'),
+		'defaultreservationdate'=> date('d-m-Y H:i', $fair->get('default_reservation_date')),
 		'currency'=> $fair->get('currency'),
 		'name'=>$map->get('name'),
 		'image'=>$map->get('large_image'),

@@ -551,6 +551,7 @@ class FairController extends Controller {
 				$this->Fair->set('event_start', strtotime($_POST['event_start']));
 				$this->Fair->set('event_stop', strtotime($_POST['event_stop']));
 				$this->Fair->set('accepted_clone_date', strtotime($_POST['accepted_clone_date']));
+				$this->Fair->set('default_reservation_date', strtotime($_POST['default_reservation_date']));
 				if (userLevel() == 4) {
 					$this->Fair->set('approved', $_POST['approved']);
 					$this->Fair->set('created_by', $_POST['arranger']);	
@@ -685,6 +686,7 @@ class FairController extends Controller {
 			$this->set('event_start', 'Event opening date');
 			$this->set('event_stop', 'Event closing date');
 			$this->set('accepted_cloned_reservations', 'Date for accepted cloned reservations');
+			$this->set('default_reservation_date', 'Default date for new reservations');
 			$this->set('interval_reminders_label', 'Interval for reminders');
 			$this->set('reminder_1_label', '1st reminder');
 			//$this->set('reminder_2_label', '2nd reminder');
@@ -748,6 +750,7 @@ class FairController extends Controller {
 				$fair_clone->set('event_start', strtotime($_POST['event_start']));
 				$fair_clone->set('event_stop', strtotime($_POST['event_stop']));
 				$fair_clone->set('accepted_clone_date', strtotime($_POST['accepted_clone_date']));
+				$fair_clone->set('default_reservation_date', strtotime($_POST['default_reservation_date']));
 				$fair_clone->set('hidden', $this->Fair->get('hidden'));
 				$fair_clone->set('reminder_day1', $this->Fair->get('reminder_day1'));
 				$fair_clone->set('reminder_note1', $this->Fair->get('reminder_note1'));
@@ -970,6 +973,7 @@ class FairController extends Controller {
 			$this->set('event_start', 'Event opening date');
 			$this->set('event_stop', 'Event closing date');
 			$this->set('accepted_cloned_reservations', 'Date for accepted cloned reservations');
+			$this->set('default_reservation_date', 'Default date for new reservations');
 			$this->set('contact_label', 'Contact information');
 			$this->set('website_label', 'Website');
 			$this->set('contact_email_label', 'Contact Email');

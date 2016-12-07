@@ -178,6 +178,10 @@ span {
 		<input type="text" class="dialogueInput datetime datepicker" name="accepted_clone_date" id="accepted_clone_date" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('accepted_clone_date')); } ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date that cloned reservations are set to when accepted by the Exhibitor.'}); ?>" />
 
+		<label for="default_reservation_date"><?php echo $default_reservation_date; ?> <br>(DD-MM-YYYY HH:MM) *</label>
+		<input type="text" class="dialogueInput datetime datepicker" name="default_reservation_date" id="default_reservation_date" value="<?php if ($edit_id != 'new') { echo date('d-m-Y H:i', $fair->get('default_reservation_date')); } ?>"/>
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date that will be used when creating new reservations.'}); ?>" />
+
 		<label for="contact_email"><?php echo $contact_email_label; ?> *</label>
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $fair->get('contact_email'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter an email address that will be used for automatically generated email (through CFS).'}); ?>" />
