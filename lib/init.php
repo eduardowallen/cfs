@@ -117,9 +117,6 @@ function cb_autoload($className) {
 	
 	}
   
-  // This is the else without the else, but works exactly as else
-  error_log("Class not found: ".$className);
-  //throw new Exception("500");
   return false;
 }
 
