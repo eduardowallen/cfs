@@ -71,9 +71,11 @@
 }
 #right_sidebar #category_filter {
 	width:100%;
+	font-size: 1.2em;
 }
 #right_sidebar #map_select {
 	width:100%;
+	font-size: 1.2em;
 }
 #search_filter {
 	width:100%;
@@ -289,6 +291,7 @@ box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.26);
 	filter: alpha(opacity=95);
 	opacity: 0.95;
 	font-weight: 500;
+	border-radius: 0.25em 0.25em 0 0;
 	background-color: #47832F;
 	padding: 0.833em 1.66em;
 	margin: -0.416em -0.416em 0.833em -1.34em;

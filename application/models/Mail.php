@@ -45,13 +45,16 @@ class Mail {
 		// Replace in-text variables with values
 		$subject = $this->subject;
 		$body = $this->content;
+		$plainbody = $this->plaincontent;
 		foreach($this->variables as $key => $value){
 			$subject = str_replace('$'.$key, $value, $subject);
 			$body = str_replace('$'.$key, $value, $body);
+			$plainbody = str_replace('$'.$key, $value, $plainbody);
 		}
 
 		$this->mail->setSubject($subject);
 		$this->mail->setBody($body);
+		$this->mail->setPlainBody($plainbody);
 
 		return $this->mail->send() > 0;
 	}
@@ -73,7 +76,22 @@ class Mail {
 		$this->subject = $mailContent['subject'];
 		$this->content = $mailContent['content'];
 	}
+	public function setPlainTemplate($mailtemplate) {
+		// Attempts to get template according to currently selected language.
+		// If no template exists for the selected language it gets one for the default language.
+		$stmt = $this->db->prepare("SELECT * FROM `plain_mail_content`
+			LEFT JOIN `language` ON `plain_mail_content`.`language` = `language`.`id`
+			WHERE `mail` = ?
+			AND (
+				`language` = ?
+				OR `default` = 1
+				)
+			ORDER BY `default` ASC");
 
+		$stmt->execute(array($mailtemplate, LANGUAGE));
+		$mailContent = $stmt->fetch(PDO::FETCH_ASSOC);
+		$this->plaincontent = $mailContent['content'];
+	}
 
 	/**
  	* Funktion för bakåtkompabilitet.

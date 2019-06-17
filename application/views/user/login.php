@@ -21,11 +21,11 @@ if (isset($loggedin)) {
 }
 
 ?>
-<img alt="Chartbooker International Fair System" src="images/logo_chartbooker_smaller.png" style="width:30em; margin-left:5em;">
-<div style="margin-top: 4em;">
-<?php if( isset($first_time_msg) && isset($first_time_email_msg) ) : ?>
+<img alt="Chartbooker International Fair System" src="images/logo/chartbooking_logo_large.png" style="width:30em; margin-left:5em;">
+<div style="margin-top: 1em;">
+<?php if( isset($first_time_msg) && isset($first_time_title) ) : ?>
 	<script>
-		showInfoDialog('<?php echo $first_time_email_msg; ?><br/><?php echo $first_time_msg; ?>', '<?php echo $first_time_title; ?>');
+		showInfoDialog('<?php echo $first_time_msg; ?>', '<?php echo $first_time_title; ?>');
 	</script>
 <?php endif; ?>
 <?php if( isset($confirmed_msg) ) : ?>
@@ -40,15 +40,18 @@ if (isset($loggedin)) {
 		<label for="user"><?php echo $user_name; ?></label>
 		<input type="text" name="user" id="user"/>
 	</p>
-	<p>
+	<p class="nomargin">
 		<label for="pass"><?php echo $password; ?></label>
 		<input type="password" name="pass" id="pass"/>
 	</p>
-	<p style="text-align:center; width:20.833em;">
+	<p style="text-align:center; width:20.833em;" class="nomargin">
 		<input type="submit" name="login" value="<?php echo uh($translator->{"Log in"}); ?>" class="greenbutton bigbutton" />
 	</p>
+	<p style="text-align:center; width:20.833em;">
+	<input type="button" name="register" class="registerlink bluebutton bigbutton" value="<?php echo uh($translator->{'Register'}); ?>" />
+	</p>
 
-	<p style="color:#116734; font-size:1.16em; font-weight:bold;">
+	<p style="color:#116734; font-size:1.16em; font-weight:bold; margin-left:1em;">
 		<a href="user/resetPassword"><?php echo $forgotlink; ?></a>
 	</p>
 </form>

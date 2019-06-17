@@ -82,68 +82,46 @@ class ExhibitorController extends Controller {
 		error_reporting( E_ALL );
 		ini_set('display_errors', 'on');
 		setAuthLevel(4);
-		
-		//$stmt = $this->Exhibitor->db->prepare("SELECT user.id, exhibitor.fair, COUNT(exhibitor.id) AS ex_count FROM user LEFT JOIN exhibitor ON user.id = exhibitor.user WHERE user.level = ? ORDER BY ?");
-		$stmt = $this->Exhibitor->db->prepare("SELECT user.id, exhibitor.fair FROM user LEFT JOIN exhibitor ON user.id = exhibitor.user WHERE user.level = ? ORDER BY ?");
-		$stmt->execute(array(1, 'exhibitor.fair'));
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$exhibitors = array();
-		$currentFair = 0;
-		$counter = array();
-		foreach ($result as $res) {
-			if (intval($res['id']) > 0) {
-				$ex = new User;
-				$ex->loadAllView($res['id'], 'id');
-				//$ex->set('ex_count', $res['ex_count']);
-				
-				$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
-				$stmt2->execute(array($res['id']));
-				$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-				$ex->set('fair_count', $result2['fair_count']);
-				
-				$exhibitors[] = $ex;
-				if ($res['fair'] != $currentFair) {
-					$currentFair = $res['fair'];
-				}
-				if (array_key_exists($res['id'], $counter))
-					$counter[$res['id']] += 1;
-				else
-					$counter[$res['id']] = 1;
-			}
-		}
-		
-		$unique = array();
-		for ($i=0; $i<count($exhibitors); $i++) {
-			$exhibitors[$i]->set('ex_count', $counter[$exhibitors[$i]->get('id')]);
-			if (!array_key_exists($exhibitors[$i]->get('id'), $unique))
-				$unique[$exhibitors[$i]->get('id')] = $exhibitors[$i];
-		}
-		
+
 		$this->set('headline', 'Exhibitors');
 		$this->set('create_link', 'New exhibitor');
 		$this->set('th_company', 'Company');
 		$this->set('th_orgnr', 'Organization number');
 		$this->set('th_name', 'Name');
+		$this->set('th_commodity', 'Commodity');
+		$this->set('th_city', 'City');
 		$this->set('th_email', 'E-mail');
 		$this->set('th_phone', 'Cellphone');
-		$this->set('th_fairs', 'Fairs');
-		$this->set('th_bookings', 'Bookings');
 		$this->set('th_last_login', 'Last login');
 		$this->set('th_created', 'Created');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
 		$this->set('send_sms_label', 'Send SMS to selected Exhibitors');
 		$this->set('th_resend', 'Reset');
-		$this->setNoTranslate('users', $unique);		
+
+		$stmt = $this->Exhibitor->db->prepare("SELECT id FROM user WHERE level = ? ORDER BY level, name");
+		$stmt->execute(array(1));
+		$res = $stmt->fetchAll();
+		$users = array();
+		if ($res > 0) {
+			foreach ($res as $result) {
+				$u = new User;
+				$u->loadAllView($result['id'], 'id');
+				$users[] = $u;
+			}
+			$this->setNoTranslate('users', $users);
+		}
 	}
 	
 	public function forFair($param='', $value='') {
 		
 		setAuthLevel(2);
-
+		$fair = new Fair;
+		$fair->load($_SESSION['user_fair'], 'id');
+		if ($fair->isLocked()) {
+			$this->setNoTranslate('event_locked', true);
+		}
 		if (userLevel() == 3) {
-			$fair = new Fair;
-			$fair->load($_SESSION['user_fair'], 'id');
 			if ($fair->wasLoaded() && $fair->get('created_by') != $_SESSION['user_id']) {
 				toLogin();
 			}
@@ -158,7 +136,7 @@ class ExhibitorController extends Controller {
 				return;
 			}
 		}
-    $this->setNoTranslate('hasRights', true);
+    	$this->setNoTranslate('hasRights', true);
 		
 		if ($param == 'copy') {
 
@@ -167,7 +145,25 @@ class ExhibitorController extends Controller {
 			exit;
 
 		}
-		
+
+		if (isset($_SESSION['mail_errors']) && !empty($_SESSION['mail_errors'])) {
+			$this->setNoTranslate('mail_errors', $_SESSION['mail_errors']);
+			$_SESSION['mail_errors'] = '';
+		} else {
+			$this->setNoTranslate('mail_errors', '');
+		}
+
+		if (isset($_SESSION['success']) && !empty($_SESSION['success'])) {
+			$this->setNoTranslate('success', 1);
+			$this->set('created_success', 'The user was created.');
+			$this->set('success_title', 'Success');
+			$_SESSION['success'] = '';
+		} else {
+			$this->setNoTranslate('mail_success', '');
+		}
+			$this->setNoTranslate('error_title', 'An error occured');		
+
+
 		$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id, COUNT(user.id) AS ex_count FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
 		$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -246,6 +242,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_company', 'Company');
 		$this->set('th_contactperson', 'Contact person');
 		$this->set('th_name', 'Name');
+		$this->set('th_commodity', 'Commodity');
 		$this->set('th_fairs', 'Fairs');
 		$this->set('th_last_login', 'Last login');
 		$this->set('th_connect_time', 'Connected to fair on');
@@ -381,7 +378,6 @@ class ExhibitorController extends Controller {
 				'country' => $this->translate->{'Country'},
 				'phone1' => $this->translate->{'Phone 1'},
 				'phone2' => $this->translate->{'Phone 2'},
-				'fax' => $this->translate->{'Fax number'},
 				'email' => $this->translate->{'E-mail'},
 				'website' => $this->translate->{'Website'},
 				'invoice_company' => $this->translate->{'Company'},
@@ -606,7 +602,7 @@ class ExhibitorController extends Controller {
 					WHERE exhibitor.fair = ?
 						AND exhibitor.position = pos.id
 						AND exhibitor.user = user.id
-						AND pos.id IN (".implode(',', $_POST['rows']).")
+						AND pos.id IN (".implode(',', $_POST['rows']).") ORDER BY CAST(pos.name AS UNSIGNED), pos.name
 			";
 
 			$stmt = $this->db->prepare($sql);
@@ -627,7 +623,6 @@ class ExhibitorController extends Controller {
 				'country' => $this->translate->{'Country'},
 				'phone1' => $this->translate->{'Phone 1'},
 				'phone2' => $this->translate->{'Phone 2'},
-				'fax' => $this->translate->{'Fax number'},
 				'email' => $this->translate->{'E-mail'},
 				'website' => $this->translate->{'Website'},
 				//'presentation' => $this->translate->{'Presentation'},
@@ -766,142 +761,6 @@ class ExhibitorController extends Controller {
 		$this->set('no', 'No');
 	}
 
-	function createFromMap($fairUrl) {
-
-		setAuthLevel(2);
-
-		$error = '';
-
-		$this->User = new User($this->Exhibitor->db);
-
-		if (isset($_POST['save'])) {
-
-			$this->User->set('company', $_POST['company']);
-			$this->User->set('name', $_POST['name']);
-			$this->User->set('orgnr', $_POST['orgnr']);
-			$this->User->set('address', $_POST['address']);
-			$this->User->set('zipcode', $_POST['zipcode']);
-			$this->User->set('city', $_POST['city']);
-			$this->User->set('invoice_company', $_POST['invoice_company']);
-			$this->User->set('invoice_address', $_POST['invoice_address']);
-			$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
-			$this->User->set('invoice_city', $_POST['invoice_city']);
-			$this->User->set('invoice_email', $_POST['invoice_email']);
-			$this->User->set('country', $_POST['country']);
-			$this->User->set('phone1', $_POST['phone1']);
-			$this->User->set('phone2', $_POST['phone2']);
-			$this->User->set('phone3', $_POST['phone3']);
-			$this->User->set('fax', $_POST['fax']);
-			$this->User->set('website', $_POST['website']);
-			$this->User->set('email', $_POST['email']);
-			$this->User->set('presentation', $_POST['presentation']);
-			$this->User->set('commodity', $_POST['commodity']);
-			$this->User->set('category', 0);
-			$this->User->set('level', 1);
-			$this->User->set('locked', 0);
-			$this->User->set('alias', $_POST['alias']);
-			
-			if (!preg_match('/\d{3}(\s|\-)?\d+/', $_POST['zipcode'])) {
-				$error.= 'The ZIP code should be in the format xxx-xx';
-			} else if ($this->User->aliasExists()) {
-				$error.= 'The username already exists in our system.';
-			} else if ($this->User->emailExists()) {
-				$error.= 'The email address already exists in our system.';
-			} else {
-
-				$pw_arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
-				shuffle($pw_arr);
-				$password = substr(implode('', $pw_arr), 0, 13);
-				
-				$this->User->setPassword($password);
-				$userId = $this->User->save();
-
-				$hash = md5($this->User->get('email').BASE_URL.$userId);
-				$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
-
-				if ($fairUrl != '') {
-					$fair = new Fair($this->Exhibitor->db);
-					$fair->load($fairUrl, 'url');
-
-					$me = new User;
-					$me->load($_SESSION['user_id'], 'id');
-
-					$mail = new Mail($_POST['email'], 'new_account');
-					$mail->setMailVar('alias', $_POST['alias']);
-					$mail->setMailVar('password', $password);
-					$mail->setMailVar('accesslevel', $this->translate->{'Exhibitor'});
-					$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-					$mail->setMailVar('creator_name', $me->get('name'));
-					$mail->send();
-
-					require_once ROOT.'application/models/Exhibitor.php';
-					require_once ROOT.'application/models/ExhibitorCategory.php';
-					require_once ROOT.'application/models/Fair.php';
-					require_once ROOT.'application/models/FairMap.php';
-					require_once ROOT.'application/models/FairMapPosition.php';
-					require_once ROOT.'application/models/PreliminaryBooking.php';
-					require_once ROOT.'application/models/FairUserRelation.php';
-					if ($fair->wasLoaded()) {
-						$ful = new FairUserRelation;
-						$ful->set('user', $userId);
-						$ful->set('fair', $fair->get('id'));
-						$ful->set('connected_time', time());
-						$ful->save();
-					}
-				} else {
-					$mail = new Mail($_POST['email'], 'welcome');
-					$mail->setMailVar('alias', $_POST['alias']);
-					$mail->setMailVar('password', $password);
-					$mail->setMailVar('accesslevel', $this->translate->{'Exhibitor'});
-					$mail->send();
-				}
-				$this->set('js_confirm_text', 'The user was created successfully.');
-
-			}
-
-		}
-
-		$this->set('error', $error);
-		$this->setNoTranslate('fair_url', $fairUrl);
-		$this->setNoTranslate('user', $this->User);
-		$fair = new Fair($this->User->db);
-		$fair->load($_SESSION['outside_fair_url'], 'url');
-		$this->setNoTranslate('fair', $fair);
-		
-		$this->set('alias_label', 'Username');
-		$this->set('company_section', 'Company');
-		$this->set('invoice_section', 'Billing address');
-		$this->set('contact_section', 'Contact');
-		$this->set('presentation_section', 'Presentation');
-
-		$this->set('headline', 'Register');
-		$this->set('company_label', 'Company');
-		$this->set('commodity_label', 'Commodity');
-		$this->set('presentation_label', 'Presentation');
-		$this->set('customer_nr_label', 'Customer number');
-		$this->set('contact_label', 'Contact person');
-		$this->set('orgnr_label', 'Organization number');
-		$this->set('address_label', 'Address');
-		$this->set('zipcode_label', 'Zip code');
-		$this->set('city_label', 'City');
-		$this->set('invoice_company_label', 'Company');
-		$this->set('invoice_address_label', 'Address');
-		$this->set('invoice_zipcode_label', 'Zip code');
-		$this->set('invoice_city_label', 'City');
-		$this->set('invoice_email_label', 'E-mail');
-		$this->set('country_label', 'Country');
-		$this->set('phone1_label', 'Phone 1');
-		$this->set('phone2_label', 'Phone 2');
-		$this->set('phone3_label', 'Phone 3');
-		$this->set('fax_label', 'Fax number');
-		$this->set('website_label', 'Website');
-		$this->set('email_label', 'E-mail');
-		$this->set('save_label', 'Save');
-		$this->set('copy_label', 'Copy from company details');
-
-	}
-
-
 	function printProfile($id) {
 
 		setAuthLevel(2);
@@ -961,7 +820,6 @@ class ExhibitorController extends Controller {
 		$this->set('country_label', 'Country');
 		$this->set('phone1_label', 'Phone 1');
 		$this->set('phone2_label', 'Phone 2');
-		$this->set('fax_label', 'Fax number');
 		$this->set('email_label', 'E-mail');
 		$this->set('website_label', 'Website');
 
@@ -1234,7 +1092,6 @@ class ExhibitorController extends Controller {
 		$this->set('country_label', 'Country');
 		$this->set('phone1_label', 'Phone 1');
 		$this->set('phone2_label', 'Phone 2');
-		$this->set('fax_label', 'Fax number');
 		$this->set('email_label', 'E-mail');
 		$this->set('website_label', 'Website');
 
@@ -1844,7 +1701,7 @@ class ExhibitorController extends Controller {
 			$pos['articleamount'] = implode('|', $article_amount);
 			$pos['vat'] = $fairInvoice->get('pos_vat');
 
-			$del_positions[$pos['position']] = $pos;
+			$del_positions[] = $pos;
 		}
 
 
@@ -1946,7 +1803,7 @@ class ExhibitorController extends Controller {
 		$pos['articleamount'] = implode('|', $article_amount);
 		$pos['vat'] = $fairInvoice->get('pos_vat');
 		$pos['categories'] = implode('|', $categories);
-		$del_prelpos[$pos['position']] = $pos;
+		$del_prelpos[] = $pos;
 	}
 
 		// Active Preliminary bookings
@@ -2372,6 +2229,7 @@ class ExhibitorController extends Controller {
 		$this->set('tr_booker', 'Booked by');
 		$this->set('tr_field', 'Trade');
 		$this->set('tr_time', 'Time of booking');
+		$this->set('tr_deletiontime', 'Time of deletion');
 		$this->set('tr_last_edited', 'Last edited');
 		$this->set('tr_reserved_until', 'Reserved until');
 		$this->set('tr_message', 'Message to organizer in list');
@@ -2406,27 +2264,34 @@ class ExhibitorController extends Controller {
 	}
 
 
-	public function exportBookingPDF($id, $dt) {
+	public function createInvoice($id, $dt) {
+		setAuthLevel(2);
+
 		require_once ROOT.'lib/tcpdf/tcpdf.php';
 
 		$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-				$exhibitor = new Exhibitor();
-				$exhibitor->load($id, 'id');
-				$exId = $exhibitor->get('id');
+		$exhibitor = new Exhibitor();
+		$exhibitor->load($id, 'id');
+		$exId = $exhibitor->get('exhibitor_id');
 
-				$pos = new FairMapPosition();
-				$pos->load($exhibitor->get('position'), 'id');
+		$user = new User();
+		$user->load($exhibitor->get('user'), 'id');
+		$userId = $user->get('id');
 
-				$fair = new Fair();
-				$fair->load($exhibitor->get('fair'), 'id');
+		$pos = new FairMapPosition();
+		$pos->load($exhibitor->get('position'), 'id');
+		$exStatus = $pos->get('status');
+		if ($exStatus == 0) {
+			$exStatus = 1;
+		}
 
-				$fairInvoice = new FairInvoice();
-				$fairInvoice->load($exhibitor->get('fair'), 'fair');
+		$fair = new Fair();
+		$fair->load($exhibitor->get('fair'), 'id');
 
-				$user = new User();
-				$user->load($exhibitor->get('user'), 'id');
-				$userId = $user->get('id');
+		$fairInvoice = new FairInvoice();
+		$fairInvoice->load($exhibitor->get('fair'), 'fair');
+
 
 
 /*********************************************************************************/
@@ -2436,175 +2301,194 @@ class ExhibitorController extends Controller {
 /*********************************************************************************/
 
 
-				$sender_billing_reference = $fairInvoice->get('reference');
-				$sender_billing_company_name = $fairInvoice->get('company_name');
-				$sender_billing_address = $fairInvoice->get('address');
-				$sender_billing_zipcode = $fairInvoice->get('zipcode');
-				$sender_billing_city = $fairInvoice->get('city');
-				$sender_billing_country = $fairInvoice->get('country');
-				$sender_billing_orgnr = $fairInvoice->get('orgnr');
-				$sender_billing_bank_no = $fairInvoice->get('bank_no');
-				$sender_billing_postgiro = $fairInvoice->get('postgiro');
-				$sender_billing_vat_no = $fairInvoice->get('vat_no');
-				$sender_billing_iban_no = $fairInvoice->get('iban_no');
-				$sender_billing_swift_no = $fairInvoice->get('swift_no');
-				$sender_billing_swish_no = $fairInvoice->get('swish_no');
-				$sender_billing_phone = $fairInvoice->get('phone');
-				$sender_billing_email = $fairInvoice->get('email');
-				$sender_billing_website = $fairInvoice->get('website');
+		$sender_billing_reference = $fairInvoice->get('reference');
+		$sender_billing_company_name = $fairInvoice->get('company_name');
+		$sender_billing_address = $fairInvoice->get('address');
+		$sender_billing_zipcode = $fairInvoice->get('zipcode');
+		$sender_billing_city = $fairInvoice->get('city');
+		$sender_billing_country = $fairInvoice->get('country');
+		$sender_billing_orgnr = $fairInvoice->get('orgnr');
+		$sender_billing_bank_no = $fairInvoice->get('bank_no');
+		$sender_billing_postgiro = $fairInvoice->get('postgiro');
+		$sender_billing_vat_no = $fairInvoice->get('vat_no');
+		$sender_billing_iban_no = $fairInvoice->get('iban_no');
+		$sender_billing_swift_no = $fairInvoice->get('swift_no');
+		$sender_billing_swish_no = $fairInvoice->get('swish_no');
+		$sender_billing_phone = $fairInvoice->get('phone');
+		$sender_billing_email = $fairInvoice->get('email');
+		$sender_billing_website = $fairInvoice->get('website');
 
 
-				$rec_billing_company_name = $user->get('invoice_company');
-				$rec_billing_address = $user->get('invoice_address');
-				$rec_billing_zipcode = $user->get('invoice_zipcode');
-				$rec_billing_city = $user->get('invoice_city');
-				$rec_billing_country = $user->get('invoice_country');
+		$rec_billing_company_name = $user->get('invoice_company');
+		$rec_billing_address = $user->get('invoice_address');
+		$rec_billing_zipcode = $user->get('invoice_zipcode');
+		$rec_billing_city = $user->get('invoice_city');
+		$rec_billing_country = $user->get('invoice_country');
 
-				if ($rec_billing_country == 'Sweden')
-					$rec_billing_country = 'Sverige';
+		if ($rec_billing_country == 'Sweden')
+			$rec_billing_country = 'Sverige';
 
-				if ($rec_billing_country == 'Norway')
-					$rec_billing_country = 'Norge';
-
-
-				$invoice_for_label = $this->translate->{'Invoice for'};
-				$printdate_label = $this->translate->{'Print date'};
-				$required_at_payment_label = $this->translate->{'must be stated at payment'};
-				$postgiro_label = $this->translate->{'Postgiro'};
-				$iban_label = $this->translate->{'IBAN'};
-				$swift_label = $this->translate->{'SWIFT'};
-				$swish_label = $this->translate->{'Swish'};
-				$orgnr_label = $this->translate->{'Org.no'};
-				$vat_label = $this->translate->{'TAX.no'};
-				$bankgiro_label = $this->translate->{'Bank number'};
-				$description_label = $this->translate->{'Description'};
-				$price_label = $this->translate->{'Price'};
-				$phone_label = $this->translate->{'phone'};
-				$email_label = $this->translate->{'Email'};
-				$amount_label = $this->translate->{'Quantity'};
-				$booked_space_label = $this->translate->{'Booked stand'};
-				$options_label = $this->translate->{'Options'};
-				$articles_label = $this->translate->{'Articles'};
-				$tax_label = $this->translate->{'Tax'};
-				$parttotal_label = $this->translate->{'Subtotal'};
-				$net_label = $this->translate->{'Net'};
-				$rounding_label = $this->translate->{'Rounding'};
-				$invoice_label = $this->translate->{'Invoice'};
-				$to_pay_label = $this->translate->{'to pay:'};
-				$address_label = $this->translate->{'Address'};
-				$organization_label = $this->translate->{'Organization'};
-				$payment_info_label = $this->translate->{'Payment information'};
-				$s_reference_label = $this->translate->{'Our reference'};
-				$r_reference_label = $this->translate->{'Your reference'};
-				$invoice_no_label = $this->translate->{'Invoice number'};
-				$invoice_date_label = $this->translate->{'Invoice date'};
-				$invoice_expirationdate_label = $this->translate->{'Expiration date'};
-				$st_label = $this->translate->{'st'};
+		if ($rec_billing_country == 'Norway')
+			$rec_billing_country = 'Norge';
 
 
-				if ($sender_billing_postgiro == '')
-					$postgiro_label = '';
+		$invoice_for_label = $this->translate->{'Invoice for'};
+		$printdate_label = $this->translate->{'Print date'};
+		$required_at_payment_label = $this->translate->{'must be stated at payment'};
+		$please_note_label = $this->translate->{'Attention!'};
+		$enter_at_payment_label = $this->translate->{'Enter this invoice ID when paying'};
+		$payment_instructions = $this->translate->{'Send your payment to:'};
+		$rules_and_information_label = $this->translate->{'Rules and information on next page'};
+		$postgiro_label = $this->translate->{'Postgiro'};
+		$iban_label = $this->translate->{'IBAN'};
+		$swift_label = $this->translate->{'SWIFT'};
+		$swish_label = $this->translate->{'Swish'};
+		$orgnr_label = $this->translate->{'Org.no'};
+		$vat_label = $this->translate->{'TAX.no'};
+		$bankgiro_label = $this->translate->{'Bankgiro'};
+		$description_label = $this->translate->{'Description'};
+		$price_label = $this->translate->{'Price'};
+		$phone_label = $this->translate->{'phone'};
+		if ($sender_billing_email != '') {
+			$email_label = $this->translate->{'Email'};
+		} else {
+			$email_label = '';
+		}
+		$amount_label = $this->translate->{'Quantity'};
+		$booked_space_label = $this->translate->{'Booked stand'};
+		$options_label = $this->translate->{'Options'};
+		$articles_label = $this->translate->{'Articles'};
+		$tax_label = $this->translate->{'Tax'};
+		$parttotal_label = $this->translate->{'Subtotal'};
+		$net_label = $this->translate->{'Net'};
+		$rounding_label = $this->translate->{'Rounding'};
+		$invoice_label = $this->translate->{'Invoice'};
+		$to_pay_label = $this->translate->{'to pay:'};
+		$address_label = $this->translate->{'Address'};
+		$organization_label = $this->translate->{'Organization'};
+		$payment_info_label = $this->translate->{'Payment information'};
+		$s_reference_label = $this->translate->{'Our reference'};
+		$r_reference_label = $this->translate->{'Your reference'};
+		$invoice_no_label = $this->translate->{'Invoice number'};
+		$invoice_date_label = $this->translate->{'Invoice date'};
+		$invoice_expirationdate_label = $this->translate->{'Expiration date'};
+		$st_label = $this->translate->{'st'};
 
-				if ($sender_billing_iban_no == '')
-					$iban_label = '';
 
-				if ($sender_billing_swift_no == '')
-					$swift_label = '';
+		if ($sender_billing_postgiro == '')
+			$postgiro_label = '';
 
-				if ($sender_billing_swish_no == '')
-					$swish_label = '';
-				$current_user = new User();
-				$current_user->load($_SESSION['user_id'], 'id');
-		//		$fairInvoiceExpDate = date('Y-m-d');
+		if ($sender_billing_iban_no == '')
+			$iban_label = '';
+
+		if ($sender_billing_swift_no == '')
+			$swift_label = '';
+
+		if ($sender_billing_swish_no == '')
+			$swish_label = '';
+
+		$current_user = new User();
+		$current_user->load($_SESSION['user_id'], 'id');
 
 
 /*************************************************************/
 /*************************************************************/
-/*****************     PRICES AND AMOUNTS        *****************
+/*****************     PRICES AND AMOUNTS        *************/
 /*************************************************************/
 /*************************************************************/
 
-				$fairId = $fair->get('id');
-				$fairname = $fair->get('name');
-				$fairurl = $fair->get('url');
-				$totalPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$position_vat = 0;
-				$currency = $fair->get('currency');
-				$author = $current_user->get('name');
-				$position_name = $pos->get('name');
-				$position_information = $pos->get('information');
-				$position_price = $pos->get('price');
-				$position_vat = $fairInvoice->get('pos_vat');
-				$exhibitor_options = $exhibitor->get('exhibitor_options');
-				$exhibitor_categories = $exhibitor->get('exhibitor_categories');
-				$exhibitor_articles = $exhibitor->get('exhibitor_articles');
-				$exhibitor_articles_amount = $exhibitor->get('exhibitor_articles_amount');
-				$exhibitor_company_name = $user->get('company');
-				$exhibitor_name = $user->get('name');
-				$date = date('Y-m-d');
-				$now = time();
-				$expirationdate = date('Y-m-d', $dt);
-
-
-
-				$stmt_invoiceid1 = $this->db->prepare("SELECT id FROM exhibitor_invoice as id WHERE fair = ? order by id desc limit 1");
-				$stmt_invoiceid1->execute(array($fairId));
-				$res = $stmt_invoiceid1->fetch(PDO::FETCH_ASSOC);
-				$invoice_id1 = $res['id'];
-				$stmt_invoiceid2 = $this->db->prepare("SELECT id FROM exhibitor_invoice_history as id WHERE fair = ? order by id desc limit 1");
-				$stmt_invoiceid2->execute(array($fairId));
-				$res2 = $stmt_invoiceid2->fetch(PDO::FETCH_ASSOC);
-				$invoice_id_history = $res2['id'];
-
-				if ($invoice_id1 > $invoice_id_history) {
-					$invoice_id = $invoice_id1;
-				} else if ($invoice_id1 < $invoice_id_history) {
-					$invoice_id = $invoice_id_history;
-				} else {
-					$invoice_id = null;
-				}
+		$fairId = $fair->get('id');
+		$fairname = $fair->get('name');
+		$fairurl = $fair->get('url');
+		$html_rules = '';
+		if ($fair->get('rules') != '') {
+			$html_rules = $fair->get('rules');
+		}
+		$totalPrice = 0;
+		$VatPrice0 = 0;
+		$VatPrice12 = 0;
+		$VatPrice18 = 0;
+		$VatPrice25 = 0;
+		$excludeVatPrice0 = 0;
+		$excludeVatPrice12 = 0;
+		$excludeVatPrice18 = 0;
+		$excludeVatPrice25 = 0;
+		$currency = $fair->get('currency');
+		$author = $current_user->get('name');
+		$position_name = $pos->get('name');
+		$position_information = $pos->get('information');
+		$position_price = $pos->get('price');
+		$position_vat = $fairInvoice->get('pos_vat');
+		$exhibitor_options = $exhibitor->get('exhibitor_options');
+		$exhibitor_categories = $exhibitor->get('exhibitor_categories');
+		$exhibitor_articles = $exhibitor->get('exhibitor_articles');
+		$exhibitor_articles_amount = $exhibitor->get('exhibitor_articles_amount');
+		$exhibitor_company_name = $user->get('company');
+		$exhibitor_name = $user->get('name');
+		$date = date('Y-m-d');
+		$now = time();
+		$expirationdate = date('Y-m-d', $dt);
 
 /******************************************************************************/
 /******************************************************************************/
 /*****************     FIND OUT WHAT INVOICE ID TO USE        *****************/
 /******************************************************************************/
 /******************************************************************************/
-				if (is_null($invoice_id)) {
-					$stmt_invoiceid2 = $this->db->prepare("SELECT invoice_id_start as id FROM fair_invoice WHERE fair = ?");
-					$stmt_invoiceid2->execute(array($fairId));
-					$res = $stmt_invoiceid2->fetch();
-					$invoice_id = $res['id'];
 
-					// uppdatera exhibitor tabellen
-/*
-					$sql = "INSERT INTO exhibitor_invoice (id, ex_user, fair, created, author, exhibitor, expires, r_name, r_address, r_zipcode, r_city, r_country, s_name, s_address, s_zipcode, s_city, s_country, s_website, s_phone, orgnr, bank_no, postgiro, vat_no, iban_no, swift_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-					$params = array();
-					
-					$stmt_invoice = $this->db->prepare("INSERT INTO exhibitor_invoice as id WHERE fair = ? order by id desc limit 1");
-					$stmt_invoice->execute(array($fairId));
-					$res = $stmt_invoice->fetch(PDO::FETCH_ASSOC);
-					$invoice_id = $res['id'];
-					*/
-					if (is_null($invoice_id)){
-						$invoice_id += 1;
-					}
-				} else {
+		// Check for the newest invoice id for this fair
+		$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice as id WHERE fair = ? order by id desc limit 1");
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$current_invoices_id = $result['id'];
+		// Check for the newest invoice id for this fair in deleted invoices as well
+		$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice_history as id WHERE fair = ? order by id desc limit 1");
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$deleted_invoices_id = $result['id'];
+		// Now that we know the invoice IDs, check which one is highest and save it to a new variable ($invoice_id), or if none was found, set the new variable to null
+		if ($current_invoices_id > $deleted_invoices_id) {
+			$invoice_id = $current_invoices_id;
+		} else if ($current_invoices_id < $deleted_invoices_id) {
+			$invoice_id = $deleted_invoices_id;
+		} else {
+			$invoice_id = null;
+		}
+		// Check if the arranger set a new invoice number in the invoice settings
+		$stmt = $this->db->prepare("SELECT invoice_id_start as id FROM fair_invoice WHERE fair = ?");
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$invoice_settings_id = $result['id'];
+		$use_invoice_settings = false;
 
-					$invoice_id += 1;
+		// Compare the invoice ids and use the highest one.
+		if ($invoice_id < $invoice_settings_id) {
+			$invoice_id = $invoice_settings_id;
+			$use_invoice_settings = true;
+		}
 
+		// Check if fair is part of any fairgroup and if it also shares invoice id with that group.
+		$isGrouped = new FairGroupRel();
+		$isGrouped->load($fairId, 'fair');
+		if ($isGrouped->wasLoaded() && ($isGrouped->get('share_invoice') == 1)) {
+			$fairGroup = new FairGroup();
+			$fairGroup->loadself($isGrouped->get('group'), 'id');
+			if ($fairGroup->wasLoaded()) {
+				if ($invoice_id <= $fairGroup->get('invoice_no')) {
+					$invoice_id = $fairGroup->get('invoice_no');
+					$fairGroupInvoiceId = $fairGroup->get('invoice_no');
+					$fairGroupInvoiceId++;
+					$fairGroup->set('invoice_no', $fairGroupInvoiceId);
+					$fairGroup->save();
 				}
-			
-				// Insert the invoice data to database
-				$stmt_invoice = $this->db->prepare("INSERT INTO exhibitor_invoice (id, ex_user, fair, created, author, exhibitor, expires, r_reference, r_name, r_address, r_zipcode, r_city, r_country, s_reference, s_name, s_address, s_zipcode, s_city, s_country, s_website, s_phone, s_email, orgnr, bank_no, postgiro, vat_no, iban_no, swift_no, swish_no, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)");
-				$stmt_invoice->execute(array($invoice_id, $userId, $fairId, $now, $author, $id, $expirationdate, $exhibitor_name, $rec_billing_company_name, $rec_billing_address, $rec_billing_zipcode, $rec_billing_city, $rec_billing_country, $sender_billing_reference, $sender_billing_company_name, $sender_billing_address, $sender_billing_zipcode, $sender_billing_city, $sender_billing_country, $sender_billing_website, $sender_billing_phone, $sender_billing_email, $sender_billing_orgnr, $sender_billing_bank_no, $sender_billing_postgiro, $sender_billing_vat_no, $sender_billing_iban_no, $sender_billing_swift_no, $sender_billing_swish_no));
+			}
+		}
+		if (!$use_invoice_settings) {
+			$invoice_id++;
+		}
+
+		// Insert the invoice data to database
+		$stmt = $this->db->prepare("INSERT INTO exhibitor_invoice (id, ex_user, fair, created, author, exhibitor, expires, r_reference, r_name, r_address, r_zipcode, r_city, r_country, s_reference, s_name, s_address, s_zipcode, s_city, s_country, s_website, s_phone, s_email, orgnr, bank_no, postgiro, vat_no, iban_no, swift_no, swish_no, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt->execute(array($invoice_id, $userId, $fairId, $now, $author, $exId, $expirationdate, $exhibitor_name, $rec_billing_company_name, $rec_billing_address, $rec_billing_zipcode, $rec_billing_city, $rec_billing_country, $sender_billing_reference, $sender_billing_company_name, $sender_billing_address, $sender_billing_zipcode, $sender_billing_city, $sender_billing_country, $sender_billing_website, $sender_billing_phone, $sender_billing_email, $sender_billing_orgnr, $sender_billing_bank_no, $sender_billing_postgiro, $sender_billing_vat_no, $sender_billing_iban_no, $sender_billing_swift_no, $sender_billing_swish_no, $exStatus));
 
 
 /*********************************************************************************************/
@@ -2614,65 +2498,67 @@ class ExhibitorController extends Controller {
 /*********************************************************************************************/
 
 
-				$categoryNames = array();
+		$categoryNames = array();
 
-				if (isset($exhibitor_category) && is_array($exhibitor_category)) {
-					foreach ($exhibitor_category as $cat) {
-						$category = new ExhibitorCategory();
-						$category->load($cat, "id");
-						if ($category->wasLoaded()) {
-							$categoryNames[] = $category->get("name");
-						}
-					}
+		if (isset($exhibitor_category) && is_array($exhibitor_category)) {
+			foreach ($exhibitor_category as $cat) {
+				$category = new ExhibitorCategory();
+				$category->load($cat, "id");
+				if ($category->wasLoaded()) {
+					$categoryNames[] = $category->get("name");
 				}
-				
-	
-				$options = array();
+			}
+		}
+		
 
-				if (!empty($exhibitor_options) && is_array($exhibitor_options)) {
-					foreach ($exhibitor_options as $opt) {								
-						$ex_option = new FairExtraOption();
-						$ex_option->load($opt, 'id');
-						if ($ex_option->wasLoaded()) {
-							$option_id[] = $ex_option->get('custom_id');
-							$option_text[] = $ex_option->get('text');
-							$option_price[] = $ex_option->get('price');
-							$option_vat[] = $ex_option->get('vat');
-						}								
-					}
-					$options = array($option_id, $option_text, $option_price, $option_vat);
-				}
+		$options = array();
+
+		if (!empty($exhibitor_options) && is_array($exhibitor_options)) {
+			foreach ($exhibitor_options as $opt) {								
+				$ex_option = new FairExtraOption();
+				$ex_option->load($opt, 'id');
+				if ($ex_option->wasLoaded()) {
+					$option_id[] = $ex_option->get('custom_id');
+					$option_text[] = $ex_option->get('text');
+					$option_price[] = $ex_option->get('price');
+					$option_vat[] = $ex_option->get('vat');
+				}								
+			}
+			$options = array($option_id, $option_text, $option_price, $option_vat);
+		}
 
 
-				$articles = array();
+		$articles = array();
 
-				if (!empty($exhibitor_articles) && is_array($exhibitor_articles)) {
-					foreach ($exhibitor_articles as $art) {								
-						$arts = new FairArticle();
-						$arts->load($art, 'id');
-						if ($arts->wasLoaded()) {
-							$art_id[] = $arts->get('custom_id');
-							$art_text[] = $arts->get('text');
-							$art_price[] = $arts->get('price');
-							$art_vat[] = $arts->get('vat');
-						}								
-					}
-					$articles = array($art_id, $art_text, $art_price, $exhibitor_articles_amount, $art_vat);
-				}
+		if (!empty($exhibitor_articles) && is_array($exhibitor_articles)) {
+			foreach ($exhibitor_articles as $art) {								
+				$arts = new FairArticle();
+				$arts->load($art, 'id');
+				if ($arts->wasLoaded()) {
+					$art_id[] = $arts->get('custom_id');
+					$art_text[] = $arts->get('text');
+					$art_price[] = $arts->get('price');
+					$art_vat[] = $arts->get('vat');
+				}								
+			}
+			$articles = array($art_id, $art_text, $art_price, $exhibitor_articles_amount, $art_vat);
+		}
 
-				$logo_name = array();
-				foreach(glob(ROOT.'public/images/fairs/'.$fairId.'/logotype/*') as $filename) {
-					$logo_name[] = (basename($filename) . "\n");
-				}
+		$logo_name = 'file://' . ROOT . 'public/images/fairs/cfslogo.png';
 
-				if (!$logo_name) {
-					$logo_name = BASE_URL.'/images/fairs/cfslogo.png';
-				} else {
-					$logo_name = BASE_URL.'/images/fairs/'. $fairId . '/logotype/' . $logo_name[0];
-				}
+		foreach (new DirectoryIterator(ROOT . 'public/images/fairs/' . $fairId . '/logotype/') as $file) {
+		 if ($file->isDot()) {
+		  continue;
+		 }
+		 
+		 if (!$file->isFile()) {
+		  continue;
+		 }
+		 
+		 $logo_name = $file->getPathname();
+		 break;
+		}
 
-//die(var_dump($options));
-//die(implode($exhibitor_articles, ', '));
 		// set document information
 
 /*********************************************************************************************/
@@ -2704,34 +2590,34 @@ class ExhibitorController extends Controller {
 			<br/>
 			<table>
 				<tr>
-					<td style="width:200px;"><b>'. $address_label .'</b></td>
-					<td style="width:200px;"><b>'. $organization_label .'</b></td>
-					<td style="width:200px;"><b>'. $payment_info_label .'</b></td>
+					<td colspan="1"><b>'. $address_label .'</b></td>
+					<td colspan="1"><b>'. $organization_label .'</b></td>
+					<td colspan="1"><b>'. $payment_info_label .'</b></td>
 				</tr>
 				<tr>
-					<td style="width:200px;">' . $sender_billing_company_name . '</td>
-					<td style="width:200px;">' . $orgnr_label . ' &nbsp; ' . $sender_billing_orgnr . '</td>
-					<td style="width:200px;">' . $bankgiro_label . ' &nbsp;' . $sender_billing_bank_no . '</td>
+					<td colspan="1">' . $sender_billing_company_name . '</td>
+					<td colspan="1">' . $orgnr_label . ' &nbsp; ' . $sender_billing_orgnr . '</td>
+					<td colspan="1">' . $bankgiro_label . ' &nbsp;' . $sender_billing_bank_no . '</td>
 				</tr>
 				<tr>
-					<td style="width:200px;"><br>' . $sender_billing_address . '</td>
-					<td style="width:200px;">' . $vat_label . ' &nbsp;' . $sender_billing_vat_no . '</td>
-					<td style="width:200px;">' . $postgiro_label . ' &nbsp;' . $sender_billing_postgiro . '</td>
+					<td colspan="1"><br>' . $sender_billing_address . '</td>
+					<td colspan="1">' . $vat_label . ' &nbsp;' . $sender_billing_vat_no . '</td>
+					<td colspan="1">' . $swish_label . ' &nbsp;' . $sender_billing_swish_no . '</td>
 				</tr>
 				<tr>
-					<td style="width:200px;">' . $sender_billing_zipcode . ' ' . $sender_billing_city . '</td>
-					<td style="width:200px;">' . $phone_label . ': ' . $sender_billing_phone . '</td>
-					<td style="width:200px;">' . $iban_label . ' &nbsp;' . $sender_billing_iban_no . '</td>
+					<td colspan="1">' . $sender_billing_zipcode . ' ' . $sender_billing_city . '</td>
+					<td colspan="1">' . $phone_label . ' &nbsp;' . $sender_billing_phone . '</td>
+					<td colspan="1">' . $postgiro_label . ' &nbsp;' . $sender_billing_postgiro . '</td>
 				</tr>
 				<tr>
-					<td style="width:200px;">' . $sender_billing_website . '</td>
-					<td style="width:200px;">' . $email_label . ': ' . $sender_billing_email . '</td>
-					<td style="width:200px;">' . $swift_label . ' &nbsp;' . $sender_billing_swift_no . '</td>
+					<td colspan="1">' . $sender_billing_website . '</td>
+					<td colspan="1">' . $email_label . ' &nbsp;' . $sender_billing_email . '</td>
+					<td colspan="1">' . $iban_label . ' &nbsp;' . $sender_billing_iban_no . '</td>
 				</tr>
 				<tr>
-					<td style="width:200px;"></td>
-					<td style="width:200px;"></td>
-					<td style="width:200px;">' . $swish_label . ' &nbsp;' . $sender_billing_swish_no . '</td>
+					<td colspan="1"></td>
+					<td colspan="1"></td>
+					<td colspan="1">' . $swift_label . ' &nbsp;' . $sender_billing_swift_no . '</td>
 				</tr>
 			<br>
 			</table>');
@@ -2746,12 +2632,12 @@ class ExhibitorController extends Controller {
 		$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
 
 		//set margins
-		$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+		$pdf->SetMargins(PDF_MARGIN_LEFT, 30, PDF_MARGIN_RIGHT);
 		$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
 		$pdf->SetFooterMargin(30);
 
 		//set auto page breaks
-		$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+		$pdf->SetAutoPageBreak(TRUE, 30);
 
 		//set image scale factor
 		$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
@@ -2878,9 +2764,7 @@ $html .= '<style>
 	text-align: right;
 	font-size: 20px;
 }
-.totalprice2 {
-	width: 400;
-	text-align: right;
+.payment_instructions {
 	font-size: 20px;
 }
 .pennys {
@@ -3085,22 +2969,70 @@ $html .= '
 		'</td>
 	</tr>
 	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice2">'.$currency.' '.$to_pay_label.'&nbsp;&nbsp;'
+		<td colspan="4" class="payment_instructions" nobr="true" align="right">'.$currency.' '.$to_pay_label.'&nbsp;&nbsp;'
 		. str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')) . 
 		'</td>
+	</tr>
+	<tr>
+		<td colspan="4"></td>
+	</tr>	
+	<tr>
+		<td colspan="4" class="payment_instructions" nobr="true" align="right">'.$payment_instructions.'</td>
+	</tr>';
+if ($sender_billing_bank_no != '') {
+$html .=	'
+	<tr>
+		<td colspan="4" nobr="true" align="right">' . $bankgiro_label . ': &nbsp;' . $sender_billing_bank_no . '</td>
+	</tr>';
+}
+if ($sender_billing_swish_no != '') {
+$html .=	'
+	<tr>
+		<td colspan="4" nobr="true" align="right">' . $swish_label . ': &nbsp;' . $sender_billing_swish_no . '</td>
+	</tr>';
+}
+if ($sender_billing_postgiro != '') {
+$html .=	'
+	<tr>
+		<td colspan="4" nobr="true" align="right">' . $postgiro_label . ': &nbsp;' . $sender_billing_postgiro . '</td>
+	</tr>';
+}
+if ($sender_billing_iban_no != '') {
+$html .=	'
+	<tr>
+		<td colspan="4" nobr="true" align="right">' . $iban_label . ': &nbsp;' . $sender_billing_iban_no . '</td>
+	</tr>';
+}
+if ($sender_billing_swift_no != '') {
+$html .=	'
+	<tr>
+		<td colspan="4" nobr="true" align="right">' . $swift_label . ': &nbsp;' . $sender_billing_swift_no . '</td>
+	</tr>';
+}
+$html .= '
+	<tr>
+		<td colspan="4" nobr="true" align="right"><b style="font-size:20px;">' . $please_note_label . '</b>&nbsp;' . $enter_at_payment_label . ': &nbsp;<b style="font-size:16px;">' . $invoice_id . '</b></td>
 	</tr>';
 
-
-
+if ($html_rules != '') {
+	$html .= '
+	<tr>
+		<td colspan="4"></td>
+	</tr>
+	<tr>
+		<td colspan="4" nobr="true" align="right">
+			<b style="font-size:28px;">' . $rules_and_information_label . '</b>
+		</td>
+	</tr>';
+}
 $html .= '</tbody></table>';
-
-
 
 // Print text using writeHTMLCell()
 $pdf->writeHTML($html, true, false, true, false, '');
+if ($html_rules != '') {
+	$pdf->AddPage();
+	$pdf->writeHTML($html_rules, true, false, true, false, '');
+}
 $pdf->lastPage();
 
 // ---------------------------------------------------------
@@ -3116,7 +3048,13 @@ if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$id)) {
 	chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$id, 0775);
 }
 
-$rec_billing_company_name = str_replace('/', '-', $rec_billing_company_name);
+$replace_chars = array(
+	'/' => '-',
+	':' => '_'
+);
+
+$rec_billing_company_name = strtr($rec_billing_company_name, $replace_chars);
+$position_name = strtr($position_name, $replace_chars);
 //Close and output PDF document
 $pdf->Output(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$id.'/'.$rec_billing_company_name . '-' . $position_name . '-' . $invoice_id . '.pdf', 'F');
 
@@ -3133,6 +3071,9 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$id.'/'.$r
 		setAuthLevel(4);
 		$user = new User;
 		$user->load($user_id, 'id');
+		if ($this->is_ajax) {
+			$this->createJsonResponse();
+		}
 		if ($user->wasLoaded()) {
 			// Avboka plats för utställare.
 			$stmt = $user->db->prepare("SELECT position, id FROM exhibitor WHERE user = ?");
@@ -3160,7 +3101,7 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$id.'/'.$r
 
 
 			// Ta bort preliminära bokningar som är förknippade till user
-			$del = $user->db->prepare("DELETE FROM preliminary_bookings WHERE user = ?");
+			$del = $user->db->prepare("DELETE FROM preliminary_booking WHERE user = ?");
 			$del->execute(array($user->get('id')));
 
 			// Ta bort användarens relationer till mässorna.
@@ -3169,11 +3110,14 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$id.'/'.$r
 
 			// Ta bort användaren
 			$user->delete();
-			header('Location: '.BASE_URL.'exhibitor/all');
-			exit;
+			$this->setNoTranslate('result', 'Raderade användare');
+			$this->setNoTranslate('success', 'true');
+		} else {
+			$this->setNoTranslate('result', 'Kunde inte radera användare');
+			$this->setNoTranslate('success', 'false');
 		}
 	}
-
+/*
 	function saveCustomerId($id, $customerId){
 		setAuthLevel(3);
 		$this->setNoTranslate('noView', true);
@@ -3196,7 +3140,7 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$id.'/'.$r
 			echo $this->translate->{'Could not load user with ID'}.": ".$id;
 		endif;
 	}
-
+*/
 	function pre_delete($id, $user_id, $position){
 		setAuthLevel(1);
 		$this->Exhibitor->del_pre_booking($id, $user_id, $position);
@@ -3210,9 +3154,7 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$id.'/'.$r
 		if ($fair_registration->wasLoaded() && $fair_registration->get('user') == $_SESSION['user_id']) {
 			$fair_registration->delete();
 		}
-
 		header('Location: ' . BASE_URL . 'exhibitor/myBookings');
-		die();
 	}
 
 	function delete($id, $user_id, $position){

@@ -20,11 +20,11 @@
 				<tbody>
 <?php	foreach ($fairs as $fair): ?>
 					<tr>
-						<td><a href="<?php echo $fair->url; ?>" target="_blank" title="<?php echo uh($label_go_to_event); ?>"><?php echo uh($fair->name); ?></a></td>
+						<td><a href="<?php echo $fair->url; ?>" target="_blank" title="<?php echo uh($label_go_to_event); ?>"><?php echo uh($fair->windowtitle); ?></a></td>
 						<td><?php echo date('d-m-Y H:i:s', $fair->event_stop); ?></td>
 						<td><?php
 							if ($fair->website != '') {
-								echo '<a href="' . uh($fair->website) . '" target="_blank">' . uh($fair->website) . '</a>';
+								echo '<a href="' . uh($fair->website) . '" target="_blank"><img src="images/icons/website.png" class="icon_img" alt="' . uh($fair->website) . '" title="' . uh($fair->website) . '"></a>';
 							}
 						?></td>
 						<!--<td><?php echo $fair->cnt_exhibitors + $fair->cnt_prel_bookings; ?></td>-->

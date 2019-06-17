@@ -101,6 +101,10 @@
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $fair->get('contact_email'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter an email address that will be used for automatically generated email (through CFS).'}); ?>" />
 
+		<label for="contact_name"><?php echo $contact_name_label; ?> *</label>
+		<input type="text" name="contact_name" id="contact_name" value="<?php echo $fair->get('contact_name'); ?>"/>
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter the name of the contact person that will be used for automatically generated email (through CFS).'}); ?>" />
+
 		<label for="contact_phone"><?php echo $contact_phone_label; ?> *</label>
 		<input type="text" name="contact_phone" id="contact_phone" value="<?php echo $fair->get('contact_phone'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a phone number that will be used for automatically generated email (through CFS).'}); ?>" />

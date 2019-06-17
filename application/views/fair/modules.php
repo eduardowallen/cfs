@@ -69,6 +69,19 @@
 				<label class="squaredFour" for="economyFunction" />
 			</td>
 		</tr>
+		<tr>
+			<td><?php echo $recurringFunction; ?></td>
+			<td>
+				<input
+					type="checkbox"
+					name="recurringFunction[]"
+					id="recurringFunction"
+					value="1"
+					<?php echo (is_array($modules->recurringFunction) && in_array("1", $modules->recurringFunction)) ? "checked=\"checked\"" : ""; ?>
+				/>
+				<label class="squaredFour" for="recurringFunction" />
+			</td>
+		</tr>
 	</table>
 			<input type="submit" name="save" class="greenbutton mediumbutton" value="<?php echo $save; ?>" />
 </form>

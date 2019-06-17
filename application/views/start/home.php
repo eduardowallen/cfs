@@ -32,7 +32,7 @@
 		max-width: 70%;
 		clear: both;
 	}
-	#column {
+	.column {
 		padding-right: 3vw;
 		width: 40%;
 	}
@@ -74,10 +74,12 @@
 		text-decoration: none;
 		cursor:pointer;
 	}
-
+  .disabled {
+  	opacity: 0.5;
+  }
 </style>
 <div style="max-width: 80%">
-	<img id="HPLogo" src="images/button_icons/Chartbooker%20Fair%20System.png" />
+	<img id="HPLogo" src="images/logo/chartbooking_logo_large.png" />
 <?php if (userLevel() > 0) { ?>
 	<a class="inline" style="margin-top:1em; float:right; text-align:center; margin-left: 1em;" href="user/logout"><img class="HPSmallIcon" src="images/logout.png" />
 	<p style="margin:0;"><?php echo uh($translator->{'Logout'}); ?></p></a>
@@ -105,24 +107,27 @@
 		<div id="HP2ndDiv">
 
 		</div>
-		<div id="column">
+		<div class="column">
+			<?php if ($_SESSION['user_fair'] != '') { ?>
 			<a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>">
 			<img class="HPBigIcon" src="images/event_map.png" />
 			<h1 class="HPh1"><?php echo uh($translator->{'Go to map'}); ?></h1></a>
 			<p><?php echo uh($translator->{'View and apply for stand spaces for the last visited event.'}); ?></p>
 			<br/>
+			<?php } else { ?>
+			<img class="HPBigIcon disabled" src="images/event_map.png" />
+			<h1 class="HPh1 disabled"><?php echo uh($translator->{'Go to map'}); ?></h1>
+			<p><?php echo uh($translator->{'You must be connected to an event to use this function. Please use the Search Event-function to connect to an event.'}); ?></p>
+			<br/>
+			<?php } ?>
 
 			<a href="user/accountSettings" class="HPTop">
 			<img class="HPBigIcon" src="images/my_profile.png" />
 			<h1 class="HPh1"><?php echo uh($translator->{'My account'}); ?></h1></a>
 			<p><?php echo uh($translator->{'View and edit your company details, presentation, upload your logo, etc.'}); ?></p>
-			<br/>
-			<img class="HPBigIcon" src="images/invoice.png" />
-			<h1 class="HPh1"><?php echo ($translator->{'My invoices <br/>(development in progress)'}); ?></h1>
-			<p><?php echo uh($translator->{'We are currently deveoloping this soon-to-be function for you exhibitors to view all your invoices for the events that you have or will attend to.'}); ?></p>
 		</div>
 
-		<div id="column">
+		<div class="column">
 			<a href="fair/search" class="HPTop">
 			<img class="HPBigIcon" src="images/search_event.png" />
 			<h1 class="HPh1"><?php echo uh($translator->{'Search for events'}); ?></h1></a>
@@ -161,7 +166,7 @@
 		<div id="HP2ndDiv">
 
 		</div>
-		<div id="column">
+		<div class="column">
 
 			<a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>">
 			<img class="HPBigIcon" src="images/event_map.png" />
@@ -182,7 +187,7 @@
 			<br/>
 		</div>
 
-		<div id="column">
+		<div class="column">
 
 			<a href="exhibitor/forFair" class="HPTop">
 			<img class="HPBigIcon" src="images/administrators.png" />
@@ -225,7 +230,7 @@
 		<div id="HP2ndDiv">
 
 		</div>
-		<div id="column">
+		<div class="column">
 
 			<a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>">
 			<img class="HPBigIcon" src="images/event_map.png" />
@@ -252,7 +257,7 @@
 			<br/>
 		</div>
 
-		<div id="column">
+		<div class="column">
 			<a href="fair/overview" class="HPTop">
 			<img class="HPBigIcon" src="images/my_events.png" />
 			<h1 class="HPh1"><?php echo uh($translator->{'My events'}); ?></h1></a>
@@ -300,7 +305,7 @@
 		<div id="HP2ndDiv">
 
 		</div>
-		<div id="column">
+		<div class="column">
 
 			<a href="mapTool/map/<?php echo $_SESSION['user_fair']; ?>">
 			<img class="HPBigIcon" src="images/event_map.png" />
@@ -321,7 +326,7 @@
 			<br/>
 		</div>
 
-		<div id="column">
+		<div class="column">
 			<a href="fair/overview" class="HPTop">
 			<img class="HPBigIcon" src="images/my_events.png" />
 			<h1 class="HPh1"><?php echo uh($translator->{'All events'}); ?></h1></a>

@@ -16,7 +16,12 @@ class Arranger extends User {
 			$this->fetchExternal('Fair', 'fairs', 'created_by', $this->id);
 		}
 	}
-	
+	public function loadsimple($key, $by) {
+		parent::load($key, $by);
+		if ($this->wasLoaded()) {
+			$this->fetchExternalSimple('Fair', 'fairs', 'created_by', $this->id);
+		}
+	}
 	function save() {
 		
 		/*if ($this->id == 0) {
@@ -42,9 +47,9 @@ class Arranger extends User {
 	
 	public function delete() {
 		
-		foreach ($this->fairs as $fair) {
+		/*foreach ($this->fairs as $fair) {
 			$fair->delete();
-		}
+		}*/
 		
 		parent::delete();
 		

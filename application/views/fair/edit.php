@@ -186,12 +186,18 @@ span {
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $fair->get('contact_email'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter an email address that will be used for automatically generated email (through CFS).'}); ?>" />
 
+		<label for="contact_name"><?php echo $contact_name_label; ?> *</label>
+		<input type="text" name="contact_name" id="contact_name" value="<?php echo $fair->get('contact_name'); ?>"/>
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter the name of the contact person that will be used for automatically generated email (through CFS).'}); ?>" />
+
 		<label for="contact_phone"><?php echo $contact_phone_label; ?> *</label>
 		<input type="text" name="contact_phone" id="contact_phone" value="<?php echo $fair->get('contact_phone'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a phone number that will be used for automatically generated email (through CFS).'}); ?>" />
+
 		<label for="website"><?php echo $website_label; ?> *</label>
 		<input type="text" name="website" id="website" value="<?php echo $fair->get('website'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter the website of your event. This will be used for automatically generated email (through CFS).'}); ?>" />
+
 		<?php (empty($disable)) ? tiny_mce() : ''; ?>
 		<div><label class="inline-block" for="contact_info"><?php echo $contact_label; ?> *</label>
 		<img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'This is the information which will be shown to visitors and exhibitors when they press the "Contact Us" button from the navigation menu at the top.'}); ?>" /></div>

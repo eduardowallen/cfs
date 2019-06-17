@@ -1,13 +1,13 @@
 <?php
 $export_columns = array(
 	$translator->{'Notes'} => array(
-		'exhibitor_name' => ujs($label_exhibitor),
-		'comment' => ujs($label_note),
-		'date' => ujs($label_note_time),
-		'author' => ujs($translator->{'Author'}),
-		'fair_name' => ujs($translator->{'Fair'}),
-		'position_name' => ujs($translator->{'Stand space'}),
-		'type' => ujs($translator->{'Type of comment'})
+		'exhibitor_name' => uh($label_exhibitor),
+		'comment' => uh($label_note),
+		'date' => uh($label_note_time),
+		'author' => uh($translator->{'Author'}),
+		'fair_name' => uh($translator->{'Fair'}),
+		'position_name' => uh($translator->{'Stand space'}),
+		'type' => uh($translator->{'Type of comment'})
 	)
 );
 //$export_columns = array_merge($export_columns, $general_column_info);

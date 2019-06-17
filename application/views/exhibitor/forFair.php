@@ -19,7 +19,6 @@ $general_column_info = array(
 		'country' => $translator->{'Country'},
 		'phone1' => $translator->{'Phone 1'},
 		'phone2' => $translator->{'Phone 2'},
-		'fax' => $translator->{'Fax number'},
 		'email' => $translator->{'E-mail'},
 		'website' => $translator->{'Website'}
 	),
@@ -68,15 +67,73 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 
 	};
 </script>
-
+<?php if (!empty($mail_errors)): ?>
+  <script>
+  showInfoDialog('<?php echo implode('<br>', $mail_errors); ?>', '<?php echo $error_title; ?>');
+  </script>
+<?php endif; ?>
+<?php if (!empty($success)): ?>
+  <script>
+  showInfoDialog('<?php echo $created_success; ?>', '<?php echo $success_title; ?>');
+  </script>
+<?php endif; ?>
 <style>
 	#content {max-width: 1280px;}
 	.scrolltable-wrap{max-height:30em;}
 </style>
-<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
-<h1><?php echo $headline; ?></h1>
-<p><a class="button new_exhibitor" href="administrator/newExhibitor"><?php echo $create_link; ?></a></p>
+<script type="text/javascript">
+$(document).ready(function() {
+	$('form #email_check').poshytip({
+		className: 'tip-yellowsimple',
+		showOn: 'focus',
+		alignTo: 'target',
+		alignX: 'left',
+		alignY: 'center',
+		offsetX: 10,
+		showTimeout: 100
+	});
 
+$("form #email_check").on('keyup focus blur', function() {
+		$(this).removeClass("input_error");
+		if (isValidEmailAddress($(this).val())) {
+			var input = $(this);
+			input.data('valid', true);
+			if (input.val() != input.attr('value')) {
+				$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: 'emailExists=1&email=' + input.val(),
+					success: function(response) {
+						var ans = JSON.parse(response);
+						if (ans.emailExists) {
+							input.poshytip('update', lang.email_exists_err, true);
+							input.removeClass("input_ok");
+							input.addClass("input_error emailExists");
+							input.data('valid', false);
+						} else {
+							input.poshytip('update', lang.email_ok, true);
+							input.removeClass("input_error emailExists");
+							input.addClass("input_ok");
+							input.data('valid', true);
+						}
+					}
+				});
+			}
+		}
+});
+});
+</script>
+<?php
+	$fair = new Fair;
+	$fair->loadsimple($_SESSION['user_fair'], 'id');
+?>
+<button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
+<form action="" method="post" class="floatright">
+	<label for="email_check"><?php echo uh($translator->{'Check if e-mail is registered on account'}); ?></label>
+	  <input type="text" autocomplete="off" name="email_check" id="email_check" title="<?php echo uh($translator->{"Insert an email address to check if it's registered within CFS."}); ?>" placeholder="<?php echo uh($translator->{"Check for email"}); ?>"/>
+	  <input type="submit" disabled="disabled" style="opacity:0;">
+</form>
+<h1><?php echo $fair->get('name'); ?> - <?php echo $headline; ?></h1>
 <h2 class="tblsite"><?php echo $table_exhibitors ?></h2>
 
 <?php if (count($users) > 0): ?>
@@ -84,9 +141,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 	<form action="exhibitor/exportForFair/1" method="post">
 		<div class="floatright right">
 		<?php 
-		$fair = new Fair;
-		$fair->loadsimple($_SESSION['user_fair'], 'id');
-		if ($smsMod === 'active') { ?>
+		if ($smsMod === 'active' && !isset($event_locked)) { ?>
 			<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="booked" data-fair="<?php echo $_SESSION['user_fair']; ?>"></button>
 		<?php } ?>
 			<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="booked"></button>
@@ -100,6 +155,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 				<tr>
 					<th class="left"><?php echo $th_company ?></th>
 					<th class="left"><?php echo $th_contactperson ?></th>
+					<th class="left"><?php echo $th_commodity ?></th>
 					<th><?php echo $th_fairs ?></th>
 					<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $th_last_login ?></th>
 					<th data-sorter="false"><?php echo $tr_comments; ?></th>
@@ -114,6 +170,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 					<tr>
 						<td class="left"><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('company'); ?></a></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('name'); ?></a></td>
+						<td class="left"><?php echo $user->get('commodity'); ?></td>
 						<td class="center"><?php echo $user->get('fair_count');?></td>
 						<td><?php echo date('d-m-Y H:i', $user->get('last_login'));?></td>
 						<td class="center">
@@ -144,7 +201,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 		<?php 
 		$fair = new Fair;
 		$fair->loadsimple($_SESSION['user_fair'], 'id');
-			if ($smsMod === 'active') { ?>
+			if ($smsMod === 'active' && !isset($event_locked)) { ?>
 			<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="booked" data-fair="<?php echo $_SESSION['user_fair']; ?>"></button>
 		<?php } ?>
 			<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="connected"></button>
@@ -155,6 +212,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 				<tr>
 					<th class="left"><?php echo $th_company ?></th>
 					<th class="left"><?php echo $th_contactperson ?></th>
+					<th class="left"><?php echo $th_commodity ?></th>
 					<th><?php echo $th_fairs ?></th>
 					<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $th_last_login ?></th>
 					<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $th_connect_time ?></th>
@@ -170,6 +228,7 @@ $connected_columns = array_merge($connected_columns, $general_column_info);
 					<tr>
 						<td class="left"><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('company'); ?></a></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $user->get('id'); ?>" class="showProfileLink"><?php echo $user->get('name'); ?></a></td>
+						<td class="left"><?php echo $user->get('commodity'); ?></td>
 						<td class="center"><?php echo $user->get('fair_count'); ?></td>
 						<!--<td class="center"><?php echo $user->get('ex_count'); ?></td>-->
 						<td><?php echo date('d-m-Y H:i', $user->get('last_login')); ?></td>

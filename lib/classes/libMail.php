@@ -1,5 +1,6 @@
 <?php 
 
+require ROOT.'lib/Swift-4.1.7/swift_required.php';
 
 class libMail {
 	private $recipients = array();
@@ -11,7 +12,6 @@ class libMail {
 	private $attachments = array();
 
 	public function __construct() {
-		require ROOT.'lib/Swift-4.1.7/swift_required.php';
 
 		$this->from = array(EMAIL_FROM_ADDRESS => EMAIL_FROM_NAME);
 	}
@@ -44,6 +44,11 @@ class libMail {
 		$this->subject = $subject;
 	}
 
+	public function setPlainBody($plainbody, $contenttype = 'text/plain') {
+		$this->plainbody = $plainbody;
+		$this->plainbody_contenttype = $contenttype;
+	}
+
 	public function setBody($body, $contenttype = 'text/html') {
 		$this->body = $body;
 		$this->body_contenttype = $contenttype;
@@ -64,8 +69,15 @@ class libMail {
 	public function send() {
 		// If the code runs on testserver, send ALL emails to example@chartbooking.com!
 		if (defined('TESTSERV') && TESTSERV) {
-			$this->recipients = array('example@chartbooking.com' => 'Chartbooker Development');
-			$this->recipients = array('mattias@trinax.se' => 'Chartbooker Development');
+			//$this->recipients = array('j-n.svensson@bredband.net' => 'Niklas Svensson');
+			//$this->recipients = array('eduardo.wallen@gmail.com' => 'Chartbooker Development Master');
+			//$this->recipients = array('eduardo.wallen@hotmail.com' => 'Chartbooker Development Master', 'eduardo.wallen@gmail.com' => 'Chartbooker Development Master');
+			//$this->recipients = array('eduardo.wallen@hotmail.com' => 'Chartbooker Development Master');
+			//$this->recipients = array('eduardo.wallen@chartbooker.com' => 'Chartbooker Development Master');
+			//$this->recipients = array('alexis.wallen@chartbooker.com' => 'Chartbooker Development Test Master');
+			//$this->recipients = array('eduardo.wallen@chartbooker.com' => 'Chartbooker Development Developer', 'leif.wallen@chartbooker.com' => 'Chartbooker Development TestUser', 'alexis.wallen@chartbooker.com' => 'Chartbooker Development TestMaster', 'eduardo.wallen@gmail.com' => 'Chartbooker Development Slave');
+			$this->recipients = array('eduardo.wallen@chartbooker.com' => 'Chartbooker Development Master', 'alexis.wallen@chartbooker.com' => 'Chartbooker Development Slave');
+			//$this->recipients = array('mattias@trinax.se' => 'Chartbooker Development');
 		}
 
 		$transport = Swift_SmtpTransport::newInstance(SMTP_SERVER, SMTP_PORT)
@@ -78,6 +90,7 @@ class libMail {
 			->setFrom($this->from)
 			->setTo($this->recipients)
 			->setBody($this->body, $this->body_contenttype)
+			->addPart($this->plainbody, $this->plainbody_contenttype)
 			;
 
 		if(count($this->replyTo)) {

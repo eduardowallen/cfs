@@ -1,5 +1,5 @@
 <?php
-define('APP_VERSION', '2.4.4');
+define('APP_VERSION', '2.8.9');
 
 //Display errors in dev mode
 function setReporting() {
@@ -66,24 +66,28 @@ function callHook() {
 	// Make sure that signed in users can't use the system without terms approval!
 
 	if (isset($_SESSION['user_id'])) {
-/*		$me = new User;
-		$me->load($_SESSION['user_id'], 'id');
-		if ($me->get('last_login') != 0) {*/
-
-/*		if (!isset($_SESSION['user_terms_approved'])) {
-			header('Location: ' . BASE_URL . 'user/logout');
-			exit;
-		}*/
-
-		if (!isset($_SESSION['user_terms_approved'])) {
+		$me = new User;
+		$me->load2($_SESSION['user_id'], 'id');
+		if (!$_SESSION['user_terms_approved']) {
 			$url = $urlArray[0] . '/' . $action;
 			// Whitelist URLs that can be accessed without approved terms
-			if (!in_array($url, array('user/terms', 'translate/language', 'user/confirm/*/*'))) {
+			if (!in_array($url, array('user/terms', 'translate/language', 'user/confirm/*/*', 'user/logout'))) {
 				header('Location: ' . BASE_URL . 'user/terms?next=' . $url);
 				exit;
 			}
 		}
+
+		if ($me->get('level') == 3 && !$_SESSION['user_pub_approved'] && $_SESSION['user_terms_approved']) {
+			$url = $urlArray[0] . '/' . $action;
+			// Whitelist URLs that can be accessed without approved terms
+			if (!in_array($url, array('user/pub', 'translate/language', 'user/confirm/*/*', 'user/logout'))) {
+				header('Location: ' . BASE_URL . 'user/pub?next=' . $url);
+				exit;
+			}
+		}
 	}
+
+
 //}
 
 	$dispatch = new $controller($model, $controllerName, $action);
@@ -129,7 +133,7 @@ $translator = new Translator($lang);
 $globalDB = new Database;
 global $globalDB;
 
-define('TIMEZONE', 'GMT' . getGMToffset());
+define('TIMEZONE', 'GMT+1');
 if (!defined("ENT_HTML5")) {
 	define("ENT_HTML5", 48);
 }

@@ -72,9 +72,6 @@ if (isset($_GET["getProfile"])) {
       <label for="phone2">' . $translator->{"Phone 2"} . '</label>
 			<div type="text" name="phone2" id="phone2">' . $u->get('phone2') . '</div>
     
-      <label for="fax">' . $translator->{"Fax number"} . '</label>
-			<div type="text" name="fax" id="fax">' . $u->get('fax') . '</div>
-    
       <label for="email">' . $translator->{"E-mail"} . ' *</label>
 			<div type="text" name="email" id="email">' . $u->get('email') . '</div>
     
@@ -246,7 +243,6 @@ if (isset($_GET["getProfile"])) {
   $this->set('country_label', 'Country');
   $this->set('phone1_label', 'Phone 1');
   $this->set('phone2_label', 'Phone 2');
-  $this->set('fax_label', 'Fax number');
   $this->set('email_label', 'E-mail');
   $this->set('website_label', 'Website');
   
@@ -271,10 +267,7 @@ if (isset($_GET["getProfile"])) {
   $this->set('password_repeat_label', 'Password again (repeat to confirm)');
   //$this->set('save_label', 'Save');
 	//$this->set('save_label', 'Save');
-	
-  $this->set('customer_nr_label', 'Customer number');
-	$this->set('customer_id', 'Customer Number');
-	$this->set('save_customer_id', 'Save Customer Number');
+
 	//$this->set('ban_section_header', 'Ban user');
 	//$this->set('ban_msg_label', 'Reason for ban');
 	//$this->set('ban_save', 'Save');

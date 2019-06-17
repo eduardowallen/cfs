@@ -26,21 +26,22 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 <link rel="stylesheet" type="text/css" href="css/jquery-ui-timepicker-addon.min.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/jquery-multi-step-form.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/jquery-confirm.min.css<?php echo $unique?>" />
-<link rel="stylesheet" type="text/css" href="css/DataTables/css/jquery.dataTables.min.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs/jszip-3.1.3/pdfmake-0.1.27/dt-1.10.15/b-1.3.1/b-colvis-1.3.1/b-flash-1.3.1/b-html5-1.3.1/b-print-1.3.1/cr-1.3.3/fh-3.1.2/r-2.1.1/rg-1.0.0/rr-1.2.0/sc-1.4.2/se-1.2.2/datatables.min.css"/>
 <link rel="stylesheet" type="text/css" href="css/generic.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/main.css<?php echo $unique?>" />
 
 <link rel="stylesheet" type="text/css" href="css/tip-yellowsimple.css<?php echo $unique?>" />
 <link rel="stylesheet" type="text/css" href="css/print.css<?php echo $unique?>" media="print" />
-<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans:400,600,700" />
+<link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" />
 <link rel="stylesheet" type="text/css" href="css/main_mobile.css<?php echo $unique?>" />
 
 <link rel="stylesheet" type="text/css" href="css/component.css<?php echo $unique?>" />
+<link rel="stylesheet" type="text/css" href="css/cookieconsent.min.css<?php echo $unique?>" />
 <!--[if IE ]>
   <link href="css/iexplore_generic.css<?php echo $unique?>" rel="stylesheet" type="text/css">
 
 <![endif]-->
-<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script type="text/javascript" src="//code.jquery.com/jquery-1.12.0.min.js"></script>
 <!--<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>-->
 <script type="text/javascript" src="js/jquery-ui.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.min.js"></script>
@@ -60,8 +61,6 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 <script type="text/javascript" src="js/jquery.mobile-events.min.js"></script>
 <script type="text/javascript" src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-formhelpers.min.js"></script>
-<script type="text/javascript" src="js/chart.min.js"></script>
-<script type="text/javascript" src="js/chart.bundle.min.js"></script>
 <script type="text/javascript" src="js/formchecker.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/passwd_meter.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/mobilecheck.js<?php echo $unique?>"></script>
@@ -71,7 +70,8 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 <script type="text/javascript" src="js/tiny_mce/tiny_mce.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/modernizr.custom.js<?php echo $unique?>"></script>
 <script type="text/javascript" src="js/alphanum.js<?php echo $unique?>"></script>
-<script type="text/javascript" src="js/DataTables/media/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="js/cookieconsent.min.js<?php echo $unique?>"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs/jszip-3.1.3/pdfmake-0.1.27/dt-1.10.15/b-1.3.1/b-colvis-1.3.1/b-flash-1.3.1/b-html5-1.3.1/b-print-1.3.1/cr-1.3.3/fh-3.1.2/r-2.1.1/rg-1.0.0/rr-1.2.0/sc-1.4.2/se-1.2.2/datatables.min.js"></script>
 
 <script type="text/javascript">
 
@@ -80,11 +80,17 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	}
 	var lang = {};
 
+	// Cookie addon translation
+	lang.cookieconsent_info = '<?php echo ujs($translator->{"This site uses cookies to get the best experience on our website. By continuing browsing on the page, you agree that we store cookies on your device."}); ?>';
+	lang.cookieconsent_got_it = '<?php echo ujs($translator->{"Got it."}); ?>';
+	lang.cookieconsent_learn_more = '<?php echo ujs($translator->{"Learn more."}); ?>';
+
 	// User form error labels
 	lang.email_exists_err = '<?php echo ujs($translator->{"The email address you entered is already registered with another user."}); ?>';
 	lang.email_exists = '<?php echo ujs($translator->{"The email address already exists in our systems."}); ?>';
 	lang.email_err = '<?php echo ujs($translator->{"Insert a valid email."}); ?>';
 	lang.email_insert = '<?php echo ujs($translator->{"Insert your email address."}); ?>';
+	lang.email_ok = '<?php echo ujs($translator->{"The email adress is not registered within CFS."}); ?>';
 	lang.name_err = '<?php echo ujs($translator->{"Insert a name."}); ?>';
 	lang.orgnr_err = '<?php echo ujs($translator->{"Insert a organization number for your company."}); ?>';
 	lang.company_err = '<?php echo ujs($translator->{"Insert a company name."}); ?>';
@@ -151,17 +157,23 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	lang.cancel_booking_confirm_text = "<?php echo ujs($translator->{'Are you sure you want to cancel your booking?'}); ?>";
 	lang.matching_rows = '<?php echo ujs($translator->{"matching rows."}); ?>';
 	lang.amount_no_standspace = '<?php echo ujs($translator->{"(stand space price not included)"}); ?>';
+	lang.remove_from_group = '<?php echo ujs($translator->{"Remove selected events from group"}); ?>';
+	lang.add_to_group = '<?php echo ujs($translator->{"Add selected events to group"}); ?>';
 
 	// Other labels
 	lang.confirmationLinkQuestion1 = '<?php echo ujs($translator->{"Send confirmation link to exhibitor email?"}); ?>';
 	lang.confirmationLinkQuestion2 = '<?php echo ujs($translator->{"This will send an email to the selected exhibitors with cloned reservations."}); ?>';
+	lang.unsetRecurringQuestion1 = '<?php echo ujs($translator->{"This will unset the marked bookings as recurring"}); ?>';
+	lang.setRecurringQuestion1 = '<?php echo ujs($translator->{"This will set the marked bookings as recurring"}); ?>';
 	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer (ex: time of arrival, questions, other requests)"}); ?>';
 	lang.messageFromExhibitor = '<?php echo ujs($translator->{"Message from exhibitor"}); ?>';
+	lang.deletionMessage = '<?php echo ujs($translator->{"Deletion message"}); ?>';
 	lang.no_message = '<?php echo ujs($translator->{"No message was given."}); ?>';
 	lang.no_commodity = '<?php echo ujs($translator->{"No description."}); ?>';
 	lang.reservation = '<?php echo ujs($translator->{"Reservation:"}); ?>';
 	lang.booking = '<?php echo ujs($translator->{"Booking:"}); ?>';
 	lang.preliminary = '<?php echo ujs($translator->{"Preliminary booking:"}); ?>';
+	lang.bookingslashreservation = '<?php echo ujs($translator->{"Booking/reservation:"}); ?>';
 	lang.registration = '<?php echo ujs($translator->{"Registration"}); ?>';
 	lang.description = '<?php echo ujs($translator->{"Description"}); ?>';
 	lang.space = '<?php echo ujs($translator->{"Space"}); ?>';
@@ -183,8 +195,10 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 
 	// SMS Labels
 	lang.sms_popup_title = '<?php echo ujs($translator->{"SMS-function"}); ?>';
+	lang.sms_example_message = '<?php echo ujs($translator->{"We recommend that you always start with your name as an organizer, followed by your phone number. That way the recipient of your message will know who sent it and how to contact you."}); ?>';
+	lang.sms_example = '<?php echo ujs($translator->{"Eg: From Your Organization, 000-000000: Message text"}); ?>';
 	lang.sms_enter_message = '<?php echo ujs($translator->{"Enter your message"}); ?>';
-	lang.sms_max_chars = '<?php echo ujs($translator->{"Max 640 characters"}); ?>';
+	lang.sms_max_chars = '<?php echo ujs($translator->{"Max 459 characters"}); ?>';
 	lang.sms_log = '<?php echo ujs($translator->{"SMS log"}); ?>';
 	lang.send = '<?php echo ujs($translator->{"Send"}); ?>';
 	lang.errors = '<?php echo ujs($translator->{"Errors"}); ?>';
@@ -199,16 +213,33 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
   m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
   })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-75713508-2', 'auto');
+  ga('create', 'UA-75713508-1', 'auto');
   ga('send', 'pageview');
 
 </script>
+<script>
+window.addEventListener("load", function(){
+window.cookieconsent.initialise({
+  "palette": {
+    "popup": {
+      "background": "#000"
+    },
+    "button": {
+      "background": "#f1d600"
+    }
+  },
+  "content": {
+    "message": lang.cookieconsent_info,
+    "dismiss": lang.cookieconsent_got_it,
+	"link": lang.cookieconsent_learn_more
+  }
+})});
+</script>
+<?php if (isset($_SESSION['user_fair'])) {
+		$fairmodulesettings = new Fair();
+		$fairmodulesettings->loadsimple($_SESSION['user_fair'], 'id');
 
-<?php if (isset($_SESSION['user_fair'])):
-		$faircurrency = new Fair();
-		$faircurrency->loadsimple($_SESSION['user_fair'], 'id');
-
-		$module_settings = json_decode($faircurrency->get('modules'));
+		$module_settings = json_decode($fairmodulesettings->get('modules'));
 		if (!is_object($module_settings)) {
 			$module_settings = new stdClass();
 		}
@@ -233,11 +264,15 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 		else
 			$economyMod = 'inactive';
 
+		if (isset($module_settings->recurringFunction))
+			$recurringMod = 'active';
+		else
+			$recurringMod = 'inactive';
 ?>
 <script type="text/javascript">
-	lang.currency = '<?php echo $faircurrency->get("currency"); ?>';
+	lang.currency = '<?php echo $fairmodulesettings->get("currency"); ?>';
 </script>
-<?php endif; ?>
+<?php } ?>
 
 <?php if (userLevel() > 0): ?>
 <script type="text/javascript">
@@ -409,7 +444,7 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	</div>
 	<!--
 	<div id="cfs_info_div">
-		<h2><?php echo ujs($translator->{'Chartbooker Fair System Update'}); ?></h2><br />
+		<h2><?php echo uh($translator->{'Chartbooker Fair System Update'}); ?></h2><br />
 		<p class="msg" style="word-break:normal;"></p>
 				<p><?php echo uh($translator->{'Chartbooker Fair System (CFS) will be updated today 2016-02-14 between 19.00 and 23.00. CFS will be unavailable during this time.'}); ?></p>
 				<br />
@@ -436,56 +471,275 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 
 		if (userLevel() == 1) {
 
-			$db = new Database;
-			$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ? AND fair.event_stop > $today");
+			$db = new Database;	
+			$stmt = $db->prepare("SELECT `fair` FROM fair_user_relation WHERE `user` = ?");
 			$stmt->execute(array($_SESSION['user_id']));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$opts = '';
-
+			$fairGroups = '';
+			$fairGroup = array();
+			$fairsInGroup = array();
+			$furIds = array();
+			$fairIds = array();
 			foreach ($result as $res) {
-				$opts.= '<li><a href="page/loggedin/setFair/'.$res['fair'].'">'.$res['name'].'</a></li>';
+				$furIds[] = $res['fair'];
 			}
-
-			if (userLevel() == 2) {						
-				$db = new Database;
-				$stmt = $db->prepare("SELECT COUNT(*) AS bookings FROM preliminary_booking WHERE fair = ?");
-				$stmt->execute(array($_SESSION['user_fair']));
-				$result = $stmt->fetch(PDO::FETCH_ASSOC);
-				$bookCount = ($result['bookings'] > 0) ? '('.$result['bookings'].')' : '';
-
+			$stmt = $db->prepare("SELECT `id` FROM fair WHERE `id` IN(".implode(',',$furIds).") AND event_stop > ?");
+			$stmt->execute(array(time()));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $res) {
+				$fairIds[] = $res['id'];
 			}
+			$stmt = $db->prepare("SELECT `id` FROM fair WHERE `id` IN(".implode(',',$furIds).") AND event_stop < ?");
+			$stmt->execute(array(time()));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $res) {
+				$passedFairIds[] = $res['id'];
+			}
+			$stmt = $db->prepare("SELECT DISTINCT(`group`) FROM fair_group_rel WHERE `fair` IN(".implode(',',$fairIds).")");
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (count($result) > 0) {
+				foreach ($result as $res) {
+					$stmt = $db->prepare("SELECT `fair` FROM fair_group_rel WHERE `group` = ? AND `fair` NOT IN(".implode(',',$passedFairIds).")");
+					$stmt->execute(array($res['group']));
+					$result_fairIds = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					$fairIdsInGroup = array();
+					// Implode fair
+					foreach ($result_fairIds as $fairInGroup) {
+						$fairIdsInGroup[] = $fairInGroup['fair'];
+						$fairsInGroup[] = $fairInGroup['fair'];
+					}
+					// Get the group name
+					$stmt = $db->prepare("SELECT `name` FROM fair_group WHERE `id` = ?");
+					$stmt->execute(array($res['group']));
+					$groupName = $stmt->fetch(PDO::FETCH_ASSOC);
+					// Get the groups fair ids and names
+					$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` IN (".implode(',',$fairIdsInGroup).") ORDER BY `fair`.`event_start` ASC");
+					$stmt->execute();
+					$groupedFairs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					//print_r($groupName['name']);
+					$fairGroups.= '<li class="parent"><img src="images/icons/mainmenu_arrow.png" class="sub-menu-arrow"/><a class="inline-i">'.$groupName['name'].'</a><div class="menu-wrapper"><ul>';
+					foreach ($groupedFairs as $groupedFair) {
+						$fairGroups.= '<li><a href="page/loggedin/setFair/'.$groupedFair['id'].'">'.$groupedFair['windowtitle'].'</a></li>';
+					}
+					$fairGroups.= '</ul></div></li>';
+				}
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` NOT IN(".implode(',',$fairsInGroup).") AND `id` IN(".implode(',',$fairIds).") ORDER BY `fair`.`event_start` ASC");
+				$stmt->execute();
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			} else {
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` IN(".implode(',',$furIds).") AND event_stop > ? ORDER BY `fair`.`event_start` ASC");
+				$stmt->execute(array(time()));
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			}
+			$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` IN(".implode(',',$furIds).") AND event_stop < ? ORDER BY `fair`.`event_start` DESC");
+			$stmt->execute(array(time()));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$opts.= '<li class="parent"><img src="images/icons/mainmenu_arrow.png" class="sub-menu-arrow"/><a class="inline-i">'.uh($translator->{"Old events"}).'</a><div class="menu-wrapper"><ul>';
+			foreach ($result as $res) {
+				$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+			}
+			$opts.= '</ul></div></li>';
 		
 		} else if (userLevel() == 2) {
 
-			$db = new Database;
-			$stmt = $db->prepare("SELECT rel.fair, fair.name FROM fair_user_relation AS rel LEFT JOIN fair ON rel.fair = fair.id WHERE rel.user = ?");
+			$db = new Database;	
+			$stmt = $db->prepare("SELECT `fair` FROM fair_user_relation WHERE `user` = ? AND `map_access` > 0");
 			$stmt->execute(array($_SESSION['user_id']));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$opts = '';
-			
+			$fairGroups = '';
+			$fairGroup = array();
+			$fairsInGroup = array();
+			$furIds = array();
+			$fairIds = array();
 			foreach ($result as $res) {
-				$opts.= '<li><a href="page/loggedin/setFair/'.$res['fair'].'">'.$res['name'].'</a></li>';
+				$furIds[] = $res['fair'];
 			}
+			$stmt = $db->prepare("SELECT `id` FROM fair WHERE `id` IN(".implode(',',$furIds).")");
+			$stmt->execute(array(time()));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $res) {
+				$fairIds[] = $res['id'];
+			}
+			$stmt = $db->prepare("SELECT DISTINCT(`group`) FROM fair_group_rel WHERE `fair` IN(".implode(',',$fairIds).")");
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (count($result) > 0) {
+				foreach ($result as $res) {
+					$stmt = $db->prepare("SELECT `fair` FROM fair_group_rel WHERE `group` = ?");
+					$stmt->execute(array($res['group']));
+					$result_fairIds = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					$fairIdsInGroup = array();
+					// Implode fair
+					foreach ($result_fairIds as $fairInGroup) {
+						$fairIdsInGroup[] = implode(', ', $fairInGroup);
+						$fairsInGroup[] = $fairInGroup['fair'];
+					}
+					// Get the group name
+					$stmt = $db->prepare("SELECT `name` FROM fair_group WHERE `id` = ?");
+					$stmt->execute(array($res['group']));
+					$groupName = $stmt->fetch(PDO::FETCH_ASSOC);
+					// Get the groups fair ids and names
+					$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` IN (".implode(',',$fairIdsInGroup).") ORDER BY `fair`.`event_start` ASC");
+					$stmt->execute();
+					$groupedFairs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					//print_r($groupName['name']);
+					$fairGroups.= '<li class="parent"><img src="images/icons/mainmenu_arrow.png" class="sub-menu-arrow"/><a class="inline-i">'.$groupName['name'].'</a><div class="menu-wrapper"><ul>';
+					foreach ($groupedFairs as $groupedFair) {
+						$fairGroups.= '<li><a href="page/loggedin/setFair/'.$groupedFair['id'].'">'.$groupedFair['windowtitle'].'</a></li>';
+					}
+					$fairGroups.= '</ul></div></li>';
+				}
 
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` NOT IN(".implode(',',$fairsInGroup).") AND `id` IN(".implode(',',$fairIds).") ORDER BY `fair`.`event_start` ASC");
+				$stmt->execute();
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			} else {
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` IN(".implode(',',$furIds).") ORDER BY `fair`.`event_start` ASC");
+				$stmt->execute();
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			}
 		} else if (userLevel() == 3) {
 
 			$db = new Database;	
-			$stmt = $db->prepare("SELECT id, name FROM fair WHERE created_by = ?");
+			$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `created_by` = ?");
 			$stmt->execute(array($_SESSION['user_id']));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$opts = '';
-
+			$fairGroups = '';
+			$fairsInGroup = array();
+			$fairsNoGroup = array();
+			$fairIds = array();
 			foreach ($result as $res) {
-				$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['name'].'</a></li>';
+				$fairIds[] = $res['id'];
 			}
+			$stmt = $db->prepare("SELECT DISTINCT(`group`) FROM fair_group_rel WHERE `fair` IN(".implode(',',$fairIds).")");
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (count($result) > 0) {
+				foreach ($result as $res) {
+					$stmt = $db->prepare("SELECT `fair` FROM fair_group_rel WHERE `group` = ?");
+					$stmt->execute(array($res['group']));
+					$result_fairIds = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					$fairIdsInGroup = array();
+					// Implode fair
+					foreach ($result_fairIds as $fairInGroup) {
+						$fairIdsInGroup[] = $fairInGroup['fair'];
+						$fairsInGroup[] = $fairInGroup['fair'];
+					}
+					// Get the group name
+					$stmt = $db->prepare("SELECT `name` FROM fair_group WHERE `id` = ?");
+					$stmt->execute(array($res['group']));
+					$groupName = $stmt->fetch(PDO::FETCH_ASSOC);
+					// Get the groups fair ids and names
+					$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` IN (".implode(',',$fairIdsInGroup).") ORDER BY `fair`.`event_start` ASC");
+					$stmt->execute();
+					$groupedFairs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					//print_r($groupName['name']);
+					$fairGroups.= '<li class="parent"><img src="images/icons/mainmenu_arrow.png" class="sub-menu-arrow"/><a class="inline-i">'.$groupName['name'].'</a><div class="menu-wrapper"><ul>';
+					foreach ($groupedFairs as $groupedFair) {
+						$fairGroups.= '<li><a href="page/loggedin/setFair/'.$groupedFair['id'].'">'.$groupedFair['windowtitle'].'</a></li>';
+					}
+					$fairGroups.= '</ul></div></li>';
+				}
 
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `created_by`= ? AND `id` NOT IN (".implode(',',$fairsInGroup).") ORDER BY `fair`.`event_start` ASC");
+				$stmt->execute(array($_SESSION['user_id']));
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			} else {
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `created_by` = ? ORDER BY `fair`.`event_start` ASC");
+				$stmt->execute(array($_SESSION['user_id']));
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			}
 		} else if (userLevel() == 4) {
 
 			$db = new Database;
-			$stmt = $db->prepare("SELECT COUNT(*) AS fairs FROM fair WHERE approved = ?");
-			$stmt->execute(array(0));
+			$stmt = $db->prepare("SELECT COUNT(`id`) AS fairs FROM fair WHERE approved = ? AND event_stop > ?");
+			$stmt->execute(array(1, time()));
 			$result = $stmt->fetch(PDO::FETCH_ASSOC);
 			$fairCount = ($result['fairs'] > 0) ? '('.$result['fairs'].')' : '';
+
+			$stmt = $db->prepare("SELECT `id` FROM fair WHERE `approved` = ? AND event_stop > ?");
+			$stmt->execute(array(1, time()));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$opts = '';
+			$fairGroups = '';
+			$fairGroup = array();
+			$fairsNoGroup = array();
+			$fairIds = array();
+			foreach ($result as $res) {
+				$fairIds[] = $res['id'];
+			}
+			$stmt = $db->prepare("SELECT DISTINCT(`group`) FROM fair_group_rel WHERE `fair` IN(".implode(',',$fairIds).")");
+			$stmt->execute();
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (count($result) > 0) {
+				foreach ($result as $res) {
+					$stmt = $db->prepare("SELECT `fair` FROM fair_group_rel WHERE `group` = ?");
+					$stmt->execute(array($res['group']));
+					$fairsInGroup = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					$fairIdsInGroup = array();
+					// Implode fair
+					foreach ($fairsInGroup as $fairInGroup) {
+						$fairIdsInGroup[] = implode(', ', $fairInGroup);
+					}
+					// Get the group name
+					$stmt = $db->prepare("SELECT `name` FROM fair_group WHERE `id` = ?");
+					$stmt->execute(array($res['group']));
+					$groupName = $stmt->fetch(PDO::FETCH_ASSOC);
+					// Get the groups fair ids and names
+					$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` IN (".implode(',',$fairIdsInGroup).") ORDER BY `fair`.`event_start` DESC");
+					$stmt->execute();
+					$groupedFairs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+					//print_r($groupName['name']);
+					$fairGroups.= '<li class="parent"><img src="images/icons/mainmenu_arrow.png" class="sub-menu-arrow"/><a class="inline-i">'.$groupName['name'].'</a><div class="menu-wrapper"><ul>';
+					foreach ($groupedFairs as $groupedFair) {
+						$fairGroups.= '<li><a href="page/loggedin/setFair/'.$groupedFair['id'].'">'.$groupedFair['windowtitle'].'</a></li>';
+					}
+					$fairGroups.= '</ul></div></li>';
+				}
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE `id` NOT IN (".implode(',',$fairIdsInGroup).") AND `event_stop` > ? ORDER BY `fair`.`event_start` DESC");
+				$stmt->execute(array(time()));
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			} else {
+				$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE approved = 1 AND `event_stop` > ? ORDER BY `fair`.`event_start` ASC");
+				$stmt->execute(array(time()));
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				foreach ($result as $res) {
+					$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+				}
+			}
+			$stmt = $db->prepare("SELECT `id`, `windowtitle` FROM fair WHERE approved = 1 AND `event_stop` < ? ORDER BY `fair`.`event_start` DESC");
+			$stmt->execute(array(time()));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$opts.= '<li class="parent"><img src="images/icons/mainmenu_arrow.png" class="sub-menu-arrow"/><a class="inline-i">'.uh($translator->{"Old events"}).'</a><div class="menu-wrapper"><ul>';
+			foreach ($result as $res) {
+				$opts.= '<li><a href="page/loggedin/setFair/'.$res['id'].'">'.$res['windowtitle'].'</a></li>';
+			}
+			$opts.= '</ul></div></li>';
 		}
 	?>
 

@@ -22,8 +22,8 @@ ExpiresDefault modification
 RewriteEngine On
 
 ## Force www ##
-RewriteCond %{HTTP_HOST} ^chartbooking.com [NC]
-RewriteRule ^(.*)$ http://www.chartbooking.com/$1 [R=301,L]
+##RewriteCond %{HTTP_HOST} ^chartbookerdemo.com [NC]
+##RewriteRule ^(.*)$ http://chartbookerdemo.com/$1 [R=301,L]
 
 RewriteRule .*favicon.ico favicon.ico [passthrough]
 

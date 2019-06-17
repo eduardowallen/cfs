@@ -39,6 +39,7 @@
 			amNames: ['AM', 'A'],
 			pmNames: ['PM', 'P'],
 			isRTL: false,
+
 		};
 		$.timepicker.setDefaults($.timepicker.regional['sv']);
 })(jQuery);

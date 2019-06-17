@@ -18,10 +18,11 @@ class FairMapPosition extends Model {
 					$this->set('expires', '0000-00-00');
 					$this->save();
 					//Delete exhibitor for position
-					$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history SELECT * FROM exhibitor WHERE position = ?");
-					$stmt_history->execute(array($this->id));				
-					$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE position = ?");
-					$stmt->execute(array($this->id));
+					$ex = new Exhibitor;
+					$ex->load($this->id, 'position');
+					if ($ex->wasLoaded()) {
+						$ex->delete();
+					}
 				} else {
 					$ex = new Exhibitor;
 					$ex->load($this->id, 'position');

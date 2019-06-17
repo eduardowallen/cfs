@@ -20,6 +20,20 @@ class ExhibitorArticleRel extends Exhibitor {
 		return true;
 	}
 
+	public function loadAmount($key1, $key2, $by1, $by2) {
+
+		$stmt = $this->db->prepare("SELECT amount FROM exhibitor_article_rel LEFT JOIN exhibitor ON exhibitor_article_rel.exhibitor = exhibitor.id WHERE `".$by1."` = ? AND `".$by2."` = ?");
+		$stmt->execute(array($key1, $key2));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		if ($result > 0) {
+			
+			foreach ($result as $res) {
+				$this->exhibitor_article_amount[] = $res['exhibitor'];
+			}
+		}
+
+		return true;
+	}
 
 /*	public function load($value, $key, $value2 = NULL, $key2 = NULL) {
 		if (!is_null($key2) && !is_null($value2)) {

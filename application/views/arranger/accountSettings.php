@@ -37,9 +37,6 @@
 	<label for="phone3"><?php echo $phone3_label; ?></label>
 	<input type="text" name="phone3" id="phone3" value="<?php echo $user->get('phone3'); ?>"/>
 	
-	<label for="fax"><?php echo $fax_label; ?></label>
-	<input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
-	
 	<label for="website"><?php echo $website_label; ?></label>
 	<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>
 	

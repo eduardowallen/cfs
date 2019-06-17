@@ -114,6 +114,7 @@ $("#position_price_input").poshytip({
 		input.removeClass('input_error');
 		input.addClass('input_ok');
 		input.data('valid', true);
+		input.val($(this).val().toLowerCase());
 
 		if (typeof aliasTimer !== "undefined") {
 			window.clearTimeout(aliasTimer);

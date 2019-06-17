@@ -49,7 +49,7 @@
         },
         _next: function() {
             FORM.next_fs = FORM.current_fs.next();
-	
+    
             //activate next step on progressbar using the index of next_fs
             $("#multistepform-progressbar li").eq($(".form").index(FORM.next_fs)).addClass("active");
 
@@ -58,24 +58,24 @@
             //hide the current fieldset with style
             FORM.current_fs.animate({opacity: 0}, {
                 step: function(now, mx) {
-	                //as the opacity of current_fs reduces to 0 - stored in "now"
-	                //1. scale current_fs down to 80%
-	                scale = 1 - (1 - now) * 0.2;
-	                //2. bring next_fs from the right(50%)
-	                left = (now * 50)+"%";
-	                //3. increase opacity of next_fs to 1 as it moves in
-	                opacity = 1 - now;
-	                FORM.current_fs.css({'transform': 'scale('+scale+')'});
-	                FORM.next_fs.css({'left': left, 'opacity': opacity});
+                    //as the opacity of current_fs reduces to 0 - stored in "now"
+                    //1. scale current_fs down to 80%
+                    scale = 1 - (1 - now) * 0.2;
+                    //2. bring next_fs from the right(50%)
+                    left = (now * 50)+"%";
+                    //3. increase opacity of next_fs to 1 as it moves in
+                    opacity = 1 - now;
+                    FORM.current_fs.css({'transform': 'scale('+scale+')'});
+                    FORM.next_fs.css({'left': left, 'opacity': opacity});
                 }, 
                 duration: FORM.opts['duration'], 
                 complete: function(){
                     if(!FORM.next_fs[0]) {
                         FORM._close();
                     }
-	                FORM.current_fs.hide();
+                    FORM.current_fs.hide();
                     FORM.current_fs = FORM.next_fs;
-	                FORM.animating = false;
+                    FORM.animating = false;
 
                     var curent_forms = FORM.current_fs.find('form');
                     for(var i=0;i<curent_forms.length;i++) {
@@ -107,9 +107,9 @@
             FORM._close();
         },
         next: function(){
-	        if(FORM.animating) return false;
-	        FORM.animating = true;
-	
+            if(FORM.animating) return false;
+            FORM.animating = true;
+    
             var form = $(FORM.current_fs).children('form');
             if(form.length) {       
                 var form_data = $(form[0]).serialize();
@@ -118,7 +118,7 @@
                     url:$(form[0]).attr('action'),
                     data: form_data,
                     success: function(){
-	                    FORM._next();
+                        FORM._next();
                     }
                 });
             } else {
@@ -127,34 +127,34 @@
         },
         prev: function() {
             if(FORM.animating) return false;
-	        FORM.animating = true;
-	
-	        FORM.previous_fs = FORM.current_fs.prev();
-	
-	        //de-activate current step on progressbar
-	        $("#multistepform-progressbar li").eq($(".form").index(FORM.current_fs)).removeClass("active");
-	
-	        FORM.previous_fs.show(); 
-	        FORM.current_fs.animate({opacity: 0}, {
-		        step: function(now, mx) {
-			        //as the opacity of current_fs reduces to 0 - stored in "now"
-			        //1. scale previous_fs from 80% to 100%
-			        scale = 0.8 + (1 - now) * 0.2;
-			        //2. take current_fs to the right(50%) - from 0%
-			        left = ((1-now) * 50)+"%";
-			        //3. increase opacity of previous_fs to 1 as it moves in
-			        opacity = 1 - now;
-			        FORM.current_fs.css({'left': left});
-			        FORM.previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
-		        }, 
-		        duration: FORM.opts['duration'], 
-		        complete: function(){
-			        FORM.current_fs.hide();
+            FORM.animating = true;
+    
+            FORM.previous_fs = FORM.current_fs.prev();
+    
+            //de-activate current step on progressbar
+            $("#multistepform-progressbar li").eq($(".form").index(FORM.current_fs)).removeClass("active");
+    
+            FORM.previous_fs.show(); 
+            FORM.current_fs.animate({opacity: 0}, {
+                step: function(now, mx) {
+                    //as the opacity of current_fs reduces to 0 - stored in "now"
+                    //1. scale previous_fs from 80% to 100%
+                    scale = 0.8 + (1 - now) * 0.2;
+                    //2. take current_fs to the right(50%) - from 0%
+                    left = ((1-now) * 50)+"%";
+                    //3. increase opacity of previous_fs to 1 as it moves in
+                    opacity = 1 - now;
+                    FORM.current_fs.css({'left': left});
+                    FORM.previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
+                }, 
+                duration: FORM.opts['duration'], 
+                complete: function(){
+                    FORM.current_fs.hide();
                     FORM.current_fs = FORM.previous_fs;
-			        FORM.animating = false;
-		        }, 
-		        easing: 'easeInOutBack'
-	        });
+                    FORM.animating = false;
+                }, 
+                easing: 'easeInOutBack'
+            });
         }
     });
 })(jQuery);

@@ -22,11 +22,6 @@
 		<p class="language">
 			<a href="translate/language/sv"<?php if (LANGUAGE == 'sv') { echo ' class="selected"'; } ?>><img src="images/flag_sv_177.png" class="chooseLang" alt="Svenska"/><span>Svenska</span></a>
 		</p>
-	</div>
-	<div class="languageGroup">
-		<p class="language">
-			<a href="translate/language/de"<?php if (LANGUAGE == 'de') { echo ' class="selected"'; } ?>><img src="images/flag_de_177.png" class="chooseLang" alt="Deutsch"/><span>Deutsch</span></a>
-		</p>
 		<p class="language">
 			<a href="translate/language/es"<?php if (LANGUAGE == 'es') { echo ' class="selected"'; } ?>><img src="images/flag_es_177.png" class="chooseLang" alt="Espanol"/><span>Español</span></a>
 		</p>

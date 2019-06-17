@@ -127,7 +127,7 @@ class SmsController extends Controller {
 			$this->Sms->set('fair_id', $_POST['fair']);
 			$this->Sms->set('author_user_id', $_SESSION['user_id']);
 			$this->Sms->set('text', $_POST['sms_text']);
-			$this->Sms->set('num_texts', ceil(mb_strlen($_POST['sms_text'], 'UTF-8') / 160));
+			$this->Sms->set('num_texts', ceil(mb_strlen($_POST['sms_text'], 'UTF-8') / 159));
 			$this->Sms->set('sent_time', time());
 			$this->Sms->save();
 
@@ -138,6 +138,8 @@ class SmsController extends Controller {
 			$mosms = new MoSmsAPI(true, MOSMS_USERNAME, MOSMS_PASSWORD, MOSMS_USE_CUSTOM_SENDER);
 			$num_sent = 0;
 			$errors = array();
+			
+			$_POST['user'] = array_unique($_POST['user']);
 
 			foreach ($_POST['user'] as $user_id) {
 				$user = new User();
@@ -177,7 +179,7 @@ class SmsController extends Controller {
 			}
 
 		} catch (Exception $ex) {
-			$this->set('error', $ex->getMessage());
+			$this->setNoTranslate('error', $ex->getMessage());
 			$this->setNoTranslate('code', $ex->getCode());
 		}
 	}

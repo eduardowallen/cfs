@@ -7,6 +7,7 @@ class Fair extends Model {
 	protected $categories = array();
 	protected $extraOptions = array();
 	protected $articles = array();
+	protected $group = array();
 	protected $preliminaries = array();
 	protected $logo;
 
@@ -16,7 +17,7 @@ class Fair extends Model {
 	}
 
 	public function loadself($key, $by) {
-		$stmt = $this->db->prepare("SELECT `id`, `name`, `hidden` FROM `fair` WHERE `".$by."` = ?");
+		$stmt = $this->db->prepare("SELECT `id`, `name`, `hidden`, `approved` FROM `fair` WHERE `".$by."` = ?");
 		$stmt->execute(array($key));
 
 		$res = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -59,12 +60,11 @@ class Fair extends Model {
 				$this->logo = 'images/fairs/'.$this->id.'/logotype/'.$this->id.'_logo.png';
 			}
 
-			//if (!$disregardLocked)
-				//$this->isLocked();
 			$this->fetchExternal('Exhibitor', 'exhibitors', 'fair', $this->id);
 			$this->fetchExternal('ExhibitorCategory', 'categories', 'fair', $this->id);
-			$this->fetchExternal("FairExtraOption", 'extraOptions', 'fair', $this->id);
-			$this->fetchExternal("FairArticle", 'articles', 'fair', $this->id);
+			$this->fetchExternal('FairExtraOption', 'extraOptions', 'fair', $this->id);
+			$this->fetchExternal('FairArticle', 'articles', 'fair', $this->id);
+			$this->fetchExternalGroup('FairGroupRel', 'group', 'fair', $this->id);
 
 			$stmt = $this->db->prepare("SELECT * FROM preliminary_booking WHERE fair = ?");
 			$stmt->execute(array($this->id));
@@ -180,12 +180,7 @@ class Fair extends Model {
 
 		$this->set('url', $this->makeUrl($this->name));
 		$id = parent::save();
-		
-		if ($this->id == 0) {
-			$stmt = $this->db->prepare("INSERT INTO exhibitor_category (name, fair) VALUES (?, ?)");
-			$stmt->execute(array('Övrigt', $id));
-		}
-		
+
 		if (!file_exists(ROOT.'public/images/fairs/'.$id)) {
 			mkdir(ROOT.'public/images/fairs/'.$id);
 			mkdir(ROOT.'public/images/fairs/'.$id.'/maps');
@@ -264,10 +259,11 @@ class Fair extends Model {
 		return $result;
 	}
 
-	private function isLocked(){
-		if($this->get('approved') == 2 AND userLevel() != 4){
-			header("Location: ".BASE_URL.'locked');
-		}
+	public function isLocked() {
+		if ($this->approved == 2 AND userLevel() != 4)
+			return true;
+		else
+			return false;
 	}
 
 }

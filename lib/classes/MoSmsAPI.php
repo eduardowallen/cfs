@@ -46,9 +46,9 @@ class MoSmsAPI {
 	}
 
 	public function sendSms($text, $phone) {
-		//if (defined('TESTSERV') && TESTSERV)
+		if (defined('TESTSERV') && TESTSERV)
 		{
-		//	$phone = '';
+			$phone = '';
 		}
 
 		$params = array(

@@ -11,6 +11,7 @@
 </style>
 <button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/overview'"><?php echo uh($translator->{'Go back'}); ?></button>
 <br />
+<h1><?php echo $fair->get('name'); ?> - <?php echo $headline; ?></h1>
 <h2><?php echo $heading; ?></h2>
 <form action="fair/event_mail/<?php echo $id; ?>" method="POST">
 	<table class="tableNoBorder">
@@ -70,7 +71,7 @@
 		</tr>
 		<!--		Ändra en bokning slut				-->
 		
-		<!--		Avbryt en bokning start				-->
+		<!--		Avbryt en bokning eller reservation start				-->
 		<tr>
 			<td><?php echo $bookingCancelled; ?></td>
 			<td>
@@ -108,82 +109,60 @@
 			</td>			
 		</tr>
 		<!--		Avbryt en bokning slut				-->		
-		<!--		Skapa en reservation start			-->
-				<tr>
-			<td><?php echo $reservationCreated; ?></td>
+		<!--		Nedgradera en bokning start				-->
+		<tr>
+			<td><?php echo $bookingToReservation; ?></td>
 			<td>
 				<?php echo $toMyself; ?>
-				<input
+				<input 
 					type="checkbox"
-					name="reservationCreated[]"
-					id="reservationCreated0"
+					name="bookingToReservation[]"
+					id="bookingToReservation0"
 					value="0"
-					<?php echo (is_array($mailSettings->reservationCreated) && in_array("0", $mailSettings->reservationCreated)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->bookingToReservation) && in_array("0", $mailSettings->bookingToReservation)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="reservationCreated0" />
+				<label class="squaredFour" for="bookingToReservation0" />
 			</td>
 			<td>
 				<?php echo $toExhibitor; ?>
 				<input
-					type="checkbox"
-					name="reservationCreated[]"
-					id="reservationCreated1"
-					value="1"
-					<?php echo (is_array($mailSettings->reservationCreated) && in_array("1", $mailSettings->reservationCreated)) ? "checked=\"checked\"" : ""; ?>
+				type="checkbox"
+				name="bookingToReservation[]"
+				id="bookingToReservation1"
+				value="1"
+				<?php echo (is_array($mailSettings->bookingToReservation) && in_array("1", $mailSettings->bookingToReservation)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="reservationCreated1" />
-			</td>
+				<label class="squaredFour" for="bookingToReservation1" />
+			</td>	
 		</tr>
-		<!--		Skapa en reservation slut			-->
-		<!--		Ändra en reservation start			-->		
+		<!--		Nedgradera en bokning slut				-->
+		<!--		Uppgradera en reservation start				-->
 		<tr>
-			<td><?php echo $reservationEdited; ?></td>
+			<td><?php echo $reservationToBooking; ?></td>
 			<td>
 				<?php echo $toMyself; ?>
-				<input
+				<input 
 					type="checkbox"
-					name="reservationEdited[]"
-					id="reservationEdited0"
+					name="reservationToBooking[]"
+					id="reservationToBooking0"
 					value="0"
-					<?php echo (is_array($mailSettings->reservationEdited) && in_array("0", $mailSettings->reservationEdited)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->reservationToBooking) && in_array("0", $mailSettings->reservationToBooking)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="reservationEdited0" />
-			</td>
-			<td><?php echo $toExhibitor; ?>
-				<input
-					type="checkbox"
-					name="reservationEdited[]"
-					id="reservationEdited1"
-					value="1"
-					<?php echo (is_array($mailSettings->reservationEdited) && in_array("1", $mailSettings->reservationEdited)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="reservationEdited1" />
-			</td>
-		</tr>
-		<!--		Ändra en reservation slut			-->
-		<!--		Avbryt en reservation start					
-		<tr>
-			<td><?php echo $reservationCancelled; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
-				<input
-					type="checkbox"
-					name="reservationCancelled[]"
-					value="0"
-					<?php echo (is_array($mailSettings->reservationCancelled) && in_array("0", $mailSettings->reservationCancelled)) ? "checked=\"checked\"" : ""; ?>
-				/>
+				<label class="squaredFour" for="reservationToBooking0" />
 			</td>
 			<td>
 				<?php echo $toExhibitor; ?>
 				<input
-					type="checkbox"
-					name="reservationCancelled[]"
-					value="1"
-					<?php echo (is_array($mailSettings->reservationCancelled) && in_array("1", $mailSettings->reservationCancelled)) ? "checked=\"checked\"" : ""; ?>
+				type="checkbox"
+				name="reservationToBooking[]"
+				id="reservationToBooking1"
+				value="1"
+				<?php echo (is_array($mailSettings->reservationToBooking) && in_array("1", $mailSettings->reservationToBooking)) ? "checked=\"checked\"" : ""; ?>
 				/>
-			</td>
+				<label class="squaredFour" for="reservationToBooking1" />
+			</td>	
 		</tr>
-				Avbryt en reservation slut			-->
+		<!--		Uppgradera en reservation slut				-->
 		<!--		Ta emot en preliminärbokning start			-->
 		<tr>
 			<td><?php echo $recievePreliminaryBooking; ?></td>
@@ -253,27 +232,16 @@
 		<!--		Avbryt en preliminärbokning slut			-->
 		<!--		Tar emot en ansökan om plats (kölista/anmälan till ett dolt event) start		-->	
 		<tr>
-			<td><?php echo $registerForFair; ?></td>
+			<td><?php echo $recieveRegistration; ?></td>
 			<td><?php echo $toMyself; ?>
 				<input
 					type="checkbox"
-					name="registerForFair[]"
-					id="registerForFair0"
+					name="recieveRegistration[]"
+					id="recieveRegistration0"
 					value="0"
-					<?php echo (is_array($mailSettings->registerForFair) && in_array("0", $mailSettings->registerForFair)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->recieveRegistration) && in_array("0", $mailSettings->recieveRegistration)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="registerForFair0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
-				<input
-					type="checkbox"
-					name="registerForFair[]"
-					id="registerForFair1"
-					value="1"
-					<?php echo (is_array($mailSettings->registerForFair) && in_array("1", $mailSettings->registerForFair)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="registerForFair1" />
+				<label class="squaredFour" for="recieveRegistration0" />
 			</td>
 		</tr>
 		<!--		Tar emot en ansökan om plats (kölista/anmälan till ett dolt event) slut			-->

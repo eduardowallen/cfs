@@ -1,16 +1,4 @@
 <script>
-	function saveCustomId(){
-		// Hämta kundnummer
-		var customerId = $('#customid').val();
-
-		$.ajax({
-			url: 'exhibitor/saveCustomerId/<?php echo $user->get('id')?>/'+customerId,
-			type: 'GET'
-		}).success(function(responseData){
-		
-			alert(responseData);
-		});
-	}
 	window.print();
 </script>
 <style>
@@ -61,9 +49,6 @@ h1{
 
 	<label for="phone2"><?php echo $phone2_label; ?></label>
 	<div type="text" name="phone2" id="phone2"  ><?php echo $user->get('phone2'); ?></div>
-
-	<label for="fax"><?php echo $fax_label; ?></label>
-	<div type="text" name="fax" id="fax"  ><?php echo $user->get('fax'); ?></div>
 
 	<label for="email"><?php echo $email_label; ?></label>
 	<div type="text" name="email" id="email"  ><?php echo $user->get('email'); ?></div>

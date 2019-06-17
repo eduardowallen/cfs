@@ -12,7 +12,6 @@ $general_column_info = array(
 		'country' => $translator->{'Country'},
 		'phone1' => $translator->{'Phone 1'},
 		'phone2' => $translator->{'Phone 2'},
-		'fax' => $translator->{'Fax number'},
 		'email' => $translator->{'E-mail'},
 		'website' => $translator->{'Website'}
 	),
@@ -40,6 +39,7 @@ $bookings_columns = array(
 		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'booking_time' => $translator->{'Time of booking'},
 		'edit_time' => $translator->{'Last edited'},
 		'arranger_message' => $translator->{'Message to organizer in list'}
@@ -55,6 +55,7 @@ $reserved_columns = array(
 		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'expires' => $translator->{'Reserved until'},
 		'booking_time' => $translator->{'Time of booking'},
 		'edit_time' => $translator->{'Last edited'},
@@ -71,6 +72,7 @@ $prelbookings_columns = array(
 		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'booking_time' => $translator->{'Time of booking'},
 		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
@@ -85,6 +87,7 @@ $prelbookings_inactive_columns = array(
 		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'booking_time' => $translator->{'Time of booking'},
 		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
@@ -97,6 +100,7 @@ $fair_registrations_columns = array(
 		'area' => $translator->{'Area'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'booking_time' => $translator->{'Time of booking'},
 		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
@@ -109,6 +113,7 @@ $fair_registrations_deleted_columns = array(
 		'area' => $translator->{'Area'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'booking_time' => $translator->{'Time of booking'},
 		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
@@ -123,7 +128,9 @@ $prelbookings_deleted_columns = array(
 		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'booking_time' => $translator->{'Time of booking'},
+		'deletion_time' => $translator->{'Time of deletion'},
 		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
 );
@@ -137,7 +144,9 @@ $bookings_deleted_columns = array(
 		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'booking_time' => $translator->{'Time of booking'},
+		'deletion_time' => $translator->{'Time of deletion'},
 		'edit_time' => $translator->{'Last edited'},
 		'arranger_message' => $translator->{'Message to organizer in list'}
 	)
@@ -152,6 +161,7 @@ $reserved_cloned_columns = array(
 		'information' => $translator->{'Information about stand space'},
 		'commodity' => $translator->{'Trade'},
 		'extra_options' => $translator->{'Extra options'},
+		'articles' => $translator->{'Articles'},
 		'expires' => $translator->{'Reserved until'},
 		'booking_time' => $translator->{'Time of booking'},
 		'edit_time' => $translator->{'Last edited'},
@@ -172,7 +182,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 
 <script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
 <button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
-<h1><?php echo $fair->get('name'); ?></h1>
+<h1><?php echo $fair->get('name'); ?> - <?php echo $headline; ?></h1>
 
 <?php if (isset($fairs_admin)): // If a list of accessible fairs is found, display a drop-down list to choose from ?>
   <label class="inline-block"><?php echo uh($translator->{'Switch to event: '}); ?>&nbsp</label>
@@ -213,13 +223,19 @@ function createInvoices(e) {
 	var button = $(e.target);
 	var table_form = $(button.prop('form'));
 	var html = '<label for="invoice_expirationdate"><?php echo uh($translator->{"Expiration date"}); ?> (DD-MM-YYYY) *</label> <input type="text" class="datepicker date" name="invoice_expirationdate" id="invoice_expirationdate" value="<?php echo $default_invoice_date; ?>"/>';
-	count = 0;
-
+	//icount = [];
+	invoices_to_create = 0;
+	invoices_left = 1;
 	$('input[name*=rows]:checked', table_form).each(function(index, input) {
-		count += $(input).data('invoiceid').length;
+		if ($(input).data('invoiceid')) {
+			//console.log($(input).data('invoiceid'));
+			$(input).prop('checked', false);
+			//icount += $(input).data('invoiceid') + '<br>';
+		} else {
+			invoices_to_create += $(input).length;
+		}
 	});
-
-	if (count === 0) {
+	//console.log(icount);
 		$.confirm({
 			title: '<?php echo uh($translator->{"Set expiration date for these invoices"}); ?>',
 			content: html + '<br/><br/><i><?php echo uh ($translator->{"You can change the date that is automatically entered in the field above at the Invoice Settings for this event."}); ?></i>',
@@ -244,16 +260,26 @@ function createInvoices(e) {
 					title: '<?php echo $confirm_create_invoice; ?>',
 					content: '<?php echo uh($translator->{"This will create invoices for all the selected spaces"}); ?> <?php echo uh($translator->{"with expirationdate"}); ?> ' + $('#invoice_expirationdate').val(),
 					confirm: function(){
-
+						$body.addClass("progress");
+						$body.removeClass("loading");
 						$('input[name*=rows]:checked', table_form).each(function(index, input) {
+							$body.removeClass("loading");
 							$.ajax({
-								url: 'exhibitor/exportBookingPDF/' + $(input).val() + '/' + (Math.round(dt.getTime()/1000) + 43200),
-								method: 'POST'
-								});
-							//console.log($(input).val());
+								url: 'exhibitor/createInvoice/' + $(input).val() + '/' + (Math.round(dt.getTime()/1000) + 43200),
+								method: 'POST',
+								success: function(){
+									$('progress').val(invoices_left / invoices_to_create * 100);
+									invoices_left++;
+                  					$('#invoice_progress').text(invoices_left + '/' + invoices_to_create);
+								}
+							});
+
+						//	console.log($(input).val());
 						});
+
 						$(document).on({
 							ajaxStop: function() { 
+								$body.removeClass("progress");
 								$.alert({
 								    content: '<?php echo uh($translator->{"The invoices were successfully created."}); ?>',
 								    confirm: function() {
@@ -271,14 +297,14 @@ function createInvoices(e) {
 
 			}
 		});
-	} else {
+	/*} else {
 		$.alert({
 		    content: '<?php echo uh($translator->{"You cannot create new invoices for reservations that already have invoices created for them."}); ?>',
 		    confirm: function() {
 		    	
 		    }
 		});
-	}
+	}*/
 }
 		function confirmCreateInvoice(link, posname, company) {
 			var html = '<label for="invoice_expirationdate"><?php echo uh($translator->{"Expiration date"}); ?> (DD-MM-YYYY) *</label> <input type="text" class="datepicker date" name="invoice_expirationdate" id="invoice_expirationdate" value="<?php echo $default_invoice_date; ?>"/>';
@@ -336,12 +362,12 @@ function createInvoices(e) {
 		var confirmDialogue = "<?php echo $confirm_delete?> %s?";
 		var deletion = "<?php echo $deletion_comment?>";
         $.confirm({
-            title: ' ',
-            content: deletion + '<textarea style="margin-top: 0.5em" cols="50" rows="5" placeholder="<?php echo $deletion_comment_placeholder ?>"></textarea>',
+            title: false,
+            content: deletion + '<textarea style="margin-top: 0.5em" cols="50" rows="5" placeholder="<?php echo $deletion_comment_placeholder; ?>"></textarea>',
             confirm: function(){
             	var message = this.$content.find('textarea').val();
               $.confirm({
-				title: ' ',
+				title: false,
 				content: confirmDialogue.replace('%s', position),
 				confirm: function(){
 				  denyPosition(link, message, position, status);
@@ -358,12 +384,12 @@ function createInvoices(e) {
 		var confirmDialogue = "<?php echo $confirm_delete_registration?> %s?";
 		var deletion = "<?php echo $deletion_comment?>";
         $.confirm({
-            title: ' ',
-            content: deletion + '<textarea style="margin-top: 0.5em" cols="50" rows="5" placeholder="<?php echo $deletion_comment_placeholder ?>"></textarea>',
+            title: false,
+            content: deletion + '<textarea style="margin-top: 0.5em" cols="50" rows="5" placeholder="<?php echo $deletion_comment_placeholder; ?>"></textarea>',
             confirm: function(){
             	var message = this.$content.find('textarea').val();
               $.confirm({
-				title: ' ',
+				title: false,
 				content: confirmDialogue.replace('%s', company),
 				confirm: function(){
 				  denyRegistration(link, message, company);
@@ -401,8 +427,21 @@ function createInvoices(e) {
 </script>
 
 <?php if ($hasRights): ?>
-
-
+<?php if (!empty($mail_errors)): ?>
+  <script>
+  showInfoDialog('<?php echo implode('<br>', $mail_errors); ?>', '<?php echo $error_title; ?>');
+  </script>
+<?php endif; ?>
+<?php if (isset($event_locked)): ?>
+  <script>
+  showInfoDialog('<?php echo $event_locked_content; ?>', '<?php echo $event_locked_title; ?>');
+  </script>
+<?php endif; ?>
+<?php if (!empty($mail_success)): ?>
+  <script>
+  showInfoDialog('<?php echo $emails_sent; ?>', '<?php echo $success_title; ?>');
+  </script>
+<?php endif; ?>
 <style>
 #book_position_form fieldset {
 	padding-top: 0;
@@ -413,20 +452,19 @@ function createInvoices(e) {
 <!-- multistep form -->
 <form id="book_position_form" class="form booking_form" method="post" action="">
 <!-- progressbar -->
-<ul id="progressbar">
+<ul class="progressbar progress-3">
 	<li class="active"><?php echo uh($translator->{'Categories and assortment'}); ?></li>
 	<li><?php echo uh($translator->{'Articles and extra options'}); ?></li>
-	<li><?php echo uh($translator->{'Message to organizer (optional)'}); ?></li>
 	<li><?php echo uh($translator->{'Confirm booking'}); ?>
 </ul>
 	<fieldset>
 		<!-- FIELDSET NUMBER ONE -->
 		<h3 class="confirm standSpaceName"><?php echo uh($translator->{'Book requested stand space'}); ?></h3>
 		<h3 class="edit standSpaceName"><?php echo uh($translator->{'Edit booking'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -4em; margin-right: -2em;"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton popupCloseDialogue" />
 		<br />
 		<div class="ssinfo"></div>
-	<div id="column">
+	<div class="column">
 	  <!-- Drop-downlista för att välja användare att boka in -->	
 		<label for="book_user_input"><?php echo uh($translator->{'User'}); ?></label>
 		<select style="width:25em;" id="book_user_input" disabled="disabled">
@@ -435,7 +473,8 @@ function createInvoices(e) {
 		<label class="label_medium" for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<textarea name="commodity" maxlength="200" class="commodity_big" id="book_commodity_input"></textarea>		
 	</div>
-	    		<!-- Div för att välja kategori -->
+
+		<!-- Div för att välja kategori -->
 		<label class="table_header" for="book_category_scrollbox"><?php echo uh($translator->{'Categories'}); ?> *</label>
 		<div class="scrolltable-wrap no-search" id="book_category_scrollbox_div">
 			<table class="std_table std_booking_table" id="book_category_scrollbox">
@@ -448,10 +487,10 @@ function createInvoices(e) {
 				<tbody>
 					<?php foreach($fair->get('categories') as $cat){ ?>
 					<tr>
-						<td class="left"><?php echo $cat->get('name') ?></td>
+						<td class="left"><?php echo $cat->get('name'); ?></td>
 						<td>
-							<input type="checkbox" id="<?php echo $cat->get('id') ?>" name="categories[]" value="<?php echo $cat->get('id') ?>" />
-							<label class="squaredFour" for="<?php echo $cat->get('id') ?>" />
+							<input type="checkbox" id="<?php echo $cat->get('id'); ?>" name="categories[]" value="<?php echo $cat->get('id'); ?>" />
+							<label class="squaredFour" for="<?php echo $cat->get('id'); ?>" />
 						</td>
 					</tr>
 					<?php } ?>
@@ -459,14 +498,15 @@ function createInvoices(e) {
 			</table>
 		</div>
 		<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-		<input type="button" id="book_first_step" class="greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
+		<input type="button" class="book_first_step greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
+		<input type="button" name="next" class="book_review lastStep greenbutton mediumbutton nomargin floatright" value="<?php echo uh($translator->{'Go to summary'}); ?>" />
 
 	</fieldset>
 	<fieldset>
 		<!-- FIELDSET NUMBER TWO -->
 		<h3 class="confirm standSpaceName"><?php echo uh($translator->{'Book requested stand space'}); ?></h3>
 		<h3 class="edit standSpaceName"><?php echo uh($translator->{'Edit booking'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -4em; margin-right: -2em;"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton popupCloseDialogue" />
 			<!--  Extra tillval -->
 	<?php if ($fair->get('extraOptions')): ?>
 		<label class="table_header" for="book_option_scrollbox"><?php echo uh($translator->{'Extra options'}); ?></label>
@@ -483,13 +523,13 @@ function createInvoices(e) {
 				<tbody>
 					<?php foreach($fair->get('extraOptions') as $extraOption) { ?>
 						<tr>
-							<td><?php echo $extraOption->get('custom_id') ?></td>
+							<td><?php echo $extraOption->get('custom_id'); ?></td>
 							<?php if ($extraOption->get('required') == 1): ?>
-								<td class="left"><?php echo $extraOption->get('text') ?>*</td>
+								<td class="left"><?php echo $extraOption->get('text'); ?>*</td>
 							<?php else : ?>
-								<td class="left"><?php echo $extraOption->get('text') ?></td>
+								<td class="left"><?php echo $extraOption->get('text'); ?></td>
 							<?php endif; ?>
-							<td><?php echo $extraOption->get('price') ?></td>
+							<td><?php echo $extraOption->get('price'); ?></td>
 							<td style="display:none;">
 							<?php if ($extraOption->get('vat') == 25) { ?>
 								<input hidden value="25" />
@@ -500,8 +540,8 @@ function createInvoices(e) {
 							<?php } ?>
 							</td>								
 							<td>
-								<input type="checkbox" id="<?php echo $extraOption->get('id') ?>" name="options[]" value="<?php echo $extraOption->get('id') ?>"/>
-								<label class="squaredFour" for="<?php echo $extraOption->get('id') ?>" />
+								<input type="checkbox" id="<?php echo $extraOption->get('id'); ?>" name="options[]" value="<?php echo $extraOption->get('id'); ?>"/>
+								<label class="squaredFour" for="<?php echo $extraOption->get('id'); ?>" />
 							</td>
 						</tr>
 					<?php } ?>
@@ -525,9 +565,9 @@ function createInvoices(e) {
 				<tbody>
 					<?php foreach($fair->get('articles') as $article) { ?>
 					<tr>
-						<td><?php echo $article->get('custom_id') ?></td>
-						<td class="left"><?php echo $article->get('text') ?></td>
-						<td><?php echo $article->get('price') ?></td>
+						<td><?php echo $article->get('custom_id'); ?></td>
+						<td class="left"><?php echo $article->get('text'); ?></td>
+						<td><?php echo $article->get('price'); ?></td>
 						<td style="display:none;">
 							<?php if ($article->get('vat') == 25) { ?>
 								<input hidden value="25" />
@@ -538,7 +578,7 @@ function createInvoices(e) {
 							<?php } ?>
 						</td>								
 						<td class="td-number-span">
-							<input type="text" class="form-control bfh-number" min="0" value="0" name="artamount[]" id="<?php echo $article->get('id') ?>" />
+							<input type="text" class="form-control bfh-number" min="0" value="0" name="artamount[]" id="<?php echo $article->get('id'); ?>" />
 							<input type="hidden" name="articles[]" />
 						</td>
 					</tr>
@@ -549,41 +589,25 @@ function createInvoices(e) {
 	<?php endif; ?>
 		<input type="button" name="previous" class="previous bluebutton mediumbutton nomargin" value="<?php echo uh($translator->{'Previous'}); ?>" />
 		<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-		<input type="button" name="next" class="next greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
+		<input type="button" name="next" class="book_review next greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
 		
 	</fieldset>
 	<fieldset>
 		<!-- FIELDSET NUMBER THREE -->
-		<h3 class="confirm standSpaceName"><?php echo uh($translator->{'Book requested stand space'}); ?></h3>
-		<h3 class="edit standSpaceName"><?php echo uh($translator->{'Edit booking'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -4em; margin-right: -2em;"/>
-		<br />
-
-		<label class="label_long" for="book_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
-		<textarea name="arranger_message" class="msg_to_organizer" id="book_message_input"></textarea>
-		<br />
-		<br />
-
-		<input type="button" name="previous" class="previous bluebutton mediumbutton nomargin" value="<?php echo uh($translator->{'Previous'}); ?>" />
-		<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-		<input type="button" id="book_review" name="next" class="next greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />	
-	</fieldset>
-	<fieldset>
-		<!-- FIELDSET NUMBER FOUR -->
 		<h3 class="confirm standSpaceName" style="padding-bottom: 0.416em;"><?php echo uh($translator->{'Book requested stand space'}); ?></h3>
 		<h3 class="edit standSpaceName" style="padding-bottom: 0.416em;"><?php echo uh($translator->{'Edit booking'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -3.7em; margin-right: -2em;"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton popupCloseDialogue" />
 		<br />
 		<div id="review_book_dialogue">
 			<br />
 			<label for="review_user" style="font-size:1.7em; display:inline;"><?php echo uh($translator->{'Exhibitor:'}); ?> </label>
 			<span style="font-size:1.7em;" id="review_user"></span>
 			<br />			
-			<div id="column" class="review_column1">
+			<div class="column review_column1">
 				<label for="review_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 				<p name="commodity" id="review_commodity_input"></p>
 			</div>
-			<div id="column" class="review_column2">
+			<div class="column review_column2">
 				<label for="review_category_list"><?php echo uh($translator->{'Categories'}); ?></label>
 				<p id="review_category_list" style="width:100%; float:left;"></p>		
 			</div>
@@ -619,25 +643,19 @@ function createInvoices(e) {
 <!-- multistep form -->
 <form id="reserve_position_form" class="form booking_form" method="post" action="">
 <!-- progressbar -->
-<ul id="progressbar">
+<ul class="progressbar progress-3">
 	<li class="active"><?php echo uh($translator->{'Categories and assortment'}); ?></li>
 	<li><?php echo uh($translator->{'Articles and extra options'}); ?></li>
-	<li><?php echo uh($translator->{'Message to organizer (optional)'}); ?></li>
-	<li><?php echo uh($translator->{'Confirm booking'}); ?>
+	<li><?php echo uh($translator->{'Confirm reservation'}); ?>
 </ul>
 	<fieldset>
 		<!-- FIELDSET NUMBER ONE -->
-		<h3 class="confirm standSpaceName"><?php echo uh($translator->{'Reserve requested stand space'}); ?></h3>
+		<h3 class="confirm standSpaceName"><?php echo uh($translator->{'Reserve stand space'}); ?></h3>
 		<h3 class="edit standSpaceName"><?php echo uh($translator->{'Edit reservation'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -4em; margin-right: -2em;"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton popupCloseDialogue" />
 		<br />
 		<div class="ssinfo"></div>
-	<div id="column">
-		<!-- Kalenderfunktion för att välja platsens slutgiltiga reservationsdatum -->
-		<label for="reserve_expires_input"><?php echo uh($translator->{'Reserved until'}); ?> (DD-MM-YYYY HH:MM)</label>
-		<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" title="<?php echo uh($translator->{'The date that you set here is the date when the reservation expires and the stand space is reopened (green) for preliminary bookings.'}); ?>" value=""/>
-	</div>
-	<div id="column">
+	<div class="column">
 	  <!-- Drop-downlista för att välja användare att boka in -->	
 		<label for="reserve_user_input"><?php echo uh($translator->{'User'}); ?></label>
 		<select style="width:25em;" id="reserve_user_input" disabled="disabled">
@@ -645,6 +663,10 @@ function createInvoices(e) {
 		</select>
 		<label class="label_medium" for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<textarea name="commodity" maxlength="200" class="commodity_big" id="reserve_commodity_input"></textarea>		
+	</div>
+	<div class="column">
+		<label class="label_medium" for="reserve_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
+		<textarea name="arranger_message" id="reserve_message_input"></textarea>
 	</div>
 	    		<!-- Div för att välja kategori -->
 		<label class="table_header" for="reserve_category_scrollbox"><?php echo uh($translator->{'Categories'}); ?> *</label>
@@ -659,10 +681,10 @@ function createInvoices(e) {
 				<tbody>
 					<?php foreach($fair->get('categories') as $cat){ ?>
 					<tr>
-						<td class="left"><?php echo $cat->get('name') ?></td>
+						<td class="left"><?php echo $cat->get('name'); ?></td>
 						<td>
-							<input type="checkbox" id="<?php echo $cat->get('id') ?>" name="categories[]" value="<?php echo $cat->get('id') ?>" />
-							<label class="squaredFour" for="<?php echo $cat->get('id') ?>" />
+							<input type="checkbox" id="<?php echo $cat->get('id'); ?>" name="categories[]" value="<?php echo $cat->get('id'); ?>" />
+							<label class="squaredFour" for="<?php echo $cat->get('id'); ?>" />
 						</td>
 					</tr>
 					<?php } ?>
@@ -671,13 +693,14 @@ function createInvoices(e) {
 		</div>
 		<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
 		<input type="button" id="reserve_first_step" class="greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
+		<input type="button" name="next" class="reserve_review lastStep greenbutton mediumbutton nomargin floatright" value="<?php echo uh($translator->{'Go to summary'}); ?>" />
 
 	</fieldset>
 	<fieldset>
 		<!-- FIELDSET NUMBER TWO -->
 		<h3 class="confirm standSpaceName"><?php echo uh($translator->{'Reserve requested stand space'}); ?></h3>
 		<h3 class="edit standSpaceName"><?php echo uh($translator->{'Edit reservation'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -4em; margin-right: -2em;"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton popupCloseDialogue" />
 			<!--  Extra tillval -->
 	<?php if ($fair->get('extraOptions')): ?>
 		<label class="table_header" for="reserve_option_scrollbox"><?php echo uh($translator->{'Extra options'}); ?></label>
@@ -694,13 +717,13 @@ function createInvoices(e) {
 				<tbody>
 					<?php foreach($fair->get('extraOptions') as $extraOption) { ?>
 						<tr>
-							<td><?php echo $extraOption->get('custom_id') ?></td>
+							<td><?php echo $extraOption->get('custom_id'); ?></td>
 							<?php if ($extraOption->get('required') == 1): ?>
-								<td class="left"><?php echo $extraOption->get('text') ?>*</td>
+								<td class="left"><?php echo $extraOption->get('text'); ?>*</td>
 							<?php else : ?>
-								<td class="left"><?php echo $extraOption->get('text') ?></td>
+								<td class="left"><?php echo $extraOption->get('text'); ?></td>
 							<?php endif; ?>
-							<td><?php echo $extraOption->get('price') ?></td>
+							<td><?php echo $extraOption->get('price'); ?></td>
 							<td style="display:none;">
 							<?php if ($extraOption->get('vat') == 25) { ?>
 								<input hidden value="25" />
@@ -711,8 +734,8 @@ function createInvoices(e) {
 							<?php } ?>
 							</td>									
 							<td>
-								<input type="checkbox" id="<?php echo $extraOption->get('id') ?>" name="options[]" value="<?php echo $extraOption->get('id') ?>"/>
-								<label class="squaredFour" for="<?php echo $extraOption->get('id') ?>" />
+								<input type="checkbox" id="<?php echo $extraOption->get('id'); ?>" name="options[]" value="<?php echo $extraOption->get('id'); ?>"/>
+								<label class="squaredFour" for="<?php echo $extraOption->get('id'); ?>" />
 							</td>
 						</tr>
 					<?php } ?>
@@ -735,10 +758,10 @@ function createInvoices(e) {
 				</thead>
 				<tbody>
 					<?php foreach($fair->get('articles') as $article) { ?>
-					<tr <?php if ($article->get('required') == 1): ?>style="background-image: url('../images/hidden_background.jpg'); background-position: 500px;"<?php endif; ?>>
-						<td><?php echo $article->get('custom_id') ?></td>
-						<td class="left"><?php echo $article->get('text') ?></td>
-						<td><?php echo $article->get('price') ?></td>
+					<tr <?php if ($article->get('required') == 1): ?> style="background-image: url('../images/hidden_background.jpg'); background-position: 500px;"<?php endif; ?>>
+						<td><?php echo $article->get('custom_id'); ?></td>
+						<td class="left"><?php echo $article->get('text'); ?></td>
+						<td><?php echo $article->get('price'); ?></td>
 						<td style="display:none;">
 							<?php if ($article->get('vat') == 25) { ?>
 								<input hidden value="25" />
@@ -749,7 +772,7 @@ function createInvoices(e) {
 							<?php } ?>
 						</td>								
 						<td class="td-number-span">
-							<input type="text" class="form-control bfh-number" min="0" value="0" name="artamount[]" id="<?php echo $article->get('id') ?>" />
+							<input type="text" class="form-control bfh-number" min="0" value="0" name="artamount[]" id="<?php echo $article->get('id'); ?>" />
 							<input type="hidden" name="articles[]" />
 						</td>
 					</tr>
@@ -760,46 +783,37 @@ function createInvoices(e) {
 	<?php endif; ?>
 		<input type="button" name="previous" class="previous bluebutton mediumbutton nomargin" value="<?php echo uh($translator->{'Previous'}); ?>" />
 		<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-		<input type="button" name="next" class="next greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
-		
+		<input type="button" name="next" class="reserve_review next greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />		
 	</fieldset>
 	<fieldset>
 		<!-- FIELDSET NUMBER THREE -->
 		<h3 class="confirm standSpaceName"><?php echo uh($translator->{'Reserve requested stand space'}); ?></h3>
 		<h3 class="edit standSpaceName"><?php echo uh($translator->{'Edit reservation'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -4em; margin-right: -2em;"/>
-		<br />
-
-		<label class="label_long" for="reserve_message_input"><?php echo uh($translator->{'Message to organizer'}); ?></label>
-		<textarea name="arranger_message" class="msg_to_organizer" id="reserve_message_input"></textarea>
-		<br />
-		<br />
-
-		<input type="button" name="previous" class="previous bluebutton mediumbutton nomargin" value="<?php echo uh($translator->{'Previous'}); ?>" />
-		<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-		<input type="button" id="reserve_review" name="next" class="next greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />	
-	</fieldset>
-	<fieldset>
-		<!-- FIELDSET NUMBER FOUR -->
-		<h3 class="confirm standSpaceName" style="padding-bottom: 0.416em;"><?php echo uh($translator->{'Reserve requested stand space'}); ?></h3>
-		<h3 class="edit standSpaceName" style="padding-bottom: 0.416em;"><?php echo uh($translator->{'Edit reservation'}); ?></h3>
-		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -3.7em; margin-right: -2em;"/>
+		<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton popupCloseDialogue" />
 		<br />
 		<div id="review_reserve_dialogue">
 			<br />
 			<label for="review_user" style="font-size:1.7em; display:inline;"><?php echo uh($translator->{'Exhibitor:'}); ?> </label>
 			<span style="font-size:1.7em;" id="review_user"></span>
 			<br />			
-			<div id="column" class="review_column1">
+			<div class="column review_column1">
 				<label for="review_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 				<p name="commodity" id="review_commodity_input"></p>
 			</div>
-			<div id="column" class="review_column2">
+			<div class="column review_column2">
 				<label for="review_category_list"><?php echo uh($translator->{'Categories'}); ?></label>
-				<p id="review_category_list" style="width:100%; float:left;"></p>		
+				<p id="review_category_list" style="width:100%; float:left;"></p>	
 			</div>
-			<label for="review_message" id="review_message_label"><?php echo uh($translator->{'Exhibitor message to Organizer'}); ?></label>
-			<p name="arranger_message" id="review_message"></p>	
+			<br />
+			<div class="column review_column1">
+				<label for="review_message" id="review_message_label"><?php echo uh($translator->{'Exhibitor message to Organizer'}); ?></label>
+				<p name="arranger_message" id="review_message"></p>	
+			</div>
+			<div class="column review_column2">
+				<!-- Kalenderfunktion för att välja platsens slutgiltiga reservationsdatum -->
+				<label for="reserve_expires_input"><?php echo uh($translator->{'Reserved until'}); ?> (DD-MM-YYYY HH:MM)</label>
+				<input type="text" class="dialogueInput datetime datepicker" name="expires" id="reserve_expires_input" title="<?php echo uh($translator->{'The date that you set here is the date when the reservation expires and the stand space is reopened (green) for preliminary bookings.'}); ?>" value=""/>
+			</div>
 			<div class="no-search" id="review_list_div" style="padding:1.66em 0em;">
 				<div id="review_div">
 					<table id="review_list" class="no-search" style="width:100%;">
@@ -819,20 +833,20 @@ function createInvoices(e) {
 </form>
 
 <div id="review_prel_dialogue" style="padding:0 2.5em 0.833em 2.5em" class="dialogue popup">
-	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton" style="margin-top: -3.7em; margin-right: -0.5em;"/>
+	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue cancelbutton popupCloseDialogue" />
 	<h3 class="review standSpaceName" style="padding-bottom:0.416em;"></h3>
 	<br />
 	<br />
 	<label for="review_user" style="font-size:1.7em; display:inline;"><?php echo uh($translator->{'Exhibitor:'}); ?> </label>
 	<span style="font-size:1.7em;" id="review_user"></span>
 	<br />	
-	<div id="column" class="review_column1">
+	<div class="column review_column1">
 		<label for="review_registration_area" id="review_area_label"><?php echo uh($translator->{'Requested area'}); ?></label>
 		<p name="review_registration_area" id="review_registration_area"></p>
 		<label for="review_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
 		<p name="commodity" id="review_commodity_input"></p>
 	</div>
-	<div id="column" class="review_column2">
+	<div class="column review_column2">
 		<label for="review_category_list"><?php echo uh($translator->{'Categories'}); ?></label>
 		<p id="review_category_list" style="width:100%; float:left;"></p>		
 	</div>
@@ -919,12 +933,18 @@ function createInvoices(e) {
 	<?php if(count($positions) > 0){ ?>
 
 		<form action="administrator/exportNewReservations/1" method="post">
-			<h2 class="tblsite" style="display:inline;"><?php echo $headline; ?> </h2>
+			<h2 class="tblsite" style="display:inline;"><?php echo $bheadline; ?> </h2>
 			<div class="floatright right">
-				<?php if ($smsMod === 'active') { ?>
+				<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="booked" data-fair="<?php echo $fair->get('id'); ?>"></button>
 				<?php } ?>
 				<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="booked"></button>
+					<?php if ($recurringMod === 'active') { ?>
+				<button type="submit" class="glyphicon glyphicon-flag btn btn-default set-recurring blue" title="<?php echo uh($translator->{'This will set marked bookings as recurring'}); ?>" name="set_recurring" data-for="booked">
+				</button>
+				<button type="submit" class="glyphicon glyphicon-flag btn btn-default unset-recurring red" title="<?php echo uh($translator->{'This will remove marked bookings as recurring'}); ?>" name="unset_recurring" data-for="booked">
+				</button>
+				<?php } ?>
 			</div>
 
 			<table class="std_table use-scrolltable" id="booked">
@@ -934,11 +954,13 @@ function createInvoices(e) {
 						<th><?php echo $tr_area; ?></th>
 						<th class="left"><?php echo $tr_booker; ?></th>
 						<th class="left"><?php echo $tr_field; ?></th>
-						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
+						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_accepted; ?></th>
 						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
 						<th><?php echo $tr_message; ?></th>
-						<th data-sorter="false"><?php echo $tr_review; ?></th>
-						<th data-sorter="false"><?php echo $tr_alternatives ?></th>
+					<?php if ($invoiceMod === 'active') { ?>
+						<th><?php echo $tr_invoicestatus; ?></th>
+					<?php } ?>
+						<th data-sorter="false"><?php echo $tr_alternatives; ?></th>
 						<th class="last" data-sorter="false">
 							<input type="checkbox" id="check-all-bookings" class="check-all" data-group="rows-1" />
 							<label class="squaredFour" for="check-all-bookings" />
@@ -947,9 +969,10 @@ function createInvoices(e) {
 				</thead>
 				<tbody>
 				<?php foreach($positions as $pos):?>
-					<tr
+					<tr <?php echo ($pos['recurring'] > 0) ? 'class="blue"' : ''; ?>
 						data-id="<?php echo $pos['id']; ?>"
 						data-revieweurl="<?php echo BASE_URL.'administrator/newReservations/reviewPrelBooking/'; ?>"
+						data-reserveurl="<?php echo BASE_URL.'administrator/bookingtoReservation/'; ?>"
 						data-categories="<?php echo uh($pos['categories']); ?>"
 						data-options="<?php echo uh($pos['options']); ?>"
 						data-articles="<?php echo uh($pos['articles']); ?>"
@@ -972,30 +995,65 @@ function createInvoices(e) {
 						data-company="<?php echo uh($pos['company']); ?>"
 						data-commodity="<?php echo uh($pos['commodity']); ?>"
 						data-message="<?php echo uh($pos['arranger_message']); ?>"
+						data-exid="<?php echo $pos['id']; ?>"
 					>
 						<td class="left"><?php echo $pos['name']; ?></td>
 						<td class="center"><?php echo $pos['area']; ?></td>
-						<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
+						<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo ($pos['recurring'] > 0) ? '*' : ''; ?><?php echo $pos['company']; ?></a></td>
 						<td class="left"><?php echo $pos['commodity']; ?></td>
-						<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
-						<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
+						<td><?php echo printTime($pos['booking_time']); ?></td>
+						<td><?php echo printTime($pos['edit_time']); ?></td>
 						<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
-	<?php if (strlen($pos['arranger_message']) > 0): ?>
+						<?php if (strlen($pos['arranger_message']) > 0): ?>
 							<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
 								<img src="<?php echo BASE_URL; ?>images/icons/script.png" class="icon_img" alt="<?php echo $tr_message; ?>" />
 							</a>
-	<?php endif; ?>
+						<?php endif; ?>
 						</td>
+						<?php if ($invoiceMod === 'active') { ?>
 						<td class="center">
-							<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-preliminary" title="<?php echo $tr_review; ?>">
-								<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
+<?php
+$replace_chars = array(
+	'/' => '-',
+	"'" => '\u0027',
+	'"' => '&quot;',
+	':' => '_'
+);
+$replace_chars2 = array(
+	"'" => '\u0027',
+	'"' => '&quot;'
+);
+$r_name = strtr($pos['invoicecompany'], $replace_chars);
+$posname = strtr($pos['invoiceposname'], $replace_chars);
+$company_name = strtr($pos['company'], $replace_chars2);
+$position_name = strtr($pos['name'], $replace_chars2);
+?>
+							<?php if ($pos['invoicesent'] > 0 && $pos['invoicestatus'] == 2) { ?>
+							<p class="nomargin" style="font-size:0.8em;"><?php echo $pos['invoiceid']; ?></p>
+							<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$pos['id'].'/' . $r_name . '-' . $posname . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
+								<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice_sent.png" class="icon_img" />
 							</a>
+							<?php } elseif ($pos['invoicestatus'] == 2) { ?>
+							<p class="nomargin" style="font-size:0.8em;"><?php echo $pos['invoiceid']; ?></p>
+							<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$pos['id'].'/' . $r_name . '-' . $posname . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
+								<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" />
+							</a>
+							<?php } elseif (!$pos['invoicestatus']) { ?>
+							-
+							<?php } ?>
 						</td>
+						<?php } ?>
+						<?php if (!isset($event_locked)) { ?>
 						<td class="center">
 							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
 							</a>
 							<ul class="select-list-menu" style="display:none;">
+								<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-booking" title="<?php echo $tr_review; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
+								</li>
+								</a>
 								<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-booking" title="<?php echo $tr_edit; ?>">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/pencil.png" class="icon_img" alt="<?php echo $tr_edit; ?>" /> <?php echo $tr_edit; ?>
@@ -1013,7 +1071,41 @@ function createInvoices(e) {
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
 								</a>
-
+							<?php if ($invoiceMod === 'active') { ?>
+								<?php if ($pos['invoicestatus'] == 0): ?>
+								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/createInvoice/'.$pos['id']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_createinvoice; ?>">
+								<li>
+									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" alt="<?php echo $tr_createinvoice; ?>" /> <?php echo $tr_createinvoice; ?>
+								</li>
+								</a>
+								<?php endif; ?>
+								<?php if ($pos['invoicestatus'] == 2): ?>
+								<a onclick="confirmCreditInvoice('<?php echo BASE_URL.'administrator/creditInvoicePDF/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_creditinvoice; ?>">
+								<li>
+									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/invoice_credit.png" class="icon_img" alt="<?php echo $tr_creditinvoice; ?>" /> <?php echo $tr_creditinvoice; ?>
+								</li>
+								<?php if ($pos['invoicesent'] == 0) { ?>
+								</a>
+								<a onclick="confirmMarkAsSent('<?php echo BASE_URL.'administrator/markAsSent/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>', '<?php echo $pos["id"]?>')" title="<?php echo $tr_mark_as_sent; ?>">
+								<li>
+									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/add_green.png" class="icon_img" alt="<?php echo $tr_mark_as_sent; ?>" /> <?php echo $tr_mark_as_sent; ?>
+								</li>
+								</a>
+								<?php } ?>	
+								<?php endif; ?>
+								<?php if ($pos['invoicestatus'] == 2): ?>
+								<a onclick="confirmCancelInvoice('<?php echo BASE_URL.'administrator/cancelInvoicePDF/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_cancelinvoice; ?>">
+								<li>
+									<img style="padding-right:0.3125em;" src="<?php echo BASE_URL; ?>images/icons/invoice_cancel.png" class="icon_img" alt="<?php echo $tr_cancelinvoice; ?>" /> <?php echo $tr_cancelinvoice; ?>
+								</li>
+								</a>
+								<?php endif; ?>
+							<?php } ?>
+								<a style="cursor:pointer;" title="<?php echo $tr_reserve; ?>" onclick="showPopup('reserve',this)">
+								<li>
+									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/reserve.png" class="icon_img" alt="<?php echo $tr_reserve; ?>" /> <?php echo $tr_reserve; ?>
+								</li>
+								</a>
 								<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img" alt="<?php echo $tr_delete; ?>" /> <?php echo $tr_delete; ?>
@@ -1021,7 +1113,30 @@ function createInvoices(e) {
 								</a>
 							</ul>
 						</td>
-						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+						<?php } else { ?>
+						<td class="center">
+							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
+								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
+							</a>
+							<ul class="select-list-menu" style="display:none;">
+								<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-booking" title="<?php echo $tr_review; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
+								</li>
+								</a>
+								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<li>
+									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
+								</li>
+								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
+								</li>
+								</a>
+							</ul>
+						</td>	
+						<?php } ?>
+						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-exid="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
@@ -1038,16 +1153,16 @@ function createInvoices(e) {
 
 	<div id="reserved" style="display:none" class="tab-div tab-div-hidden">
 
-		<?php if(count($rpositions) > 0){?>
+		<?php if(count($rpositions) > 0){ ?>
 
 		<form action="administrator/exportNewReservations/2" method="post">
 			<h2 class="tblsite" style="display:inline;"><?php echo $rheadline; ?> </h2>
 			<div class="floatright right">
-				<?php if ($smsMod === 'active') { ?>
+				<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="reserved" data-fair="<?php echo $fair->get('id'); ?>"></button>
 				<?php } ?>
 				<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="reserved"></button>
-				<?php if ($invoiceMod === 'active') { ?>
+				<?php if ($invoiceMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-create-invoices" title="<?php echo uh($translator->{'Creates invoices for the selected spaces'}); ?>" name="create_invoices" data-for="reserved"></button>
 				<?php } ?>
 			</div>
@@ -1066,7 +1181,6 @@ function createInvoices(e) {
 					<?php if ($invoiceMod === 'active') { ?>
 						<th><?php echo $tr_invoicestatus; ?></th>
 					<?php } ?>
-						<th data-sorter="false"><?php echo $tr_review; ?></th>
 						<th data-sorter="false"><?php echo $tr_alternatives; ?></th>
 						<th class="last" data-sorter="false">
 							<input type="checkbox" id="check-all-reserved" class="check-all" data-group="rows-2" />
@@ -1104,15 +1218,15 @@ function createInvoices(e) {
 						data-company="<?php echo uh($pos['company']); ?>"
 						data-commodity="<?php echo uh($pos['commodity']); ?>"
 						data-message="<?php echo uh($pos['arranger_message']); ?>"
-						data-expires="<?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?>"
+						data-expires="<?php echo printTime(strtotime($pos['expires'])); ?>"
 						data-approveurl="<?php echo BASE_URL.'administrator/approveReservation/'; ?>"
 					>
 						<td class="left"><?php echo $pos['name']; ?></td>
 						<td class="center"><?php echo $pos['area']; ?></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 						<td class="left"><?php echo $pos['commodity']; ?></td>
-						<!--<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>-->
-						<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
+						<!--<td><?php echo printTime($pos['booking_time']); ?></td>-->
+						<td><?php echo printTime($pos['edit_time']); ?></td>
 						<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 		<?php if (strlen($pos['arranger_message']) > 0): ?>
 								<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -1120,39 +1234,51 @@ function createInvoices(e) {
 								</a>
 		<?php endif; ?>
 						</td>
-						<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>
+						<td><?php echo printTime(strtotime($pos['expires'])); ?></td>
 						<?php if ($invoiceMod === 'active') { ?>
-						<td>
+						<td class="center">
+<?php
+$replace_chars = array(
+	'/' => '-',
+	"'" => '\u0027',
+	'"' => '&quot;',
+	':' => '_'
+);
+$replace_chars2 = array(
+	"'" => '\u0027',
+	'"' => '&quot;'
+);
+$r_name = strtr($pos['invoicecompany'], $replace_chars);
+$posname = strtr($pos['invoiceposname'], $replace_chars);
+$company_name = strtr($pos['company'], $replace_chars2);
+$position_name = strtr($pos['name'], $replace_chars2);
+?>
 							<?php if ($pos['invoicesent'] > 0 && $pos['invoicestatus'] == 1) { ?>
 							<p class="nomargin" style="font-size:0.8em;"><?php echo $pos['invoiceid']; ?></p>
-							<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
+							<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$pos['id'].'/' . $r_name . '-' . $posname . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
 								<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice_sent.png" class="icon_img" />
 							</a>
 							<?php } elseif ($pos['invoicestatus'] == 1) { ?>
 							<p class="nomargin" style="font-size:0.8em;"><?php echo $pos['invoiceid']; ?></p>
-							<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
+							<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$pos['id'].'/' . $r_name . '-' . $posname . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
 								<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" />
-							</a>
-							<?php } elseif ($pos['invoicestatus'] == 3) { ?>
-							<p class="nomargin" style="font-size:0.8em;"><?php echo $pos['invoicecreditedid']; ?></p>
-							<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoicecreditedid'] . '_credited.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
-								<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice_credit.png" class="icon_img" />
 							</a>
 							<?php } elseif (!$pos['invoicestatus']) { ?>
 							-
 							<?php } ?>
 						</td>
 						<?php } ?>
-						<td class="center">
-							<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-preliminary" title="<?php echo $tr_review; ?>">
-								<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
-							</a>
-						</td>							
+						<?php if (!isset($event_locked)) { ?>
 						<td class="center">
 							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
 							</a>
 							<ul class="select-list-menu" style="display:none;">
+								<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-booking" title="<?php echo $tr_review; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
+								</li>
+								</a>
 								<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-reservation" title="<?php echo $tr_edit; ?>">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/pencil.png" class="icon_img" alt="<?php echo $tr_edit; ?>" /> <?php echo $tr_edit; ?>
@@ -1172,28 +1298,28 @@ function createInvoices(e) {
 								</a>
 							<?php if ($invoiceMod === 'active') { ?>
 								<?php if ($pos['invoicestatus'] == 0): ?>
-								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/exportBookingPDF/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>')" title="<?php echo $tr_createinvoice; ?>">
+								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/createInvoice/'.$pos['id']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_createinvoice; ?>">
 								<li>
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" alt="<?php echo $tr_createinvoice; ?>" /> <?php echo $tr_createinvoice; ?>
 								</li>
 								</a>
 								<?php endif; ?>
 								<?php if ($pos['invoicestatus'] == 1): ?>
-								<a onclick="confirmCreditInvoice('<?php echo BASE_URL.'administrator/creditInvoicePDF/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>')" title="<?php echo $tr_creditinvoice; ?>">
+								<a onclick="confirmCreditInvoice('<?php echo BASE_URL.'administrator/creditInvoicePDF/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_creditinvoice; ?>">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/invoice_credit.png" class="icon_img" alt="<?php echo $tr_creditinvoice; ?>" /> <?php echo $tr_creditinvoice; ?>
 								</li>
 								<?php if ($pos['invoicesent'] == 0) { ?>
 								</a>
-								<a onclick="confirmMarkAsSent('<?php echo BASE_URL.'administrator/markAsSent/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>', '<?php echo $pos["id"]?>')" title="<?php echo $tr_mark_as_sent; ?>">
+								<a onclick="confirmMarkAsSent('<?php echo BASE_URL.'administrator/markAsSent/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>', '<?php echo $pos["id"]?>')" title="<?php echo $tr_mark_as_sent; ?>">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/add_green.png" class="icon_img" alt="<?php echo $tr_mark_as_sent; ?>" /> <?php echo $tr_mark_as_sent; ?>
 								</li>
 								</a>
 								<?php } ?>	
 								<?php endif; ?>
-								<?php if ($pos['invoicestatus'] == 3): ?>
-								<a onclick="confirmCancelInvoice('<?php echo BASE_URL.'administrator/cancelInvoicePDF/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>')" title="<?php echo $tr_cancelinvoice; ?>">
+								<?php if ($pos['invoicestatus'] == 1): ?>
+								<a onclick="confirmCancelInvoice('<?php echo BASE_URL.'administrator/cancelInvoicePDF/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_cancelinvoice; ?>">
 								<li>
 									<img style="padding-right:0.3125em;" src="<?php echo BASE_URL; ?>images/icons/invoice_cancel.png" class="icon_img" alt="<?php echo $tr_cancelinvoice; ?>" /> <?php echo $tr_cancelinvoice; ?>
 								</li>
@@ -1205,7 +1331,6 @@ function createInvoices(e) {
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/add.png" class="icon_img" alt="<?php echo $tr_approve; ?>" /> <?php echo $tr_approve; ?>
 								</li>
 								</a>
-
 								<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img" alt="<?php echo $tr_delete; ?>" /> <?php echo $tr_delete; ?>
@@ -1213,6 +1338,29 @@ function createInvoices(e) {
 								</a>
 							</ul>
 						</td>
+						<?php } else { ?>
+						<td class="center">
+							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
+								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
+							</a>
+							<ul class="select-list-menu" style="display:none;">
+								<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-booking" title="<?php echo $tr_review; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
+								</li>
+								</a>
+								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<li>
+									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
+								</li>
+								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
+								</li>
+								</a>
+							</ul>
+						</td>	
+						<?php } ?>
 						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-invoiceid="<?php echo $pos['invoiceid']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-2" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach; ?>
@@ -1229,15 +1377,17 @@ function createInvoices(e) {
 
 	<div id="reserved_cloned" style="display:none" class="tab-div tab-div-hidden">
 
-		<?php if(count($rcpositions) > 0){?>
+		<?php if(count($rcpositions) > 0){ ?>
 
 		<form action="administrator/exportNewReservations/8" method="post">
 			<h2 class="tblsite" style="display:inline;"><?php echo $rcheadline; ?> </h2>
 			<div class="floatright right">
-				<?php if ($smsMod === 'active') { ?>
+				<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="reserved_cloned" data-fair="<?php echo $fair->get('id'); ?>"></button>
 				<?php } ?>
+				<?php if (!isset($event_locked)) { ?>
 				<button type="submit" class="open-send-cloned" name="send_cloned" title="<?php echo uh($send_cloned_mail); ?>" data-for="reserved_cloned"></button>
+				<?php } ?>
 				<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="reserved_cloned"></button>
 			</div>
 
@@ -1253,7 +1403,6 @@ function createInvoices(e) {
 						<th><?php echo $tr_message; ?></th>
 						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_reserved_until; ?></th>
 						<th><?php echo $tr_linkstatus; ?></th>
-						<th data-sorter="false"><?php echo $tr_review; ?></th>
 						<th data-sorter="false"><?php echo $tr_alternatives; ?></th>
 						<th class="last" data-sorter="false">
 							<input type="checkbox" id="check-all-reserved_cloned" class="check-all" data-group="rows-8" />
@@ -1291,15 +1440,15 @@ function createInvoices(e) {
 						data-company="<?php echo uh($pos['company']); ?>"
 						data-commodity="<?php echo uh($pos['commodity']); ?>"
 						data-message="<?php echo uh($pos['arranger_message']); ?>"
-						data-expires="<?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?>"
+						data-expires="<?php echo printTime(strtotime($pos['expires'])); ?>"
 						data-approveurl="<?php echo BASE_URL.'administrator/approveReservation/'; ?>"
 					>
 						<td class="left"><?php echo $pos['name']; ?></td>
 						<td class="center"><?php echo $pos['area']; ?></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 						<td class="left"><?php echo $pos['commodity']; ?></td>
-						<!--<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>-->
-						<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
+						<!--<td><?php echo printTime($pos['booking_time']); ?></td>-->
+						<td><?php echo printTime($pos['edit_time']); ?></td>
 						<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 		<?php if (strlen($pos['arranger_message']) > 0): ?>
 								<a href="administrator/arrangerMessage/exhibitor/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -1307,84 +1456,108 @@ function createInvoices(e) {
 								</a>
 		<?php endif; ?>
 						</td>
-						<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>
+						<td><?php echo printTime(strtotime($pos['expires'])); ?></td>
 						<td>
 							<?php if ($pos['linkstatus'] > 0): ?>
-								<?php echo uh($translator->{'Sent'}); ?><br/><?php echo date('d-m-Y H:i', $pos['linkdate']); ?>
+								<?php echo uh($translator->{'Sent'}); ?><br/><?php echo printTime($pos['linkdate']); ?>
 							<?php else: ?>
 								<?php echo $pos['linkstatus']; ?>
 							<?php endif; ?>
-						</td>						
-						<td class="center">
-							<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-preliminary" title="<?php echo $tr_review; ?>">
-								<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
-							</a>
-						</td>							
+						</td>					
+						<?php if (!isset($event_locked)) { ?>						
 						<td class="center">
 							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
 							</a>
 							<ul class="select-list-menu" style="display:none;">
+								<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-booking" title="<?php echo $tr_review; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
+								</li>
+								</a>
 								<a href="administrator/editBooking/<?php echo $pos['id']; ?>" class="open-edit-reservation" title="<?php echo $tr_edit; ?>">
 								<li>
-									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/pencil.png" class="icon_img" alt="<?php echo $tr_edit; ?>" /> <?php echo $tr_edit; ?>
+									<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" class="icon_img" alt="<?php echo $tr_edit; ?>" /> <?php echo $tr_edit; ?>
 								</li>
 								</a>
 
 								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
 								<li>
-									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
+									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
 								</li>
 								</a>
 
 								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
-									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
+									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
 								</a>
 							<?php if ($invoiceMod === 'active') { ?>
 								<?php if ($pos['invoicestatus'] == 0): ?>
-								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/exportBookingPDF/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>')" title="<?php echo $tr_createinvoice; ?>">
+								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/createInvoice/'.$pos['id']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_createinvoice; ?>">
 								<li>
-									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" alt="<?php echo $tr_createinvoice; ?>" /> <?php echo $tr_createinvoice; ?>
+									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" alt="<?php echo $tr_createinvoice; ?>" /> <?php echo $tr_createinvoice; ?>
 								</li>
 								</a>
 								<?php endif; ?>
 								<?php if ($pos['invoicestatus'] == 1): ?>
-								<a onclick="confirmCreditInvoice('<?php echo BASE_URL.'administrator/creditInvoicePDF/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>')" title="<?php echo $tr_creditinvoice; ?>">
+								<a onclick="confirmCreditInvoice('<?php echo BASE_URL.'administrator/creditInvoicePDF/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_creditinvoice; ?>">
 								<li>
-									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/invoice_credit.png" class="icon_img" alt="<?php echo $tr_creditinvoice; ?>" /> <?php echo $tr_creditinvoice; ?>
+									<img src="<?php echo BASE_URL; ?>images/icons/invoice_credit.png" class="icon_img" alt="<?php echo $tr_creditinvoice; ?>" /> <?php echo $tr_creditinvoice; ?>
 								</li>
 								<?php if ($pos['invoicesent'] == 0) { ?>
 								</a>
-								<a onclick="confirmMarkAsSent('<?php echo BASE_URL.'administrator/markAsSent/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>', '<?php echo $pos["id"]?>')" title="<?php echo $tr_mark_as_sent; ?>">
+								<a onclick="confirmMarkAsSent('<?php echo BASE_URL.'administrator/markAsSent/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>', '<?php echo $pos["id"]?>')" title="<?php echo $tr_mark_as_sent; ?>">
 								<li>
-									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/add_green.png" class="icon_img" alt="<?php echo $tr_mark_as_sent; ?>" /> <?php echo $tr_mark_as_sent; ?>
+									<img src="<?php echo BASE_URL; ?>images/icons/add_green.png" class="icon_img" alt="<?php echo $tr_mark_as_sent; ?>" /> <?php echo $tr_mark_as_sent; ?>
 								</li>
 								</a>
 								<?php } ?>	
 								<?php endif; ?>
-								<?php if ($pos['invoicestatus'] == 3): ?>
-								<a onclick="confirmCancelInvoice('<?php echo BASE_URL.'administrator/cancelInvoicePDF/'.$pos['id']?>', '<?php echo $pos["name"]?>', '<?php echo $pos["company"]?>')" title="<?php echo $tr_cancelinvoice; ?>">
+								<?php if ($pos['invoicestatus'] == 1): ?>
+								<a onclick="confirmCancelInvoice('<?php echo BASE_URL.'administrator/cancelInvoicePDF/'.$pos['id'].'/'.$pos['invoicerowid']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_cancelinvoice; ?>">
 								<li>
-									<img style="padding-right:0.3125em;" src="<?php echo BASE_URL; ?>images/icons/invoice_cancel.png" class="icon_img" alt="<?php echo $tr_cancelinvoice; ?>" /> <?php echo $tr_cancelinvoice; ?>
+									<img src="<?php echo BASE_URL; ?>images/icons/invoice_cancel.png" class="icon_img" alt="<?php echo $tr_cancelinvoice; ?>" /> <?php echo $tr_cancelinvoice; ?>
 								</li>
 								</a>
 								<?php endif; ?>
 							<?php } ?>
 								<a style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book',this)">
 								<li>
-									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/add.png" class="icon_img" alt="<?php echo $tr_approve; ?>" /> <?php echo $tr_approve; ?>
+									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/add.png" class="icon_img" alt="<?php echo $tr_approve; ?>" /> <?php echo $tr_approve; ?>
 								</li>
 								</a>
 
 								<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'booking')">
 								<li>
-									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img" alt="<?php echo $tr_delete; ?>" /> <?php echo $tr_delete; ?>
+									<img src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img" alt="<?php echo $tr_delete; ?>" /> <?php echo $tr_delete; ?>
 								</li>
 								</a>
 							</ul>
 						</td>
+						<?php } else { ?>
+						<td class="center">
+							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
+								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
+							</a>
+							<ul class="select-list-menu" style="display:none;">
+								<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-booking" title="<?php echo $tr_review; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
+								</li>
+								</a>
+								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<li>
+									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
+								</li>
+								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
+								</li>
+								</a>
+							</ul>
+						</td>	
+						<?php } ?>
 						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" data-exid="<?php echo $pos['posid']; ?>" class="rows-8" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach; ?>
@@ -1405,7 +1578,7 @@ function createInvoices(e) {
 		<form action="administrator/exportNewReservations/3" method="post">
 			<h2 class="tblsite" style="display:inline;"><?php echo $prel_table; ?> </h2>
 			<div class="floatright right">
-				<?php if ($smsMod === 'active') { ?>
+				<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="prem" data-fair="<?php echo $fair->get('id'); ?>"></button>
 				<?php } ?>
 				<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="prem"></button>
@@ -1418,7 +1591,7 @@ function createInvoices(e) {
 						<th><?php echo $tr_area; ?></th>
 						<th class="left"><?php echo $tr_booker; ?></th>
 						<th class="left"><?php echo $tr_field; ?></th>
-						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
+						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_created; ?></th>
 						<th><?php echo $tr_message; ?></th>
 						<th data-sorter="false"><?php echo $tr_review; ?></th>
 						<th data-sorter="false"><?php echo $tr_alternatives; ?></th>
@@ -1463,7 +1636,7 @@ function createInvoices(e) {
 						<td class="center"><?php echo $pos['area']; ?></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 						<td class="left"><?php echo $pos['commodity']; ?></td>
-						<td class="center"><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
+						<td class="center"><?php echo printTime($pos['booking_time']); ?></td>
 						<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 	<?php if (strlen($pos['arranger_message']) > 0): ?>
 							<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -1476,6 +1649,7 @@ function createInvoices(e) {
 								<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
 							</a>
 						</td>
+						<?php if (!isset($event_locked)) { ?>
 						<td class="center">
 							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
@@ -1504,13 +1678,31 @@ function createInvoices(e) {
 								</li>
 								</a>
 
-								<a style="cursor:pointer;" title="<?php echo $tr_deny; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Preliminary Booking')">
+								<a style="cursor:pointer;" title="<?php echo $tr_deny; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'preliminary')">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/deny.png" class="icon_img" alt="<?php echo $tr_deny; ?>" /> <?php echo $tr_deny; ?>
 								</li>
 								</a>
 							</ul>
 						</td>
+						<?php } else { ?>
+						<td class="center">
+							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
+								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
+							</a>
+							<ul class="select-list-menu" style="display:none;">
+								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<li>
+									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
+								</li>
+								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
+								<li>
+									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
+								</li>
+								</a>
+							</ul>
+						</td>	
+						<?php } ?>
 						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-3" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach;?>
@@ -1533,7 +1725,7 @@ function createInvoices(e) {
 		<form action="administrator/exportNewReservations/4" method="post">
 			<h2 class="tblsite" style="display:inline; color:#000;"><?php echo $prel_table_inactive; ?> </h2>
 			<div class="floatright right">
-				<?php if ($smsMod === 'active') { ?>
+				<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="iprem" data-fair="<?php echo $fair->get('id'); ?>"></button>
 				<?php } ?>
 				<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="iprem"></button>
@@ -1546,11 +1738,13 @@ function createInvoices(e) {
 						<th><?php echo $tr_area; ?></th>
 						<th class="left"><?php echo $tr_booker; ?></th>
 						<th class="left"><?php echo $tr_field; ?></th>
-						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
+						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_created; ?></th>
 						<th><?php echo $tr_message; ?></th>
 						<th data-sorter="false"><?php echo $tr_review; ?></th>
 						<th data-sorter="false"><?php echo $tr_view; ?></th>
+						<?php if (!isset($event_locked)) { ?>
 						<th data-sorter="false"><?php echo $tr_deny; ?></th>
+						<?php } ?>
 						<th class="last" data-sorter="false">
 							<input type="checkbox" id="check-all-preliminary-inactive" class="check-all" data-group="rows-4" />
 							<label class="squaredFour" for="check-all-preliminary-inactive" />
@@ -1592,7 +1786,7 @@ function createInvoices(e) {
 						<td class="center"><?php echo $pos['area']; ?></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 						<td class="left"><?php echo $pos['commodity']; ?></td>
-						<td class="center"><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
+						<td class="center"><?php echo printTime($pos['booking_time']); ?></td>
 						<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 	<?php if (strlen($pos['arranger_message']) > 0): ?>
 							<a href="administrator/arrangerMessage/preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
@@ -1609,13 +1803,14 @@ function createInvoices(e) {
 							<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 							</a>
-						</td>						
+						</td>
+						<?php if (!isset($event_locked)) { ?>	
 						<td class="center">
-							<a style="cursor:pointer;" title="<?php echo $tr_deny; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'Preliminary Booking')">
+							<a style="cursor:pointer;" title="<?php echo $tr_deny; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'preliminary')">
 								<img style="padding:0em 0.416em 0em 0.416em" src="<?php echo BASE_URL; ?>images/icons/deny.png" class="icon_img" alt="<?php echo $tr_deny; ?>" />
 							</a>
 						</td>
-						
+						<?php } ?>						
 						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-4" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach;?>
@@ -1637,7 +1832,7 @@ function createInvoices(e) {
 			<form action="administrator/exportNewReservations/6" method="post">
 				<h2 class="tblsite" style="display:inline; color:#FF0000;"><?php echo $prel_table_deleted; ?></h2>
 				<div class="floatright right">
-					<?php if ($smsMod === 'active') { ?>
+					<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 					<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="delprem" data-fair="<?php echo $fair->get('id'); ?>"></button>
 					<?php } ?>
 					<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="delprem"></button>
@@ -1650,9 +1845,12 @@ function createInvoices(e) {
 							<th><?php echo $tr_area; ?></th>
 							<th class="left"><?php echo $tr_booker; ?></th>
 							<th class="left"><?php echo $tr_field; ?></th>
-							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
+							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_created; ?></th>
+							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_deletiontime; ?></th>
 							<th><?php echo $tr_message; ?></th>
+							<th><?php echo $tr_del_message; ?></th>
 							<th data-sorter="false"><?php echo $tr_review; ?></th>
+							<th data-sorter="false"><?php echo $tr_comments; ?></th>
 							<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-preliminary-deleted" class="check-all" data-group="rows-6" />
 								<label class="squaredFour" for="check-all-preliminary-deleted" />
@@ -1664,6 +1862,7 @@ function createInvoices(e) {
 						<tr
 							id="delprem" <?php if (isset($page) && $page > 1) echo 'style="display:none;"'; ?>
 							data-id="<?php echo $pos['id']; ?>"
+							data-revieweurl="<?php echo BASE_URL.'administrator/newReservations/reviewPrelBooking/'; ?>"
 							data-categories="<?php echo uh($pos['categories']); ?>"
 							data-optionid="<?php echo uh($pos['optionid']); ?>"
 							data-optiontext="<?php echo uh($pos['optiontext']); ?>"
@@ -1687,18 +1886,32 @@ function createInvoices(e) {
 							<td class="center"><?php echo $pos['area']; ?></td>
 							<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 							<td class="left"><?php echo $pos['commodity']; ?></td>
-							<td class="center"><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
+							<td class="center"><?php echo printTime($pos['booking_time']); ?></td>
+							<td class="center"><?php echo printTime($pos['deletion_time']); ?></td>
 							<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 		<?php if (strlen($pos['arranger_message']) > 0): ?>
 								<a href="administrator/arrangerMessage/history_preliminary/<?php echo $pos['id']; ?>" class="open-arranger-message">
 									<img src="<?php echo BASE_URL; ?>images/icons/script.png" class="icon_img" alt="<?php echo $tr_message; ?>" />
 								</a>
 		<?php endif; ?>
+							</td>
+							<td class="center" title="<?php echo uh($pos['deletion_message']); ?>">
+		<?php if (strlen($pos['deletion_message']) > 0): ?>
+								<a href="administrator/deletionMessage/history_preliminary/<?php echo $pos['id']; ?>" class="open-deletion-message">
+									<img src="<?php echo BASE_URL; ?>images/icons/script.png" class="icon_img" alt="<?php echo $tr_del_message; ?>" />
+								</a>
+		<?php endif; ?>
+							</td>
 							<td class="center">
 								<a href="administrator/reviewPrelBooking/<?php echo $pos['id']; ?>" class="open-view-preliminary" title="<?php echo $tr_review; ?>">
 									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
 								</a>
-							</td>		
+							</td>
+							<td class="center">
+								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
+									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" />
+								</a>
+							</td>
 							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-6" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					<?php endforeach;?>
 					</tbody>
@@ -1718,7 +1931,7 @@ function createInvoices(e) {
 			<form action="administrator/exportNewReservations/7" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo uh($translator->{'Deleted history tab'}); ?> </h2>
 				<div class="floatright right">
-					<?php if ($smsMod === 'active') { ?>
+					<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 					<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="delbookings" data-fair="<?php echo $fair->get('id'); ?>"></button>
 					<?php } ?>
 					<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="delbookings"></button>
@@ -1732,9 +1945,10 @@ function createInvoices(e) {
 							<th><?php echo $tr_area; ?></th>
 							<th class="left"><?php echo $tr_booker; ?></th>
 							<th class="left"><?php echo $tr_field; ?></th>
-							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
-							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
+							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_created; ?></th>
+							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_deletiontime; ?></th>
 							<th><?php echo $tr_message; ?></th>
+							<th><?php echo $tr_del_message; ?></th>
 							<th data-sorter="false"><?php echo $tr_review; ?></th>	
 							<th data-sorter="false"><?php echo $tr_comments; ?></th>
 							<th class="last" data-sorter="false">
@@ -1746,6 +1960,7 @@ function createInvoices(e) {
 					<tbody>
 					<?php foreach($del_positions as $pos):?>
 						<tr
+							data-revieweurl="<?php echo BASE_URL.'administrator/newReservations/reviewPrelBooking/'; ?>"
 							data-categories="<?php echo uh($pos['categories']); ?>"
 							data-optionid="<?php echo uh($pos['optionid']); ?>"
 							data-optiontext="<?php echo uh($pos['optiontext']); ?>"
@@ -1756,6 +1971,7 @@ function createInvoices(e) {
 							data-articleprice="<?php echo uh($pos['articleprice']); ?>"
 							data-articlevat="<?php echo uh($pos['articlevat']); ?>"							
 							data-articleamount="<?php echo uh($pos['articleamount']); ?>"
+							data-posstatus="<?php if ($pos['status']) { echo uh($pos['status']); } else {echo uh('0'); } ?>"
 							data-posname="<?php echo uh($pos['name']); ?>"
 							data-posprice="<?php echo uh($pos['price']); ?>"
 							data-posinfo="<?php echo uh($pos['information']); ?>"
@@ -1764,17 +1980,31 @@ function createInvoices(e) {
 							data-commodity="<?php echo uh($pos['commodity']); ?>"
 							data-message="<?php echo uh($pos['arranger_message']); ?>"
 						>
-							<td class="left"><?php if ($pos['status'] === '2') echo $booked_label; else if ($pos['status'] === '1') echo $reserved_label; else echo $unknown_label; ?></td>
+							<td>
+							<?php if ($pos['status'] === '2') { ?>
+							<img src="images/icons/marker_booked.png" class="icon_img" alt="<?php echo $booked_label; ?>" />
+							<?php } else if ($pos['status'] === '1' && $pos['clone'] === '0') { ?>
+							<img src="images/icons/marker_reserved.png" class="icon_img" alt="<?php echo $reserved_label; ?>" />
+							<?php } else if ($pos['status'] === '1' && $pos['clone'] === '1') { ?>
+							<img src="images/icons/Reserverad-gray.png" class="icon_img" alt="<?php echo $cloned_label; ?>" />
+							<?php } else echo $unknown_label; ?></td>
 							<td class="left"><?php echo $pos['name']; ?></td>
 							<td class="center"><?php echo $pos['area']; ?></td>
 							<td class="left"><a href="exhibitor/profile/<?php echo $pos['userid']; ?>" class="showProfileLink"><?php echo $pos['company']; ?></a></td>
 							<td class="left"><?php echo $pos['commodity']; ?></td>
-							<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
-							<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
+							<td><?php echo printTime($pos['booking_time']); ?></td>
+							<td><?php echo printTime($pos['deletion_time']); ?></td>
 							<td class="center" title="<?php echo uh($pos['arranger_message']); ?>">
 		<?php if (strlen($pos['arranger_message']) > 0): ?>
 								<a href="administrator/arrangerMessage/history_deleted/<?php echo $pos['id']; ?>" class="open-arranger-message">
 									<img src="<?php echo BASE_URL; ?>images/icons/script.png" class="icon_img" alt="<?php echo $tr_message; ?>" />
+								</a>
+		<?php endif; ?>
+							</td>
+							<td class="center" title="<?php echo uh($pos['deletion_message']); ?>">
+		<?php if (strlen($pos['deletion_message']) > 0): ?>
+								<a href="administrator/deletionMessage/history_deleted/<?php echo $pos['id']; ?>" class="open-deletion-message">
+									<img src="<?php echo BASE_URL; ?>images/icons/script.png" class="icon_img" alt="<?php echo $tr_del_message; ?>" />
 								</a>
 		<?php endif; ?>
 							</td>
@@ -1810,7 +2040,7 @@ function createInvoices(e) {
 		<form action="administrator/exportNewReservations/5" method="post">
 			<h2 class="tblsite" style="display:inline;"><?php echo $fair_registrations_headline; ?> </h2>
 			<div class="floatright right">
-				<?php if ($smsMod === 'active') { ?>
+				<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="fair_registrations" data-fair="<?php echo $fair->get('id'); ?>"></button>
 				<?php } ?>
 				<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="fair_registrations"></button>
@@ -1822,10 +2052,14 @@ function createInvoices(e) {
 						<th><?php echo $tr_area; ?></th>
 						<th class="left"><?php echo $tr_booker; ?></th>
 						<th class="left"><?php echo $tr_field; ?></th>
-						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
+						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_created; ?></th>
 						<th><?php echo $tr_message; ?></th>
 						<th data-sorter="false"><?php echo $tr_review; ?></th>
+					<?php if (!isset($event_locked)) { ?>
 						<th data-sorter="false"><?php echo $tr_alternatives; ?></th>
+					<?php } else { ?>
+					<th data-sorter="false"><?php echo $tr_comments; ?></th>
+					<?php } ?>
 						<th class"last" data-sorter="false">
 							<input type="checkbox" id="check-all-registrations" class="check-all" data-group="rows-5" />
 							<label class="squaredFour" for="check-all-registrations" />
@@ -1854,7 +2088,7 @@ function createInvoices(e) {
 						<td class="center"><?php echo uh($registration['area']); ?></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $registration['user']; ?>" class="showProfileLink"><?php echo uh($registration['company']); ?></a></td>
 						<td class="left"><?php echo uh($registration['commodity']); ?></td>
-						<td class="center"><?php echo date('d-m-Y H:i', $registration['booking_time']); ?></td>
+						<td class="center"><?php echo printTime($registration['booking_time']); ?></td>
 						<td class="center" title="<?php echo uh($registration['arranger_message']); ?>">
 	<?php		if (strlen($registration['arranger_message']) > 0): ?>
 							<a href="administrator/arrangerMessage/registration/<?php echo $registration['id']; ?>" class="open-arranger-message">
@@ -1862,11 +2096,27 @@ function createInvoices(e) {
 							</a>
 	<?php		endif; ?>
 						</td>
-							<td class="center">
-								<a href="administrator/reviewPrelBooking/<?php echo $registration['id']; ?>" class="open-view-preliminary" title="<?php echo $tr_review; ?>">
-									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
-								</a>
-							</td>
+						<td class="center">
+							<a href="administrator/reviewPrelBooking/<?php echo $registration['id']; ?>" class="open-view-preliminary" title="<?php echo $tr_review; ?>">
+								<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
+							</a>
+						</td>
+						<?php if (!isset($event_locked)) { ?>
+<?php
+/*$replace_chars = array(
+	'/' => '-',
+	"'" => '\u0027',
+	'"' => '&quot;'
+	':' => '_'
+);*/
+$replace_chars2 = array(
+	"'" => '\u0027',
+	'"' => '&quot;'
+);
+
+/*$r_name = strtr($registration['invoicecompany'], $replace_chars);*/
+$company_name = strtr($registration['company'], $replace_chars2);
+?>
 						<td class="center">
 							<a href="#" class="open-list-menu" title="<?php echo $tr_alternatives; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
@@ -1877,7 +2127,7 @@ function createInvoices(e) {
 										<img src="<?php echo BASE_URL; ?>images/icons/map_ex_copy.png" class="icon_img" alt="<?php echo $tr_copy; ?>" /> <?php echo $tr_copy; ?>
 									</li>
 								</a>
-								<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepRegistration('<?php echo BASE_URL.'administrator/deleteRegistration/'.$registration['id']; ?>', '<?php echo $registration['company']; ?>')">
+								<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="denyPrepRegistration('<?php echo BASE_URL.'administrator/deleteRegistration/'.$registration['id']; ?>', '<?php echo $company_name; ?>')">
 									<li>
 										<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/deny.png" class="icon_img" alt="<?php echo $tr_delete; ?>" /> <?php echo $tr_delete; ?>
 									</li>
@@ -1889,6 +2139,13 @@ function createInvoices(e) {
 								</a>
 							</ul>
 						</td>
+						<?php } else { ?>
+						<td class="center">
+							<a href="#" class="js-show-comment-dialog" data-user="<?php echo $registration['user']; ?>" data-fair="<?php echo $registration['fair']; ?>" data-position="-1" title="<?php echo $tr_comments; ?>">
+									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" />
+							</a>
+						</td>
+						<?php } ?>
 						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $registration['id']; ?>" data-userid="<?php echo $registration['user']; ?>" class="rows-5" /><label class="squaredFour" for="<?php echo $registration['id']; ?>" /></td>
 					</tr>
 	<?php	endforeach; ?>
@@ -1911,7 +2168,7 @@ function createInvoices(e) {
 		<form action="administrator/exportNewReservations/9" method="post">
 			<h2 class="tblsite" style="display:inline;"><?php echo $fair_registrations_deleted_headline; ?> </h2>
 			<div class="floatright right">
-				<?php if ($smsMod === 'active') { ?>
+				<?php if ($smsMod === 'active' && !isset($event_locked)) { ?>
 				<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="fair_registrations_deleted" data-fair="<?php echo $fair->get('id'); ?>"></button>
 				<?php } ?>
 				<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="fair_registrations_deleted"></button>
@@ -1923,8 +2180,10 @@ function createInvoices(e) {
 						<th><?php echo $tr_area; ?></th>
 						<th class="left"><?php echo $tr_booker; ?></th>
 						<th class="left"><?php echo $tr_field; ?></th>
-						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
+						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_created; ?></th>
+						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_deletiontime; ?></th>
 						<th><?php echo $tr_message; ?></th>
+						<th><?php echo $tr_del_message; ?></th>
 						<th data-sorter="false"><?php echo $tr_review; ?></th>
 						<th data-sorter="false"><?php echo $tr_comments; ?></th>
 						<th class"last" data-sorter="false">
@@ -1955,7 +2214,8 @@ function createInvoices(e) {
 						<td class="center"><?php echo uh($registration['area']); ?></td>
 						<td class="left"><a href="exhibitor/profile/<?php echo $registration['user']; ?>" class="showProfileLink"><?php echo uh($registration['company']); ?></a></td>
 						<td class="left"><?php echo uh($registration['commodity']); ?></td>
-						<td class="center"><?php echo date('d-m-Y H:i', $registration['booking_time']); ?></td>
+						<td class="center"><?php echo printTime($registration['booking_time']); ?></td>
+						<td class="center"><?php echo printTime($registration['deletion_time']); ?></td>
 						<td class="center" title="<?php echo uh($registration['arranger_message']); ?>">
 	<?php		if (strlen($registration['arranger_message']) > 0): ?>
 							<a href="administrator/arrangerMessage/history_registration/<?php echo $registration['id']; ?>" class="open-arranger-message">
@@ -1963,6 +2223,12 @@ function createInvoices(e) {
 							</a>
 	<?php		endif; ?>
 						</td>
+							<td class="center" title="<?php echo uh($registration['deletion_message']); ?>">
+		<?php if (strlen($registration['deletion_message']) > 0): ?>
+								<a href="administrator/deletionMessage/history_registration/<?php echo $registration['id']; ?>" class="open-deletion-message">
+									<img src="<?php echo BASE_URL; ?>images/icons/script.png" class="icon_img" alt="<?php echo $tr_del_message; ?>" />
+								</a>
+		<?php endif; ?>
 						<td class="center">
 							<a href="administrator/reviewPrelBooking/<?php echo $registration['id']; ?>" class="open-view-preliminary" title="<?php echo $tr_review; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
@@ -1995,5 +2261,13 @@ function createInvoices(e) {
   <img src="../images/ajax-loader.gif" style="margin-bottom: 0.5em;">
 	<p><?php echo uh($translator->{'Loading...'}); ?></p>
 	<!-- Place at bottom of page -->
+  </div>
+</div>
+<div class="modal-2">
+  <div style="margin-top: 50vh;">
+  <p><?php echo uh($translator->{'Creating invoices...'}); ?></p>
+  <progress max="100" value="0"></progress>
+  <p id="invoice_progress"></p>
+  <!-- Place at bottom of page -->
   </div>
 </div>
