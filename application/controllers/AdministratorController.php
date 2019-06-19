@@ -113,7 +113,7 @@ class AdministratorController extends Controller {
 				$posname = strtr($res['posname'], $replace_chars);
 				$invoice_file = ROOT.'public/invoices/fairs/'.$res['fair'].'/exhibitors/'.$res['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $res['id'] . '.pdf';
 				try {
-					
+/*					
 					if ($comment != '') {
 						$comment = '<br>'.$comment.'<br>';
 					}
@@ -121,20 +121,20 @@ class AdministratorController extends Controller {
 					if ($plain_comment == '') {
 						$plain_comment = $this->translate->{'No comment.'};
 					}
-
-					$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-					$from = array($email => $fair->get("windowtitle"));
+*/
+					$from = $fair->get("url") . EMAIL_FROM_DOMAIN;
+					$from_name = $fair->get('windowtitle');
 
 					if($fair->get('contact_name')) {
-						$from = array($email => $fair->get('contact_name'));
+						$from_name = $fair->get('contact_name'));
 					}
 
 					$recipients = array($res['invoice_email'] => $res['r_reference']);
 
-					$mail_user = new Mail();
+					$mail_user = new Mailjet();)
 					$mail_user->setTemplate('send_invoice');
-					$mail_user->setPlainTemplate('send_invoice');
-					$mail_user->setFrom($from);
+					$mail_user->sendMessage('email', $from, $from_name, $recipients, $variables, $invoice_file);
+/*					$mail_user->setFrom($from);
 					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
 					$mail_user->setRecipients($recipients);
 						$mail_user->setMailvar('exhibitor_company_name', $res['r_name']);
@@ -150,28 +150,13 @@ class AdministratorController extends Controller {
 						$mail_user->setMailvar('position_name', $res['posname']);
 						$mail_user->setMailvar('comment', $comment);
 						$mail_user->setMailvar('plain_comment', $plain_comment);
-
+*/
 					if(!file_exists($invoice_file))
 						throw new Exception($this->translate->{'Could not attatch file to email for invoice no.	 '}.$res['id'].'.');
 
 					if(!is_readable($invoice_file))
 						throw new Exception($this->translate->{'Could not open and read attatched file for invoice no. '}.$res['id'].'.');
-
-					$mail_user->attachFile($invoice_file);
 					$this->markAsSent($res['exhibitor'], $res['row_id']);
-					//$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-					if(!$mail_user->send()) {
-						$errors[] = $res['id'];
-					}
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $res['id'];
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $res['id'];
-					$mail_errors[] = $ex->getMessage();
 				}
 			}
 				if($errors) {
