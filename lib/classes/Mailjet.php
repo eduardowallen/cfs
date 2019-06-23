@@ -5,7 +5,7 @@
  * Date: 2019-01-10
  * Time: 13:18
  */
-
+require '/var/www/vendor/autoload.php';
 use Mailjet\Resources as MjResources;
 
 class Mailjet extends \Mailjet\Client {
@@ -14,9 +14,9 @@ class Mailjet extends \Mailjet\Client {
 	 * @var array
 	 */
 	protected $api = [
-		'key' => MAILJET_APIKEY,
-		'secret'  => MAILJET_SECRETKEY,
-		'version' => 'v3.1',
+		'key' => '3f3b8980301c44dba983c3b5254c6cb5',
+		'secret'  => '312d16952416be2022c02d1120cdf019',
+		'version' => 'v3'
 	];
 
 
@@ -47,7 +47,7 @@ class Mailjet extends \Mailjet\Client {
 	 * @return string
 	 * @throws Exception
 	 */
-	public function sendMessage($message_type, $from = EMAIL_FROM_ADDRESS, $from_name = EMAIL_FROM_NAME, $subject = '', $message = '', $recipients = []) {
+	public function sendMessage($message_type, $from = EMAIL_FROM_ADDRESS, $from_name = EMAIL_FROM_NAME, $subject = '', $message = '', $recipients) {
 
 		if (
 			empty($from)
@@ -62,10 +62,15 @@ class Mailjet extends \Mailjet\Client {
 				'FromEmail' 	=> $from,
 				'FromName' 		=> $from_name,
 				'Subject' 		=> $subject,
-				'Text-part' 	=> strip_tags($message),
-				'Html-part' 	=> $message
+				'Text-part' 	=> 'hej hej',
+				'Html-part' 	=> 'hej hej',
+				'Recipients'	=>	[
+					[
+						'Email'	=>	$recipients
+					]
+				]
 			];
-
+/*
 			if (is_array($recipients)) {
 				$tmpArr = [];
 				foreach ($recipients as $email_to) {
@@ -74,7 +79,7 @@ class Mailjet extends \Mailjet\Client {
 				}
 			} else {
 				$email_body['Recipients'] = ['Email' => $recipients];
-			}
+			}*/
 			$response = $this->sendAsEmail($email_body);
 
 		} else if ($message_type == 'sms') {
@@ -101,9 +106,14 @@ class Mailjet extends \Mailjet\Client {
 	 */
 	private function sendAsEmail($body) {
 		$response = parent::post(\Mailjet\Resources::$Email, ['body' => $body]);
+
 		if ($response->success()) {
-			return $this->parseResponse($response);
+			error_log('Success här');
+			error_log(var_dump($response->getData()));
+			//return $this->parseResponse($response);
 		} else {
+			error_log('Error här');
+			error_log(var_dump($response->getData()));
 			throw new Exception('Error: ' . print_r($response->getStatus()));
 		}
 	}

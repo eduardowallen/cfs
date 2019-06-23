@@ -5,16 +5,13 @@
  * Date: 2019-02-26
  * Time: 18:55
  */
-
-require_once '../Mailjet.php';
+			
+require_once '/var/www/lib/classes/Mailjet.php';
 
 $subject = "Testar mailjet";
 $message = "Hejsan, <strong>vi testar</strong> nu lite mailjetintegration.";
-$recipients = [
-	'robin@trinax.se',
-	'robin+2@trinax.se',
-];
+$recipients = 'eduardo.wallen@chartbooker.com';
 
-$mj = new Mailjet('v3.1');
+$mj = new Mailjet('v3');
 
-$mj->sendMessage('email', '', '', $subject, $message, $recipients);
+$mj->sendMessage('email', 'test.server@chartbookerdemo.com', 'Chartbookerdemo', $subject, $message, $recipients);
