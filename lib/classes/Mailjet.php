@@ -6,7 +6,8 @@
  * Time: 13:18
  */
 
-use Mailjet\Resources as MjResources;
+require '/var/www/vendor/autoload.php';
+use \Mailjet\Resources;
 
 class Mailjet extends \Mailjet\Client {
 
@@ -14,8 +15,8 @@ class Mailjet extends \Mailjet\Client {
 	 * @var array
 	 */
 	protected $api = [
-		'key' => MAILJET_APIKEY,
-		'secret'  => MAILJET_SECRETKEY,
+		'key' => '3f3b8980301c44dba983c3b5254c6cb5',
+		'secret'  => '312d16952416be2022c02d1120cdf019',
 		'version' => 'v3.1',
 	];
 
@@ -56,7 +57,11 @@ class Mailjet extends \Mailjet\Client {
 		$this->variables[$name] = $value;
 	}
 
-	public function setTemplate($template) {
+	/**
+	* @param string $mailtemplate
+	*/
+	public function setTemplate($mailtemplate) {
+		//print_r(var_dump($this->db));
 		// Attempts to get template according to currently selected language.
 		$stmt = $this->db->prepare("SELECT * FROM `mailjet_templates`
 			LEFT JOIN `language` ON `mailjet_templates`.`language` = `language`.`id`
@@ -74,6 +79,7 @@ class Mailjet extends \Mailjet\Client {
 
 	/**
 	 * @param string $message_type
+	 * @param string $message
 	 * @param string $from
 	 * @param string $from_name
 	 * @param string $template
@@ -82,45 +88,76 @@ class Mailjet extends \Mailjet\Client {
 	 * @return string
 	 * @throws Exception
 	 */
-	public function sendMessage($message_type, $from = EMAIL_FROM_ADDRESS, $from_name = EMAIL_FROM_NAME, $recipients = [], $attachment = []) {
+	public function sendMessage($message_type, $from = EMAIL_FROM_ADDRESS, $from_name = EMAIL_FROM_NAME, $to = [], $attachment) {
 
 		if (
 			empty($from)
 			|| empty($from_name)
-			|| empty($subject)
 		) {
-			throw new Exception('You have to supply From (email or number), FromName and Subject');
+			throw new Exception('You have to supply From (email or number) and FromName');
 		}
-		if ($message_type == 'email') {
+		//print_r($from);
+		//print_r($to['name']);
+		if ($message_type === 'email') {
+			//error_log('Message type lika med email');
 			$email_body = [
-				'FromEmail' 		=> $from,
-				'FromName' 			=> $from_name,
-				'TemplateID'		=> $template,
-				'TemplateLanguage'	=> true,
-				'Vars'				=> $variables
+				'Messages'	=>	[
+					[
+						'From'	=>	[
+								'Email'	=>	$from,
+								'Name'	=>	$from_name
+						],
+						'To'	=>	[
+							[
+								'Email'	=>	$to['email'],
+								'Name'	=>	$to['name']
+							]
+						],
+						'TemplateID'		=> 568886,
+						'TemplateLanguage'	=> true
+				        /*'Variables' => json_decode('{
+				    		"firstname": "Default"
+				  		}', true)*/
+					]
+				]
 			];
-
-			if (is_array($recipients)) {
-				$tmpArr = [];
-				foreach ($recipients as $email_to) {
-					$tmpArr['Email'] = $email_to;
-					$email_body['Recipients'][] = $tmpArr;
-				}
-			} else {
-				$email_body['Recipients'] = ['Email' => $recipients];
-			}
-			if (is_array($reply_to)) {
+				/*'Messages' => [
+				      [
+				        'From' => [
+				          'Email' => "testserver@chartbookerdemo.com",
+				          'Name' => "Test"
+				        ],
+				        'To' => [
+				          [
+				            'Email' => "passenger1@example.com",
+				            'Name' => "passenger 1"
+				          ]
+				        ],
+				        'TemplateID' => 568886,
+				        'TemplateLanguage' => true,
+				        'Subject' => "Test",
+				        'Variables' => json_decode('{
+				    "firstname": "Default"
+				  }', true)
+				      ]
+			    ]
+/*
+			if ($reply_to) {
 				$email_body['Headers'] = ['Reply-To' => $reply_to];
 			}
-			if (is_array($attachment)) {
-				foreach($attachment as $file)
-				$email_body['Attachments'] => [[
-					'Content-type' => $file['type'],
-					'Filename' => $file['name'],
-					'content' => $file['content']
+*//*
+			if ($attachment) {
+				$email_body['Attachments'] = [[
+					'Content-type' => mime_content_type($attachment),
+					'Filename' => basename($attachment),
+					'Base64Content' => file_get_contents($attachment)
 				]];
 			}
+*/
 			$response = $this->sendAsEmail($email_body);
+			/*error_log('Response kommer nu');
+			error_log($response);
+			error_log('Email body kommer nu');*/
 
 		} else if ($message_type == 'sms') {
 
@@ -151,23 +188,17 @@ class Mailjet extends \Mailjet\Client {
 			if (is_array($reply_to)) {
 				$email_body['Headers'] = ['Reply-To' => $reply_to];
 			}
-			if (is_array($attachment)) {
-				foreach($attachment as $file)
-				$email_body['Attachments'] => [[
-					'Content-type' => $file['type'],
-					'Filename' => $file['name'],
-					'content' => $file['content']
-				]];
-			}
+
 			$response = $this->sendAsEmail($email_body);
 
 		}
 
-		if ($response->success()) {
+/*		if ($response->success()) {
+			error_log($this->parseResponse($response));
 			return $this->parseResponse($response);
 		} else {
 			throw new Exception('Error: ' . print_r($response->getStatus()));
-		}
+		}*/
 	}
 
 	/**
@@ -176,10 +207,16 @@ class Mailjet extends \Mailjet\Client {
 	 * @throws Exception
 	 */
 	private function sendAsEmail($body) {
+		
 		$response = parent::post(\Mailjet\Resources::$Email, ['body' => $body]);
+
 		if ($response->success()) {
-			return $this->parseResponse($response);
+			error_log('Success här');
+			error_log(var_dump($response->getData()));
+			//return $this->parseResponse($response);
 		} else {
+			error_log('Error här');
+			error_log(var_dump($response->getData()));
 			throw new Exception('Error: ' . print_r($response->getStatus()));
 		}
 	}

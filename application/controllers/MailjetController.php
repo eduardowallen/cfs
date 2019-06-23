@@ -9,7 +9,7 @@ $apikey = getenv('MJ_APIKEY_PUBLIC');
 $apisecret = getenv('MJ_APIKEY_PRIVATE');
 
 // use your saved credentials
-$mj = new \Mailjet\Client(getenv('MJ_APIKEY_PUBLIC'), getenv('MJ_APIKEY_PRIVATE'));
+$mj = new \Mailjet\Client(getenv('MJ_APIKEY_PUBLIC'), getenv('MJ_APIKEY_PRIVATE'), true, ['version' => 'v3.1']);
 
 // Resources are all located in the Resources class
 $response = $mj->get(Resources::$Contact);

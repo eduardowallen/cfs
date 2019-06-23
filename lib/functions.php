@@ -128,6 +128,56 @@ function setAuthLevel($lvl) {
 		toLogin();
 
 }
+	/**
+	 * @param string $from
+	 * @param string $from_name
+	 * @param string $template
+	 * @param array $recipient
+	 * @param string $attachment
+	 * @return string
+	 * @throws Exception
+	 */
+
+function sendMessage($from = EMAIL_FROM_ADDRESS, $from_name = EMAIL_FROM_NAME, $recipient = [], $attachment) {
+
+	require_once '/var/www/classes/Mailjet.php';
+	if (
+		empty($from)
+		|| empty($from_name)
+	) {
+		throw new Exception('You have to supply From (email or number) and FromName');
+	}
+
+	$email_body = [
+		'Messages'	=>	[
+			[
+				'From'	=>	[
+						'Email'	=>	$from,
+						'Name'	=>	$from_name
+				],
+				'To'	=>	[
+					[
+						'Email'	=>	$recipient['email'],
+						'Name'	=>	$recipient['name']
+					]
+				],
+				'TemplateID'		=> 568886,
+				'TemplateLanguage'	=> true
+			]
+		]
+	];
+
+	if ($attachment) {
+		$email_body['Attachments'] = [[
+			'Content-type' => mime_content_type($attachment),
+			'Filename' => basename($attachment),
+			'Base64Content' => file_get_contents($attachment)
+		]];
+	}
+
+	$response = $this->sendAsEmail($email_body);
+}
+
 
 /*function sendMail($to, $subject, $msg, $from='') {
 

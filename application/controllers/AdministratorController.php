@@ -112,7 +112,6 @@ class AdministratorController extends Controller {
 				$r_name = strtr($res['r_name'], $replace_chars);
 				$posname = strtr($res['posname'], $replace_chars);
 				$invoice_file = ROOT.'public/invoices/fairs/'.$res['fair'].'/exhibitors/'.$res['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $res['id'] . '.pdf';
-				try {
 /*					
 					if ($comment != '') {
 						$comment = '<br>'.$comment.'<br>';
@@ -124,16 +123,17 @@ class AdministratorController extends Controller {
 */
 					$from = $fair->get("url") . EMAIL_FROM_DOMAIN;
 					$from_name = $fair->get('windowtitle');
-
+					$to = 'eduardo.wallen@chartbooker.com';
+					$to_name = 'Eduardo';
+					$reply_to = $fair->get('contact_email');
 					if($fair->get('contact_name')) {
-						$from_name = $fair->get('contact_name'));
+						$from_name = $fair->get('contact_name');
 					}
 
-					$recipients = array($res['invoice_email'] => $res['r_reference']);
-
-					$mail_user = new Mailjet();)
+					$recipients = array('eduardo.wallen@chartbooker.com' => 'Eduardo');
+					$mail_user = new Mailjet('v3.1');
 					$mail_user->setTemplate('send_invoice');
-					$mail_user->sendMessage('email', $from, $from_name, $recipients, $variables, $invoice_file);
+					$mail_user->sendMessage('email', $from, $from_name, $reply_to, $to, $to_name, $invoice_file);
 /*					$mail_user->setFrom($from);
 					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
 					$mail_user->setRecipients($recipients);
@@ -157,15 +157,6 @@ class AdministratorController extends Controller {
 					if(!is_readable($invoice_file))
 						throw new Exception($this->translate->{'Could not open and read attatched file for invoice no. '}.$res['id'].'.');
 					$this->markAsSent($res['exhibitor'], $res['row_id']);
-				}
-			}
-				if($errors) {
-					$_SESSION['mail_errors'] = $mail_errors;
-					header("Location: ".BASE_URL."administrator/invoices?errors=" . implode(',', $errors));
-					exit;
-				} else {
-					header("Location: ".BASE_URL."administrator/invoices");
-					exit;
 				}
 		}
 	}
