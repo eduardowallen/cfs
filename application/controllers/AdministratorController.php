@@ -123,17 +123,17 @@ class AdministratorController extends Controller {
 */
 					$from = $fair->get("url") . EMAIL_FROM_DOMAIN;
 					$from_name = $fair->get('windowtitle');
-					$to = 'eduardo.wallen@chartbooker.com';
-					$to_name = 'Eduardo';
 					$reply_to = $fair->get('contact_email');
 					if($fair->get('contact_name')) {
 						$from_name = $fair->get('contact_name');
 					}
 
-					$recipients = array('eduardo.wallen@chartbooker.com' => 'Eduardo');
-					$mail_user = new Mailjet('v3.1');
-					$mail_user->setTemplate('send_invoice');
-					$mail_user->sendMessage('email', $from, $from_name, $reply_to, $to, $to_name, $invoice_file);
+					$recipient = array('alexis.wallen@chartbooker.com', 'Alexis');
+					$mail_user = new Mail();
+					$mail_user->setServerTemplate('send_invoice');
+					$mail_user->setRecipient($recipient);
+					$mail_user->setAttachment($invoice_file);
+					$mail_user->sendMessage();
 /*					$mail_user->setFrom($from);
 					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
 					$mail_user->setRecipients($recipients);

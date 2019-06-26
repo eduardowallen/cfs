@@ -547,12 +547,19 @@ class UserController extends Controller {
 						$this->User->setPassword($_POST['password']);
 						$this->User->save();
 						$this->set('ok', 'Password changed');
-						$email = EMAIL_FROM_ADDRESS;
-						$from = array($email => EMAIL_FROM_NAME);
 
-						$recipients = array($this->User->get('contact_email') => $this->User->get('name'));
-						try {
+						$from = array('sannamarken@chartbookerdemo.com', 'Sannamarken');
+						$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
+
+
 							$mail = new Mail();
+					$mail->setServerTemplate('send_invoice');
+					$mail->setRecipient($recipient);
+					$mail->setAttachment(ROOT.'public/invoices/fairs/141/exhibitors/16975/Capeco-A14-55152.pdf');
+							//$mail->setTemplate('password_changed');
+							$mail->sendMessage();
+							//var_dump($mail);
+							/*
 							$mail->setTemplate('password_changed');
 							$mail->setPlainTemplate('password_changed');
 							$mail->setFrom($from);
@@ -564,17 +571,9 @@ class UserController extends Controller {
 								$errors[] = $this->User->get('email');
 							} else {
 								$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
-							}
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $this->User->get('email');
-							$mail_errors[] = $ex->getMessage();
+							}*/
 
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $this->User->get('email');
-							$mail_errors[] = $ex->getMessage();
-						}
+
 
 					} else {
 						$this->set('error', 'Your current password was wrong.');
