@@ -535,7 +535,7 @@ class UserController extends Controller {
 				$this->User->save();
 				/* UPDATED TO FIT MAILJET */
 				$mail = new Mail();
-				$mail->setTemplate('password_reset');
+				$mail->setTemplate('resend_details');
 				$mail->setFrom($from);
 				$mail->setRecipient($recipient);
 				/* Setting mail variables */
@@ -558,7 +558,7 @@ class UserController extends Controller {
 					$this->User->save();
 					/* UPDATED TO FIT MAILJET */
 					$mail = new Mail();
-					$mail->setTemplate('password_reset');
+					$mail->setTemplate('resend_details');
 					$mail->setFrom($from);
 					$mail->setRecipient($recipient);
 					/* Setting mail variables */
@@ -831,13 +831,12 @@ public function deletelogo() {
 						$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
 						/* UPDATED TO FIT MAILJET */
 						$mail = new Mail();
-						$mail->setTemplate('activate_welcome');
+						$mail->setTemplate('new_exhibitor');
 						$mail->setFrom($from);
 						$mail->setRecipient($recipient);
 						/* Setting mail variables */
 						$mail->setMailVar('exhibitor_company', $this->User->get('name'));
 						$mail->setMailVar('username', $this->User->get('alias'));
-						$mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
 						$mail->setMailVar('event_url', BASE_URL.$fairUrl);
 						$mail->sendMessage();
 
@@ -914,7 +913,7 @@ public function deletelogo() {
 		$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
 		/* UPDATED TO FIT MAILJET */
 		$mail = new Mail();
-		$mail->setTemplate('activate_welcome');
+		$mail->setTemplate('new_exhibitor');
 		$mail->setFrom($from);
 		$mail->setRecipient($recipient);
 		/* Setting mail variables */
