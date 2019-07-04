@@ -368,11 +368,11 @@ if (isset($_POST['bookPosition'])) {
 	$fair = new Fair();
 	$fair->loadsimple($exhibitor->get('fair'), 'id');
 
+	/* Check mail settings and send only if setting is set */
 	if ($fair->wasLoaded()) {
 		$mailSettings = json_decode($fair->get("mail_settings"));
-		/* Check mail settings and send only if setting is set */
-		if (isset($mailSettings->bookingCreated) && is_array($mailSettings->bookingCreated)) {
-			if (in_array("1", $mailSettings->bookingCreated)) {
+		if (isset($mailSettings->BookingCreated) && is_array($mailSettings->BookingCreated)) {
+			if (in_array("1", $mailSettings->BookingCreated)) {
 				$user = new User();
 				$user->load2($exhibitor->get('user'), 'id');
 
@@ -488,8 +488,8 @@ if (isset($_POST['fairRegistration'])) {
 
 			/* Check mail settings and send only if setting is set */
 			$mailSettings = json_decode($fair->get("mail_settings"));
-			if (is_array($mailSettings->recieveRegistration)) {
-				if (in_array("0", $mailSettings->recieveRegistration)) {
+			if (is_array($mailSettings->RegistrationCreated)) {
+				if (in_array("0", $mailSettings->RegistrationCreated)) {
 					$organizer = new User();
 					$organizer->load2($fair->get('created_by'), 'id');
 					/* Prepare to send the mail */
@@ -604,14 +604,14 @@ if (isset($_POST['reservePosition'])) {
 	if ($fair->wasLoaded()) {
 		/* Check mail settings and send only if setting is set */
 		$mailSettings = json_decode($fair->get("mail_settings"));
-		if (isset($mailSettings->bookingCreated) && is_array($mailSettings->bookingCreated)) {
+		if (isset($mailSettings->ReservationCreated) && is_array($mailSettings->ReservationCreated)) {
 			$user = new User();
 			$user->load2($exhibitor->get('user'), 'id');
 			if ($fair->get('contact_name') == '')
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 			else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-			if (in_array("1", $mailSettings->bookingCreated)) {
+			if (in_array("1", $mailSettings->ReservationCreated)) {
 				/* Prepare to send the mail */
 				if ($user->get('contact_email') == '')
 				$recipient = array($user->get('email'), $user->get('company'));
@@ -754,8 +754,8 @@ if (isset($_POST['preliminary'])) {
 
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			/* Check mail settings and send only if setting is set */
-			if (isset($mailSettings->recievePreliminaryBooking) && is_array($mailSettings->recievePreliminaryBooking)) {
-				if (in_array("0", $mailSettings->recievePreliminaryBooking)) {
+			if (isset($mailSettings->PreliminaryCreated) && is_array($mailSettings->PreliminaryCreated)) {
+				if (in_array("0", $mailSettings->PreliminaryCreated)) {
 					$organizer = new User();
 					$organizer->load2($fair->get('created_by'), 'id');
 					/* Prepare to send the mail */
@@ -830,8 +830,6 @@ if (isset($_POST['cancelBooking'])) {
 
 		$ex = new Exhibitor();
 		$ex->load($position->get('id'), 'position');
-		$user = new User();
-		$user->load2($ex->get('user'), 'id');
 		$ex->delete($_POST['comment']);
 		$position->set('status', 0);
 		$position->set('expires', '0000-00-00 00:00:00');
@@ -841,13 +839,15 @@ if (isset($_POST['cancelBooking'])) {
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			/* Check mail settings and send only if setting is set */
-			if (isset($mailSettings->bookingCancelled) && is_array($mailSettings->bookingCancelled)) {
+			if (isset($mailSettings->BookingCancelled) && is_array($mailSettings->BookingCancelled)) {
 				/* Prepare to send the mail */
 				if ($fair->get('contact_name') == '')
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 				else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-				if (in_array("1", $mailSettings->bookingCancelled)) {
+				if (in_array("1", $mailSettings->BookingCancelled)) {
+					$user = new User();
+					$user->load2($ex->get('user'), 'id');
 					if ($user->get('contact_email') == '')
 					$recipient = array($user->get('email'), $user->get('company'));
 					else
@@ -1065,20 +1065,20 @@ if (isset($_POST['reserve_preliminary'])) {
 		/* Check mail settings and send only if setting is set */
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
-			if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
+			if (isset($mailSettings->PreliminaryToReservation) && is_array($mailSettings->PreliminaryToReservation)) {
 				if ($fair->get('contact_name') == '')
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 				else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 
-				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
+				if (in_array("1", $mailSettings->PreliminaryToReservation)) {
 					if ($user->get('contact_email') == '')
 					$recipient = array($user->get('email'), $user->get('company'));
 					else
 					$recipient = array($user->get('contact_email'), $user->get('name'));
 					/* UPDATED TO FIT MAILJET */
 					$mail_user = new Mail();
-					$mail_user->setTemplate('preliminary_approved_receipt');
+					$mail_user->setTemplate('preliminary_to_reservation_receipt');
 					$mail_user->setFrom($from);
 					$mail_user->setRecipient($recipient);
 					/* Setting mail variables */
@@ -1091,7 +1091,6 @@ if (isset($_POST['reserve_preliminary'])) {
 					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
 					$mail_user->setMailVar('position_name', $pos->get('name'));
 					$mail_user->setMailVar('position_area', $pos->get('area'));
-					$mail_user->setMailVar('expirationdate', $_POST['expires']);
 					$mail_user->sendMessage();
 				}
 			}
@@ -1156,20 +1155,19 @@ if (isset($_POST['book_preliminary'])) {
 		
 		$fair = new Fair();
 		$fair->loadsimple($ex->get('fair'), 'id');
-		
-		$user = new User();
-		$user->load2($ex->get('user'), 'id');
 
 		/* Check mail settings and send only if setting is set */
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
-			if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
-				if ($fair->get('contact_name') == '')
-				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
-				else
-				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-
-				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
+			if (isset($mailSettings->PreliminaryToBooking) && is_array($mailSettings->PreliminaryToBooking)) {
+				if (in_array("1", $mailSettings->PreliminaryToBooking)) {
+					$user = new User();
+					$user->load2($ex->get('user'), 'id');
+			
+					if ($fair->get('contact_name') == '')
+					$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+					else
+					$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 					/* Prepare to send the mail */
 					if ($user->get('contact_email') == '')
 					$recipient = array($user->get('email'), $user->get('company'));

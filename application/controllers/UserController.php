@@ -502,7 +502,7 @@ class UserController extends Controller {
 						$mail->setRecipient($recipient);
 						$mail->setTemplate('password_changed');
 						/* Setting mail variables */
-						$mail->setMailVar('user_name', $this->User->get('name'));
+						$mail->setMailVar('exhibitor_company', $this->User->get('name'));
 						$mail->sendMessage();
 					} else {
 						$this->set('error', 'Your current password was wrong.');

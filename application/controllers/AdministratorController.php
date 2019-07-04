@@ -268,7 +268,7 @@ class AdministratorController extends Controller {
 				$recipient = array($row['contact_email'], $row['company']);
 				/* UPDATED TO FIT MAILJET */
 				$mail_user = new Mail();
-				$mail_user->setTemplate('confirm_cloned_reservation');
+				$mail_user->setTemplate('confirm_cloned');
 				$mail_user->setFrom($from);
 				$mail_user->setRecipient($recipient);
 				/* Setting mail variables */
@@ -859,24 +859,23 @@ class AdministratorController extends Controller {
 					/* Check mail settings and send only if setting is set */
 					if ($fair->wasLoaded()) {
 						$mailSettings = json_decode($fair->get("mail_settings"));
-						if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
-
-							$user = new User();
-							$user->load2($ex->get('user'), 'id');
-		
-							if ($fair->get('contact_name') == '')
+						if (isset($mailSettings->PreliminaryToBooking) && is_array($mailSettings->PreliminaryToBooking)) {
+							if (in_array('1', $mailSettings->PreliminaryToBooking)) {
+								$user = new User();
+								$user->load2($ex->get('user'), 'id');
+			
+								if ($fair->get('contact_name') == '')
 								$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
-							else
+								else
 								$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 
-							if (in_array('1', $mailSettings->acceptPreliminaryBooking)) {
 								if ($user->get('contact_email') == '')
 								$recipient = array($user->get('email'), $user->get('company'));
 								else
 								$recipient = array($user->get('contact_email'), $user->get('name'));
 								/* UPDATED TO FIT MAILJET */
 								$mail_user = new Mail();
-								$mail_user->setTemplate('booking_approved_receipt');
+								$mail_user->setTemplate('preliminary_to_booking_receipt');
 								$mail_user->setFrom($from);
 								$mail_user->setRecipient($recipient);
 								/* Setting mail variables */
@@ -2470,7 +2469,7 @@ class AdministratorController extends Controller {
 			if (isset($_POST['comment']))
 				$comment = htmlspecialchars_decode($_POST['comment']);
 				
-			if (isset($mailSettings->registrationCancelled) && is_array($mailSettings->registrationCancelled)) {
+			if (isset($mailSettings->RegistrationCancelled) && is_array($mailSettings->RegistrationCancelled)) {
 				/* Prepare to send the mail */
 				if ($fair->get('contact_name') == '')
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
@@ -2480,7 +2479,7 @@ class AdministratorController extends Controller {
 				$user->load2($registration->get('user'), 'id');
 
 				/* Check mail settings and send only if setting is set */
-				if (in_array("1", $mailSettings->registrationCancelled)) {
+				if (in_array("1", $mailSettings->RegistrationCancelled)) {
 					if ($user->get('contact_email') == '')
 					$recipient = array($user->get('email'), $user->get('company'));
 					else
@@ -3929,9 +3928,8 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 				$user = new User();
 				$user->load2($pb->get('user'), 'id');
 				$pb->delete($_POST['comment']);
-				$mail_type = 'booking';
-				$status = 3;
-				$mailSetting = "cancelPreliminaryBooking";
+				$mail_type = 'preliminary';
+				$mailSetting = "PreliminaryCancelled";
 			} else {
 				$ex = new Exhibitor();
 				$ex->load($id, 'id');
@@ -3940,31 +3938,25 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 				$ex->delete($_POST['comment']);
 				$position->set('status', 0);
 				$position->save();
-				if ($status == 'Reservation') {
-					$mail_type = 'reservation';
-					$status = 1;
-				} else {
-					$mail_type = 'booking';
-					$status = 2;
-				}
-				$mailSetting = "bookingCancelled";
+				$mail_type = 'booking';
+				$mailSetting = "BookingCancelled";
 			}
 
 			/* Check mail settings and send only if setting is set */
 			if ($fair->wasLoaded()) {
 				$mailSettings = json_decode($fair->get("mail_settings"));
-
 				if (isset($mailSettings->$mailSetting) && is_array($mailSettings->$mailSetting)) {
-					if (isset($_POST['comment']))
-					$comment = htmlspecialchars_decode($_POST['comment']);
-
-					/* Prepare to send the mail */
-					if ($fair->get('contact_name') == '')
-						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
-					else
-						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 					/* Check mail settings and send only if setting is set */
 					if (in_array("1", $mailSettings->$mailSetting)) {
+						if (isset($_POST['comment']))
+						$comment = htmlspecialchars_decode($_POST['comment']);
+
+						/* Prepare to send the mail */
+						if ($fair->get('contact_name') == '')
+						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+						else
+						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
+
 						if ($user->get('contact_email') == '')
 						$recipient = array($user->get('email'), $user->get('company'));
 						else
@@ -4075,11 +4067,9 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 
 				if ($set_status == null) {
 					// If this is a reservation (status is 1), then also set the expiry date
-					if ($pos->wasLoaded() && $pos->get('status') == 1) {
-						$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
-					}
+					if ($pos->wasLoaded() && $pos->get('status') == 1)
+					$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 				} else if ($set_status == 2) {
-					$previous_status = $pos->get('status');
 					$pos->set('status', $set_status);
 					$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice WHERE exhibitor = ? AND status = 1");
 					$stmt->execute(array($exId));
@@ -4090,10 +4080,10 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 					}
 					$stmt2 = $this->db->prepare("UPDATE exhibitor SET status = 2 WHERE id = ?");
 					$stmt2->execute(array($exId));
-					$mailSetting = 'newBooking';
+					$mailSetting = 'BookingCreated';
+					$mail_type = 'booking';
 					$pos->set('expires', '0000-00-00 00:00:00');
 				} else {
-					$previous_status = $pos->get('status');
 					$pos->set('status', $set_status);
 					$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 					$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice WHERE exhibitor = ? AND status = 2");
@@ -4105,7 +4095,8 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 					}
 					$stmt2 = $this->db->prepare("UPDATE exhibitor SET status = 1 WHERE id = ?");
 					$stmt2->execute(array($exId));
-					$mailSetting = 'newReservation';
+					$mailSetting = 'ReservationCreated';
+					$mail_type = 'reservation';
 				}
 				$pos->save();
 				
@@ -4117,9 +4108,9 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 
 					/* Prepare to send the mail */
 					if ($fair->get('contact_name') == '')
-						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+					$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 					else
-						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
+					$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 						
 					if (in_array("1", $mailSettings->$mailSetting)) {
 						if ($user->get('contact_email') == '')
@@ -4128,10 +4119,7 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 						$recipient = array($user->get('contact_email'), $user->get('name'));
 						/* UPDATED TO FIT MAILJET */
 						$mail_user = new Mail();
-						if ($mailSetting == 'newBooking')
-						$mail_user->setTemplate('newBooking');
-						else 
-						$mail_user->setTemplate('newReservation');
+						$mail_user->setTemplate($mail_type . '_created_receipt');
 						$mail_user->setFrom($from);
 						$mail_user->setRecipient($recipient);
 						/* Setting mail variables */
@@ -4226,7 +4214,7 @@ public function reservePrelBooking() {
 					
 				/* Check mail settings and send only if setting is set */
 				$mailSettings = json_decode($fair->get("mail_settings"));
-				if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
+				if (isset($mailSettings->PreliminaryToReservation) && is_array($mailSettings->PreliminaryToReservation)) {
 					$user = new User();
 					$user->load2($ex->get('user'), 'id');
 
@@ -4236,14 +4224,14 @@ public function reservePrelBooking() {
 					else
 						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 						
-					if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
+					if (in_array("1", $mailSettings->PreliminaryToReservation)) {
 						if ($user->get('contact_email') == '')
 						$recipient = array($user->get('email'), $user->get('company'));
 						else
 						$recipient = array($user->get('contact_email'), $user->get('name'));
 						/* UPDATED TO FIT MAILJET */
 						$mail_user = new Mail();
-						$mail_user->setTemplate('preliminary_approved_receipt');
+						$mail_user->setTemplate('preliminary_to_reservation_receipt');
 						$mail_user->setFrom($from);
 						$mail_user->setRecipient($recipient);
 						$mail_user->setMailVar('exhibitor_company', $user->get('company'));
@@ -4255,7 +4243,6 @@ public function reservePrelBooking() {
 						$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
 						$mail_user->setMailVar('position_name', $pos->get('name'));
 						$mail_user->setMailVar('position_area', $pos->get('area'));
-						$mail_user->setMailVar('expirationdate', $_POST['expires']);
 						$mail_user->sendMessage();
 					}
 				}

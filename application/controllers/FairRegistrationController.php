@@ -85,9 +85,9 @@ class FairRegistrationController extends Controller {
 				$mail_user->sendMessage();
 
 				$mailSettings = json_decode($fair->get("mail_settings"));
-				if (is_array($mailSettings->recieveRegistration)) {
+				if (is_array($mailSettings->RegistrationCreated)) {
 					/* Check mail settings and send only if setting is set */
-					if (in_array("0", $mailSettings->recieveRegistration)) {
+					if (in_array("0", $mailSettings->RegistrationCreated)) {
 						/* Preparing to send the mail */
 						$organizer = new User();
 						$organizer->load2($fair->get('created_by'), 'id');
