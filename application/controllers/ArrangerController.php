@@ -27,7 +27,7 @@ class ArrangerController extends Controller {
 			$spots = array();
 			foreach ($res as $result) {
 				$u = new User;
-				$u->load($result['id'], 'id');
+				$u->load2($result['id'], 'id');
 
 				$stmt = $this->Arranger->db->prepare("SELECT COUNT(*) AS eventcount FROM fair WHERE created_by = ?");
 				$stmt->execute(array($u->get('id')));
@@ -294,9 +294,7 @@ class ArrangerController extends Controller {
 
 	        $this->Arranger->setPassword($password);
 	        $id = $this->Arranger->save();
-	        
-			$me = new User();
-			$me->load($_SESSION['user_id'], 'id');
+
 			/* Prepare to send the mail */
 			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
 			$recipient = array($_POST['contact_email'], $_POST['name']);

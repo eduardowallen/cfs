@@ -1035,7 +1035,7 @@ if (isset($_POST['connectToFair'])) {
 	$response = array();
 	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
 		$fair = new Fair;
-		$fair->load($_POST['fairId'], 'id');
+		$fair->loadsimple($_POST['fairId'], 'id');
 		if ($fair->wasLoaded()) {
 			$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`, `connected_time`) VALUES (?,?,?)";
 			$stmt = $globalDB->prepare($sql);
@@ -1139,14 +1139,13 @@ if (isset($_POST['reserve_preliminary'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
 			$arts = $_POST['articles'];
 			$amounts = $_POST['artamount'];
-
 			foreach (array_combine($arts, $amounts) as $art => $amount) {
 				$stmt->execute(array($exId, $art, $amount));							
 			}
 		}
 		
 		$fair = new Fair();
-		$fair->load($ex->get('fair'), 'id');
+		$fair->loadsimple($ex->get('fair'), 'id');
 
 		$user = new User();
 		$user->load2($ex->get('user'), 'id');
@@ -1251,7 +1250,6 @@ if (isset($_POST['book_preliminary'])) {
 
 		if (isset($_POST['options']) && is_array($_POST['options'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
-
 			foreach ($_POST['options'] as $opt) {								
 				$stmt->execute(array($exId, $opt));
 			}

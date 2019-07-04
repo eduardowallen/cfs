@@ -72,27 +72,20 @@ class AdministratorController extends Controller {
 		setAuthLevel(2);
 		$this->setNoTranslate('noView', true);
 
-		$user = new User;
-		$user->load($_SESSION['user_id'], 'id');
-
 		$fair = new Fair;
 		$fair->loadsimple($_SESSION['user_fair'], 'id');
 
-		$organizer = new User;
-		$organizer->load2($fair->get('created_by'), 'id');
-
 		if (isset($_POST['invoice_id'])) {
-			$id = $_POST['invoice_id'];
 			if (isset($_POST['msg']))
 				$comment = htmlspecialchars_decode($_POST['msg']);
 
-			$stmt = $user->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.r_reference AS r_reference, ex_invoice.exhibitor AS exhibitor, ex_invoice.row_id AS row_id, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
+			$stmt = $this->Administrator->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.r_reference AS r_reference, ex_invoice.exhibitor AS exhibitor, ex_invoice.row_id AS row_id, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
 				FROM user, exhibitor_invoice AS ex_invoice, exhibitor_invoice_rel AS pos
 				WHERE ex_invoice.ex_user = user.id
 				AND ex_invoice.id = pos.invoice
 				AND pos.type = 'space'
 				AND ex_invoice.row_id = ?");
-			$stmt->execute(array($id));
+			$stmt->execute(array($_POST['invoice_id']));
 			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$replace_chars = array(
 			'/' => '-',
@@ -102,18 +95,12 @@ class AdministratorController extends Controller {
 				$r_name = strtr($res['r_name'], $replace_chars);
 				$posname = strtr($res['posname'], $replace_chars);
 				$invoice_file = ROOT.'public/invoices/fairs/'.$res['fair'].'/exhibitors/'.$res['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $res['id'] . '.pdf';
-
 				/* Prepare to send the mail */
 				if ($fair->get('contact_name') == '')
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 				else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-					
-				if ($user->get('contact_email') == '')
-				$recipient = array($user->get('email'), $user->get('company'));
-				else
-				$recipient = array($user->get('contact_email'), $user->get('name'));
-
+				$recipient = array($result['invoice_email'], $result['r_reference']);
 				/* UPDATED TO FIT MAILJET */
 				$mail_user = new Mail();
 				$mail_user->setFrom($from);
@@ -133,7 +120,6 @@ class AdministratorController extends Controller {
 				if ($comment)
 				$mail_user->setMailVar('comment', $comment);
 				$mail_user->sendMessage();
-				//error_log(print_r($mail_user, TRUE));
 
 				if(!file_exists($invoice_file))
 					throw new Exception($this->translate->{'Could not attatch file to email for invoice no.	'}.$res['id'].'.');
@@ -239,14 +225,10 @@ class AdministratorController extends Controller {
 				user.email AS email, 
 				user.alias AS alias, 
 				user.company AS company,
-				user.name AS name,
 				pos.name AS posname, 
 				pos.area AS posarea, 
-				pos.information AS posinfo, 
-				pos.expires AS expirationdate, 
-				pos.id AS posid,  
+				pos.id,
 				ex.id AS id, 
-				ex.commodity AS commodity
 					FROM user, 
 					exhibitor AS ex, 
 					fair_map_position AS pos 
@@ -260,12 +242,7 @@ class AdministratorController extends Controller {
 			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			foreach ($data_rows as $row) {
-
-				$pos = new FairMapPosition();
-				$pos->load2($row['posid'], 'id');
-
 				$now = time();
-
 				$hash1 = md5($row['id'].BASE_URL.$row['alias']);
 				$accepturl = BASE_URL.'exhibitor/verifyReservation/'.$row['id'].'/'.$hash1.'/accept';
 				$denyurl = BASE_URL.'exhibitor/verifyReservation/'.$row['id'].'/'.$hash1.'/deny';
@@ -285,34 +262,26 @@ class AdministratorController extends Controller {
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 				else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-
 				if ($row['contact_email'] == '')
 				$recipient = array($row['email'], $row['company']);
 				else
 				$recipient = array($row['contact_email'], $row['company']);
-
 				/* UPDATED TO FIT MAILJET */
 				$mail_user = new Mail();
 				$mail_user->setTemplate('confirm_cloned_reservation');
 				$mail_user->setFrom($from);
 				$mail_user->setRecipient($recipient);
-
 				/* Setting mail variables */
+				$mail_user->setMailVar('exhibitor_company', $row['company']);
 				$mail_user->setMailVar('position_name', $row['posname']);
-				if ($row['position_information'] !== '')
-				$mail_user->setMailVar('position_information', $row['position_information']);
 				if ($row['posarea'] !== '')
 				$mail_user->setMailVar('position_area', $row['posarea']);
-				if ($row['commodity'] !== '')
-				$mail_user->setMailVar('commodity', $row['commodity']);
 				$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
 				$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
 				$mail_user->setMailVar('event_email', $fair->get('contact_email'));
 				$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
 				$mail_user->setMailVar('event_website', $fair->get('website'));
 				$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-				$mail_user->setMailVar('expirationdate', $row['expirationdate']);
-				$mail_user->setMailVar('exhibitor_company', $row['company']);
 				$mail_user->setMailVar('accepturl', $accepturl);
 				$mail_user->setMailVar('denyurl', $denyurl);
 				$mail_user->sendMessage();
@@ -328,51 +297,49 @@ class AdministratorController extends Controller {
 
 			/* Samla relevant information till en array
 			beroende på vilken tabell som är vald */
-			$user = new User;
-			$user->load2($_SESSION['user_id'], 'id');
 
 			if ($tbl == 1) {
-				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
+				$stmt = $this->Administrator->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair'], 2));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 2) {
-				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 0 AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
+				$stmt = $this->Administrator->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 0 AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair'], 1));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 3) {
-				$stmt = $user->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
+				$stmt = $this->Administrator->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				
 			} else if ($tbl == 4) {
-				$stmt = $user->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
+				$stmt = $this->Administrator->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 5) {
-				$stmt = $user->db->prepare("SELECT fr.*, u.id AS userid, u.* FROM fair_registration AS fr LEFT JOIN user AS u ON u.id = fr.user WHERE fr.fair = ? AND fr.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $this->Administrator->db->prepare("SELECT fr.*, u.id AS userid, u.* FROM fair_registration AS fr LEFT JOIN user AS u ON u.id = fr.user WHERE fr.fair = ? AND fr.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
 			} else if ($tbl == 6) {
-				$stmt = $user->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking_history AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
+				$stmt = $this->Administrator->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking_history AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 7) {
-				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor_history AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
+				$stmt = $this->Administrator->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor_history AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 8) {
-				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 1 AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
+				$stmt = $this->Administrator->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 1 AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair'], 1));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 9) {
-				$stmt = $user->db->prepare("SELECT frh.*, u.id AS userid, u.* FROM fair_registration_history AS frh LEFT JOIN user AS u ON u.id = frh.user WHERE frh.fair = ? AND frh.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $this->Administrator->db->prepare("SELECT frh.*, u.id AS userid, u.* FROM fair_registration_history AS frh LEFT JOIN user AS u ON u.id = frh.user WHERE frh.fair = ? AND frh.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
@@ -4009,8 +3976,6 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 
 	public function deleteBooking($id = 0, $posId = 0) {
 
-		/// KONTROLLERAD MAILMALL
-
 		setAuthLevel(2);
 
 		$status = $_POST['status'];
@@ -4024,7 +3989,7 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 		$fair = new Fair();
 		$fair->loadsimple($fairMap->get('fair'), 'id');
 
-		// Check if fair is locked before loading further
+		/* Check if fair is locked before loading further */
 		if ($fair->wasLoaded() && !$fair->isLocked()) {
 			if ($status == "preliminary") {
 				$pb = new PreliminaryBooking();
