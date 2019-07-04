@@ -99,10 +99,19 @@ class Mail {
 			$this->body['Messages'][0]['TemplateLanguage'] = true;
 		}
 		if ($this->serverTemplate) {
+			// Replace in-text variables with values
+			$subject = $this->serverTemplate[0]['subject'];
+			$textpart = $this->serverTemplate[0]['textpart'];
+			$htmlpart = $this->serverTemplate[0]['htmlpart'];
+			foreach($this->variables as $key => $value){
+				$subject = str_replace('$'.$key, $value, $subject);
+				$textpart = str_replace('$'.$key, $value, $textpart);
+				$htmlpart = str_replace('$'.$key, $value, $htmlpart);
+			}
 
-			$this->body['Messages'][0]['Subject'] = $this->serverTemplate[0]['subject'];
-			$this->body['Messages'][0]['TextPart'] = $this->serverTemplate[0]['textpart'];
-			$this->body['Messages'][0]['HTMLPart'] = $this->serverTemplate[0]['htmlpart'];
+			$this->body['Messages'][0]['Subject'] = $subject;
+			$this->body['Messages'][0]['TextPart'] = $textpart;
+			$this->body['Messages'][0]['HTMLPart'] = $htmlpart;
 		}
 		
 		if (isset($this->attachment)) {

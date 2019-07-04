@@ -100,7 +100,7 @@ class AdministratorController extends Controller {
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 				else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-				$recipient = array($result['invoice_email'], $result['r_reference']);
+				$recipient = array($res['invoice_email'], $res['r_reference']);
 				/* UPDATED TO FIT MAILJET */
 				$mail_user = new Mail();
 				$mail_user->setFrom($from);
