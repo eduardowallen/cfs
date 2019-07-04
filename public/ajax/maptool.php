@@ -86,10 +86,10 @@ if (isset($_GET['getBusyStatus'])) {
 	$num_prel_bookings = 0;
 
 	if (userLevel() > 1 && userCanAdminFair($map->get('fair'), $map->get('id'))) {
-		// Prepare a SQL statement for getting the number of prelimnary bookings for a position
+		/* Prepare a SQL statement for getting the number of prelimnary bookings for a position */
 		$num_prel_booking_stmt = $globalDB->prepare("SELECT COUNT(*) AS cnt FROM preliminary_booking WHERE position = ?");
 
-		// Fetch any preliminary bookings for this position
+		/* Fetch any preliminary bookings for this position */
 		$num_prel_booking_stmt->execute(array($pos->get('id')));
 		$num_prel_result = $num_prel_booking_stmt->fetchObject();
 
@@ -98,7 +98,7 @@ if (isset($_GET['getBusyStatus'])) {
 		}
 
 	} else if (userLevel() == 1) {
-		// Check if this Exhibitor has preliminary booked this position
+		/* Check if this Exhibitor has preliminary booked this position */
 		$user = new User;
 		$user->load($_SESSION['user_id'], 'id');
 		$preliminaries = $user->getPreliminaries();
@@ -178,7 +178,7 @@ if (isset($_POST['init'])) {
 	);
 
 	if (userLevel() > 1) {
-		// Prepare a SQL statement for getting the number of prelimnary bookings for a position
+		/* Prepare a SQL statement for getting the number of prelimnary bookings for a position */
 		$num_prel_booking_stmt = $globalDB->prepare("SELECT COUNT(*) AS cnt FROM preliminary_booking WHERE position = ?");
 	}
 
@@ -228,7 +228,7 @@ if (isset($_POST['init'])) {
 		} else if (userLevel() > 1) {
 			$applied = 0;
 			if (userCanAdminFair($map->get('fair'), $map->get('id'))) {
-				// Fetch any preliminary bookings for this position
+				/* Fetch any preliminary bookings for this position */
 				$num_prel_booking_stmt->execute(array($pos->get('id')));
 				$num_prel_result = $num_prel_booking_stmt->fetchObject();
 
@@ -241,8 +241,8 @@ if (isset($_POST['init'])) {
 			$applied = 1;
 		}
 
-		// If this position has been edited for a very long time, reset the flags!
-		// Maybe the user just shut down the page or some error occured?
+		/*	If this position has been edited for a very long time, reset the flags!
+			Maybe the user just shut down the page or some error occured? */
 		if ($pos->get('being_edited') > 0 && $pos->get('edit_started')+60*3 < time()) {
 			$pos->set('being_edited', 0);
 			$pos->set('edit_started', 0);
@@ -292,15 +292,13 @@ if (isset($_POST['deleteMarker'])) {
 
 if (isset($_POST['bookPosition'])) {
 
-	/// KONTROLLERAD MAILMALL
-
 	if (userLevel() < 1)
 		exit;
 
 	$pos = new FairMapPosition();
 	$pos->load($_POST['bookPosition'], 'id');
 	
-	//Delete existing exhibitor if position is booked
+	/* Delete existing exhibitor if position is booked */
 	if ($pos->get('status') === 0) {
 		$exhibitor = new Exhibitor();
 	} else {
@@ -336,813 +334,97 @@ if (isset($_POST['bookPosition'])) {
 			$stmt = $pos->db->prepare("UPDATE exhibitor_invoice SET status = 2 WHERE exhibitor = ? AND id = ?");
 			$stmt->execute(array($exId, $result['id']));
 		}
-		// Remove old categories for this booking
+		/* Remove old categories for this booking */
 		$stmt = $pos->db->prepare("DELETE FROM exhibitor_category_rel WHERE exhibitor = ?");
 		$stmt->execute(array($exId));
-		// Remove old options for this booking
+		/* Remove old options for this booking */
 		$stmt = $pos->db->prepare("DELETE FROM exhibitor_option_rel WHERE exhibitor = ?");
 		$stmt->execute(array($exId));
-		// Remove old articles for this booking
+		/* Remove old articles for this booking */
 		$stmt = $pos->db->prepare("DELETE FROM exhibitor_article_rel WHERE exhibitor = ?");
 		$stmt->execute(array($exId));
 	}
-
-	$categories = array();
 
 	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
 		foreach ($_POST['categories'] as $cat) {
 			$stmt->execute(array($exId, $cat));
-			$category = new ExhibitorCategory();
-			$category->load($cat, 'id');
-			if ($category->wasLoaded()) {
-				$categories[] = $category->get('name');
-			}
 		}
 	}
 
-
-	$options = array();
 	if (isset($_POST['options']) && is_array($_POST['options'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
-
 		foreach ($_POST['options'] as $opt) {								
 			$stmt->execute(array($exId, $opt));
-			$ex_option = new FairExtraOption();
-			$ex_option->load($opt, 'id');
-			if ($ex_option->wasLoaded()) {
-				$option_id[] = $ex_option->get('custom_id');
-				$option_text[] = $ex_option->get('text');
-				$option_price[] = $ex_option->get('price');
-				$option_vat[] = $ex_option->get('vat');
-			}
 		}
-
-		$options = array($option_id, $option_text, $option_price, $option_vat);
 	}
 
-
-	$articles = array();
 	if (isset($_POST['articles']) && is_array($_POST['articles'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
-		$arts = $_POST['articles'];
-		$amounts = $_POST['artamount'];
-
-		foreach (array_combine($arts, $amounts) as $art => $amount) {
+		foreach (array_combine($_POST['articles'], $_POST['artamount']) as $art => $amount) {
 			$stmt->execute(array($exId, $art, $amount));
-			$arts = new FairArticle();
-			$arts->load($art, 'id');
-			if ($arts->wasLoaded()) {
-				$art_id[] = $arts->get('custom_id');
-				$art_text[] = $arts->get('text');
-				$art_amount[] = $amount;
-				$art_price[] = $arts->get('price');
-				$art_vat[] = $arts->get('vat');
-			}								
 		}
-		$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
 	}
-	
 	$fair = new Fair();
-	$fair->load($exhibitor->get('fair'), 'id');
-	
-	$organizer = new User();
-	$organizer->load($fair->get('created_by'), 'id');
+	$fair->loadsimple($exhibitor->get('fair'), 'id');
 
-	$user = new User();
-	$user->load($exhibitor->get('user'), 'id');
-
-	$htmlcategoryNames = implode('<br>', $categories);
-	$fairInvoice = new FairInvoice();
-	$fairInvoice->load($exhibitor->get('fair'), 'fair');
-
-	/*****************************************************************************************/
-	/*****************************************************************************************/
-	/************************				PREPARE MAIL START			  *************************/
-	/*****************************************************************************************/
-	/*****************************************************************************************/
-
-	/*********************************************************************************/
-	/*********************************************************************************/
-	/********************************       LABELS       *****************************/
-	/*********************************************************************************/
-	/*********************************************************************************/
-
-	$name_label = $translator->{'Name'};
-	$price_label = $translator->{'Price'};
-	$amount_label = $translator->{'Amount'};
-	$vat_label = $translator->{'Vat'};
-	$sum_label = $translator->{'Sum'};
-	$booked_space_label = $translator->{'Stand'};
-	$options_label = $translator->{'Options'};
-	$articles_label = $translator->{'Articles'};
-	$tax_label = $translator->{'Tax'};
-	$parttotal_label = $translator->{'Subtotal'};
-	$net_label = $translator->{'Net'};
-	$rounding_label = $translator->{'Rounding'};
-	$total_label = $translator->{'total:'};
-	$st_label = $translator->{'st'};
-	$nothing_selected_label = $translator->{'No articles or options selected.'};
-
-	/*************************************************************/
-	/*************************************************************/
-	/*****************     PRICES AND AMOUNTS        *************/
-	/*************************************************************/
-	/*************************************************************/ 
-
-	$totalPrice = 0;
-	$totalNetPrice = 0;
-	$VatPrice0 = 0;
-	$VatPrice12 = 0;
-	$VatPrice18 = 0;
-	$VatPrice25 = 0;
-	$excludeVatPrice0 = 0;
-	$excludeVatPrice12 = 0;
-	$excludeVatPrice18 = 0;
-	$excludeVatPrice25 = 0;
-	$currency = $fair->get('currency');
-	$position_vat = 0;
-	$position_name = $pos->get('name');
-	$position_price = $pos->get('price');
-	$position_vat = $fairInvoice->get('pos_vat');
-
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-		/**********************					MAIL BOOKING TABLE START			  ***********************/
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-$html = '<!-- SIX COLUMN HEADERS -->
-			<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
-			 <!-- ID -->
-			 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     ID
-			   </p>
-			 </td>
-			 <!-- NAME -->
-			 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     '.$name_label.'
-			   </p>
-			 </td>
-			 <!-- PRICE -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$price_label.'
-			   </p>
-			 </td>
-			 <!-- AMOUNT -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$amount_label.'
-			   </p>
-			 </td>
-			 <!-- VAT % -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$vat_label.'
-			   </p>
-			 </td>
-			 <!-- SUM -->
-			 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$sum_label.'
-			   </p>
-			 </td>
-			</tr>
-			<!-- SPACER ROW -->
-			<tr style="mso-yfti-irow:1;height:11.1pt">
-			</tr>
-			<!-- STAND SPACE ROW LABEL-->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$booked_space_label.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			</tr>
-			<!-- STAND SPACE ROW INFO -->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_name.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_price.'
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						1'.$st_label.'
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_vat.'%
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.number_format($position_price, 2, ',', ' ').'
-						</span>
-					</p>
-				</td>
-			</tr>';
-
-$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
-				<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-				</tr>';
-
-if ($position_vat == 25) {
-	$excludeVatPrice25 += $position_price;
-} else if ($position_vat == 18) {
-	$excludeVatPrice18 += $position_price;
-} else {
-	$excludeVatPrice0 += $position_price;
-}
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$options_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$options[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[2][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									1'.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[3][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$articles_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($articles[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$articles[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', $articles[2][$row]).'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[3][$row].' '.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[4][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-    }
-}
-
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (12%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice12).'
-							</p>
-						</td>
-					</tr>';
-
-}
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (18%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice18).'
-							</p>
-						</td>
-					</tr>';
-}
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-	$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (25%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice25).'
-							</p>
-						</td>
-					</tr>';
-}
-if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>';
-} 
-if (empty($totalPrice)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
-							</p>
-						</td>
-					</tr>';
-} else {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>';
-}
-
-/*********************************************************************************************/
-/*********************************************************************************************/
-/**********************					MAIL BOOKING TABLE END				  ***********************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-	
-	$position_information = $pos->get('information');
-	if ($position_information == '')
-		$position_information = $translator->{'None specified.'};
-
-	$position_area = $pos->get('area');
-	if ($position_area == '')
-		$position_area = $translator->{'None specified.'};
-
-	$arranger_message = $_POST['arranger_message'];
-	if ($arranger_message == '')
-		$arranger_message = $translator->{'No message was given.'};
-	
-	$exhibitor_commodity = $_POST['commodity'];
-	if ($exhibitor_commodity == '')
-		$exhibitor_commodity = $translator->{'No commodity was entered.'};
-
-
-	//Check mail settings and send only if setting is set
 	if ($fair->wasLoaded()) {
 		$mailSettings = json_decode($fair->get("mail_settings"));
+		/* Check mail settings and send only if setting is set */
 		if (isset($mailSettings->bookingCreated) && is_array($mailSettings->bookingCreated)) {
-			$errors = array();
-			$mail_errors = array();
-			$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-			$from = array($email => $fair->get("windowtitle"));
-
-			if($fair->get('contact_name')) {
-				$from = array($email => $fair->get('contact_name'));
-			}
-
+			
+			$user = new User();
+			$user->load($exhibitor->get('user'), 'id');
+			
+			if ($fair->get('contact_name') == '')
+			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+			else
+			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
+			
 			if (in_array("0", $mailSettings->bookingCreated)) {
-				try {
-					if ($organizer->get('contact_email') == '')
-						$recipients = array($organizer->get('email') => $organizer->get('company'));
-					else
-						$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-
-					$mail_organizer = new Mail();
-					$mail_organizer->setTemplate('booking_created_confirm');
-					$mail_organizer->setPlainTemplate('booking_created_confirm');
-					$mail_organizer->setFrom($from);
-					$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-					$mail_organizer->setRecipients($recipients);
-						$mail_organizer->setMailVar('booking_table', $html);
-						$mail_organizer->setMailVar('booking_sum', $html_sum);
-						$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-						$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-						$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						$mail_organizer->setMailVar('position_name', $pos->get('name'));
-						$mail_organizer->setMailVar('position_information', $position_information);
-						$mail_organizer->setMailVar('position_area', $position_area);
-						$mail_organizer->setMailVar('arranger_message', $arranger_message);
-						$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
-						$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
-				
-						if(!$mail_organizer->send()) {
-							$errors[] = $organizer->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
-				}
-			if (in_array("1", $mailSettings->bookingCreated)) {
-				try {
-					if ($user->get('contact_email') == '')
-						$recipients = array($user->get('email') => $user->get('company'));
-					else
-						$recipients = array($user->get('contact_email') => $user->get('name'));
-					
-					$mail_user = new Mail();
-					$mail_user->setTemplate('booking_created_receipt');
-					$mail_user->setPlainTemplate('booking_created_receipt');
-					$mail_user->setFrom($from);
-					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-					$mail_user->setRecipients($recipients);
-						$mail_user->setMailVar('booking_table', $html);
-						$mail_user->setMailVar('booking_sum', $html_sum);
-						$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-						$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-						$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-						$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-						$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-						$mail_user->setMailVar('event_website', $fair->get('website'));
-						$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						$mail_user->setMailVar('position_name', $pos->get('name'));
-						$mail_user->setMailVar('position_information', $position_information);
-						$mail_user->setMailVar('position_area', $position_area);
-						$mail_user->setMailVar('arranger_message', $arranger_message);
-						$mail_user->setMailVar('commodity', $exhibitor_commodity);
-						$mail_user->setMailVar('html_categories', $htmlcategoryNames);
-
-					if(!$mail_user->send()) {
-						$errors[] = $user->get('company');
-					}
-
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
-				}
+				/* Prepare to send the mail */
+				$organizer = new User();
+				$organizer->load($fair->get('created_by'), 'id');
+				if ($organizer->get('contact_email') == '')
+				$recipient = array($organizer->get('email'), $organizer->get('company'));
+				else
+				$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
+				/* UPDATED TO FIT MAILJET */
+				$mail_organizer = new Mail();
+				$mail_organizer->setTemplate('booking_created_confirm');
+				$mail_organizer->setFrom($from);
+				$mail_organizer->setRecipient($recipient);
+				/* Setting mail variables */
+				$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+				$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+				$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+				$mail_organizer->setMailVar('position_name', $pos->get('name'));
+				$mail_organizer->setMailVar('position_area', $pos->get('area'));
+				$mail_organizer->sendMessage();
 			}
-			if ($errors) {
-				$_SESSION['mail_errors'] = $mail_errors;
+
+			if (in_array("1", $mailSettings->bookingCreated)) {
+				/* Prepare to send the mail */
+				if ($user->get('contact_email') == '')
+				$recipient = array($user->get('email'), $user->get('company'));
+				else
+				$recipient = array($user->get('contact_email'), $user->get('name'));
+				/* UPDATED TO FIT MAILJET */
+				$mail_user = new Mail();
+				$mail_user->setTemplate('booking_created_receipt');
+				$mail_user->setFrom($from);
+				$mail_user->setRecipient($recipient);
+				/* Setting mail variables */
+				$mail_user->setMailVar('exhibitor_company', $user->get('company'));
+				$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+				$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+				$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+				$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+				$mail_user->setMailVar('event_website', $fair->get('website'));
+				$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+				$mail_user->setMailVar('position_name', $pos->get('name'));
+				$mail_user->setMailVar('position_area', $pos->get('area'));
+				$mail_user->sendMessage();
 			}
 		}
 	}
@@ -1152,8 +434,6 @@ if (empty($totalPrice)) {
 
 if (isset($_POST['fairRegistration'])) {
 	
-	/// KONTROLLERAD MAILMALL
-
 	if (userLevel() == 1) {
 
 		if ($_POST['fair'] > 0) {
@@ -1166,704 +446,94 @@ if (isset($_POST['fairRegistration'])) {
 		$user = new User();
 		$user->load($_SESSION['user_id'], 'id');
 
-		$organizer = new User();
-		$organizer->load($fair->get('created_by'), 'id');
-
 		if ($fair->wasLoaded() && $user->wasLoaded()) {
 
-				$category_ids = '';
-				$categories = array();
-				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
-					foreach ($_POST['categories'] as $cat) {
-						$category = new ExhibitorCategory();
-						$category->load($cat, 'id');
-						if ($category->wasLoaded()) {
-							$categories[] = $category->get('name');
-						}
-					}
-					$category_ids = implode('|', $_POST['categories']);
-				}
-
-				$option_ids = '';
-				$options = array();
-				if (isset($_POST['options']) && is_array($_POST['options'])) {
-					foreach ($_POST['options'] as $opt) {
-						$ex_option = new FairExtraOption();
-						$ex_option->load($opt, 'id');
-						if ($ex_option->wasLoaded()) {
-							$option_id[] = $ex_option->get('custom_id');
-							$option_text[] = $ex_option->get('text');
-							$option_price[] = $ex_option->get('price');
-							$option_vat[] = $ex_option->get('vat');
-						}
-					}
-					$options = array($option_id, $option_text, $option_price, $option_vat);
-					$option_ids = implode('|', $_POST['options']);
-				}
-
-				$article_ids = '';
-				$article_amounts = '';
-				$articles = array();
-				if (!empty($_POST['articles']) && !empty($_POST['artamount'])) {
-						$arts = $_POST['articles'];
-						$amounts = $_POST['artamount'];
-
-						foreach (array_combine($arts, $amounts) as $art => $amount) {
-							$arts = new FairArticle();
-							$arts->load($art, 'id');
-							if ($arts->wasLoaded()) {
-								$art_id[] = $arts->get('custom_id');
-								$art_text[] = $arts->get('text');
-								$art_amount[] = $amount;
-								$art_price[] = $arts->get('price');
-								$art_vat[] = $arts->get('vat');
-							}								
-						}
-						$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
-						$article_ids = implode('|', $_POST['articles']);
-						$article_amounts = implode('|', $_POST['artamount']);				
-				}			
-				$registration = new FairRegistration();
-				$registration->set('user', $user->get('id'));
-				$registration->set('fair', $fair->get('id'));
-				$registration->set('categories', $category_ids);
-				$registration->set('options', $option_ids);
-				$registration->set('articles', $article_ids);
-				$registration->set('amount', $article_amounts);
-				$registration->set('commodity', $_POST['commodity']);
-				$registration->set('arranger_message', $_POST['arranger_message']);
-				$registration->set('area', $_POST['area']);
-				$registration->set('booking_time', time());
-				$registration->save();
-
-				// Connect user to fair
-				if (!userIsConnectedTo($fair->get('id'))) {
-					$stmt = $registration->db->prepare("INSERT INTO fair_user_relation (`fair`, `user`, `connected_time`) VALUES (?, ?, ?)");
-					$stmt->execute(array($fair->get('id'), $user->get('id'), time()));
-				}
-
-				$htmlcategoryNames = implode('<br>', $categories);
-
-				/*****************************************************************************************/
-				/*****************************************************************************************/
-				/************************				PREPARE MAIL START			  *************************/
-				/*****************************************************************************************/
-				/*****************************************************************************************/
-
-				/*********************************************************************************/
-				/*********************************************************************************/
-				/********************************       LABELS       *****************************/
-				/*********************************************************************************/
-				/*********************************************************************************/
-				$name_label = $translator->{'Name'};
-				$price_label = $translator->{'Price'};
-				$amount_label = $translator->{'Amount'};
-				$vat_label = $translator->{'Vat'};
-				$sum_label = $translator->{'Sum'};
-				$options_label = $translator->{'Options'};
-				$articles_label = $translator->{'Articles'};
-				$tax_label = $translator->{'Tax'};
-				$parttotal_label = $translator->{'Subtotal'};
-				$net_label = $translator->{'Net'};
-				$rounding_label = $translator->{'Rounding'};
-				$to_pay_label = $translator->{'to pay:'};
-				$estimated_label = $translator->{'Estimated'};
-				$st_label = $translator->{'st'};
-				$nothing_selected_label = $translator->{'No articles or options selected.'};
-				$not_including_position_price = $translator->{'not including position price'};
-
-
-				/*************************************************************/
-				/*************************************************************/
-				/*****************     PRICES AND AMOUNTS        *************/
-				/*************************************************************/
-				/*************************************************************/ 
-
-				$totalPrice = 0;
-				$totalNetPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$currency = $fair->get('currency');
-
-				/*********************************************************************************************/
-				/*********************************************************************************************/
-				/**********************					MAIL BOOKING TABLE START			  ***********************/
-				/*********************************************************************************************/
-				/*********************************************************************************************/
-		$html = '<!-- SIX COLUMN HEADERS -->
-					<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
-					 <!-- ID -->
-					 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-					     ID
-					   </p>
-					 </td>
-					 <!-- NAME -->
-					 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-					     '.$name_label.'
-					   </p>
-					 </td>
-					 <!-- PRICE -->
-					 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-					     '.$price_label.'
-					   </p>
-					 </td>
-					 <!-- AMOUNT -->
-					 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-					     '.$amount_label.'
-					   </p>
-					 </td>
-					 <!-- VAT % -->
-					 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-					     '.$vat_label.'
-					   </p>
-					 </td>
-					 <!-- SUM -->
-					 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-					     '.$sum_label.'
-					   </p>
-					 </td>
-					</tr>
-					<!-- SPACER ROW -->
-					<tr style="mso-yfti-irow:1;height:11.1pt">
-					</tr>';
-		$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
-						<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
-							<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-								<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								</p>
-							</td>
-							<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								</p>
-							</td>
-						</tr>';
-		if (!empty($_POST['options']) && is_array($_POST['options'])) {
-			$html .= '<!-- SIX COLUMNS -->
-		               <tr style="mso-yfti-irow:1;height:25.1pt">
-		                	<!-- ID -->
-		                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-		                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-		                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-		                  		</span>
-		                  	</p>
-		                  </td>
-		                  <!-- NAME -->
-								<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										'.$options_label.'
-										</span>
-									</p>
-								</td>
-								<!-- PRICE -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- AMOUNT -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- VAT % -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- SUM -->
-								<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-							</tr>';
-
-			for ($row=0; $row<count($options[1]); $row++) {
-				$html .= '<!-- SIX COLUMNS -->
-			               <tr style="mso-yfti-irow:1;height:25.1pt">
-			                	<!-- ID -->
-			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-			                  		'.$options[0][$row].'
-			                  		</span>
-			                  	</p>
-			                  </td>
-			                  <!-- NAME -->
-									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$options[1][$row].'
-											</span>
-										</p>
-									</td>
-									<!-- PRICE -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$options[2][$row].'
-											</span>
-										</p>
-									</td>
-									<!-- AMOUNT -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											1'.$st_label.'
-											</span>
-										</p>
-									</td>
-									<!-- VAT % -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$options[3][$row].'%
-											</span>
-										</p>
-									</td>
-									<!-- SUM -->
-									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
-											</span>
-										</p>
-									</td>
-								</tr>';
+			$category_ids = '';
+			if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+				$category_ids = implode('|', $_POST['categories']);
 			}
-		}
 
-		if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-			$html .= '<!-- SIX COLUMNS -->
-		               <tr style="mso-yfti-irow:1;height:25.1pt">
-		                	<!-- ID -->
-		                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-		                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-		                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-		                  		</span>
-		                  	</p>
-		                  </td>
-		                  <!-- NAME -->
-								<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										'.$articles_label.'
-										</span>
-									</p>
-								</td>
-								<!-- PRICE -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- AMOUNT -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- VAT % -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- SUM -->
-								<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-							</tr>';
-
-			for ($row=0; $row<count($articles[1]); $row++) {
-				$html .= '<!-- SIX COLUMNS -->
-			               <tr style="mso-yfti-irow:1;height:25.1pt">
-			                	<!-- ID -->
-			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-			                  		'.$articles[0][$row].'
-			                  		</span>
-			                  	</p>
-			                  </td>
-			                  <!-- NAME -->
-									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$articles[1][$row].'
-											</span>
-										</p>
-									</td>
-									<!-- PRICE -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.str_replace('.', ',', $articles[2][$row]).'
-											</span>
-										</p>
-									</td>
-									<!-- AMOUNT -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$articles[3][$row].' '.$st_label.'
-											</span>
-										</p>
-									</td>
-									<!-- VAT % -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$articles[4][$row].'%
-											</span>
-										</p>
-									</td>
-									<!-- SUM -->
-									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
-											</span>
-										</p>
-									</td>
-								</tr>';
-		    }
-		}
-
-
-		if (!empty($_POST['options']) && is_array($_POST['options'])) {
-			for ($row=0; $row<count($options[1]); $row++) {
-
-				if ($options[3][$row] == 25) {
-					$excludeVatPrice25 += $options[2][$row];
-				}
-				if ($options[3][$row] == 18) {
-					$excludeVatPrice18 += $options[2][$row];
-				}
-				if ($options[3][$row] == 12) {
-					$excludeVatPrice12 += $options[2][$row];
-				}
-				if ($options[3][$row] == 0) {
-					$excludeVatPrice0 += $options[2][$row];
-				}
+			$option_ids = '';
+			if (isset($_POST['options']) && is_array($_POST['options'])) {
+				$option_ids = implode('|', $_POST['options']);
 			}
-		}
 
-		if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-			for ($row=0; $row<count($articles[1]); $row++) {
+			$article_ids = '';
+			$article_amounts = '';
+			if (!empty($_POST['articles']) && !empty($_POST['artamount'])) {
+					$article_ids = implode('|', $_POST['articles']);
+					$article_amounts = implode('|', $_POST['artamount']);				
+			}			
+			$registration = new FairRegistration();
+			$registration->set('user', $user->get('id'));
+			$registration->set('fair', $fair->get('id'));
+			$registration->set('categories', $category_ids);
+			$registration->set('options', $option_ids);
+			$registration->set('articles', $article_ids);
+			$registration->set('amount', $article_amounts);
+			$registration->set('commodity', $_POST['commodity']);
+			$registration->set('arranger_message', $_POST['arranger_message']);
+			$registration->set('area', $_POST['area']);
+			$registration->set('booking_time', time());
+			$registration->save();
 
-				if ($articles[4][$row] == 25) {
-					$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
-				if ($articles[4][$row] == 18) {
-					$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
-				if ($articles[4][$row] == 12) {
-					$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
-				if ($articles[4][$row] == 0) {
-					$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
+			/* Connect user to fair */
+			if (!userIsConnectedTo($fair->get('id'))) {
+				$stmt = $registration->db->prepare("INSERT INTO fair_user_relation (`fair`, `user`, `connected_time`) VALUES (?, ?, ?)");
+				$stmt->execute(array($fair->get('id'), $user->get('id'), time()));
 			}
-		}
 
-		$VatPrice0 = $excludeVatPrice0;
-		$VatPrice12 = $excludeVatPrice12*0.12;
-		$VatPrice18 = $excludeVatPrice18*0.18;
-		$VatPrice25 = $excludeVatPrice25*0.25;
-		$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-		$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
-
-		$totalPriceRounded = round($totalPrice);
-		$pennys = ($totalPriceRounded - $totalPrice);
-
-		if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-			$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-			$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-
-			$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$tax_label.' (12%)
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.str_replace('.', ',', $VatPrice12).'
-									</p>
-								</td>
-							</tr>';
-
-		}
-		if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-			$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-			$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-			$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$tax_label.' (18%)
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.str_replace('.', ',', $VatPrice18).'
-									</p>
-								</td>
-							</tr>';
-		}
-		if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-			$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-			$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-			$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$tax_label.' (25%)
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.str_replace('.', ',', $VatPrice25).'
-									</p>
-								</td>
-							</tr>';
-		}
-if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>';
-} 
-if (empty($totalPrice)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$estimated.' '.$currency.' '.$to_pay_label.'&nbsp;&nbsp;</strong>0,00<br>('.$not_including_position_price.')
-							</p>
-						</td>
-					</tr>';
-} else {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$estimated.' '.$currency.' '.$to_pay_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'<br>('.$not_including_position_price.')
-							</p>
-						</td>
-					</tr>';
-}
-
-		if ($totalPriceRounded == 0 && empty($_POST['articles']) && empty($_POST['options'])) {
-			$html = '<!-- ONE COLUMN -->
-		               <tr style="mso-yfti-irow:1;height:25.1pt">
-		                  <td width=100% valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:25.1pt" align=center>
-		                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-		                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-		                  		'.$nothing_selected_label.'
-		                  		</span>
-		                  	</p>
-		                  </td>
-							</tr>';
-			$html_sum = '';
-		}
-
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-		/**********************					MAIL BOOKING TABLE END				  ***********************/
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-
-			$arranger_message = $_POST['arranger_message'];
-			if ($arranger_message == '')
-				$arranger_message = $translator->{'No message was given.'};
+			/* Prepare to send the mail */
+			if ($fair->get('contact_name') == '')
+			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+			else
+			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 			
-			$exhibitor_commodity = $_POST['commodity'];
-			if ($exhibitor_commodity == '')
-				$exhibitor_commodity = $translator->{'No commodity was entered.'};
+			if ($user->get('contact_email') == '')
+			$recipient = array($user->get('email'), $user->get('company'));
+			else
+			$recipient = array($user->get('contact_email'), $user->get('name'));
 
+			$mail_user = new Mail();
+			$mail_user->setTemplate('registration_created_receipt');
+			$mail_user->setFrom($from);
+			$mail_user->setRecipient($recipient);
+			/* Setting mail variables */
+			$mail_user->setMailVar('exhibitor_company', $user->get('company'));
+			$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+			$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+			$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+			$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+			$mail_user->setMailVar('event_website', $fair->get('website'));
+			$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+			$mail_user->setMailVar('comment', $_POST['arranger_message']);
+			$mail_user->setMailVar('position_area', $_POST['area']);
+			$mail_user->sendMessage();
 
-				//Check mail settings and send only if setting is set
-				$errors = array();
-				$mail_errors = array();
-				$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-				$from = array($email => $fair->get("windowtitle"));
-				$mailSettings = json_decode($fair->get("mail_settings"));
-
-				if($fair->get('contact_name')) {
-					$from = array($email => $fair->get('contact_name'));
-				}
-
-				try {
-					if ($user->get('contact_email') == '')
-						$recipients = array($user->get('email') => $user->get('company'));
+			/* Check mail settings and send only if setting is set */
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			if (is_array($mailSettings->recieveRegistration)) {
+				if (in_array("0", $mailSettings->recieveRegistration)) {
+					$organizer = new User();
+					$organizer->load($fair->get('created_by'), 'id');
+					/* Prepare to send the mail */
+					if ($organizer->get('contact_email') == '')
+					$recipient = array($organizer->get('email'), $organizer->get('company'));
 					else
-						$recipients = array($user->get('contact_email') => $user->get('name'));
-					
-					$mail_user = new Mail();
-					$mail_user->setTemplate('registration_created_receipt');
-					$mail_user->setPlainTemplate('registration_created_receipt');
-					$mail_user->setFrom($from);
-					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-					$mail_user->setRecipients($recipients);
-						$mail_user->setMailVar('booking_table', $html);
-						$mail_user->setMailVar('booking_sum', $html_sum);
-						$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-						$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-						$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-						$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-						$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-						$mail_user->setMailVar('event_website', $fair->get('website'));
-						$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						$mail_user->setMailVar('arranger_message', $arranger_message);
-						$mail_user->setMailVar('commodity', $exhibitor_commodity);
-						$mail_user->setMailVar('html_categories', $htmlcategoryNames);
-						$mail_user->setMailVar('area', $_POST['area']);
-					
-					if(!$mail_user->send()) {
-						$errors[] = $user->get('company');
-					}
-
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
+					$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
+					$mail_organizer = new Mail();
+					$mail_organizer->setTemplate('registration_created_confirm');
+					$mail_organizer->setFrom($from);
+					$mail_organizer->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_organizer->setMailVar('comment', $_POST['arranger_message']);
+					$mail_organizer->setMailVar('position_area', $_POST['area']);
+					$mail_organizer->sendMessage();
 				}
-
-				if (is_array($mailSettings->recieveRegistration)) {
-
-					if (in_array("0", $mailSettings->recieveRegistration)) {
-						try {
-							if ($organizer->get('contact_email') == '')
-								$recipients = array($organizer->get('email') => $organizer->get('company'));
-							else
-								$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-							
-							$mail_organizer = new Mail();
-							$mail_organizer->setTemplate('registration_created_confirm');
-							$mail_organizer->setPlainTemplate('registration_created_confirm');
-							$mail_organizer->setFrom($from);
-							$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-							$mail_organizer->setRecipients($recipients);
-								$mail_organizer->setMailVar('booking_table', $html);
-								$mail_organizer->setMailVar('booking_sum', $html_sum);
-								$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-								$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-								$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-								$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-								$mail_organizer->setMailVar('arranger_message', $arranger_message);
-								$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
-								$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
-								$mail_organizer->setMailVar('area', $_POST['area']);
-							if(!$mail_organizer->send()) {
-								$errors[] = $organizer->get('company');
-							}
-
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $organizer->get('company');
-							$mail_errors[] = $ex->getMessage();
-
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $organizer->get('company');
-							$mail_errors[] = $ex->getMessage();
-						}
-					}
-				}
-				if ($errors) {
-					$_SESSION['mail_errors'] = $mail_errors;
-				}
+			}
 		}
 	}
 
@@ -1871,8 +541,6 @@ if (empty($totalPrice)) {
 }
 
 if (isset($_POST['reservePosition'])) {
-
-	/// KONTROLLERAD MAILMALL
 
 	if (userLevel() < 1)
 		exit;
@@ -1927,39 +595,23 @@ if (isset($_POST['reservePosition'])) {
 		$stmt->execute(array($exId));
 	}
 
-	$categories = array();
 	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
 		foreach ($_POST['categories'] as $cat) {
 			$stmt->execute(array($exId, $cat));
-			$category = new ExhibitorCategory();
-			$category->load($cat, 'id');
-			if ($category->wasLoaded()) {
-				$categories[] = $category->get('name');
-			}
 		}
 	}
 
-	$options = array();
 	if (isset($_POST['options']) && is_array($_POST['options'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
 
 		foreach ($_POST['options'] as $opt) {								
 			$stmt->execute(array($exId, $opt));
-			$ex_option = new FairExtraOption();
-			$ex_option->load($opt, 'id');
-			if ($ex_option->wasLoaded()) {
-				$option_id[] = $ex_option->get('custom_id');
-				$option_text[] = $ex_option->get('text');
-				$option_price[] = $ex_option->get('price');
-				$option_vat[] = $ex_option->get('vat');
-			}
 		}
 
 		$options = array($option_id, $option_text, $option_price, $option_vat);
 	}
 
-	$articles = array();
 	if (isset($_POST['articles']) && is_array($_POST['articles'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
 		$arts = $_POST['articles'];
@@ -1967,761 +619,65 @@ if (isset($_POST['reservePosition'])) {
 
 		foreach (array_combine($arts, $amounts) as $art => $amount) {
 			$stmt->execute(array($exId, $art, $amount));
-			$arts = new FairArticle();
-			$arts->load($art, 'id');
-			if ($arts->wasLoaded()) {
-				$art_id[] = $arts->get('custom_id');
-				$art_text[] = $arts->get('text');
-				$art_amount[] = $amount;
-				$art_price[] = $arts->get('price');
-				$art_vat[] = $arts->get('vat');
-			}								
 		}
-		$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
 	}
 	
 	$fair = new Fair();
-	$fair->load($exhibitor->get('fair'), 'id');
+	$fair->loadsimple($exhibitor->get('fair'), 'id');
 	
-	$organizer = new User();
-	$organizer->load($fair->get('created_by'), 'id');
-
-	$user = new User();
-	$user->load($exhibitor->get('user'), 'id');
-
-	$htmlcategoryNames = implode('<br>', $categories);
-	$fairInvoice = new FairInvoice();
-	$fairInvoice->load($exhibitor->get('fair'), 'fair');
-
-	/*****************************************************************************************/
-	/*****************************************************************************************/
-	/************************				PREPARE MAIL START			  *************************/
-	/*****************************************************************************************/
-	/*****************************************************************************************/
-
-	/*********************************************************************************/
-	/*********************************************************************************/
-	/********************************       LABELS       *****************************/
-	/*********************************************************************************/
-	/*********************************************************************************/
-
-	$name_label = $translator->{'Name'};
-	$price_label = $translator->{'Price'};
-	$amount_label = $translator->{'Amount'};
-	$vat_label = $translator->{'Vat'};
-	$sum_label = $translator->{'Sum'};
-	$booked_space_label = $translator->{'Stand'};
-	$options_label = $translator->{'Options'};
-	$articles_label = $translator->{'Articles'};
-	$tax_label = $translator->{'Tax'};
-	$parttotal_label = $translator->{'Subtotal'};
-	$net_label = $translator->{'Net'};
-	$rounding_label = $translator->{'Rounding'};
-	$total_label = $translator->{'total:'};
-	$st_label = $translator->{'st'};
-	$nothing_selected_label = $translator->{'No articles or options selected.'};
-
-	/*************************************************************/
-	/*************************************************************/
-	/*****************     PRICES AND AMOUNTS        *************/
-	/*************************************************************/
-	/*************************************************************/ 
-
-	$totalPrice = 0;
-	$totalNetPrice = 0;
-	$VatPrice0 = 0;
-	$VatPrice12 = 0;
-	$VatPrice18 = 0;
-	$VatPrice25 = 0;
-	$excludeVatPrice0 = 0;
-	$excludeVatPrice12 = 0;
-	$excludeVatPrice18 = 0;
-	$excludeVatPrice25 = 0;
-	$currency = $fair->get('currency');
-	$position_vat = 0;
-	$position_name = $pos->get('name');
-	$position_price = $pos->get('price');
-	$position_vat = $fairInvoice->get('pos_vat');
-
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-		/**********************					MAIL BOOKING TABLE START			  ***********************/
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-$html = '<!-- SIX COLUMN HEADERS -->
-			<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
-			 <!-- ID -->
-			 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     ID
-			   </p>
-			 </td>
-			 <!-- NAME -->
-			 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     '.$name_label.'
-			   </p>
-			 </td>
-			 <!-- PRICE -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$price_label.'
-			   </p>
-			 </td>
-			 <!-- AMOUNT -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$amount_label.'
-			   </p>
-			 </td>
-			 <!-- VAT % -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$vat_label.'
-			   </p>
-			 </td>
-			 <!-- SUM -->
-			 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$sum_label.'
-			   </p>
-			 </td>
-			</tr>
-			<!-- SPACER ROW -->
-			<tr style="mso-yfti-irow:1;height:11.1pt">
-			</tr>
-			<!-- STAND SPACE ROW LABEL-->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$booked_space_label.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			</tr>
-			<!-- STAND SPACE ROW INFO -->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_name.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_price.'
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						1'.$st_label.'
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_vat.'%
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.number_format($position_price, 2, ',', ' ').'
-						</span>
-					</p>
-				</td>
-			</tr>';
-
-$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
-				<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-				</tr>';
-
-if ($position_vat == 25) {
-	$excludeVatPrice25 += $position_price;
-} else if ($position_vat == 18) {
-	$excludeVatPrice18 += $position_price;
-} else {
-	$excludeVatPrice0 += $position_price;
-}
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$options_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$options[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[2][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									1'.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[3][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$articles_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($articles[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$articles[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', $articles[2][$row]).'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[3][$row].' '.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[4][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-    }
-}
-
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (12%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice12).'
-							</p>
-						</td>
-					</tr>';
-
-}
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (18%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice18).'
-							</p>
-						</td>
-					</tr>';
-}
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-	$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (25%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice25).'
-							</p>
-						</td>
-					</tr>';
-}
-if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>';
-} 
-if (empty($totalPrice)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
-							</p>
-						</td>
-					</tr>';
-} else {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>';
-}
-
-/*********************************************************************************************/
-/*********************************************************************************************/
-/**********************					MAIL BOOKING TABLE END				  ***********************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-	
-	$position_information = $pos->get('information');
-	if ($position_information == '')
-		$position_information = $translator->{'None specified.'};
-
-	$position_area = $pos->get('area');
-	if ($position_area == '')
-		$position_area = $translator->{'None specified.'};
-
-	$arranger_message = $_POST['arranger_message'];
-	if ($arranger_message == '')
-		$arranger_message = $translator->{'No message was given.'};
-	
-	$exhibitor_commodity = $_POST['commodity'];
-	if ($exhibitor_commodity == '')
-		$exhibitor_commodity = $translator->{'No commodity was entered.'};
-
-
-	//Check mail settings and send only if setting is set
 	if ($fair->wasLoaded()) {
+		/* Check mail settings and send only if setting is set */
 		$mailSettings = json_decode($fair->get("mail_settings"));
 		if (isset($mailSettings->bookingCreated) && is_array($mailSettings->bookingCreated)) {
-			$errors = array();
-			$mail_errors = array();
-			$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-			$from = array($email => $fair->get("windowtitle"));
-
-			if($fair->get('contact_name')) {
-				$from = array($email => $fair->get('contact_name'));
-			}
+			$user = new User();
+			$user->load2($exhibitor->get('user'), 'id');
+			if ($fair->get('contact_name') == '')
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+			else
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 
 			if (in_array("0", $mailSettings->bookingCreated)) {
-				try {
-					if ($organizer->get('contact_email') == '')
-						$recipients = array($organizer->get('email') => $organizer->get('company'));
-					else
-						$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-
-					$mail_organizer = new Mail();
-					$mail_organizer->setTemplate('reservation_created_confirm');
-					$mail_organizer->setPlainTemplate('reservation_created_confirm');
-					$mail_organizer->setFrom($from);
-					$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-					$mail_organizer->setRecipients($recipients);
-						$mail_organizer->setMailVar('booking_table', $html);
-						$mail_organizer->setMailVar('booking_sum', $html_sum);
-						$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-						$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-						$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						$mail_organizer->setMailVar('position_name', $pos->get('name'));
-						$mail_organizer->setMailVar('position_information', $position_information);
-						$mail_organizer->setMailVar('position_area', $position_area);
-						$mail_organizer->setMailVar('arranger_message', $arranger_message);
-						$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
-						$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
-						$mail_organizer->setMailVar('expirationdate', $_POST['expires']);
-				
-						if(!$mail_organizer->send()) {
-							$errors[] = $organizer->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
-				}
-			if (in_array("1", $mailSettings->bookingCreated)) {
-				try {
-					if ($user->get('contact_email') == '')
-						$recipients = array($user->get('email') => $user->get('company'));
-					else
-						$recipients = array($user->get('contact_email') => $user->get('name'));
-
-					$mail_user = new Mail();
-					$mail_user->setTemplate('reservation_created_receipt');
-					$mail_user->setPlainTemplate('reservation_created_receipt');
-					$mail_user->setFrom($from);
-					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-					$mail_user->setRecipients($recipients);
-						$mail_user->setMailVar('booking_table', $html);
-						$mail_user->setMailVar('booking_sum', $html_sum);
-						$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-						$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-						$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-						$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-						$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-						$mail_user->setMailVar('event_website', $fair->get('website'));
-						$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						$mail_user->setMailVar('position_name', $pos->get('name'));
-						$mail_user->setMailVar('position_information', $position_information);
-						$mail_user->setMailVar('position_area', $position_area);
-						$mail_user->setMailVar('arranger_message', $arranger_message);
-						$mail_user->setMailVar('commodity', $exhibitor_commodity);
-						$mail_user->setMailVar('html_categories', $htmlcategoryNames);
-						$mail_user->setMailVar('expirationdate', $_POST['expires']);
-
-					if(!$mail_user->send()) {
-						$errors[] = $user->get('company');
-					}
-
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
-				}
+				$organizer = new User();
+				$organizer->load2($fair->get('created_by'), 'id');
+				/* Prepare to send the mail */
+				if ($organizer->get('contact_email') == '')
+				$recipient = array($organizer->get('email'), $organizer->get('company'));
+				else
+				$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
+				$mail_organizer = new Mail();
+				$mail_organizer->setTemplate('reservation_created_confirm');
+				$mail_organizer->setFrom($from);
+				$mail_organizer->setRecipient($recipient);
+				/* Setting mail variables */
+				$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+				$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+				$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+				$mail_organizer->setMailVar('position_name', $pos->get('name'));
+				$mail_organizer->setMailVar('position_area', $position_area);
+				$mail_organizer->sendMessage();
 			}
-			if ($errors) {
-				$_SESSION['mail_errors'] = $mail_errors;
+			if (in_array("1", $mailSettings->bookingCreated)) {
+				/* Prepare to send the mail */
+				if ($user->get('contact_email') == '')
+				$recipient = array($user->get('email'), $user->get('company'));
+				else
+				$recipient = array($user->get('contact_email'), $user->get('name'));
+				/* UPDATED TO FIT MAILJET */
+				$mail_user = new Mail();
+				$mail_user->setTemplate('reservation_created_receipt');
+				$mail_user->setFrom($from);
+				$mail_user->setRecipient($recipient);
+				/* Setting mail variables */
+				$mail_user->setMailVar('exhibitor_company', $user->get('company'));
+				$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+				$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+				$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+				$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+				$mail_user->setMailVar('event_website', $fair->get('website'));
+				$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+				$mail_user->setMailVar('position_name', $pos->get('name'));
+				$mail_user->setMailVar('position_area', $pos->get('area'));
+				$mail_user->sendMessage();
 			}
 		}
 	}
@@ -2729,8 +685,6 @@ if (empty($totalPrice)) {
 }
 
 if (isset($_POST['editBooking'])) {
-
-	/// KONTROLLERAD MAILMALL
 
 	if (userLevel() < 1)
 		exit;
@@ -2765,828 +719,39 @@ if (isset($_POST['editBooking'])) {
 	$stmt = $pos->db->prepare("DELETE FROM exhibitor_article_rel WHERE exhibitor = ?");
 	$stmt->execute(array($exId));
 
-	$categories = array();
-
 	if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
 		foreach ($_POST['categories'] as $cat) {
 			$stmt->execute(array($exId, $cat));
-			$category = new ExhibitorCategory();
-			$category->load($cat, 'id');
-			if ($category->wasLoaded()) {
-				$categories[] = $category->get('name');
-			}
 		}
 	}
 
-
-	$options = array();
 	if (isset($_POST['options']) && is_array($_POST['options'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
-
 		foreach ($_POST['options'] as $opt) {								
 			$stmt->execute(array($exId, $opt));
-			$ex_option = new FairExtraOption();
-			$ex_option->load($opt, 'id');
-			if ($ex_option->wasLoaded()) {
-				$option_id[] = $ex_option->get('custom_id');
-				$option_text[] = $ex_option->get('text');
-				$option_price[] = $ex_option->get('price');
-				$option_vat[] = $ex_option->get('vat');
-			}
 		}
-
-		$options = array($option_id, $option_text, $option_price, $option_vat);
 	}
 
-
-	$articles = array();
 	if (isset($_POST['articles']) && is_array($_POST['articles'])) {
 		$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
 		$arts = $_POST['articles'];
 		$amounts = $_POST['artamount'];
-
 		foreach (array_combine($arts, $amounts) as $art => $amount) {
-			$stmt->execute(array($exId, $art, $amount));
-			$arts = new FairArticle();
-			$arts->load($art, 'id');
-			if ($arts->wasLoaded()) {
-				$art_id[] = $arts->get('custom_id');
-				$art_text[] = $arts->get('text');
-				$art_amount[] = $amount;
-				$art_price[] = $arts->get('price');
-				$art_vat[] = $arts->get('vat');
-			}								
+			$stmt->execute(array($exId, $art, $amount));							
 		}
-		$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
 	}
 	
 	// If this is a reservation (status is 1), then also set the expiry date
 	if (isset($_POST['expires'])) {
 		$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
 		$pos->save();
-		$mail_type = 'reservation';
-	} else {
-		$mail_type = 'booking';
-	}
-
-	$fair = new Fair();
-	$fair->load($exhibitor->get('fair'), 'id');
-	
-	$organizer = new User();
-	$organizer->load($fair->get('created_by'), 'id');
-
-	$user = new User();
-	$user->load($exhibitor->get('user'), 'id');
-
-	$htmlcategoryNames = implode('<br>', $categories);
-	$fairInvoice = new FairInvoice();
-	$fairInvoice->load($exhibitor->get('fair'), 'fair');
-
-	/*****************************************************************************************/
-	/*****************************************************************************************/
-	/************************				PREPARE MAIL START			  *************************/
-	/*****************************************************************************************/
-	/*****************************************************************************************/
-
-	/*********************************************************************************/
-	/*********************************************************************************/
-	/********************************       LABELS       *****************************/
-	/*********************************************************************************/
-	/*********************************************************************************/
-
-	$name_label = $translator->{'Name'};
-	$price_label = $translator->{'Price'};
-	$amount_label = $translator->{'Amount'};
-	$vat_label = $translator->{'Vat'};
-	$sum_label = $translator->{'Sum'};
-	$booked_space_label = $translator->{'Stand'};
-	$options_label = $translator->{'Options'};
-	$articles_label = $translator->{'Articles'};
-	$tax_label = $translator->{'Tax'};
-	$parttotal_label = $translator->{'Subtotal'};
-	$net_label = $translator->{'Net'};
-	$rounding_label = $translator->{'Rounding'};
-	$total_label = $translator->{'total:'};
-	$st_label = $translator->{'st'};
-	$nothing_selected_label = $translator->{'No articles or options selected.'};
-
-	/*************************************************************/
-	/*************************************************************/
-	/*****************     PRICES AND AMOUNTS        *************/
-	/*************************************************************/
-	/*************************************************************/ 
-
-	$totalPrice = 0;
-	$totalNetPrice = 0;
-	$VatPrice0 = 0;
-	$VatPrice12 = 0;
-	$VatPrice18 = 0;
-	$VatPrice25 = 0;
-	$excludeVatPrice0 = 0;
-	$excludeVatPrice12 = 0;
-	$excludeVatPrice18 = 0;
-	$excludeVatPrice25 = 0;
-	$currency = $fair->get('currency');
-	$position_vat = 0;
-	$position_name = $pos->get('name');
-	$position_price = $pos->get('price');
-	$position_vat = $fairInvoice->get('pos_vat');
-
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-		/**********************					MAIL BOOKING TABLE START			  ***********************/
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-$html = '<!-- SIX COLUMN HEADERS -->
-			<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
-			 <!-- ID -->
-			 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     ID
-			   </p>
-			 </td>
-			 <!-- NAME -->
-			 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     '.$name_label.'
-			   </p>
-			 </td>
-			 <!-- PRICE -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$price_label.'
-			   </p>
-			 </td>
-			 <!-- AMOUNT -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$amount_label.'
-			   </p>
-			 </td>
-			 <!-- VAT % -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$vat_label.'
-			   </p>
-			 </td>
-			 <!-- SUM -->
-			 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$sum_label.'
-			   </p>
-			 </td>
-			</tr>
-			<!-- SPACER ROW -->
-			<tr style="mso-yfti-irow:1;height:11.1pt">
-			</tr>
-			<!-- STAND SPACE ROW LABEL-->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$booked_space_label.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			</tr>
-			<!-- STAND SPACE ROW INFO -->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_name.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_price.'
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						1'.$st_label.'
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_vat.'%
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.number_format($position_price, 2, ',', ' ').'
-						</span>
-					</p>
-				</td>
-			</tr>';
-
-$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
-				<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-				</tr>';
-
-if ($position_vat == 25) {
-	$excludeVatPrice25 += $position_price;
-} else if ($position_vat == 18) {
-	$excludeVatPrice18 += $position_price;
-} else {
-	$excludeVatPrice0 += $position_price;
-}
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$options_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$options[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[2][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									1'.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[3][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$articles_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($articles[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$articles[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', $articles[2][$row]).'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[3][$row].' '.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[4][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-    }
-}
-
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (12%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice12).'
-							</p>
-						</td>
-					</tr>';
-
-}
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (18%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice18).'
-							</p>
-						</td>
-					</tr>';
-}
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-	$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (25%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice25).'
-							</p>
-						</td>
-					</tr>';
-}
-if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>';
-} 
-if (empty($totalPrice)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
-							</p>
-						</td>
-					</tr>';
-} else {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>';
-}
-/*********************************************************************************************/
-/*********************************************************************************************/
-/**********************					MAIL BOOKING TABLE END				  ***********************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-	
-	$position_information = $pos->get('information');
-	if ($position_information == '')
-		$position_information = $translator->{'None specified.'};
-
-	$position_area = $pos->get('area');
-	if ($position_area == '')
-		$position_area = $translator->{'None specified.'};
-
-	$arranger_message = $_POST['arranger_message'];
-	if ($arranger_message == '')
-		$arranger_message = $translator->{'No message was given.'};
-	
-	$exhibitor_commodity = $_POST['commodity'];
-	if ($exhibitor_commodity == '')
-		$exhibitor_commodity = $translator->{'No commodity was entered.'};
-
-
-	//Check mail settings and send only if setting is set
-	if ($fair->wasLoaded()) {
-		$mailSettings = json_decode($fair->get("mail_settings"));
-		if (isset($mailSettings->bookingEdited) && is_array($mailSettings->bookingEdited)) {
-			$errors = array();
-			$mail_errors = array();
-			$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-			$from = array($email => $fair->get("windowtitle"));
-
-			if($fair->get('contact_name')) {
-				$from = array($email => $fair->get('contact_name'));
-			}
-
-			if (in_array("0", $mailSettings->bookingEdited)) {
-				try {
-					if ($organizer->get('contact_email') == '')
-						$recipients = array($organizer->get('email') => $organizer->get('company'));
-					else
-						$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-					
-					$mail_organizer = new Mail();
-					$mail_organizer->setTemplate($mail_type . '_edited_confirm');
-					$mail_organizer->setPlainTemplate($mail_type . '_edited_confirm');
-					$mail_organizer->setFrom($from);
-					$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-					$mail_organizer->setRecipients($recipients);
-						$mail_organizer->setMailVar('booking_table', $html);
-						$mail_organizer->setMailVar('booking_sum', $html_sum);
-						$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-						$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-						$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						$mail_organizer->setMailVar('position_name', $pos->get('name'));
-						$mail_organizer->setMailVar('position_information', $position_information);
-						$mail_organizer->setMailVar('position_area', $position_area);
-						$mail_organizer->setMailVar('arranger_message', $arranger_message);
-						$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
-						$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
-
-						if ($mail_type == 'reservation') {
-							$mail_organizer->setMailVar('expirationdate', $_POST['expires']);
-						}
-
-						if(!$mail_organizer->send()) {
-							$errors[] = $organizer->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
-				}
-			if (in_array("1", $mailSettings->bookingEdited)) {
-				try {
-					if ($user->get('contact_email') == '')
-						$recipients = array($user->get('email') => $user->get('company'));
-					else
-						$recipients = array($user->get('contact_email') => $user->get('name'));
-					
-					$mail_user = new Mail();
-					$mail_user->setTemplate($mail_type . '_edited_receipt');
-					$mail_user->setPlainTemplate($mail_type . '_edited_receipt');
-					$mail_user->setFrom($from);
-					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-					$mail_user->setRecipients($recipients);
-						$mail_user->setMailVar('booking_table', $html);
-						$mail_user->setMailVar('booking_sum', $html_sum);
-						$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-						$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-						$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-						$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-						$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-						$mail_user->setMailVar('event_website', $fair->get('website'));
-						$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						$mail_user->setMailVar('position_name', $pos->get('name'));
-						$mail_user->setMailVar('position_information', $position_information);
-						$mail_user->setMailVar('position_area', $position_area);
-						$mail_user->setMailVar('arranger_message', $arranger_message);
-						$mail_user->setMailVar('commodity', $exhibitor_commodity);
-						$mail_user->setMailVar('html_categories', $htmlcategoryNames);
-					
-						if ($mail_type == 'reservation') {
-							$mail_user->setMailVar('expirationdate', $_POST['expires']);
-						}
-
-						if(!$mail_user->send()) {
-							$errors[] = $user->get('company');
-						}
-
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $user->get('company');
-					$mail_errors[] = $ex->getMessage();
-				}
-			}
-			if ($errors) {
-				$_SESSION['mail_errors'] = $mail_errors;
-			}
-		}
 	}
 	exit;
 }
 
 if (isset($_POST['preliminary'])) {
 	
-	/// KONTROLLERAD MAILMALL
-
 	if (userLevel() == 1) {
 
 		$pos = new FairMapPosition();
@@ -3596,828 +761,104 @@ if (isset($_POST['preliminary'])) {
 		$map->load($pos->get('map'), 'id');
 
 		$fair = new Fair();
-		$fair->load($map->get('fair'), 'id');
+		$fair->loadsimple($map->get('fair'), 'id');
 
 		$user = new User();
-		$user->load($_SESSION['user_id'], 'id');
-
-		$organizer = new User();
-		$organizer->load($fair->get('created_by'), 'id');
+		$user->load2($_SESSION['user_id'], 'id');
 
 		if ($fair->wasLoaded() && $user->wasLoaded()) {
-				$category_ids = '';
-				$categories = array();
-				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
-					foreach ($_POST['categories'] as $cat) {
-						$category = new ExhibitorCategory();
-						$category->load($cat, 'id');
-						if ($category->wasLoaded()) {
-							$categories[] = $category->get('name');
-						}
-					}
-					$category_ids = implode('|', $_POST['categories']);
-				}
-
-				$option_ids = '';
-				$options = array();
-				if (isset($_POST['options']) && is_array($_POST['options'])) {
-					foreach ($_POST['options'] as $opt) {
-						$ex_option = new FairExtraOption();
-						$ex_option->load($opt, 'id');
-						if ($ex_option->wasLoaded()) {
-							$option_id[] = $ex_option->get('custom_id');
-							$option_text[] = $ex_option->get('text');
-							$option_price[] = $ex_option->get('price');
-							$option_vat[] = $ex_option->get('vat');
-						}
-					}
-					$options = array($option_id, $option_text, $option_price, $option_vat);
-					$option_ids = implode('|', $_POST['options']);
-				}
-
-				$article_ids = '';
-				$article_amounts = '';
-				$articles = array();
-				if (!empty($_POST['articles']) && !empty($_POST['artamount'])) {
-					$arts = $_POST['articles'];
-					$amounts = $_POST['artamount'];
-					foreach (array_combine($arts, $amounts) as $art => $amount) {
-						$arts = new FairArticle();
-						$arts->load($art, 'id');
-						if ($arts->wasLoaded()) {
-							$art_id[] = $arts->get('custom_id');
-							$art_text[] = $arts->get('text');
-							$art_amount[] = $amount;
-							$art_price[] = $arts->get('price');
-							$art_vat[] = $arts->get('vat');
-						}
-					}
-					$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
-					$article_ids = implode('|', $_POST['articles']);
-					$article_amounts = implode('|', $_POST['artamount']);
-				}
-
-				$pb = new PreliminaryBooking();
-				$pb->set('user', $user->get('id'));
-				$pb->set('fair', $fair->get('id'));
-				$pb->set('position', $pos->get('id'));
-				$pb->set('categories', $category_ids);
-				$pb->set('options', $option_ids);
-				$pb->set('articles', $article_ids);
-				$pb->set('amount', $article_amounts);
-				$pb->set('commodity', $_POST['commodity']);
-				$pb->set('arranger_message', $_POST['arranger_message']);
-				$pb->set('booking_time', time());
-				$pb->save();
-
-				$htmlcategoryNames = implode('<br>', $categories);
-				$fairInvoice = new FairInvoice();
-				$fairInvoice->load($pb->get('fair'), 'fair');
-
-				/*****************************************************************************************/
-				/*****************************************************************************************/
-				/************************				PREPARE MAIL START			  *************************/
-				/*****************************************************************************************/
-				/*****************************************************************************************/
-
-				/*********************************************************************************/
-				/*********************************************************************************/
-				/********************************       LABELS       *****************************/
-				/*********************************************************************************/
-				/*********************************************************************************/
-
-				$name_label = $translator->{'Name'};
-				$price_label = $translator->{'Price'};
-				$amount_label = $translator->{'Amount'};
-				$vat_label = $translator->{'Vat'};
-				$sum_label = $translator->{'Sum'};
-				$booked_space_label = $translator->{'Stand'};
-				$options_label = $translator->{'Options'};
-				$articles_label = $translator->{'Articles'};
-				$tax_label = $translator->{'Tax'};
-				$parttotal_label = $translator->{'Subtotal'};
-				$net_label = $translator->{'Net'};
-				$rounding_label = $translator->{'Rounding'};
-				$total_label = $translator->{'total:'};
-				$estimated_label = $translator->{'Estimated'};
-				$st_label = $translator->{'st'};
-				$nothing_selected_label = $translator->{'No articles or options selected.'};
-
-				/*************************************************************/
-				/*************************************************************/
-				/*****************     PRICES AND AMOUNTS        *************/
-				/*************************************************************/
-				/*************************************************************/ 
-
-				$totalPrice = 0;
-				$totalNetPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$currency = $fair->get('currency');
-				$position_vat = 0;
-				$position_name = $pos->get('name');
-				$position_price = $pos->get('price');
-				$position_vat = $fairInvoice->get('pos_vat');
-
-				/*********************************************************************************************/
-				/*********************************************************************************************/
-				/**********************					MAIL BOOKING TABLE START			  ***********************/
-				/*********************************************************************************************/
-				/*********************************************************************************************/
-		$html = '<!-- SIX COLUMN HEADERS -->
-					<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
-					 <!-- ID -->
-					 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-					     ID
-					   </p>
-					 </td>
-					 <!-- NAME -->
-					 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-					     '.$name_label.'
-					   </p>
-					 </td>
-					 <!-- PRICE -->
-					 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-					     '.$price_label.'
-					   </p>
-					 </td>
-					 <!-- AMOUNT -->
-					 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-					     '.$amount_label.'
-					   </p>
-					 </td>
-					 <!-- VAT % -->
-					 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-					     '.$vat_label.'
-					   </p>
-					 </td>
-					 <!-- SUM -->
-					 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-					   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-					     '.$sum_label.'
-					   </p>
-					 </td>
-					</tr>
-					<!-- SPACER ROW -->
-					<tr style="mso-yfti-irow:1;height:11.1pt">
-					</tr>
-					<!-- STAND SPACE ROW LABEL-->
-					<tr style="mso-yfti-irow:1;height:25.1pt">
-					 	<!-- ID -->
-						<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					<!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$booked_space_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>
-					<!-- STAND SPACE ROW INFO -->
-					<tr style="mso-yfti-irow:1;height:25.1pt">
-					 	<!-- ID -->
-						<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					<!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$position_name.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$position_price.'
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								1'.$st_label.'
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$position_vat.'%
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.number_format($position_price, 2, ',', ' ').'
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-		$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
-						<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
-							<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-								<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								</p>
-							</td>
-							<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								</p>
-							</td>
-						</tr>';
-
-		if ($position_vat == 25) {
-			$excludeVatPrice25 += $position_price;
-		} else if ($position_vat == 18) {
-			$excludeVatPrice18 += $position_price;
-		} else {
-			$excludeVatPrice0 += $position_price;
-		}
-
-		if (!empty($_POST['options']) && is_array($_POST['options'])) {
-			$html .= '<!-- SIX COLUMNS -->
-		               <tr style="mso-yfti-irow:1;height:25.1pt">
-		                	<!-- ID -->
-		                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-		                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-		                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-		                  		</span>
-		                  	</p>
-		                  </td>
-		                  <!-- NAME -->
-								<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										'.$options_label.'
-										</span>
-									</p>
-								</td>
-								<!-- PRICE -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- AMOUNT -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- VAT % -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- SUM -->
-								<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-							</tr>';
-
-			for ($row=0; $row<count($options[1]); $row++) {
-				$html .= '<!-- SIX COLUMNS -->
-			               <tr style="mso-yfti-irow:1;height:25.1pt">
-			                	<!-- ID -->
-			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-			                  		'.$options[0][$row].'
-			                  		</span>
-			                  	</p>
-			                  </td>
-			                  <!-- NAME -->
-									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$options[1][$row].'
-											</span>
-										</p>
-									</td>
-									<!-- PRICE -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$options[2][$row].'
-											</span>
-										</p>
-									</td>
-									<!-- AMOUNT -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											1'.$st_label.'
-											</span>
-										</p>
-									</td>
-									<!-- VAT % -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$options[3][$row].'%
-											</span>
-										</p>
-									</td>
-									<!-- SUM -->
-									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
-											</span>
-										</p>
-									</td>
-								</tr>';
+			$category_ids = '';
+			if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+				$category_ids = implode('|', $_POST['categories']);
 			}
-		}
 
-		if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-			$html .= '<!-- SIX COLUMNS -->
-		               <tr style="mso-yfti-irow:1;height:25.1pt">
-		                	<!-- ID -->
-		                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-		                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-		                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-		                  		</span>
-		                  	</p>
-		                  </td>
-		                  <!-- NAME -->
-								<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										'.$articles_label.'
-										</span>
-									</p>
-								</td>
-								<!-- PRICE -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- AMOUNT -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- VAT % -->
-								<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-								<!-- SUM -->
-								<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-										<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-										</span>
-									</p>
-								</td>
-							</tr>';
-
-			for ($row=0; $row<count($articles[1]); $row++) {
-				$html .= '<!-- SIX COLUMNS -->
-			               <tr style="mso-yfti-irow:1;height:25.1pt">
-			                	<!-- ID -->
-			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-			                  		'.$articles[0][$row].'
-			                  		</span>
-			                  	</p>
-			                  </td>
-			                  <!-- NAME -->
-									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$articles[1][$row].'
-											</span>
-										</p>
-									</td>
-									<!-- PRICE -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.str_replace('.', ',', $articles[2][$row]).'
-											</span>
-										</p>
-									</td>
-									<!-- AMOUNT -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$articles[3][$row].' '.$st_label.'
-											</span>
-										</p>
-									</td>
-									<!-- VAT % -->
-									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.$articles[4][$row].'%
-											</span>
-										</p>
-									</td>
-									<!-- SUM -->
-									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-											'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
-											</span>
-										</p>
-									</td>
-								</tr>';
-		    }
-		}
-
-
-		if (!empty($_POST['options']) && is_array($_POST['options'])) {
-			for ($row=0; $row<count($options[1]); $row++) {
-
-				if ($options[3][$row] == 25) {
-					$excludeVatPrice25 += $options[2][$row];
-				}
-				if ($options[3][$row] == 18) {
-					$excludeVatPrice18 += $options[2][$row];
-				}
-				if ($options[3][$row] == 12) {
-					$excludeVatPrice12 += $options[2][$row];
-				}
-				if ($options[3][$row] == 0) {
-					$excludeVatPrice0 += $options[2][$row];
-				}
+			$option_ids = '';
+			if (isset($_POST['options']) && is_array($_POST['options'])) {
+				$option_ids = implode('|', $_POST['options']);
 			}
-		}
 
-		if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-			for ($row=0; $row<count($articles[1]); $row++) {
-
-				if ($articles[4][$row] == 25) {
-					$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
-				if ($articles[4][$row] == 18) {
-					$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
-				if ($articles[4][$row] == 12) {
-					$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
-				if ($articles[4][$row] == 0) {
-					$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-				}
+			$article_ids = '';
+			$article_amounts = '';
+			if (!empty($_POST['articles']) && !empty($_POST['artamount'])) {
+				$article_ids = implode('|', $_POST['articles']);
+				$article_amounts = implode('|', $_POST['artamount']);
 			}
-		}
 
-		$VatPrice0 = $excludeVatPrice0;
-		$VatPrice12 = $excludeVatPrice12*0.12;
-		$VatPrice18 = $excludeVatPrice18*0.18;
-		$VatPrice25 = $excludeVatPrice25*0.25;
-		$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-		$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
+			$pb = new PreliminaryBooking();
+			$pb->set('user', $user->get('id'));
+			$pb->set('fair', $fair->get('id'));
+			$pb->set('position', $pos->get('id'));
+			$pb->set('categories', $category_ids);
+			$pb->set('options', $option_ids);
+			$pb->set('articles', $article_ids);
+			$pb->set('amount', $article_amounts);
+			$pb->set('commodity', $_POST['commodity']);
+			$pb->set('arranger_message', $_POST['arranger_message']);
+			$pb->set('booking_time', time());
+			$pb->save();
 
-		$totalPriceRounded = round($totalPrice);
-		$pennys = ($totalPriceRounded - $totalPrice);
-
-		if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-			$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-			$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-
-			$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$tax_label.' (12%)
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.str_replace('.', ',', $VatPrice12).'
-									</p>
-								</td>
-							</tr>';
-
-		}
-		if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-			$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-			$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-			$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$tax_label.' (18%)
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.str_replace('.', ',', $VatPrice18).'
-									</p>
-								</td>
-							</tr>';
-		}
-		if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-			$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-			$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-			$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$tax_label.' (25%)
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.str_replace('.', ',', $VatPrice25).'
-									</p>
-								</td>
-							</tr>';
-		}
-		if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
-			$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$tax_label.'
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										0,00
-									</p>
-								</td>
-							</tr>';
-		} 
-		if (empty($totalPrice)) {
-			$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$net_label.'
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										0,00
-									</p>
-								</td>
-							</tr>
-							<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									</p>
-								</td>
-								<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-									</p>
-								</td>
-							</tr>
-							<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									</p>
-								</td>
-								<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
-									</p>
-								</td>
-							</tr>';
-		} else {
-			$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-									<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.$net_label.'
-									</p>
-								</td>
-								<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
-									</p>
-								</td>
-							</tr>
-							<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									</p>
-								</td>
-								<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-									</p>
-								</td>
-							</tr>
-							<tr style="mso-yfti-irow:0;height:13.3pt">
-								<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									</p>
-								</td>
-								<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-									<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-										<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
-									</p>
-								</td>
-							</tr>';
-		}
-
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-		/**********************					MAIL BOOKING TABLE END				  ***********************/
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-			
-			$position_information = $pos->get('information');
-			if ($position_information == '')
-				$position_information = $translator->{'None specified.'};
-
-			$position_area = $pos->get('area');
-			if ($position_area == '')
-				$position_area = $translator->{'None specified.'};
-
-			$arranger_message = $_POST['arranger_message'];
-			if ($arranger_message == '')
-				$arranger_message = $translator->{'No message was given.'};
-			
-			$exhibitor_commodity = $_POST['commodity'];
-			if ($exhibitor_commodity == '')
-				$exhibitor_commodity = $translator->{'No commodity was entered.'};
-
-				//Check mail settings and send only if setting is set
-				$errors = array();
-				$mail_errors = array();
-				$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-				$from = array($email => $fair->get("windowtitle"));
-				$mailSettings = json_decode($fair->get("mail_settings"));
-
-				if($fair->get('contact_name')) {
-					$from = array($email => $fair->get('contact_name'));
-				}
-
-			//Check mail settings and send only if setting is set
+			$mailSettings = json_decode($fair->get("mail_settings"));
+			/* Check mail settings and send only if setting is set */
 			if (isset($mailSettings->recievePreliminaryBooking) && is_array($mailSettings->recievePreliminaryBooking)) {
 				if (in_array("0", $mailSettings->recievePreliminaryBooking)) {
-					try {
-						if ($organizer->get('contact_email') == '')
-							$recipients = array($organizer->get('email') => $organizer->get('company'));
-						else
-							$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-
-						$mail_organizer = new Mail();
-						$mail_organizer->setTemplate('preliminary_created_confirm');
-						$mail_organizer->setPlainTemplate('preliminary_created_confirm');
-						$mail_organizer->setFrom($from);
-						$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-						$mail_organizer->setRecipients($recipients);
-							$mail_organizer->setMailVar('booking_table', $html);
-							$mail_organizer->setMailVar('booking_sum', $html_sum);
-							$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-							$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-							$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-							$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-							$mail_organizer->setMailVar('position_name', $pos->get('name'));
-							$mail_organizer->setMailVar('position_information', $position_information);
-							$mail_organizer->setMailVar('position_area', $position_area);
-							$mail_organizer->setMailVar('arranger_message', $arranger_message);
-							$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
-							$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
-
-						if(!$mail_organizer->send()) {
-							$errors[] = $organizer->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
+					$organizer = new User();
+					$organizer->load2($fair->get('created_by'), 'id');
+					/* Prepare to send the mail */
+					if ($organizer->get('contact_email') == '')
+					$recipient = array($organizer->get('email'), $organizer->get('company'));
+					else
+					$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
+					/* UPDATED TO FIT MAILJET */
+					$mail_organizer = new Mail();
+					$mail_organizer->setTemplate('preliminary_created_confirm');
+					$mail_organizer->setFrom($from);
+					$mail_organizer->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_organizer->setMailVar('position_name', $pos->get('name'));
+					$mail_organizer->setMailVar('position_area', $pos->get('area'));
+					$mail_organizer->setMailVar('comment', $_POST['arranger_message']);
+					$mail_organizer->sendMessage();
 				}
 			}
-			try {
-				if ($user->get('contact_email') == '')
-					$recipients = array($user->get('email') => $user->get('company'));
-				else
-					$recipients = array($user->get('contact_email') => $user->get('name'));
-				
-				$mail_user = new Mail();
-				$mail_user->setTemplate('preliminary_created_receipt');
-				$mail_user->setPlainTemplate('preliminary_created_receipt');
-				$mail_user->setFrom($from);
-				$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-				$mail_user->setRecipients($recipients);
-					$mail_user->setMailVar('booking_table', $html);
-					$mail_user->setMailVar('booking_sum', $html_sum);
-					$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-					$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-					$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-					$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-					$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-					$mail_user->setMailVar('event_website', $fair->get('website'));
-					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-					$mail_user->setMailVar('position_name', $pos->get('name'));
-					$mail_user->setMailVar('position_information', $position_information);
-					$mail_user->setMailVar('position_area', $position_area);
-					$mail_user->setMailVar('arranger_message', $arranger_message);
-					$mail_user->setMailVar('commodity', $exhibitor_commodity);
-					$mail_user->setMailVar('html_categories', $htmlcategoryNames);
-
-				if(!$mail_user->send()) {
-					$errors[] = $user->get('company');
-				}
-
-			} catch(Swift_RfcComplianceException $ex) {
-				// Felaktig epost-adress
-				$errors[] = $user->get('company');
-				$mail_errors[] = $ex->getMessage();
-
-			} catch(Exception $ex) {
-				// Okänt fel
-				$errors[] = $user->get('company');
-				$mail_errors[] = $ex->getMessage();
-			}
+			/* Prepare to send the mail */
+			if ($user->get('contact_email') == '')
+			$recipient = array($user->get('email'), $user->get('company'));
+			else
+			$recipient = array($user->get('contact_email'), $user->get('name'));
+			/* UPDATED TO FIT MAILJET */
+			$mail_user = new Mail();
+			$mail_user->setTemplate('preliminary_created_receipt');
+			$mail_user->setFrom($from);
+			$mail_user->setRecipient($recipient);
+			/* Setting mail variables */
+			$mail_user->setMailVar('exhibitor_company', $user->get('company'));
+			$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+			$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+			$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+			$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+			$mail_user->setMailVar('event_website', $fair->get('website'));
+			$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+			$mail_user->setMailVar('position_name', $pos->get('name'));
+			$mail_user->setMailVar('position_area', $pos->get('area'));
+			$mail_user->setMailVar('comment', $_POST['arranger_message']);
+			$mail_user->sendMessage();
 		}
 	}
-
 	exit;
 }
 if (isset($_POST['cancelPreliminary'])) {
-
 	if (userLevel() == 1) {
 		$pb = new PreliminaryBooking();
 		$pb->loadsafe($_POST['cancelPreliminary'], 'position', $_SESSION['user_id'], 'user');
 		$pb->del_pre_booking($pb->get('id'), $_SESSION['user_id'], $_POST['cancelPreliminary']);
 	}
-
 	exit;
-
 }
 
 if (isset($_POST['cancelBooking'])) {
-
-	/// KONTROLLERAD MAILMALL
 
 	if (userLevel() > 1) {
 
@@ -4430,168 +871,93 @@ if (isset($_POST['cancelBooking'])) {
 		$fairMap->load($position->get('map'), 'id');
 
 		$fair = new Fair();
-		$fair->load($fairMap->get('fair'), 'id');
-
-		$current_user = new User();
-		$current_user->load($_SESSION['user_id'], 'id');
-
-		$organizer = new User();
-		$organizer->load($fair->get('created_by'), 'id');
+		$fair->loadsimple($fairMap->get('fair'), 'id');
 
 		$ex = new Exhibitor();
 		$ex->load($position->get('id'), 'position');
 		$user = new User();
-		$user->load($ex->get('user'), 'id');
+		$user->load2($ex->get('user'), 'id');
 		$ex->delete($_POST['comment']);
 		$position->set('status', 0);
 		$position->set('expires', '0000-00-00 00:00:00');
 		$position->save();
-		if ($status = 1) {
-			$mail_type = 'reservation';
-		} else {
-			$mail_type = 'booking';
-		}
-
-		$comment = $_POST['comment'];
-		if ($comment != '') {
-			$comment = '<br>'.$_POST['comment'];
-		}
-		$plain_comment = $_POST['comment'];
-		if ($plain_comment == '') {
-			$plain_comment = '<br>'.$_POST['comment'];
-		}
-		//Check mail settings and send only if setting is set
+		if (isset($_POST['comment']))
+		$comment = htmlspecialchars_decode($_POST['comment']);
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
+			/* Check mail settings and send only if setting is set */
 			if (isset($mailSettings->bookingCancelled) && is_array($mailSettings->bookingCancelled)) {
-				$errors = array();
-				$mail_errors = array();
-
-				$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-				$from = array($email => $fair->get("windowtitle"));
-
-				if($fair->get('contact_name')) {
-					$from = array($email => $fair->get('contact_name'));
-				}
-
+				/* Prepare to send the mail */
+				if ($fair->get('contact_name') == '')
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+				else
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 				if (in_array("1", $mailSettings->bookingCancelled)) {
-					try {
-						if ($user->get('contact_email') == '')
-							$recipients = array($user->get('email') => $user->get('company'));
-						else
-							$recipients = array($user->get('contact_email') => $user->get('name'));
-						
-						$mail_user = new Mail();
-						$mail_user->setTemplate($mail_type . '_cancelled_receipt');
-						$mail_user->setPlainTemplate($mail_type . '_cancelled_receipt');
-						$mail_user->setFrom($from);
-						$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-						$mail_user->setRecipients($recipients);
-							$mail_user->setMailVar('position_name', $position->get('name'));
-							$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-							$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-							$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-							$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-							$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-							$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-							$mail_user->setMailVar('event_website', $fair->get('website'));
-							$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-							$mail_user->setMailVar('comment', $comment);
-							$mail_user->setMailVar('plain_comment', $plain_comment);
-
-						if(!$mail_user->send()) {
-							$errors[] = $user->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $user->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $user->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
+					if ($user->get('contact_email') == '')
+					$recipient = array($user->get('email'), $user->get('company'));
+					else
+					$recipient = array($user->get('contact_email'), $user->get('name'));
+					/* UPDATED TO FIT MAILJET */
+					$mail_user = new Mail();
+					$mail_user->setTemplate('booking_cancelled_receipt');
+					$mail_user->setFrom($from);
+					$mail_user->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail_user->setMailVar('position_name', $position->get('name'));
+					$mail_user->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+					$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+					$mail_user->setMailVar('event_website', $fair->get('website'));
+					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					if ($comment)
+					$mail_user->setMailVar('comment', $comment);
+					$mail_user->sendMessage();
+					
 				}
-
+			/*	Check mail settings and send only if setting is set
+				Check if the current user is not the same as the organizer to prevent duplicate mails */
 				if ($current_user->get('email') != $organizer->get('email')) {
 					if (in_array("2", $mailSettings->bookingCancelled)) {
-						try {
-						if ($user->get('contact_email') == '')
-							$recipients = array($current_user->get('email') => $current_user->get('company'));
+						if ($current_user->get('contact_email') == '')
+						$recipient = array($current_user->get('email'), $current_user->get('company'));
 						else
-							$recipients = array($current_user->get('contact_email') => $current_user->get('name'));
-						
-							$mail_current_user = new Mail();
-							$mail_current_user->setTemplate($mail_type . '_cancelled_confirm');
-							$mail_current_user->setPlainTemplate($mail_type . '_cancelled_confirm');
-							$mail_current_user->setFrom($from);
-							$mail_current_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-							$mail_current_user->setRecipients($recipients);
-								$mail_current_user->setMailVar('position_name', $position->get('name'));
-								$mail_current_user->setMailVar('exhibitor_company_name', $user->get('company'));
-								$mail_current_user->setMailvar('exhibitor_name', $user->get('name'));
-								$mail_current_user->setMailVar('event_name', $fair->get('windowtitle'));
-								$mail_current_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-								$mail_current_user->setMailVar('comment', $comment);
-								$mail_current_user->setMailVar('plain_comment', $plain_comment);
-
-							if(!$mail_current_user->send()) {
-								$errors[] = $current_user->get('company');
-							}
-
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $current_user->get('company');
-							$mail_errors[] = $ex->getMessage();
-
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $current_user->get('company');
-							$mail_errors[] = $ex->getMessage();
-						}
+						$recipient = array($current_user->get('contact_email'), $current_user->get('name'));
+						/* UPDATED TO FIT MAILJET */
+						$mail_current_user = new Mail();
+						$mail_current_user->setTemplate('booking_cancelled_receipt');
+						$mail_current_user->setFrom($from);
+						$mail_current_user->setRecipient($recipient);
+						/* Setting mail variables */
+						$mail_current_user->setMailVar('position_name', $position->get('name'));
+						$mail_current_user->setMailVar('exhibitor_company', $user->get('company'));
+						$mail_current_user->setMailVar('event_name', $fair->get('windowtitle'));
+						$mail_current_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+						if ($comment)
+						$mail_current_user->setMailVar('comment', $comment);
+						$mail_current_user->sendMessage();
 					}
 				}
-
+				/* Check mail settings and send only if setting is set */
 				if (in_array("0", $mailSettings->bookingCancelled)) {
-					try {
 						if ($organizer->get('contact_email') == '')
-							$recipients = array($organizer->get('email') => $organizer->get('company'));
+						$recipient = array($organizer->get('email'), $organizer->get('company'));
 						else
-							$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-
+						$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
+						/* UPDATED TO FIT MAILJET */
 						$mail_organizer = new Mail();
 						$mail_organizer->setTemplate($mail_type . '_cancelled_confirm');
-						$mail_organizer->setPlainTemplate($mail_type . '_cancelled_confirm');
 						$mail_organizer->setFrom($from);
-						$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-						$mail_organizer->setRecipients($recipients);
-							$mail_organizer->setMailVar('position_name', $position->get('name'));
-							$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-							$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-							$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-							$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-							$mail_organizer->setMailVar('comment', $comment);
-							$mail_organizer->setMailVar('plain_comment', $plain_comment);
-
-						if(!$mail_organizer->send()) {
-							$errors[] = $organizer->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $organizer->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
-				}
-				if ($errors) {
-					$_SESSION['mail_errors'] = $mail_errors;
+						$mail_organizer->setRecipient($recipient);
+						/* Setting mail variables */
+						$mail_organizer->setMailVar('position_name', $position->get('name'));
+						$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+						$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+						$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+						if ($comment)
+						$mail_organizer->setMailVar('comment', $comment);
+						$mail_organizer->sendMessage();
 				}
 			}
 		}
@@ -4727,8 +1093,6 @@ if (isset($_GET['prel_bookings_list'], $_GET['position'])) {
 
 if (isset($_POST['reserve_preliminary'])) {
 
-	/// KONTROLLERAD MAILMALL
-
 	if (userLevel() < 1)
 		exit;
 
@@ -4757,806 +1121,90 @@ if (isset($_POST['reserve_preliminary'])) {
 		$pos->save();
 		$pb->accept();
 
-
-
-		$categories = array();
-
 		if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
 			foreach ($_POST['categories'] as $cat) {
 				$stmt->execute(array($exId, $cat));
-				$category = new ExhibitorCategory();
-				$category->load($cat, "id");
-				if ($category->wasLoaded()) {
-					$categories[] = $category->get("name");
-				}
 			}
 		}
 
-
-		$options = array();
 		if (isset($_POST['options']) && is_array($_POST['options'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
-
 			foreach ($_POST['options'] as $opt) {								
 				$stmt->execute(array($exId, $opt));
-				$ex_option = new FairExtraOption();
-				$ex_option->load($opt, 'id');
-				if ($ex_option->wasLoaded()) {
-					$option_id[] = $ex_option->get('custom_id');
-					$option_text[] = $ex_option->get('text');
-					$option_price[] = $ex_option->get('price');
-					$option_vat[] = $ex_option->get('vat');
-				}
 			}
-
-			$options = array($option_id, $option_text, $option_price, $option_vat);
 		}
 
-
-		$articles = array();
 		if (isset($_POST['articles']) && is_array($_POST['articles'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
 			$arts = $_POST['articles'];
 			$amounts = $_POST['artamount'];
 
 			foreach (array_combine($arts, $amounts) as $art => $amount) {
-				$stmt->execute(array($exId, $art, $amount));
-				$arts = new FairArticle();
-				$arts->load($art, 'id');
-				if ($arts->wasLoaded()) {
-					$art_id[] = $arts->get('custom_id');
-					$art_text[] = $arts->get('text');
-					$art_amount[] = $amount;
-					$art_price[] = $arts->get('price');
-					$art_vat[] = $arts->get('vat');
-				}								
+				$stmt->execute(array($exId, $art, $amount));							
 			}
-			$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
 		}
 		
 		$fair = new Fair();
 		$fair->load($ex->get('fair'), 'id');
-		
-		$organizer = new User();
-		$organizer->load($fair->get('created_by'), 'id');
 
 		$user = new User();
-		$user->load($ex->get('user'), 'id');
+		$user->load2($ex->get('user'), 'id');
 
-		$htmlcategoryNames = implode('<br>', $categories);
-		$fairInvoice = new FairInvoice();
-		$fairInvoice->load($ex->get('fair'), 'fair');
-
-		/*****************************************************************************************/
-		/*****************************************************************************************/
-		/************************				PREPARE MAIL START			  *************************/
-		/*****************************************************************************************/
-		/*****************************************************************************************/
-
-		/*********************************************************************************/
-		/*********************************************************************************/
-		/********************************       LABELS       *****************************/
-		/*********************************************************************************/
-		/*********************************************************************************/
-
-		$name_label = $translator->{'Name'};
-		$price_label = $translator->{'Price'};
-		$amount_label = $translator->{'Amount'};
-		$vat_label = $translator->{'Vat'};
-		$sum_label = $translator->{'Sum'};
-		$booked_space_label = $translator->{'Stand'};
-		$options_label = $translator->{'Options'};
-		$articles_label = $translator->{'Articles'};
-		$tax_label = $translator->{'Tax'};
-		$parttotal_label = $translator->{'Subtotal'};
-		$net_label = $translator->{'Net'};
-		$rounding_label = $translator->{'Rounding'};
-		$total_label = $translator->{'total:'};
-		$st_label = $translator->{'st'};
-		$nothing_selected_label = $translator->{'No articles or options selected.'};
-
-		/*************************************************************/
-		/*************************************************************/
-		/*****************     PRICES AND AMOUNTS        *************/
-		/*************************************************************/
-		/*************************************************************/ 
-
-		$totalPrice = 0;
-		$totalNetPrice = 0;
-		$VatPrice0 = 0;
-		$VatPrice12 = 0;
-		$VatPrice18 = 0;
-		$VatPrice25 = 0;
-		$excludeVatPrice0 = 0;
-		$excludeVatPrice12 = 0;
-		$excludeVatPrice18 = 0;
-		$excludeVatPrice25 = 0;
-		$currency = $fair->get('currency');
-		$position_vat = 0;
-		$position_name = $pos->get('name');
-		$position_price = $pos->get('price');
-		$position_vat = $fairInvoice->get('pos_vat');
-
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-		/**********************					MAIL BOOKING TABLE START			  ***********************/
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-$html = '<!-- SIX COLUMN HEADERS -->
-			<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
-			 <!-- ID -->
-			 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     ID
-			   </p>
-			 </td>
-			 <!-- NAME -->
-			 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     '.$name_label.'
-			   </p>
-			 </td>
-			 <!-- PRICE -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$price_label.'
-			   </p>
-			 </td>
-			 <!-- AMOUNT -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$amount_label.'
-			   </p>
-			 </td>
-			 <!-- VAT % -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$vat_label.'
-			   </p>
-			 </td>
-			 <!-- SUM -->
-			 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$sum_label.'
-			   </p>
-			 </td>
-			</tr>
-			<!-- SPACER ROW -->
-			<tr style="mso-yfti-irow:1;height:11.1pt">
-			</tr>
-			<!-- STAND SPACE ROW LABEL-->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$booked_space_label.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			</tr>
-			<!-- STAND SPACE ROW INFO -->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_name.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_price.'
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						1'.$st_label.'
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_vat.'%
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.number_format($position_price, 2, ',', ' ').'
-						</span>
-					</p>
-				</td>
-			</tr>';
-
-$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
-				<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-				</tr>';
-
-if ($position_vat == 25) {
-	$excludeVatPrice25 += $position_price;
-} else if ($position_vat == 18) {
-	$excludeVatPrice18 += $position_price;
-} else {
-	$excludeVatPrice0 += $position_price;
-}
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$options_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$options[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[2][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									1'.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[3][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$articles_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($articles[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$articles[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', $articles[2][$row]).'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[3][$row].' '.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[4][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-    }
-}
-
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (12%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice12).'
-							</p>
-						</td>
-					</tr>';
-
-}
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (18%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice18).'
-							</p>
-						</td>
-					</tr>';
-}
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-	$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (25%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice25).'
-							</p>
-						</td>
-					</tr>';
-}
-if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>';
-} 
-if (empty($totalPrice)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
-							</p>
-						</td>
-					</tr>';
-} else {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>';
-}
-
-/*********************************************************************************************/
-/*********************************************************************************************/
-/**********************					MAIL BOOKING TABLE END				  ***********************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-	
-		$position_information = $pos->get('information');
-		if ($position_information == '')
-			$position_information = $translator->{'None specified.'};
-
-		$position_area = $pos->get('area');
-		if ($position_area == '')
-			$position_area = $translator->{'None specified.'};
-
-		$arranger_message = $_POST['arranger_message'];
-		if ($arranger_message == '')
-			$arranger_message = $translator->{'No message was given.'};
-		
-		$exhibitor_commodity = $_POST['commodity'];
-		if ($exhibitor_commodity == '')
-			$exhibitor_commodity = $translator->{'No commodity was entered.'};
-
-
-		//Check mail settings and send only if setting is set
+		/* Check mail settings and send only if setting is set */
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
-				$errors = array();
-				$mail_errors = array();
-				$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-				$from = array($email => $fair->get("windowtitle"));
-
-				if($fair->get('contact_name')) {
-					$from = array($email => $fair->get('contact_name'));
-				}
-
+				if ($fair->get('contact_name') == '')
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+				else
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
+				
 				if (in_array("0", $mailSettings->acceptPreliminaryBooking)) {
-					try {
-						if ($organizer->get('contact_email') == '')
-							$recipients = array($organizer->get('email') => $organizer->get('company'));
-						else
-							$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-
-						$mail_organizer = new Mail();
-						$mail_organizer->setTemplate('preliminary_approved_confirm');
-						$mail_organizer->setPlainTemplate('preliminary_approved_confirm');
-						$mail_organizer->setFrom($from);
-						$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-						$mail_organizer->setRecipients($recipients);
-							$mail_organizer->setMailVar('booking_table', $html);
-							$mail_organizer->setMailVar('booking_sum', $html_sum);
-							$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-							$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-							$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-							$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-							$mail_organizer->setMailVar('position_name', $pos->get('name'));
-							$mail_organizer->setMailVar('position_information', $position_information);
-							$mail_organizer->setMailVar('position_area', $position_area);
-							$mail_organizer->setMailVar('arranger_message', $arranger_message);
-							$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
-							$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
-							$mail_organizer->setMailVar('expirationdate', $_POST['expires']);
-					
-							if(!$mail_organizer->send()) {
-								$errors[] = $organizer->get('company');
-							}
-
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $organizer->get('company');
-							$mail_errors[] = $ex->getMessage();
-
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $organizer->get('company');
-							$mail_errors[] = $ex->getMessage();
-						}
+					/* Prepare to send the mail */
+					$organizer = new User();
+					$organizer->load2($fair->get('created_by'), 'id');
+					if ($organizer->get('contact_email') == '')
+					$recipient = array($organizer->get('email'), $organizer->get('company'));
+					else
+					$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
+					/* UPDATED TO FIT MAILJET */
+					$mail_organizer = new Mail();
+					$mail_organizer->setTemplate('preliminary_approved_confirm');
+					$mail_organizer->setFrom($from);
+					$mail_organizer->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_organizer->setMailVar('position_name', $pos->get('name'));
+					$mail_organizer->setMailVar('position_area', $pos->get('area'));
+					$mail_organizer->setMailVar('expirationdate', $_POST['expires']);
+					$mail_organizer->sendMessage();
 				}
 				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
-					try {
-						if ($user->get('contact_email') == '')
-							$recipients = array($user->get('email') => $user->get('company'));
-						else
-							$recipients = array($user->get('contact_email') => $user->get('name'));
-						
-						$mail_user = new Mail();
-						$mail_user->setTemplate('preliminary_approved_receipt');
-						$mail_user->setPlainTemplate('preliminary_approved_receipt');
-						$mail_user->setFrom($from);
-						$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-						$mail_user->setRecipients($recipients);
-							$mail_user->setMailVar('booking_table', $html);
-							$mail_user->setMailVar('booking_sum', $html_sum);
-							$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-							$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-							$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-							$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-							$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-							$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-							$mail_user->setMailVar('event_website', $fair->get('website'));
-							$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-							$mail_user->setMailVar('position_name', $pos->get('name'));
-							$mail_user->setMailVar('position_information', $position_information);
-							$mail_user->setMailVar('position_area', $position_area);
-							$mail_user->setMailVar('arranger_message', $arranger_message);
-							$mail_user->setMailVar('commodity', $exhibitor_commodity);
-							$mail_user->setMailVar('html_categories', $htmlcategoryNames);
-							$mail_user->setMailVar('expirationdate', $_POST['expires']);
-
-						if(!$mail_user->send()) {
-							$errors[] = $user->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $user->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $user->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
+					if ($user->get('contact_email') == '')
+					$recipient = array($user->get('email'), $user->get('company'));
+					else
+					$recipient = array($user->get('contact_email'), $user->get('name'));
+					/* UPDATED TO FIT MAILJET */
+					$mail_user = new Mail();
+					$mail_user->setTemplate('preliminary_approved_receipt');
+					$mail_user->setFrom($from);
+					$mail_user->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail_user->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+					$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+					$mail_user->setMailVar('event_website', $fair->get('website'));
+					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_user->setMailVar('position_name', $pos->get('name'));
+					$mail_user->setMailVar('position_area', $pos->get('area'));
+					$mail_user->setMailVar('expirationdate', $_POST['expires']);
+					$mail_user->sendMessage();
 				}
-				if ($errors)
-					$_SESSION['mail_errors'] = $mail_errors;
 			}
 		}
 	}
@@ -5564,8 +1212,6 @@ if (empty($totalPrice)) {
 }
 
 if (isset($_POST['book_preliminary'])) {
-
-	/// KONTROLLERAD MAILMALL
 
 	if (userLevel() < 1)
 		exit;
@@ -5596,804 +1242,89 @@ if (isset($_POST['book_preliminary'])) {
 		$pos->save();
 		$pb->accept();
 
-
-
-		$categories = array();
-
 		if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
 			foreach ($_POST['categories'] as $cat) {
 				$stmt->execute(array($exId, $cat));
-				$category = new ExhibitorCategory();
-				$category->load($cat, "id");
-				if ($category->wasLoaded()) {
-					$categories[] = $category->get("name");
-				}
 			}
 		}
 
-
-		$options = array();
 		if (isset($_POST['options']) && is_array($_POST['options'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
 
 			foreach ($_POST['options'] as $opt) {								
 				$stmt->execute(array($exId, $opt));
-				$ex_option = new FairExtraOption();
-				$ex_option->load($opt, 'id');
-				if ($ex_option->wasLoaded()) {
-					$option_id[] = $ex_option->get('custom_id');
-					$option_text[] = $ex_option->get('text');
-					$option_price[] = $ex_option->get('price');
-					$option_vat[] = $ex_option->get('vat');
-				}
 			}
-
-			$options = array($option_id, $option_text, $option_price, $option_vat);
 		}
 
-
-		$articles = array();
 		if (isset($_POST['articles']) && is_array($_POST['articles'])) {
 			$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
 			$arts = $_POST['articles'];
 			$amounts = $_POST['artamount'];
-
 			foreach (array_combine($arts, $amounts) as $art => $amount) {
 				$stmt->execute(array($exId, $art, $amount));
-				$arts = new FairArticle();
-				$arts->load($art, 'id');
-				if ($arts->wasLoaded()) {
-					$art_id[] = $arts->get('custom_id');
-					$art_text[] = $arts->get('text');
-					$art_amount[] = $amount;
-					$art_price[] = $arts->get('price');
-					$art_vat[] = $arts->get('vat');
-				}								
 			}
-			$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
 		}
 		
 		$fair = new Fair();
-		$fair->load($ex->get('fair'), 'id');
+		$fair->loadsimple($ex->get('fair'), 'id');
 		
-		$organizer = new User();
-		$organizer->load($fair->get('created_by'), 'id');
-
 		$user = new User();
-		$user->load($ex->get('user'), 'id');
+		$user->load2($ex->get('user'), 'id');
 
-		$htmlcategoryNames = implode('<br>', $categories);
-		$fairInvoice = new FairInvoice();
-		$fairInvoice->load($ex->get('fair'), 'fair');
-
-		/*****************************************************************************************/
-		/*****************************************************************************************/
-		/************************				PREPARE MAIL START			  *************************/
-		/*****************************************************************************************/
-		/*****************************************************************************************/
-
-		/*********************************************************************************/
-		/*********************************************************************************/
-		/********************************       LABELS       *****************************/
-		/*********************************************************************************/
-		/*********************************************************************************/
-
-		$name_label = $translator->{'Name'};
-		$price_label = $translator->{'Price'};
-		$amount_label = $translator->{'Amount'};
-		$vat_label = $translator->{'Vat'};
-		$sum_label = $translator->{'Sum'};
-		$booked_space_label = $translator->{'Stand'};
-		$options_label = $translator->{'Options'};
-		$articles_label = $translator->{'Articles'};
-		$tax_label = $translator->{'Tax'};
-		$parttotal_label = $translator->{'Subtotal'};
-		$net_label = $translator->{'Net'};
-		$rounding_label = $translator->{'Rounding'};
-		$total_label = $translator->{'total:'};
-		$st_label = $translator->{'st'};
-		$nothing_selected_label = $translator->{'No articles or options selected.'};
-
-		/*************************************************************/
-		/*************************************************************/
-		/*****************     PRICES AND AMOUNTS        *************/
-		/*************************************************************/
-		/*************************************************************/ 
-
-		$totalPrice = 0;
-		$totalNetPrice = 0;
-		$VatPrice0 = 0;
-		$VatPrice12 = 0;
-		$VatPrice18 = 0;
-		$VatPrice25 = 0;
-		$excludeVatPrice0 = 0;
-		$excludeVatPrice12 = 0;
-		$excludeVatPrice18 = 0;
-		$excludeVatPrice25 = 0;
-		$currency = $fair->get('currency');
-		$position_vat = 0;
-		$position_name = $pos->get('name');
-		$position_price = $pos->get('price');
-		$position_vat = $fairInvoice->get('pos_vat');
-
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-		/**********************					MAIL BOOKING TABLE START			  ***********************/
-		/*********************************************************************************************/
-		/*********************************************************************************************/
-$html = '<!-- SIX COLUMN HEADERS -->
-			<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
-			 <!-- ID -->
-			 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     ID
-			   </p>
-			 </td>
-			 <!-- NAME -->
-			 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-			     '.$name_label.'
-			   </p>
-			 </td>
-			 <!-- PRICE -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$price_label.'
-			   </p>
-			 </td>
-			 <!-- AMOUNT -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$amount_label.'
-			   </p>
-			 </td>
-			 <!-- VAT % -->
-			 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-			     '.$vat_label.'
-			   </p>
-			 </td>
-			 <!-- SUM -->
-			 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-			   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-			     '.$sum_label.'
-			   </p>
-			 </td>
-			</tr>
-			<!-- SPACER ROW -->
-			<tr style="mso-yfti-irow:1;height:11.1pt">
-			</tr>
-			<!-- STAND SPACE ROW LABEL-->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$booked_space_label.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			</tr>
-			<!-- STAND SPACE ROW INFO -->
-			<tr style="mso-yfti-irow:1;height:25.1pt">
-			 	<!-- ID -->
-				<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						</span>
-					</p>
-				</td>
-			<!-- NAME -->
-				<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_name.'
-						</span>
-					</p>
-				</td>
-				<!-- PRICE -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_price.'
-						</span>
-					</p>
-				</td>
-				<!-- AMOUNT -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						1'.$st_label.'
-						</span>
-					</p>
-				</td>
-				<!-- VAT % -->
-				<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.$position_vat.'%
-						</span>
-					</p>
-				</td>
-				<!-- SUM -->
-				<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-					<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-						<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-						'.number_format($position_price, 2, ',', ' ').'
-						</span>
-					</p>
-				</td>
-			</tr>';
-
-$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
-				<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-					<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-						<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-						</p>
-					</td>
-				</tr>';
-
-if ($position_vat == 25) {
-	$excludeVatPrice25 += $position_price;
-} else if ($position_vat == 18) {
-	$excludeVatPrice18 += $position_price;
-} else {
-	$excludeVatPrice0 += $position_price;
-}
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$options_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$options[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[2][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									1'.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$options[3][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	$html .= '<!-- SIX COLUMNS -->
-               <tr style="mso-yfti-irow:1;height:25.1pt">
-                	<!-- ID -->
-                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-                  		</span>
-                  	</p>
-                  </td>
-                  <!-- NAME -->
-						<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								'.$articles_label.'
-								</span>
-							</p>
-						</td>
-						<!-- PRICE -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- AMOUNT -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- VAT % -->
-						<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-						<!-- SUM -->
-						<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-								<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-								</span>
-							</p>
-						</td>
-					</tr>';
-
-	for ($row=0; $row<count($articles[1]); $row++) {
-		$html .= '<!-- SIX COLUMNS -->
-	               <tr style="mso-yfti-irow:1;height:25.1pt">
-	                	<!-- ID -->
-	                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-	                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-	                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-	                  		'.$articles[0][$row].'
-	                  		</span>
-	                  	</p>
-	                  </td>
-	                  <!-- NAME -->
-							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[1][$row].'
-									</span>
-								</p>
-							</td>
-							<!-- PRICE -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', $articles[2][$row]).'
-									</span>
-								</p>
-							</td>
-							<!-- AMOUNT -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[3][$row].' '.$st_label.'
-									</span>
-								</p>
-							</td>
-							<!-- VAT % -->
-							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.$articles[4][$row].'%
-									</span>
-								</p>
-							</td>
-							<!-- SUM -->
-							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
-									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
-									'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
-									</span>
-								</p>
-							</td>
-						</tr>';
-    }
-}
-
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (12%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice12).'
-							</p>
-						</td>
-					</tr>';
-
-}
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-	$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (18%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice18).'
-							</p>
-						</td>
-					</tr>';
-}
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-	$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.' (25%)
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', $VatPrice25).'
-							</p>
-						</td>
-					</tr>';
-}
-if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$tax_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>';
-} 
-if (empty($totalPrice)) {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								0,00
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
-							</p>
-						</td>
-					</tr>';
-} else {
-	$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
-							<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.$net_label.'
-							</p>
-						</td>
-						<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>
-					<tr style="mso-yfti-irow:0;height:13.3pt">
-						<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-							</p>
-						</td>
-						<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
-							<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
-								<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
-							</p>
-						</td>
-					</tr>';
-}
-
-/*********************************************************************************************/
-/*********************************************************************************************/
-/**********************					MAIL BOOKING TABLE END				  ***********************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-	
-		$position_information = $pos->get('information');
-		if ($position_information == '')
-			$position_information = $translator->{'None specified.'};
-
-		$position_area = $pos->get('area');
-		if ($position_area == '')
-			$position_area = $translator->{'None specified.'};
-
-		$arranger_message = $_POST['arranger_message'];
-		if ($arranger_message == '')
-			$arranger_message = $translator->{'No message was given.'};
-		
-		$exhibitor_commodity = $_POST['commodity'];
-		if ($exhibitor_commodity == '')
-			$exhibitor_commodity = $translator->{'No commodity was entered.'};
-
-
-		//Check mail settings and send only if setting is set
+		/* Check mail settings and send only if setting is set */
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
-				$errors = array();
-				$mail_errors = array();
-				$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-				$from = array($email => $fair->get("windowtitle"));
-
-				if($fair->get('contact_name')) {
-					$from = array($email => $fair->get('contact_name'));
-				}
-
+				if ($fair->get('contact_name') == '')
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+				else
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
+				
 				if (in_array("0", $mailSettings->acceptPreliminaryBooking)) {
-					try {
-						if ($organizer->get('contact_email') == '')
-							$recipients = array($organizer->get('email') => $organizer->get('company'));
-						else
-							$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
-
-						$mail_organizer = new Mail();
-						$mail_organizer->setTemplate('booking_approved_confirm');
-						$mail_organizer->setPlainTemplate('booking_approved_confirm');
-						$mail_organizer->setFrom($from);
-						$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-						$mail_organizer->setRecipients($recipients);
-							$mail_organizer->setMailVar('booking_table', $html);
-							$mail_organizer->setMailVar('booking_sum', $html_sum);
-							$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
-							$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
-							$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-							$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-							$mail_organizer->setMailVar('position_name', $pos->get('name'));
-							$mail_organizer->setMailVar('position_information', $position_information);
-							$mail_organizer->setMailVar('position_area', $position_area);
-							$mail_organizer->setMailVar('arranger_message', $arranger_message);
-							$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
-							$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
-					
-							if(!$mail_organizer->send()) {
-								$errors[] = $organizer->get('company');
-							}
-
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $organizer->get('company');
-							$mail_errors[] = $ex->getMessage();
-
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $organizer->get('company');
-							$mail_errors[] = $ex->getMessage();
-						}
+					/* Prepare to send the mail */
+					$organizer = new User();
+					$organizer->load2($fair->get('created_by'), 'id');
+					if ($organizer->get('contact_email') == '')
+					$recipient = array($organizer->get('email'), $organizer->get('company'));
+					else
+					$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
+					/* UPDATED TO FIT MAILJET */
+					$mail_organizer = new Mail();
+					$mail_organizer->setTemplate('booking_approved_confirm');
+					$mail_organizer->setFrom($from);
+					$mail_organizer->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_organizer->setMailVar('position_name', $pos->get('name'));
+					$mail_organizer->setMailVar('position_area', $pos->get('area'));
+					$mail_organizer->sendMessage();
 				}
 				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
-					try {
-						if ($user->get('contact_email') == '')
-							$recipients = array($user->get('email') => $user->get('company'));
-						else
-							$recipients = array($user->get('contact_email') => $user->get('name'));
-						
-						$mail_user = new Mail();
-						$mail_user->setTemplate('booking_approved_receipt');
-						$mail_user->setPlainTemplate('booking_approved_receipt');
-						$mail_user->setFrom($from);
-						$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-						$mail_user->setRecipients($recipients);
-							$mail_user->setMailVar('booking_table', $html);
-							$mail_user->setMailVar('booking_sum', $html_sum);
-							$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
-							$mail_user->setMailvar('exhibitor_name', $user->get('name'));
-							$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
-							$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
-							$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-							$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-							$mail_user->setMailVar('event_website', $fair->get('website'));
-							$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-							$mail_user->setMailVar('position_name', $pos->get('name'));
-							$mail_user->setMailVar('position_information', $position_information);
-							$mail_user->setMailVar('position_area', $position_area);
-							$mail_user->setMailVar('arranger_message', $arranger_message);
-							$mail_user->setMailVar('commodity', $exhibitor_commodity);
-							$mail_user->setMailVar('html_categories', $htmlcategoryNames);
-
-						if(!$mail_user->send()) {
-							$errors[] = $user->get('company');
-						}
-
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $user->get('company');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $user->get('company');
-						$mail_errors[] = $ex->getMessage();
-					}
+					/* Prepare to send the mail */
+					if ($user->get('contact_email') == '')
+					$recipient = array($user->get('email'), $user->get('company'));
+					else
+					$recipient = array($user->get('contact_email'), $user->get('name'));
+					/* UPDATED TO FIT MAILJET */
+					$mail_user = new Mail();
+					$mail_user->setTemplate('booking_approved_receipt');
+					$mail_user->setFrom($from);
+					$mail_user->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail_user->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+					$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+					$mail_user->setMailVar('event_website', $fair->get('website'));
+					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_user->setMailVar('position_name', $pos->get('name'));
+					$mail_user->setMailVar('position_area', $pos->get('area'));
+					$mail_user->sendMessage();
 				}
-				if ($errors)
-					$_SESSION['mail_errors'] = $mail_errors;
 			}
 		}
 	}

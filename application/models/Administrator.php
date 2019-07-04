@@ -33,56 +33,25 @@ class Administrator extends User {
 	function save() {
 
 		if ($this->id == 0) {
-
 			$arr = array_merge(range(0, 9), range('a', 'z'));
 			shuffle($arr);
 			$str = substr(implode('', $arr), 0, 10);
-			
 			$this->setPassword($str);
-			
-			$fair = new Fair;
-			$fair->loadsimple($_SESSION['user_fair'], 'id');		
-			
-			$me = new User;
-			$me->load($_SESSION['user_id'], 'id');
 
-			$email = EMAIL_FROM_ADDRESS;
-			$from = array($email => EMAIL_FROM_NAME);
-
-			if($fair->get('contact_name')) {
-				$from = array($email => $fair->get('contact_name'));
-			}
-			try {
-				$recipients = array($_POST['email'] => $_POST['name']);
-				$mail = new Mail();
-				$mail->setTemplate('administrator_new_account');
-				$mail->setPlainTemplate('administrator_new_account');
-				$mail->setFrom($from);
-				$mail->addReplyTo($me->get('name'), $me->get('email'));
-				$mail->setRecipients($recipients);
-				$mail->setMailvar('administrator_name', $this->name);
-				$mail->setMailVar('alias', $this->alias);
-				$mail->setMailVar('password', $str);
-				$mail->setMailVar('creator_name', $me->get('name'));
-				if(!$mail->send()) {
-					$errors[] = $_POST['email'];
-				}
-
-			} catch(Swift_RfcComplianceException $ex) {
-				// Felaktig epost-adress
-				$errors[] = $_POST['email'];
-				$mail_errors[] = $ex->getMessage();
-
-			} catch(Exception $ex) {
-				// Okänt fel
-				$errors[] = $_POST['email'];
-				$mail_errors[] = $ex->getMessage();
-			}
-			if (isset($errors)) {
-				$_SESSION['mail_errors'] = $mail_errors;
-			}
+			/* Prepare to send the mail */
+			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+			$recipient = array($_POST['email'], $_POST['name']);
+			/* UPDATED TO FIT MAILJET */
+			$mail = new Mail();
+			$mail->setTemplate('new_account');
+			$mail->setFrom($from);
+			$mail->setRecipien($recipient);
+			/* Setting mail variables */
+			$mail->setMailVar('exhibitor_company', $this->name);
+			$mail->setMailVar('username', $this->alias);
+			$mail->setMailVar('password', $str);
+			$mail->sendMessage();
 		}
-
 		$id = parent::save();
 		return $id;
 

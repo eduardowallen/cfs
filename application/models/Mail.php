@@ -5,13 +5,13 @@ require ROOT.'lib/classes/Mailjet.php';
 class Mail {
 	public $db;
 	protected $mail;
+	protected $subject;
+	protected $variables = array();
 	private $template;
-	private $serverTemplate;
-	private $variables = array();
+	private $serverTemplate = array();
 	private $recipient = array();
 	private $from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
 	private $replyTo = array();
-	private $subject;
 	private $body;
 	private $attachment;
 	/**
@@ -40,10 +40,25 @@ class Mail {
 			ORDER BY `default` ASC");
 
 		$stmt->execute(array($mailtemplate, LANGUAGE));
-		$mailTemplate = $stmt->fetch(PDO::FETCH_ASSOC);
-		$this->template = $mailTemplate['mailjet_id'];
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$this->template = $result['mailjet_id'];
 	}
+	public function setServerTemplate($mailtemplate) {
+		// Attempts to get template according to currently selected language.
+		$stmt = $this->db->prepare("SELECT * FROM `server_templates`
+			LEFT JOIN `language` ON `server_templates`.`language` = `language`.`id`
+			WHERE `template_name` = ?
+			AND (
+				`language` = ?
+				OR `default` = 'eng'
+				)
+			ORDER BY `default` ASC");
 
+		$stmt->execute(array($mailtemplate, LANGUAGE));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$this->serverTemplate = $result;
+		//error_log(print_r($this->serverTemplate, TRUE));
+	}
 	/**
 	 * @param string $message
 	 * @param string $template
@@ -53,7 +68,10 @@ class Mail {
 	 * @throws Exception
 	 */
 	public function sendMessage() {
-
+		if (DEV) {
+			$this->recipient[0] = 'eduardo.wallen@chartbooker.com';
+			$this->recipient[1] = 'Eduardo Testmaster';
+		}
 		$this->body = [
 			'Messages'	=>	[
 				[
@@ -70,17 +88,21 @@ class Mail {
 				]
 			]
 		];
+		if (isset($this->variables)) {
+			foreach ($this->variables as $key => $value) {
+				$this->body['Messages'][0]['Variables'][$key] = $value;
+			}
+			
+		}
 		if (isset($this->template)) {
 			$this->body['Messages'][0]['TemplateID'] = intval($this->template);
 			$this->body['Messages'][0]['TemplateLanguage'] = true;
-
 		}
-		if (isset($this->serverTemplate)) {
+		if ($this->serverTemplate) {
 
-			$this->body['Messages'][0]['Subject'] = "Noobfil";
-			$this->body['Messages'][0]['TextPart'] = "Kolla här då din noob justeee.";
-			$this->body['Messages'][0]['HTMLPart'] = "<h3>Juste noob här kommer en fil såatteeeh det funkar! yää</h3>";
-
+			$this->body['Messages'][0]['Subject'] = $this->serverTemplate[0]['subject'];
+			$this->body['Messages'][0]['TextPart'] = $this->serverTemplate[0]['textpart'];
+			$this->body['Messages'][0]['HTMLPart'] = $this->serverTemplate[0]['htmlpart'];
 		}
 		
 		if (isset($this->attachment)) {
@@ -90,9 +112,25 @@ class Mail {
 				'Base64Content' => base64_encode(file_get_contents($this->attachment))
 			]];
 		}
-		//var_dump($this->body);
+		//error_log(print_r($this->body['Messages'][0]['Variables'], TRUE));
 		$response = $this->mail->send($this->body);
 	}
+
+
+
+	public function setAttachment($attachment) {
+		$this->attachment = $attachment;
+	}
+	public function setRecipient($recipient) {
+		$this->recipient = $recipient;
+	}
+	public function setFrom($from) {
+		$this->from = $from;
+	}
+	public function setSubject($subject) {
+		$this->subject = $subject;
+	}
+
 
 	/**
  	* Funktion för bakåtkompabilitet.
@@ -100,32 +138,11 @@ class Mail {
  	* @param string $name
  	* @param        $value
  	*/
-	 public function setMailVar($name,$value) {
+	public function setMailVar($name, $value) {
 		$this->set($name, $value);
-	}
-	 public function setServerTemplate($mailtemplate) {
-		$this->serverTemplate = $mailtemplate;
-	}
-	 public function setAttachment($attachment) {
-		$this->attachment = $attachment;
 	}
 	public function set($name, $value) {
 		$this->variables[$name] = $value;
 	}
-
-	public function setRecipient($recipient) {
-		$this->recipient = $recipient;
-	}
-
-	public function setFrom($from) {
-		$this->from = $from;
-	}
-
-	public function setSubject($subject) {
-		$this->subject = $subject;
-	}
-
-
-	
 
 }

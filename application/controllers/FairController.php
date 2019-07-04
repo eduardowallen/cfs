@@ -603,12 +603,6 @@ class FairController extends Controller {
 				$this->set('edit_headline', 'Edit fair');
 				$this->Fair->load($id, 'id');
 				
-				/*if ($this->Fair->get('approved') != 1) {
-					header('Location: '.BASE_URL.'locked');
-					exit;
-				}*/
-				
-				
 				if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
 					toLogin();
 			}
@@ -642,11 +636,6 @@ class FairController extends Controller {
 				$this->Fair->set('hidden_search', $_POST['hidden_search']);
 				$this->Fair->set('reminder_day1', $_POST['reminder_day1']);
 				$this->Fair->set('reminder_note1', $_POST['reminder_note1']);
-				/*for ($i = 1; $i <= 3; $i++) {
-					$this->Fair->set('reminder_day' . $i, $_POST['reminder_day' . $i]);
-					$this->Fair->set('reminder_note' . $i, $_POST['reminder_note' . $i]);
-				}*/
-
 				$fId = $this->Fair->save();
 
 				$now = time();
@@ -671,39 +660,24 @@ class FairController extends Controller {
 				$this->updateAliases();
 
 				if ($id == 'new') {
-					$userLevel = userLevel();
-
 					$_SESSION['user_fair'] = $fId;
 					$user = new User();
-
-					if ($userLevel === "4") {
-						$user->load($_POST['arranger'], 'id');
-					} else if ($userLevel === "3") {
-						$user->load($_SESSION['user_id'], 'id');
-					}
-
-					if ($userLevel === "3") {
-						$email = EMAIL_FROM_ADDRESS;
-						$from = array($email => EMAIL_FROM_NAME);
-						$recipients = array(EMAIL_TO_ADMIN => EMAIL_TO_ADMIN);
-				        $mail = new Mail();
-				        $mail->setTemplate('new_fair');
-				        $mail->setPlainTemplate('new_fair');
-				        $mail->setFrom($from);
-				        $mail->addReplyTo(EMAIL_FROM_NAME, $email);
-				        $mail->setRecipients($recipients);
-						$mail->setMailVar('event_url', BASE_URL.$this->Fair->get('url'));
-						$mail->setMailVar('creator_name', $user->get('company'));
-						$mail->setMailVar('event_name', $this->Fair->get('name'));
-					    $mail->send();
-					  }
-
+					$user->load2($_SESSION['user_id'], 'id');
+					/* Preparing to send the mail */
+					$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+					$recipient = array('info@chartbooker.com', 'Chartbooking admins');
+					/* UPDATED TO FIT MAILJET */
+					$mail = new Mail();
+					$mail->setTemplate('new_fair');
+					$mail->setFrom($from);
+					$mail->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail->setMailVar('creator_name', $user->get('company'));
+					$mail->setMailVar('event_name', $this->Fair->get('name'));
+					$mail->sendMessage();
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
-				}/* else {
-					header("Location: ".BASE_URL."fair/overview");
-					exit;
-				}*/
+				}
 			}
 
 			$this->setNoTranslate('edit_id', $id);
@@ -714,42 +688,33 @@ class FairController extends Controller {
 				$this->setNoTranslate('app_sel1', '');
 				$this->setNoTranslate('app_sel2', '');
 				$this->setNoTranslate('disable', '');
-			} elseif($this->Fair->get('approved') == 1) {
+			} else if ($this->Fair->get('approved') == 1) {
 				$this->setNoTranslate('app_sel0', '');
 				$this->setNoTranslate('app_sel1', ' selected="selected"');
 				$this->setNoTranslate('app_sel2', '');
 				$this->setNoTranslate('disable', '');
-
-			} elseif($this->Fair->get('approved') == 2){
+			} else if ($this->Fair->get('approved') == 2){
 				$this->setNoTranslate('app_sel0', '');
 				$this->setNoTranslate('app_sel1', '');
 				$this->setNoTranslate('app_sel2', ' selected="selected"');
 			}
-
-//			$this->setNoTranslate('hidden_sel0', ($this->Fair->get('hidden') == 0 ? '' : ' selected="selected"'));
-//			$this->setNoTranslate('hidden_sel1', ($this->Fair->get('hidden') == 1 ? ' selected="selected"' : ''));
-			if ($this->Fair->get('hidden') == 1) {
+			//$this->Fair->get('hidden') == 1 ? $this->setNoTranslate('hidden_val', 'checked') : $this->setNoTranslate('hidden_val', '');
+			if ($this->Fair->get('hidden') == 1)
 				$this->setNoTranslate('hidden_val', 'checked');
-			} else {
+			else
 				$this->setNoTranslate('hidden_val', '');
-			}
-			if ($this->Fair->get('allow_registrations') == 1) {
+			if ($this->Fair->get('allow_registrations') == 1)
 				$this->setNoTranslate('allow_registrations_val', 'checked');
-			} else {
+			else
 				$this->setNoTranslate('allow_registrations_val', '');
-			}
-			if ($this->Fair->get('hidden_search') == 1) {
+			if ($this->Fair->get('hidden_search') == 1) 
 				$this->setNoTranslate('hidden_search_val', 'checked');
-			} else {
+			else
 				$this->setNoTranslate('hidden_search_val', '');
-			}
-
-
-			if(userLevel() < 3){
-					$this->setNoTranslate('disable', 'disabled="disabled"');
-				}else{
-					$this->setNoTranslate('disable', '');
-			}
+			if (userLevel() < 3)
+				$this->setNoTranslate('disable', 'disabled="disabled"');
+			else
+				$this->setNoTranslate('disable', '');
 			$this->setNoTranslate('image_path', '../images/fairs/'.$id.'/logotype');
 			$this->set('currency_label', 'Currency');
 			$this->set('approved_label', 'Status');
@@ -773,14 +738,10 @@ class FairController extends Controller {
 			$this->set('default_reservation_date', 'Default date for new reservations');
 			$this->set('interval_reminders_label', 'Interval for reminders');
 			$this->set('reminder_1_label', '1st reminder');
-			//$this->set('reminder_2_label', '2nd reminder');
-			//$this->set('reminder_3_label', '3rd reminder');
 			$this->set('no_reminder_label', 'No reminder');
 			$this->set('edit_label', 'Edit');
 			$this->set('delete_label', 'Delete');
 			$this->set('edit_note_1_label', 'Edit message for 1st reminder');
-			//$this->set('edit_note_2_label', 'Edit message for 2nd reminder');
-			//$this->set('edit_note_3_label', 'Edit message for 3rd reminder');
 			$this->set('save_label', 'Save');
 			$this->set('cancel_label', 'Cancel');
 			$this->set('hide_fair_for_label', 'Hide fair for unauthorized accounts');
@@ -788,16 +749,6 @@ class FairController extends Controller {
 			$this->set('allow_registrations_label', 'Allow registrations when fair is hidden');
 			$this->set('false_label', 'false');
 			$this->set('true_label', 'true');
-/*			$this->set("options_when_booking_label", "Options when booking");
-			$this->set("new_option_label", "New option");
-
-			if ($id === "new") {
-				$options = array();
-			} else {
-				$stmt = $this->db->query("SELECT `id`, `text`, `price` FROM `fair_extra_option` WHERE `fair` = " . $this->Fair->get("id"));
-				$options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-				$this->setNoTranslate("options_when_booking", $options);
-			}*/
 		}
 	}
 
@@ -1033,33 +984,22 @@ class FairController extends Controller {
 					}
 
 				}
-
+				$this->updateAliases();
 				$_SESSION['user_fair'] = $fair_clone_id;
 				$user = new User();
-
-				$userLevel = userLevel();
-
-				if ($userLevel === "4") {
-					$user->load($this->Fair->get('created_by'), 'id');
-				} else if ($userLevel === "3") {
-					$user->load($_SESSION['user_id'], 'id');
-				}
-
-				$this->updateAliases();
-				$email = EMAIL_FROM_ADDRESS;
-				$from = array($email => EMAIL_FROM_NAME);
-				$recipients = array(EMAIL_TO_ADMIN => EMAIL_TO_ADMIN);
-		        $mail = new Mail();
-		        $mail->setTemplate('new_fair');
-		        $mail->setPlainTemplate('new_fair');
-		        $mail->setFrom($from);
-		        $mail->addReplyTo(EMAIL_FROM_NAME, $email);
-		        $mail->setRecipients($recipients);
-				$mail->setMailVar('event_url', BASE_URL.$fair_clone->get('url'));
-				$mail->setMailVar('company', $user->get('company'));
+				$user->load2($_SESSION['user_id'], 'id');
+				/* Preparing to send the mail */
+				$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+				$recipient = array('info@chartbooker.com', 'Chartbooking admins');
+				/* UPDATED TO FIT MAILJET */
+				$mail = new Mail();
+				$mail->setTemplate('new_fair');
+				$mail->setFrom($from);
+				$mail->setRecipient($recipient);
+				/* Setting mail variables */
+				$mail->setMailVar('creator_name', $user->get('company'));
 				$mail->setMailVar('event_name', $fair_clone->get('name'));
-				$mail->send();
-
+				$mail->sendMessage();
 				header("Location: ".BASE_URL."fair/overview/cloning_complete");
 				exit;
 			}
@@ -1092,6 +1032,7 @@ class FairController extends Controller {
 		$this->setNoTranslate('fair', $this->Fair);
 
 	}
+	/*
 	public function editExpirationDate($id) {
 		setAuthLevel(3);
 
@@ -1135,6 +1076,7 @@ class FairController extends Controller {
 			$this->setNoTranslate('reserved', $reserved);
 		}
 	}
+	*/
 	public function maps($id) {
 
 		setAuthLevel(3);
