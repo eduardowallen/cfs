@@ -47,22 +47,6 @@
 		</tr>
 		<!--		Cancel a booking end				-->
 
-		<!--		Cancel a reservation start			-->
-		<tr>
-			<td><?php echo $ReservationCancelled; ?></td>
-			<td><?php echo $ToExhibitor; ?>
-				<input 
-					type="checkbox"
-					name="ReservationCancelled[]"
-					id="ReservationCancelled1"
-					value="1"
-					<?php echo (is_array($mailSettings->ReservationCancelled) && in_array("1", $mailSettings->ReservationCancelled)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="ReservationCancelled1" />
-			</td>
-		</tr>
-		<!--		Cancel a reservation end				-->
-
 		<!--		Recieve a preliminary booking start		-->
 		<tr>
 			<td><?php echo $PreliminaryCreated; ?></td>

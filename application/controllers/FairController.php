@@ -1211,8 +1211,8 @@ class FairController extends Controller {
 			$this->set("BookingCancelled", "When I cancel a booking");
 			$this->set("ReservationCreated", "When I create a reservation");
 			$this->set("PreliminaryCreated", "When I recieve a request for stand");
-			$this->set("PreliminaryToBooking", "When I accept a request for stand");
-			$this->set("PreliminaryToReservation", "When I accept a request for stand");
+			$this->set("PreliminaryToBooking", "When I accept a request to booked (and paid)");
+			$this->set("PreliminaryToReservation", "When I accept a request to reservation");
 			$this->set("PreliminaryCancelled", "When I cancel a request for stand");
 			$this->set("RegistrationCreated", "When an exhibitor applies for a stand");
 			$this->set("RegistrationCancelled", "When I cancel an application for a stand");
