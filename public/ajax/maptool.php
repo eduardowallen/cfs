@@ -372,38 +372,14 @@ if (isset($_POST['bookPosition'])) {
 		$mailSettings = json_decode($fair->get("mail_settings"));
 		/* Check mail settings and send only if setting is set */
 		if (isset($mailSettings->bookingCreated) && is_array($mailSettings->bookingCreated)) {
-			
-			$user = new User();
-			$user->load($exhibitor->get('user'), 'id');
-			
-			if ($fair->get('contact_name') == '')
-			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
-			else
-			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-			
-			if (in_array("0", $mailSettings->bookingCreated)) {
-				/* Prepare to send the mail */
-				$organizer = new User();
-				$organizer->load($fair->get('created_by'), 'id');
-				if ($organizer->get('contact_email') == '')
-				$recipient = array($organizer->get('email'), $organizer->get('company'));
-				else
-				$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
-				/* UPDATED TO FIT MAILJET */
-				$mail_organizer = new Mail();
-				$mail_organizer->setTemplate('booking_created_confirm');
-				$mail_organizer->setFrom($from);
-				$mail_organizer->setRecipient($recipient);
-				/* Setting mail variables */
-				$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
-				$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-				$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-				$mail_organizer->setMailVar('position_name', $pos->get('name'));
-				$mail_organizer->setMailVar('position_area', $pos->get('area'));
-				$mail_organizer->sendMessage();
-			}
-
 			if (in_array("1", $mailSettings->bookingCreated)) {
+				$user = new User();
+				$user->load2($exhibitor->get('user'), 'id');
+
+				if ($fair->get('contact_name') == '')
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+				else
+				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 				/* Prepare to send the mail */
 				if ($user->get('contact_email') == '')
 				$recipient = array($user->get('email'), $user->get('company'));
@@ -493,7 +469,7 @@ if (isset($_POST['fairRegistration'])) {
 			$recipient = array($user->get('email'), $user->get('company'));
 			else
 			$recipient = array($user->get('contact_email'), $user->get('name'));
-
+			/* UPDATED TO FIT MAILJET */
 			$mail_user = new Mail();
 			$mail_user->setTemplate('registration_created_receipt');
 			$mail_user->setFrom($from);
@@ -515,7 +491,7 @@ if (isset($_POST['fairRegistration'])) {
 			if (is_array($mailSettings->recieveRegistration)) {
 				if (in_array("0", $mailSettings->recieveRegistration)) {
 					$organizer = new User();
-					$organizer->load($fair->get('created_by'), 'id');
+					$organizer->load2($fair->get('created_by'), 'id');
 					/* Prepare to send the mail */
 					if ($organizer->get('contact_email') == '')
 					$recipient = array($organizer->get('email'), $organizer->get('company'));
@@ -635,27 +611,6 @@ if (isset($_POST['reservePosition'])) {
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 			else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-
-			if (in_array("0", $mailSettings->bookingCreated)) {
-				$organizer = new User();
-				$organizer->load2($fair->get('created_by'), 'id');
-				/* Prepare to send the mail */
-				if ($organizer->get('contact_email') == '')
-				$recipient = array($organizer->get('email'), $organizer->get('company'));
-				else
-				$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
-				$mail_organizer = new Mail();
-				$mail_organizer->setTemplate('reservation_created_confirm');
-				$mail_organizer->setFrom($from);
-				$mail_organizer->setRecipient($recipient);
-				/* Setting mail variables */
-				$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
-				$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-				$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-				$mail_organizer->setMailVar('position_name', $pos->get('name'));
-				$mail_organizer->setMailVar('position_area', $position_area);
-				$mail_organizer->sendMessage();
-			}
 			if (in_array("1", $mailSettings->bookingCreated)) {
 				/* Prepare to send the mail */
 				if ($user->get('contact_email') == '')
@@ -916,49 +871,6 @@ if (isset($_POST['cancelBooking'])) {
 					$mail_user->sendMessage();
 					
 				}
-			/*	Check mail settings and send only if setting is set
-				Check if the current user is not the same as the organizer to prevent duplicate mails */
-				if ($current_user->get('email') != $organizer->get('email')) {
-					if (in_array("2", $mailSettings->bookingCancelled)) {
-						if ($current_user->get('contact_email') == '')
-						$recipient = array($current_user->get('email'), $current_user->get('company'));
-						else
-						$recipient = array($current_user->get('contact_email'), $current_user->get('name'));
-						/* UPDATED TO FIT MAILJET */
-						$mail_current_user = new Mail();
-						$mail_current_user->setTemplate('booking_cancelled_receipt');
-						$mail_current_user->setFrom($from);
-						$mail_current_user->setRecipient($recipient);
-						/* Setting mail variables */
-						$mail_current_user->setMailVar('position_name', $position->get('name'));
-						$mail_current_user->setMailVar('exhibitor_company', $user->get('company'));
-						$mail_current_user->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_current_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						if ($comment)
-						$mail_current_user->setMailVar('comment', $comment);
-						$mail_current_user->sendMessage();
-					}
-				}
-				/* Check mail settings and send only if setting is set */
-				if (in_array("0", $mailSettings->bookingCancelled)) {
-						if ($organizer->get('contact_email') == '')
-						$recipient = array($organizer->get('email'), $organizer->get('company'));
-						else
-						$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
-						/* UPDATED TO FIT MAILJET */
-						$mail_organizer = new Mail();
-						$mail_organizer->setTemplate($mail_type . '_cancelled_confirm');
-						$mail_organizer->setFrom($from);
-						$mail_organizer->setRecipient($recipient);
-						/* Setting mail variables */
-						$mail_organizer->setMailVar('position_name', $position->get('name'));
-						$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
-						$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-						$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						if ($comment)
-						$mail_organizer->setMailVar('comment', $comment);
-						$mail_organizer->sendMessage();
-				}
 			}
 		}
 	}
@@ -1158,29 +1070,7 @@ if (isset($_POST['reserve_preliminary'])) {
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 				else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-				
-				if (in_array("0", $mailSettings->acceptPreliminaryBooking)) {
-					/* Prepare to send the mail */
-					$organizer = new User();
-					$organizer->load2($fair->get('created_by'), 'id');
-					if ($organizer->get('contact_email') == '')
-					$recipient = array($organizer->get('email'), $organizer->get('company'));
-					else
-					$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
-					/* UPDATED TO FIT MAILJET */
-					$mail_organizer = new Mail();
-					$mail_organizer->setTemplate('preliminary_approved_confirm');
-					$mail_organizer->setFrom($from);
-					$mail_organizer->setRecipient($recipient);
-					/* Setting mail variables */
-					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
-					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-					$mail_organizer->setMailVar('position_name', $pos->get('name'));
-					$mail_organizer->setMailVar('position_area', $pos->get('area'));
-					$mail_organizer->setMailVar('expirationdate', $_POST['expires']);
-					$mail_organizer->sendMessage();
-				}
+
 				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
 					if ($user->get('contact_email') == '')
 					$recipient = array($user->get('email'), $user->get('company'));
@@ -1278,28 +1168,7 @@ if (isset($_POST['book_preliminary'])) {
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 				else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-				
-				if (in_array("0", $mailSettings->acceptPreliminaryBooking)) {
-					/* Prepare to send the mail */
-					$organizer = new User();
-					$organizer->load2($fair->get('created_by'), 'id');
-					if ($organizer->get('contact_email') == '')
-					$recipient = array($organizer->get('email'), $organizer->get('company'));
-					else
-					$recipient = array($organizer->get('contact_email'), $organizer->get('name'));
-					/* UPDATED TO FIT MAILJET */
-					$mail_organizer = new Mail();
-					$mail_organizer->setTemplate('booking_approved_confirm');
-					$mail_organizer->setFrom($from);
-					$mail_organizer->setRecipient($recipient);
-					/* Setting mail variables */
-					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
-					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
-					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-					$mail_organizer->setMailVar('position_name', $pos->get('name'));
-					$mail_organizer->setMailVar('position_area', $pos->get('area'));
-					$mail_organizer->sendMessage();
-				}
+
 				if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
 					/* Prepare to send the mail */
 					if ($user->get('contact_email') == '')
