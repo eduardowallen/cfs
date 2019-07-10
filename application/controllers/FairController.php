@@ -1206,30 +1206,27 @@ class FairController extends Controller {
 			$this->set("heading", "Automatically send a mail:");
 			$this->set("ToMyself", "To myself");
 			$this->set("ToExhibitor", "To the Exhibitor");
-			$this->set("ToCurrentUser", "To the currently administrating user");
 			$this->set("BookingCreated", "When I create a booking or reservation");
-			$this->set("BookingEdited", "When I edit a booking or reservation");
 			$this->set("BookingCancelled", "When I cancel a booking or reservation");
-			$this->set("RecievePreliminaryBooking", "When I recieve a request for stand");
-			$this->set("AcceptPreliminaryBooking", "When I accept a request for stand");
-			$this->set("CancelPreliminaryBooking", "When I cancel a request for stand");
-			$this->set("RecieveRegistration", "When an exhibitor applies for stand");
+			$this->set("PreliminaryCreated", "When I recieve a request for a specific stand");
+			$this->set("PreliminaryToBooking", "When I accept a request for stand to paid status");
+			$this->set("PreliminaryToReservation", "When I accept a request for stand to reserved status");
+			$this->set("PreliminaryCancelled", "When I cancel a request for stand");
+			$this->set("RegistrationCreated", "When an exhibitor applies for stand");
 			$this->set("RegistrationCancelled", "When I cancel an application for stand");
-			$this->set("ReservationReminders", "When reminders are active for expiring reservations");
 			$this->set("save", "Save");
 
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			if (!is_object($mailSettings)) {
 				$mailSettings = new stdClass();
 				$mailSettings->BookingCreated = null;
-				$mailSettings->BookingEdited = null;
 				$mailSettings->BookingCancelled = null;
-				$mailSettings->RecievePreliminaryBooking = null;
-				$mailSettings->AcceptPreliminaryBooking = null;
-				$mailSettings->CancelPreliminaryBooking = null;
-				$mailSettings->RecieveRegistration = null;
+				$mailSettings->PreliminaryCreated = null;
+				$mailSettings->PreliminaryToBooking = null;
+				$mailSettings->PreliminaryToReservation = null;
+				$mailSettings->PreliminaryCancelled = null;
+				$mailSettings->RegistrationCreated = null;
 				$mailSettings->RegistrationCancelled = null;
-				$mailSettings->ReservationReminders = null;
 			}
 			$this->setNoTranslate("mailSettings", $mailSettings);
 			$this->setNoTranslate("id", $id);
