@@ -5,6 +5,8 @@
 }
 .tableNoBorder td {
 	padding: 12px 12px 0px;
+}
+.tableNoBorder td:first-child {
 	text-align: left;
 }
 
@@ -12,13 +14,21 @@
 <button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/overview'"><?php echo uh($translator->{'Go back'}); ?></button>
 <br />
 <h1><?php echo $fair->get('name'); ?> - <?php echo $headline; ?></h1>
-<h2><?php echo $heading; ?></h2>
 <form action="fair/event_mail/<?php echo $id; ?>" method="POST">
 	<table class="tableNoBorder">
+		<thead>
+			<tr>
+				<th><?php echo $heading; ?></th>
+				<th><?php echo $ToMyself; ?></th>
+				<th><?php echo $ToExhibitor; ?></th>
+			</tr>
+		</thead>
+		<tbody>
 		<!--		Create a booking start				-->
 		<tr>
 			<td><?php echo $BookingCreated; ?></td>
-			<td><?php echo $ToExhibitor; ?>
+			<td></td>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="BookingCreated[]"
@@ -34,7 +44,8 @@
 		<!--		Cancel a booking start				-->
 		<tr>
 			<td><?php echo $BookingCancelled; ?></td>
-			<td><?php echo $ToExhibitor; ?>
+			<td></td>
+			<td class="center">
 				<input
 				type="checkbox"
 				name="BookingCancelled[]"
@@ -50,7 +61,7 @@
 		<!--		Recieve a preliminary booking start		-->
 		<tr>
 			<td><?php echo $PreliminaryCreated; ?></td>
-			<td><?php echo $ToMyself; ?>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="PreliminaryCreated[]"
@@ -60,13 +71,14 @@
 				/>
 				<label class="squaredFour" for="PreliminaryCreated0" />
 			</td>
+			<td></td>
 		</tr>		
 		<!--		Recieve a preliminary booking end		-->
 
 		<!--		Preliminary to booking start			-->
 				<tr>
 			<td><?php echo $PreliminaryToBooking; ?></td>
-			<td><?php echo $ToMyself; ?>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="PreliminaryToBooking[]"
@@ -76,8 +88,7 @@
 				/>
 				<label class="squaredFour" for="PreliminaryToBooking0" />
 			</td>
-			<td>
-				<?php echo $ToExhibitor; ?>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="PreliminaryToBooking[]"
@@ -93,7 +104,7 @@
 		<!--		Preliminary to reservation start		-->
 		<tr>
 			<td><?php echo $PreliminaryToReservation; ?></td>
-			<td><?php echo $ToMyself; ?>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="PreliminaryToReservation[]"
@@ -103,8 +114,7 @@
 				/>
 				<label class="squaredFour" for="PreliminaryToReservation0" />
 			</td>
-			<td>
-				<?php echo $ToExhibitor; ?>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="PreliminaryToReservation[]"
@@ -120,7 +130,8 @@
 		<!--		Cancel a preliminary start				-->
 		<tr>
 			<td><?php echo $PreliminaryCancelled; ?></td>
-			<td><?php echo $ToExhibitor; ?>
+			<td></td>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="PreliminaryCancelled[]"
@@ -135,7 +146,7 @@
 		<!--		Recieve application start				-->	
 		<tr>
 			<td><?php echo $RegistrationCreated; ?></td>
-			<td><?php echo $ToMyself; ?>
+			<td class="center">
 				<input
 					type="checkbox"
 					name="RegistrationCreated[]"
@@ -145,13 +156,15 @@
 				/>
 				<label class="squaredFour" for="RegistrationCreated0" />
 			</td>
+			<td></td>
 		</tr>
 		<!--		Recieve application end					-->	
 
 		<!--		Cancel application start				-->	
 		<tr>
 			<td><?php echo $RegistrationCancelled; ?></td>
-			<td><?php echo $ToExhibitor; ?>
+			<td></td>
+			<td class="center">
 				<input
 				type="checkbox"
 				name="RegistrationCancelled[]"
@@ -163,6 +176,7 @@
 			</td>
 		</tr>
 		<!--		Cancel application end					-->
+	</tbody>
 	</table>
 
 	<input type="submit" name="save" class="greenbutton bigbutton" value="<?php echo $save; ?>" />
