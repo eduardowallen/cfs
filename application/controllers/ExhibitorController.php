@@ -616,7 +616,6 @@ class ExhibitorController extends Controller {
 				'orgnr' => $this->translate->{'Organization number'},
 				'company' => $this->translate->{'Company'},
 				'commodity' => $this->translate->{'Commodity'},
-				// 'customer_nr' => $this->translate->{'Customer number'},
 				'address' => $this->translate->{'Address'},
 				'zipcode' => $this->translate->{'Zip code'},
 				'city' => $this->translate->{'City'},
@@ -843,10 +842,6 @@ class ExhibitorController extends Controller {
 
 		$this->set('password_label', 'Password');
 		$this->set('password_repeat_label', 'Password again (repeat to confirm)');
-
-		$this->set('customer_nr_label', 'Customer number');
-		$this->set('customer_id', 'Customer Number');
-		$this->set('save_customer_id', 'Save Customer Number');
 
 		$this->set('bookings_section', 'Bookings on your other events');
 		$this->set('bookings_samefair_section', 'Bookings for this event');
@@ -1115,10 +1110,6 @@ class ExhibitorController extends Controller {
 
 		$this->set('password_label', 'Password');
 		$this->set('password_repeat_label', 'Password again (repeat to confirm)');
-
-		$this->set('customer_nr_label', 'Customer number');
-		$this->set('customer_id', 'Customer Number');
-		$this->set('save_customer_id', 'Save Customer Number');
 
 		$this->set('bookings_section', 'Bookings on your other events');
 		$this->set('bookings_samefair_section', 'Bookings for this event');
@@ -3117,30 +3108,7 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$id.'/'.$r
 			$this->setNoTranslate('success', 'false');
 		}
 	}
-/*
-	function saveCustomerId($id, $customerId){
-		setAuthLevel(3);
-		$this->setNoTranslate('noView', true);
-		$user = new User;
-		$user->load($id, 'id');
 
-
-		if($user->wasLoaded()):
-			$statement = $user->db->prepare('SELECT customer_nr FROM user WHERE customer_nr = ?');
-			$statement->execute(array($customerId));
-			$result = $statement->fetchAll(PDO::FETCH_ASSOC);
-			if(count($result) < 1):
-				$user->set('customer_nr', $customerId);
-				$user->save();
-				echo $this->translate->{'Successfully saved customer number...'};
-			else:
-					echo $this->translate->{'Customer number already exists...'};
-			endif;
-		else:
-			echo $this->translate->{'Could not load user with ID'}.": ".$id;
-		endif;
-	}
-*/
 	function pre_delete($id, $user_id, $position){
 		setAuthLevel(1);
 		$this->Exhibitor->del_pre_booking($id, $user_id, $position);

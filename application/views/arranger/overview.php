@@ -17,7 +17,6 @@
 	<table class="std_table">
 		<thead>
 			<tr>
-				<th><?php echo $th_cnr; ?></th>
 				<th><?php echo $th_user; ?></th>
 				<th><?php echo $th_eventcount; ?></th>
 				<th><?php echo $th_spots_free; ?></th>
@@ -30,7 +29,6 @@
 		<tbody>
 			<?php foreach ($users as $user): ?>
 			<tr>
-				<td><?php echo $user->get('customer_nr'); ?></td>
 				<td><span<?php if ($user->get('locked') == 1) { echo ' class="crossedout"'; } ?>><a href="arranger/info/<?php echo $user->get('id')?>"><?php echo $user->get('company').', '.$user->get('name'); ?></a></span></td>
 				<td class="center"><a href="fair/overview/<?php echo $user->get('id'); ?>"><?php echo $user->get('event_count'); ?></a></td>
 				<td class="center"><?php echo $spots[$user->get('id')]['open']; ?></td>

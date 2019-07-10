@@ -48,7 +48,7 @@ if (isset($_GET['checkIfLocked'])) {
 	exit;
 }
 if (isset($_POST['markPositionAsBeingEdited'])) {
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	$pos->load($_POST['markPositionAsBeingEdited'], 'id');
 	$pos->set('being_edited', $_SESSION['user_id']);
 	$pos->set('edit_started', time());
@@ -58,7 +58,7 @@ if (isset($_POST['markPositionAsBeingEdited'])) {
 }
 
 if (isset($_POST['markPositionAsNotBeingEdited'])) {
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	$pos->load($_POST['markPositionAsNotBeingEdited'], 'id');
 	$pos->set('being_edited', 0);
 	$pos->set('edit_started', 0);
@@ -80,7 +80,7 @@ if (isset($_GET['getBusyStatus'])) {
 	$pos = new FairMapPosition();
 	$pos->load($_GET['getBusyStatus'], 'id');
 
-	$map = new FairMap;
+	$map = new FairMap();
 	$map->load($pos->get('map'), 'id');
 
 	$num_prel_bookings = 0;
@@ -99,7 +99,7 @@ if (isset($_GET['getBusyStatus'])) {
 
 	} else if (userLevel() == 1) {
 		/* Check if this Exhibitor has preliminary booked this position */
-		$user = new User;
+		$user = new User();
 		$user->load($_SESSION['user_id'], 'id');
 		$preliminaries = $user->getPreliminaries();
 		foreach ($preliminaries as $p) {
@@ -282,7 +282,7 @@ if (isset($_POST['deleteMarker'])) {
 	if (userLevel() < 2)
 		exit;
 
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	$pos->load($_POST['deleteMarker'], 'id');
 	$pos->delete();
 	exit;
@@ -503,6 +503,7 @@ if (isset($_POST['fairRegistration'])) {
 					$mail_organizer->setRecipient($recipient);
 					/* Setting mail variables */
 					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_organizer->setMailVar('event_contact', $fair->get('contact_name'));
 					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
 					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
 					$mail_organizer->setMailVar('comment', $_POST['arranger_message']);
@@ -647,7 +648,7 @@ if (isset($_POST['editBooking'])) {
 	$pos = new FairMapPosition();
 	$pos->load($_POST['editBooking'], 'id');
 
-	$exhibitor = new Exhibitor;
+	$exhibitor = new Exhibitor();
 	$exhibitor->load($_POST['exhibitor_id'], 'id');
 	if (!$exhibitor->wasLoaded()) {
 		die('exhibitor not found');
@@ -884,7 +885,7 @@ if (isset($_POST['savePosition'])) {
 	if (userLevel() < 2)
 		exit;
 
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	if ((int)$_POST['savePosition'] > 0) {
 		$pos->load((int)$_POST['savePosition'], 'id');
 	} else {
@@ -906,7 +907,7 @@ if (isset($_POST['savePosition'])) {
 
 if (isset($_POST['movePosition'])) {
 
-	$pos = new FairMapPosition;
+	$pos = new FairMapPosition();
 	$pos->load((int)$_POST['movePosition'], 'id');
 	$pos->set('x', $_POST['x']);
 	$pos->set('y', $_POST['y']);
@@ -919,7 +920,7 @@ if (isset($_POST['getUserCommodity'])) {
 		exit;
 	}
 
-	$user = new User;
+	$user = new User();
 	$user->load((int)$_POST['userId'], 'id');
 	$answer = array('commodity' => '');
 	if ($user->wasLoaded()) {
@@ -930,23 +931,22 @@ if (isset($_POST['getUserCommodity'])) {
 }
 
 if (isset($_POST['emailExists'])) {
-	$user = new User;
-	$user->load($_POST['email'], 'email');
+	$user = new User();
+	$user->load2($_POST['email'], 'email');
 	echo json_encode(array('emailExists' => $user->wasLoaded()));	
 	exit;
 }
 
 if (isset($_POST["aliasExists"])) {
-	$_POST["alias"] = array_change_key_case($_POST["alias"], CASE_LOWER);
 	$user = new User();
-	$user->load($_POST["alias"], "alias");
+	$user->load2($_POST["alias"], "alias");
 	echo json_encode(array("aliasExists" => $user->wasLoaded()));
 }
 
 if (isset($_POST['connectToFair'])) {
 	$response = array();
 	if (isset($_SESSION['user_id']) && !userIsConnectedTo($_POST['fairId'])) {
-		$fair = new Fair;
+		$fair = new Fair();
 		$fair->loadsimple($_POST['fairId'], 'id');
 		if ($fair->wasLoaded()) {
 			$sql = "INSERT INTO `fair_user_relation`(`fair`, `user`, `connected_time`) VALUES (?,?,?)";
@@ -1024,7 +1024,7 @@ if (isset($_POST['reserve_preliminary'])) {
 		$ex->set('fair', $pb->get('fair'));
 		$ex->set('position', $pb->get('position'));
 		$ex->set('commodity', $_POST['commodity']);
-		$ex->set('arranger_message', $_POST['arranger_message']);
+		$ex->set('arranger_message', $pb->get('arranger_message'));
 		$ex->set('edit_time', time());
 		$ex->set('clone', 0);
 		$ex->set('status', 1);
@@ -1120,7 +1120,7 @@ if (isset($_POST['book_preliminary'])) {
 		$ex->set('fair', $pb->get('fair'));
 		$ex->set('position', $pb->get('position'));
 		$ex->set('commodity', $_POST['commodity']);
-		$ex->set('arranger_message', $_POST['arranger_message']);
+		$ex->set('arranger_message', $pb->get('arranger_message'));
 		$ex->set('booking_time', $pb->get('booking_time'));
 		$ex->set('edit_time', time());
 		$ex->set('clone', 0);
@@ -1175,7 +1175,7 @@ if (isset($_POST['book_preliminary'])) {
 					$recipient = array($user->get('contact_email'), $user->get('name'));
 					/* UPDATED TO FIT MAILJET */
 					$mail_user = new Mail();
-					$mail_user->setTemplate('booking_approved_receipt');
+					$mail_user->setTemplate('preliminary_to_booking_receipt');
 					$mail_user->setFrom($from);
 					$mail_user->setRecipient($recipient);
 					/* Setting mail variables */

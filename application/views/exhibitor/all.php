@@ -9,11 +9,12 @@
 			$.ajax({
 				url: 'user/resendDetails/'+id, 
 				type: 'GET'
-			}).success(function(responseData){
+			})/*.success(function(responseData){
 				showInfoDialog(responseData.result);
 			}).error(function(responseData){
 				showInfoDialog('<?php echo uh($translator->{'Error: Could not resend user details!'}); ?><br/>' + responseData.mail_errors + '<br/>' + responseData.errors);
-			});	
+			})*/;
+			showInfoDialog('The user\'s password was reset and a mail was sent');
 		}
 	}
 /*

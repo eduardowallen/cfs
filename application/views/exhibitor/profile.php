@@ -158,12 +158,6 @@ h1 {
 					<div type="text" name="contact_email" id="contact_email"  ><?php echo $user->get('contact_email'); ?></div>
 				</div>
 
-<!--				<?php if(userLevel() > 3) :?>
-					<label for="customid"><?php echo $customer_nr_label;?></label>
-					<input type="text" name="customid" id="customid" value="<?php echo $user->get('customer_nr');?>" />
-					<button onclick="saveCustomId()" type="button"><?php echo $save_customer_id?></button>
-				<?php endif;?>-->
-
 			</div>
 		</div>
 	    <div role="tabpanel" class="tab-pane active" id="profile_presentation">

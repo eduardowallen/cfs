@@ -115,7 +115,7 @@ class AdministratorController extends Controller {
 				$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
 				$mail_user->setMailVar('event_website', $fair->get('website'));
 				$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-				$mail_user->setMailVar('invoice_no', $res['id']);
+				$mail_user->setMailVar('invoice_name', basename($invoice_file));
 				$mail_user->setMailVar('position_name', $res['posname']);
 				if ($comment)
 				$mail_user->setMailVar('comment', $comment);
@@ -4095,7 +4095,7 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 					}
 					$stmt2 = $this->db->prepare("UPDATE exhibitor SET status = 1 WHERE id = ?");
 					$stmt2->execute(array($exId));
-					$mailSetting = 'ReservationCreated';
+					$mailSetting = 'BookingCreated';
 					$mail_type = 'reservation';
 				}
 				$pos->save();

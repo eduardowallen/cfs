@@ -349,21 +349,21 @@ function makeUserOptions3($sel=0, $fair) {
 				<h3 class="standSpaceName"></h3>
 				<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue popupCloseDialogue"/>
 				<br />
-			<div class="column">
-				<div class="ssinfo"></div>
-			</div>
-			<div class="column">
-				<!-- Search field to find users -->
-				<label for="search_user_input"><?php echo uh($translator->{'Search exhibitor'}); ?></label>
-				<input type="text" style="width:25em;" name="search_user_input" id="search_user_input" title="<?php echo uh($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>"/>
-				<!-- Drop-down to choose users from -->
-				<label for="reserve_user_input"><?php echo uh($translator->{'Select Exhibitor'}); ?></label>
-				<select  style="width:25em;" name="reserve_user_input" id="reserve_user_input">
-					<?php echo makeUserOptions1(0, $fair); ?>
-				</select>
-				<label class="label_medium" for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
-				<textarea name="reserve_commodity_input" maxlength="200" class="commodity_big" id="reserve_commodity_input"></textarea>
-			</div>
+				<div class="column">
+					<div class="ssinfo"></div>
+				</div>
+				<div class="column">
+					<!-- Search field to find users -->
+					<label for="search_user_input"><?php echo uh($translator->{'Search exhibitor'}); ?></label>
+					<input type="text" style="width:25em;" name="search_user_input" id="search_user_input" title="<?php echo uh($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>"/>
+					<!-- Drop-down to choose users from -->
+					<label for="reserve_user_input"><?php echo uh($translator->{'Select Exhibitor'}); ?></label>
+					<select  style="width:25em;" name="reserve_user_input" id="reserve_user_input">
+						<?php echo makeUserOptions1(0, $fair); ?>
+					</select>
+					<label class="label_medium" for="reserve_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
+					<textarea name="reserve_commodity_input" maxlength="200" class="commodity_big" id="reserve_commodity_input"></textarea>
+				</div>
 
 			    		<!-- Div with table to choose category from -->
 				<label class="table_header" for="reserve_category_scrollbox"><?php echo uh($translator->{'Categories'}); ?> *</label>
@@ -446,6 +446,7 @@ function makeUserOptions3($sel=0, $fair) {
 			<?php echo uh($translator->{"There are no options to display"}); ?>
 			<br />
 			<?php } ?>
+			<input type="hidden" name="reserve_message_input" class="msg_to_organizer" id="reserve_message_input">
 					<!--  Articles  -->
 			<?php if ($fair->get('articles') && $available_articles >= 1 || $hasRights) { ?>
 				<label class="table_header" for="reserve_article_input"><?php echo uh($translator->{"Articles"}); ?></label>
@@ -535,7 +536,7 @@ function makeUserOptions3($sel=0, $fair) {
 					</div>
 				<input type="button" name="previous" class="previous bluebutton mediumbutton nomargin" value="<?php echo uh($translator->{'Previous'}); ?>" />
 				<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-				<input type="submit" name="submit" id="reserve_post" class="submit greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Submit booking'}); ?>" />
+				<input type="submit" name="submit" class="submit reserve_post greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Submit booking'}); ?>" />
 				
 			</fieldset>
 		</form>
@@ -564,47 +565,47 @@ function makeUserOptions3($sel=0, $fair) {
 				<h3 class="standSpaceName"></h3>
 				<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue popupCloseDialogue popupCloseDialogue"/>
 				<br />
-			<div class="column" style="padding-right:2em;">
-				<div class="ssinfo"></div>	
-			</div>		
-			<div class="column">
-				<label for="search_user_input"><?php echo uh($translator->{'Search exhibitor'}); ?></label>
-				<input type="text" style="width:25em;" name="search_user_input" id="search_user_input" title="<?php echo uh($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>"/>
-			  <!-- Drop-downlista för att välja användare att boka in -->	
-				<label for="book_user_input"><?php echo uh($translator->{'Select Exhibitor'}); ?></label>
-				<select  style="width:25em;" name="book_user_input" id="book_user_input">
-					<?php echo makeUserOptions1(0, $fair); ?>
-				</select>
-				<label class="label_medium" for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
-				<textarea name="book_commodity_input" maxlength="200" class="commodity_big" id="book_commodity_input"></textarea>
-			</div>
+				<div class="column" style="padding-right:2em;">
+					<div class="ssinfo"></div>	
+				</div>		
+				<div class="column">
+					<label for="search_user_input"><?php echo uh($translator->{'Search exhibitor'}); ?></label>
+					<input type="text" style="width:25em;" name="search_user_input" id="search_user_input" title="<?php echo uh($translator->{'While still having focus on the search field: press enter to insert the Exhibitors official commodity.'}); ?>"/>
+				  <!-- Drop-downlista för att välja användare att boka in -->	
+					<label for="book_user_input"><?php echo uh($translator->{'Select Exhibitor'}); ?></label>
+					<select  style="width:25em;" name="book_user_input" id="book_user_input">
+						<?php echo makeUserOptions1(0, $fair); ?>
+					</select>
+					<label class="label_medium" for="book_commodity_input"><?php echo uh($translator->{'Commodity'}); ?></label>
+					<textarea name="book_commodity_input" maxlength="200" class="commodity_big" id="book_commodity_input"></textarea>
+				</div>
 
-		    		<!-- Div för att välja kategori -->
-			<label class="table_header" for="book_category_scrollbox"><?php echo uh($translator->{'Categories'}); ?> *</label>
-			<div class="scrolltable-wrap" id="book_category_scrollbox_div">
-			<table class="std_table std_booking_table" id="book_category_scrollbox">
-				<thead>
-					<tr>
-						<th class="left"><?php echo uh($translator->{'Description'}); ?></th>
-						<th class="cfscheckbox" data-sorter="false"><?php echo uh($translator->{'Choose'}); ?></th>
-					</tr>
-				</thead>
-				<tbody>
-					<?php foreach($fair->get('categories') as $cat){ ?>
-					<tr>
-						<td class="left"><?php echo $cat->get('name') ?></td>
-						<td class="cfscheckbox">
-							<input type="checkbox" id="<?php echo $cat->get('id') ?>" value="<?php echo $cat->get('id') ?>" />
-							<label class="squaredFour" for="<?php echo $cat->get('id') ?>" />
-						</td>
-					</tr>
-					<?php } ?>
-				</tbody>
-			</table>
-			</div>	
-			<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-			<input type="button" class="book_first_step greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
-			<input type="button" name="next" class="book_review lastStep greenbutton mediumbutton nomargin floatright" value="<?php echo uh($translator->{'Go to summary'}); ?>" />
+			    		<!-- Div för att välja kategori -->
+				<label class="table_header" for="book_category_scrollbox"><?php echo uh($translator->{'Categories'}); ?> *</label>
+				<div class="scrolltable-wrap" id="book_category_scrollbox_div">
+					<table class="std_table std_booking_table" id="book_category_scrollbox">
+						<thead>
+							<tr>
+								<th class="left"><?php echo uh($translator->{'Description'}); ?></th>
+								<th class="cfscheckbox" data-sorter="false"><?php echo uh($translator->{'Choose'}); ?></th>
+							</tr>
+						</thead>
+						<tbody>
+							<?php foreach($fair->get('categories') as $cat){ ?>
+							<tr>
+								<td class="left"><?php echo $cat->get('name') ?></td>
+								<td class="cfscheckbox">
+									<input type="checkbox" id="<?php echo $cat->get('id') ?>" value="<?php echo $cat->get('id') ?>" />
+									<label class="squaredFour" for="<?php echo $cat->get('id') ?>" />
+								</td>
+							</tr>
+							<?php } ?>
+						</tbody>
+					</table>
+				</div>	
+				<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
+				<input type="button" id="book_first_step" class="greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
+				<input type="button" name="next" class="book_review lastStep greenbutton mediumbutton nomargin floatright" value="<?php echo uh($translator->{'Go to summary'}); ?>" />
 
 			</fieldset>
 			<fieldset>
@@ -660,6 +661,7 @@ function makeUserOptions3($sel=0, $fair) {
 			<?php echo uh($translator->{"There are no options to display"}); ?>
 			<br />
 			<?php } ?>
+			<input type="hidden" name="book_message_input" class="msg_to_organizer" id="book_message_input">
 					<!--  Artiklar  -->
 			<?php if ($fair->get('articles') && $available_articles >= 1 || $hasRights) { ?>
 				<label class="table_header" for="book_article_input"><?php echo uh($translator->{"Articles"}); ?></label>
@@ -715,7 +717,7 @@ function makeUserOptions3($sel=0, $fair) {
 				<h3 class="standSpaceName"></h3>
 				<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue popupCloseDialogue"/>
 				<br />
-				<div id="review_reserve_dialogue">
+				<div id="review_book_dialogue">
 					<br />
 					<label for="review_user" style="font-size:1.7em; display:inline;"><?php echo uh($translator->{'Exhibitor:'}); ?> </label>
 					<span style="font-size:1.7em;" id="review_user"></span>

@@ -49,7 +49,7 @@ class UserController extends Controller {
 		$users = array();
 		if ($res > 0) {
 			foreach ($res as $result) {
-				$u = new User;
+				$u = new User();
 				$u->load($result['id'], 'id');
 				$users[] = $u;
 			}
@@ -72,7 +72,7 @@ class UserController extends Controller {
 
 		if ($id != $_SESSION['user_id'] && userLevel() != 4) {
     
-			$user = new User;
+			$user = new User();
 			$user->load($id, 'id');
 
 			if ($user->wasLoaded()) {
@@ -212,17 +212,13 @@ class UserController extends Controller {
 			$mail->setMailVar('password', $password);
 			$mail->sendMessage();
         }
-
         $iid = $this->User->save();
-        
+
         if($iid > 0){
-        
           // Success
           $this->setNoTranslate('js_confirm', true);
           $this->setNoTranslate('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
-          
         } else {
-        
           // FAIL
           $this->setNoTranslate('js_confirm', true);
           $this->set('js_confirm_text', 'An error has occurred!'."\r\n".'Could not save user to database');
@@ -323,7 +319,7 @@ class UserController extends Controller {
 				$_SESSION['user_password_changed'] = $this->User->get('password_changed');
 
 				if ($fUrl != '') {
-					$fair = new Fair;
+					$fair = new Fair();
 					$fair->load($fUrl, 'url');
 					$_SESSION['user_fair'] = $fair->get('id');
 					$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
@@ -379,7 +375,7 @@ class UserController extends Controller {
 				//if ($days > 72) {
 				//	header("Location: ".BASE_URL."user/changePassword/remind");
 				//} else {
-				/*$fair = new Fair;
+				/*$fair = new Fair();
 				$fair->load($_SESSION['user_fair'], 'id');
 
 				if ($fair->wasLoaded()) {
@@ -721,7 +717,7 @@ class UserController extends Controller {
 			chmod(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'], 0775);
 		}
 				if (is_uploaded_file($_FILES['image']['tmp_name'])) {
-					$im = new ImageMagick;
+					$im = new ImageMagick();
 					$now = time();
 					array_map('unlink', glob(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/*'));
 					move_uploaded_file($_FILES['image']['tmp_name'], ROOT.'public/images/tmp/'.$now.'.png');
@@ -886,9 +882,6 @@ public function deletelogo() {
 		$this->set('error', $error);
 		$this->setNoTranslate('fair_url', $fairUrl);
 		$this->setNoTranslate('user', $this->User);
-		//$fair = new Fair($this->User->db);
-		//$fair->loadsimple($_SESSION['outside_fair_url'], 'url');
-		//$this->setNoTranslate('fair', $fair);
 	}
 
 	function confirm($user, $hash) {
@@ -1082,7 +1075,7 @@ public function deletelogo() {
 			$this->logout();
 			exit;
 
-		} //else {
+		} else {
 			$stmt_content = $this->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = ?");
 			$stmt_content->execute(array('user_terms', LANGUAGE));
 			$terms_row = $stmt_content->fetchObject();
@@ -1108,7 +1101,7 @@ public function deletelogo() {
 			$this->set('label_headline', 'Approve our User Terms');
 			$this->set('label_approve', 'Approve');
 			$this->set('label_decline', 'Decline');
-		//}
+		}
 	}
 	public function pub() {
 		setAuthLevel(3);

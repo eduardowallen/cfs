@@ -48,7 +48,6 @@ class FairController extends Controller {
 		$this->set('th_reserved', 'Reserved');
 		$this->set('th_available', 'Available spots');
 		$this->set('th_arranger_name', 'Organizer');
-		$this->set('th_arranger_cnr', 'Customer nr');
 		$this->set('th_fair', 'Name');
 		$this->set('th_organizer', 'Organizer');
 		$this->set('th_approved', 'Approved');
@@ -314,7 +313,7 @@ class FairController extends Controller {
 
 		$sql = "SELECT f.id, f.name, f.windowtitle, approved, modules, creation_time, page_views, f.event_start, f.event_stop, f.created_by,
 				COUNT(fmap.id) AS maps_cnt,
-				u.company AS arranger_name, u.customer_nr AS arranger_cnr,
+				u.company AS arranger_name,
 				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 2) AS booked_cnt,
 				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 1) AS reserved_cnt,
 				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id) AS total_cnt
@@ -1207,29 +1206,30 @@ class FairController extends Controller {
 			$this->set("heading", "Automatically send a mail:");
 			$this->set("ToMyself", "To myself");
 			$this->set("ToExhibitor", "To the Exhibitor");
-			$this->set("BookingCreated", "When I create a booking");
-			$this->set("BookingCancelled", "When I cancel a booking");
-			$this->set("ReservationCreated", "When I create a reservation");
-			$this->set("PreliminaryCreated", "When I recieve a request for stand");
-			$this->set("PreliminaryToBooking", "When I accept a request to booked (and paid)");
-			$this->set("PreliminaryToReservation", "When I accept a request to reservation");
-			$this->set("PreliminaryCancelled", "When I cancel a request for stand");
-			$this->set("RegistrationCreated", "When an exhibitor applies for a stand");
-			$this->set("RegistrationCancelled", "When I cancel an application for a stand");
+			$this->set("ToCurrentUser", "To the currently administrating user");
+			$this->set("BookingCreated", "When I create a booking or reservation");
+			$this->set("BookingEdited", "When I edit a booking or reservation");
+			$this->set("BookingCancelled", "When I cancel a booking or reservation");
+			$this->set("RecievePreliminaryBooking", "When I recieve a request for stand");
+			$this->set("AcceptPreliminaryBooking", "When I accept a request for stand");
+			$this->set("CancelPreliminaryBooking", "When I cancel a request for stand");
+			$this->set("RecieveRegistration", "When an exhibitor applies for stand");
+			$this->set("RegistrationCancelled", "When I cancel an application for stand");
+			$this->set("ReservationReminders", "When reminders are active for expiring reservations");
 			$this->set("save", "Save");
 
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			if (!is_object($mailSettings)) {
 				$mailSettings = new stdClass();
 				$mailSettings->BookingCreated = null;
+				$mailSettings->BookingEdited = null;
 				$mailSettings->BookingCancelled = null;
-				$mailSettings->ReservationCreated = null;
-				$mailSettings->PreliminaryCreated = null;
-				$mailSettings->PreliminaryToBooking = null;
-				$mailSettings->PreliminaryToReservation = null;
-				$mailSettings->PreliminaryCancelled = null;
-				$mailSettings->RegistrationCreated = null;
+				$mailSettings->RecievePreliminaryBooking = null;
+				$mailSettings->AcceptPreliminaryBooking = null;
+				$mailSettings->CancelPreliminaryBooking = null;
+				$mailSettings->RecieveRegistration = null;
 				$mailSettings->RegistrationCancelled = null;
+				$mailSettings->ReservationReminders = null;
 			}
 			$this->setNoTranslate("mailSettings", $mailSettings);
 			$this->setNoTranslate("id", $id);

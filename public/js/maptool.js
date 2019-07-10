@@ -785,7 +785,7 @@ maptool.pasteFairRegistration = function(e) {
 	$('.' + prefix + '_review').click(function() {
 		review(pasteOnPosition, prefix, 'map');
 	});
-	$('#' + prefix + '_post').click(function(e) {
+	$('.' + prefix + '_post').click(function(e) {
 		e.preventDefault();
 		var cats = [];
 		var options = [];
@@ -840,6 +840,7 @@ maptool.pasteFairRegistration = function(e) {
 		var dataString = prefix + 'Position=' + window.pasteOnPosition.id
 				   + '&commodity=' + encodeURIComponent($('#' + prefix + '_commodity_input').val())
 				   + '&arranger_message=' + encodeURIComponent($('#' + prefix + '_message_input').val())
+				   + '&arranger_message=' + copiedFairRegistration.arranger_message
 				   + '&fair=' + maptool.map.fair
 				   + catStr
 				   + optStr
@@ -1459,10 +1460,11 @@ maptool.markForApplication = function(positionObject) {
 				count = count+1;
 			}
 		});
+		/*
 		if (count == 0) {
 			$('#apply_option_scrollbox').css('border', '0.166em solid #f00');
 			return;
-		}
+		}*/
 		var optStr = '';
 		for (var j=0; j<options.length; j++) {
 			if(options[j] != undefined){
@@ -1695,7 +1697,7 @@ maptool.editBooking = function(positionObject) {
 	$('#' + prefix + '_message_input').val(positionObject.exhibitor.arranger_message);
 	$('#' + prefix + '_user_input option:selected').prop("selected", false);
 	$('#' + prefix + '_user_input option[value="' + positionObject.exhibitor.user + '"]').prop('selected', true);
-	$("#" + prefix + "_post").unbind("click");
+	$("." + prefix + "_post").unbind("click");
 	$('#' + prefix + '_position_form').on('keyup keypress', function(e) {
 	  var code = e.keyCode || e.which;
 	  if (code == 13) { 
@@ -1706,7 +1708,7 @@ maptool.editBooking = function(positionObject) {
 	$('.' + prefix + '_review').click(function() {
 		review(positionObject, prefix, 'map');
 	});
-	$("#" + prefix + "_post").click(function(e) {
+	$("." + prefix + "_post").click(function(e) {
 		e.preventDefault();
 		var cats = [];
 		var options = [];
@@ -1769,6 +1771,7 @@ maptool.editBooking = function(positionObject) {
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
 				   + '&arranger_message=' + $("#" + prefix + "_message_input").val()
+				   + '&arranger_message=' + positionObject.exhibitor.arranger_message
 				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
 				   + '&fair=' + maptool.map.fair
 				   + catStr
@@ -1842,7 +1845,11 @@ maptool.cancelBooking = function(positionObject) {
 }
 //Reserve open position
 maptool.reservePosition = function(positionObject) {
-		dialogue = '#reserve_position_form ';
+	dialogue = '#reserve_position_form ';
+	var sel = $('#reserve_user_input');
+	var opts_list = sel.find('option');
+	opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase() ? 1 : -1; });
+	sel.html(opts_list);
 	$('#reserve_category_scrollbox').css('border-color', '#000000');
 	$('#reserve_category_scrollbox > tbody > tr > td > input').prop('checked', false);
 	$('#reserve_option_scrollbox > tbody > tr > td > input').prop('checked', false);
@@ -1851,10 +1858,6 @@ maptool.reservePosition = function(positionObject) {
 	if (maptool.map.defaultreservationdate !== '01-01-1970 00:00') {
 		$("#reserve_expires_input").val(maptool.map.defaultreservationdate);
 	}
-		var sel = $('#reserve_user_input');
-		var opts_list = sel.find('option');
-		opts_list.sort(function(a, b) { return $(a).text().toLowerCase() > $(b).text().toLowerCase() ? 1 : -1; });
-		sel.html(opts_list);
 	if (maptool.map.userlevel < 2) {
 		$('#reserve_user_input, label[for="reserve_user_input"]').hide();
 	}
@@ -1898,14 +1901,14 @@ maptool.reservePosition = function(positionObject) {
 				}
 			});
 		}
-// Articles
-	for (var i = 0; i < articles.length; i++){		
-		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
-			if($(this).children().attr('id') == articles[i].article_id) {
-				$(this).children().val(articles[i].amount);
-			}
-		});
-	}
+	// Articles
+		for (var i = 0; i < articles.length; i++){
+			$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
+				if($(this).children().attr('id') == articles[i].article_id) {
+					$(this).children().val(articles[i].amount);
+				}
+			});
+		}
 	}
 	maptool.openForm('reserve_position_form');
 	positionDialogue('reserve_position_form');
@@ -1969,9 +1972,9 @@ maptool.reservePosition = function(positionObject) {
 		review(positionObject, 'reserve', 'map');
 	});
 
-	$('#reserve_post').unbind('keyup');
-	$('#reserve_post').unbind('keydown');
-	$('#reserve_post').unbind('click');
+	$('.reserve_post').unbind('keyup');
+	$('.reserve_post').unbind('keydown');
+	$('.reserve_post').unbind('click');
 
 	$('#reserve_position_form').on('keyup keypress', function(e) {
 	  var code = e.keyCode || e.which;
@@ -1981,7 +1984,7 @@ maptool.reservePosition = function(positionObject) {
 	  }
 	});
 
-	$("#reserve_post").click(function(e) {
+	$(".reserve_post").click(function(e) {
 		e.preventDefault();
 		var cats = [];
 		var options = [];
@@ -2009,10 +2012,10 @@ maptool.reservePosition = function(positionObject) {
 				count = count+1;
 			}
 		});
-		if (count == 0) {
+/*		if (count == 0) {
 			$('#reserve_option_scrollbox').css('border', '0.166em solid #f00');
 			return;
-		}
+		}*/
 		var optStr = '';
 		for (var j=0; j<options.length; j++) {
 			if(options[j] != undefined){
@@ -2060,7 +2063,7 @@ maptool.reservePosition = function(positionObject) {
 		var dataString = 'reservePosition=' + positionObject.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&arranger_message=' + encodeURIComponent($("#reserve_message_input").val())
-		         + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
+				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
 				   + '&fair=' + maptool.map.fair
 				   + catStr
 				   + optStr
@@ -2551,7 +2554,7 @@ maptool.bookPreliminaryBooking = function(position_data, prel_booking_data) {
 		}
 	});
 	$('.book_review').click(function() {
-		review(positionObject, 'book', 'map');
+		review(position_data, 'book', 'map');
 	});
 	$('.book_post').unbind('keyup');
 	$('.book_post').unbind('keydown');
@@ -2773,9 +2776,9 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 	$('.reserve_review').click(function() {
 		review(position_data, 'reserve', 'map');
 	});
-	$('#reserve_post').unbind('keyup');
-	$('#reserve_post').unbind('keydown');
-	$('#reserve_post').unbind('click');
+	$('.reserve_post').unbind('keyup');
+	$('.reserve_post').unbind('keydown');
+	$('.reserve_post').unbind('click');
 	$('#reserve_position_form').on('keyup keypress', function(e) {
 	  var code = e.keyCode || e.which;
 	  if (code == 13) { 
@@ -2783,7 +2786,7 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 	    return false;
 	  }
 	});	
-	$("#reserve_post").click(function(e) {
+	$(".reserve_post").click(function(e) {
 		e.preventDefault();
 		var cats = [];
 		var options = [];
@@ -2815,10 +2818,11 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 				count = count+1;
 			}
 		});
+		/*
 		if (count == 0) {
 			$('#reserve_option_scrollbox').css('border', '0.166em solid #f00');
 			return;
-		}
+		}*/
 		var optStr = '';
 		for (var j=0; j<options.length; j++) {
 			if(options[j] != undefined){
@@ -2865,6 +2869,7 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 		var dataString = 'reserve_preliminary=' + prel_booking_data.id
 				   + '&commodity=' + encodeURIComponent($("#reserve_commodity_input").val())
 				   + '&arranger_message=' + encodeURIComponent($("#reserve_message_input").val())
+				   + '&arranger_message=' + prel_booking_data.arranger_message
 				   + '&expires=' + encodeURIComponent($("#reserve_expires_input").val())
 				   + catStr
 				   + optStr
@@ -2873,6 +2878,7 @@ maptool.reservePreliminaryBooking = function(position_data, prel_booking_data) {
 		if (maptool.map.userlevel > 1) {
 			dataString += '&user=' + encodeURIComponent($("#reserve_user_input").val());
 		}
+		console.log(dataString);
 		if(catStr.length != 0){
 			$.ajax({
 				url: 'ajax/maptool.php',
