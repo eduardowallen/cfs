@@ -1,17 +1,9 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: trinaxrobin
- * Date: 2019-02-26
- * Time: 18:55
- */
-			
-require_once '/var/www/lib/classes/Mailjet.php';
 
-$subject = "Testar mailjet";
-$message = "Hejsan, <strong>vi testar</strong> nu lite mailjetintegration.";
-$recipients = 'eduardo.wallen@chartbooker.com';
+$to = array('email' => 'eduardo.wallen@chartbooker.com', 'name' => 'Eduardo Wallén');
+//$reply_to = array('email' => 'eduardo.wallen@hotmail.com', 'name' => 'Eduardo Wallén');
+$subject = 'Testmail';
+$template = 'send_invoice';
+$mj = new Mail('v3.1');
 
-$mj = new Mailjet('v3');
-
-$mj->sendMessage('email', 'test.server@chartbookerdemo.com', 'Chartbookerdemo', $subject, $message, $recipients);
+$mj->sendMessage('eduardo@chartbookerdemo.com', 'Eduardo Wallén', $to, '/var/www/public/invoices/fairs/141/exhibitors/16975/Capeco-A14-55152.pdf');

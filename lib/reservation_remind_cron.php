@@ -3,8 +3,6 @@
 if (!defined('ROOT')) {
 	define('ROOT', dirname(dirname(__FILE__)).'/');
 	session_start();
-
-
 	require_once ROOT.'config/config.php';
 	require_once ROOT.'lib/functions.php';
 }
@@ -15,17 +13,13 @@ if (!function_exists('cb_autoload')) {
 		if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
 			require_once(ROOT.'lib/classes/'.$className.'.php');
 			return true;
-
 		} else if (file_exists(ROOT.'application/controllers/'.$className.'.php')) {
 			require_once(ROOT.'application/controllers/'.$className.'.php');
 			return true;
-
 		} else if (file_exists(ROOT.'application/models/'.$className.'.php')) {
 			require_once(ROOT.'application/models/'.$className.'.php');
 			return true;
-		
 		}
-	  
 	  return false;
 	}
 }
@@ -36,7 +30,7 @@ if (!defined('LANGUAGE')) {
 
 $globalDB = new Database;
 global $globalDB;
-
+/*
 // Cron job logic starts here
 
 $statement = $globalDB->prepare("SELECT fmp.id, 
@@ -64,6 +58,7 @@ $statement = $globalDB->prepare("SELECT fmp.id,
 							HAVING diff > 0 AND (diff = reminder_day1)");
 
 $statement->execute(array(date('Y-m-d')));
+
 $expiring_positions = $statement->fetchAll(PDO::FETCH_CLASS);
 
 foreach ($expiring_positions as $position) {
@@ -81,63 +76,58 @@ foreach ($expiring_positions as $position) {
 
 	if (is_array($mailSettings->reservationReminders)) {
 
-			$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
-			$from = array($email => $fair->get("windowtitle"));
-
-			if($fair->get('contact_name')) {
-				$from = array($email => $fair->get('contact_name'));
-			}
+		$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("windowtitle"));
 
 		if (in_array("0", $mailSettings->reservationReminders)) {
-			// Send mail to organizer
-			$recipients = array($position->organizer_email => $position->organizer_email);
+			/* Prepare to send the mail */
+			/*
+			$recipient = array($position->organizer_email => $position->organizer_email);
 			if (defined('TESTSERV')) {
-				$recipients = array('eduardo.wallen@chartbooker.com' => 'eduardo.wallen@chartbooker.com');
+				$recipient = array('eduardo.wallen@chartbooker.com' => 'eduardo.wallen@chartbooker.com');
 			}
-				$mail = new Mail();
-				$mail->setTemplate('stand_place_remind_org1');
-				$mail->setPlainTemplate('stand_place_remind_org1');
-				$mail->setFrom($from);
-				$mail->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-				$mail->setRecipients($recipients);
-				$mail->setMailVar('reminder_note', $reminder_note);
-				$mail->setMailVar('event_name', $fair->get('windowtitle'));
-				$mail->setMailVar('event_email', $fair->get('contact_email'));
-				$mail->setMailVar('event_phone', $fair->get('contact_phone'));
-				$mail->setMailVar('event_contact', $fair->get('contact_name'));
-				$mail->setMailVar('event_website', $fair->get('website'));
-				$mail->setMailVar('event_url', BASE_URL . $position->url);
-				$mail->setMailVar('exhibitor_name', $position->user_name);
-				$mail->setMailVar('exhibitor_company', $position->user_company);
-				$mail->setMailVar('position_name', $position->position_name);
-				$mail->setMailVar('expirationdate', $position->expires);
-				$mail->send();
-				//$mail->setMailVar('days_until_expiration', $position->diff);
+			/* UPDATED TO FIT MAILJET */
+			/*
+			$mail = new Mail();
+			$mail->setTemplate('stand_place_remind_org1');
+			$mail->setFrom($from);
+			$mail->setRecipient($recipient);
+			/* Setting mail variables */
+			/*
+			$mail->setMailVar('reminder_note', $reminder_note);
+			$mail->setMailVar('event_name', $fair->get('windowtitle'));
+			$mail->setMailVar('event_email', $fair->get('contact_email'));
+			$mail->setMailVar('event_phone', $fair->get('contact_phone'));
+			$mail->setMailVar('event_contact', $fair->get('contact_name'));
+			$mail->setMailVar('event_website', $fair->get('website'));
+			$mail->setMailVar('event_url', BASE_URL . $position->url);
+			$mail->setMailVar('exhibitor_company', $position->user_company);
+			$mail->setMailVar('position_name', $position->position_name);
+			$mail->setMailVar('expirationdate', $position->expires);
+			$mail->sendMessage();
+			//$mail->setMailVar('days_until_expiration', $position->diff);
 		}
 
 		if (in_array("1", $mailSettings->reservationReminders)) {
 
 			// Send mail to exhibitor
-			$recipients = array($position->exhibitor_email => $position->exhibitor_email);
+			$recipient = array($position->exhibitor_email, $position->exhibitor_email);
 			if (defined('TESTSERV')) {
-				$recipients = array('eduardo.wallen@chartbooker.com' => 'eduardo.wallen@chartbooker.com');
+				$recipient = array('eduardo.wallen@chartbooker.com', 'eduardo.wallen@chartbooker.com');
 			}
 				$mail = new Mail();
 				$mail->setTemplate('stand_place_remind1');
-				$mail->setPlainTemplate('stand_place_remind1');
 				$mail->setFrom($from);
-				$mail->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
-				$mail->setRecipients($recipients);
+				$mail->setRecipient($recipient);
 				$mail->setMailVar('reminder_note', $reminder_note);
 				$mail->setMailVar('event_name', $fair->get('windowtitle'));
 				$mail->setMailVar('event_url', BASE_URL . $position->url);
-				$mail->setMailVar('exhibitor_name', $position->user_name);
 				$mail->setMailVar('exhibitor_company_name', $position->user_company);
 				$mail->setMailVar('position_name', $position->position_name);
 				$mail->setMailVar('expirationdate', $position->expires);
-				$mail->send();
+				$mail->sendMessage();
 				//$mail->setMailVar('days_until_expiration', $position->diff);
 		}
 	}
 }
+*/
 ?>

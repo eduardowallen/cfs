@@ -12,7 +12,6 @@
 						<th><?php echo uh($label_fairname); ?></th>
 						<th><?php echo uh($label_closing_date); ?></th>
 						<th><?php echo uh($label_homepage); ?></th>
-						<!--<th><?php echo uh($label_bookings); ?></th>-->
 						<th><?php echo uh($label_registration); ?></th>
 						<th data-sorter="false"><?php echo uh($label_go_to_event); ?></th>
 					</tr>
@@ -27,7 +26,6 @@
 								echo '<a href="' . uh($fair->website) . '" target="_blank"><img src="images/icons/website.png" class="icon_img" alt="' . uh($fair->website) . '" title="' . uh($fair->website) . '"></a>';
 							}
 						?></td>
-						<!--<td><?php echo $fair->cnt_exhibitors + $fair->cnt_prel_bookings; ?></td>-->
 						<td><?php echo ($fair->hidden ? $label_hidden : $label_open); ?></td>
 						<td>
 							<a href="<?php echo $fair->url; ?>" target="_blank" title="<?php echo uh($label_go_to_event); ?>">

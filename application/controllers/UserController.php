@@ -49,7 +49,7 @@ class UserController extends Controller {
 		$users = array();
 		if ($res > 0) {
 			foreach ($res as $result) {
-				$u = new User;
+				$u = new User();
 				$u->load($result['id'], 'id');
 				$users[] = $u;
 			}
@@ -72,7 +72,7 @@ class UserController extends Controller {
 
 		if ($id != $_SESSION['user_id'] && userLevel() != 4) {
     
-			$user = new User;
+			$user = new User();
 			$user->load($id, 'id');
 
 			if ($user->wasLoaded()) {
@@ -193,79 +193,32 @@ class UserController extends Controller {
             case 2: $lvl = 'Administrator'; break;
             default: $lvl = 'Exhibitor'; break;
           endswitch;
-
-			$email = EMAIL_FROM_ADDRESS;
-			$from = array($email => EMAIL_FROM_NAME);
-
-			$recipients = array($_POST['contact_email'] => $_POST['name']);
+		  	/* Preparing to send the mail */
+			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+			$recipient = array($_POST['contact_email'], $_POST['name']);
+			/* UPDATED TO FIT MAILJET */
+			$mail = new Mail();
 			if (userLevel() > 1 && $level != 0) {
-				$me = new User;
-				$me->load($_SESSION['user_id'], 'id');
-
-				try {
-					$mail = new Mail();
-					$mail->setTemplate('new_account');
-					$mail->setPlainTemplate('new_account');
-					$mail->setFrom($from);
-					$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-					$mail->setRecipients($recipients);
-					$mail->setMailvar('exhibitor_name', $_POST['name']);
-					$mail->setMailVar('alias', $_POST['alias']);
-					$mail->setMailVar('password', $password);
-					$mail->setMailVar('accesslevel', $this->translate->{$lvl});
-					//$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-					//$mail->setMailVar('creator_name', $me->get('name'));
-					if(!$mail->send()) {
-						$errors[] = $_POST['company'];
-					}
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $_POST['company'];
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $_POST['company'];
-					$mail_errors[] = $ex->getMessage();
-				}
+				$mail->setTemplate('new_account');
+				$mail->setMailVar('accesslevel', $this->translate->{$lvl});
 			} else {
-				try {
-					$mail = new Mail();
-					$mail->setTemplate('welcome');
-					$mail->setPlainTemplate('welcome');
-					$mail->setFrom($from);
-					$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-					$mail->setRecipients($recipients);
-					$mail->setMailvar('user_name', $_POST['name']);
-					$mail->setMailVar('alias', $_POST['alias']);
-					$mail->setMailVar('password', $password);
-					$mail->setMailVar('accesslevel', $lvl);
-					if(!$mail->send()) {
-						$errors[] = $_POST['company'];
-					}
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $_POST['company'];
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $_POST['company'];
-					$mail_errors[] = $ex->getMessage();
-				}
+				$mail->setTemplate('new_exhibitor');
 			}
+			$mail->setFrom($from);
+			$mail->setRecipient($recipient);
+			/* Setting mail variables */
+			$mail->setMailVar('exhibitor_company', $_POST['company']);
+			$mail->setMailVar('username', $_POST['alias']);
+			$mail->setMailVar('password', $password);
+			$mail->sendMessage();
         }
-
         $iid = $this->User->save();
-        
+
         if($iid > 0){
-        
           // Success
           $this->setNoTranslate('js_confirm', true);
           $this->setNoTranslate('js_confirm_text', 'The user '.$_POST['name'].' have been saved!');
-          
         } else {
-        
           // FAIL
           $this->setNoTranslate('js_confirm', true);
           $this->set('js_confirm_text', 'An error has occurred!'."\r\n".'Could not save user to database');
@@ -366,7 +319,7 @@ class UserController extends Controller {
 				$_SESSION['user_password_changed'] = $this->User->get('password_changed');
 
 				if ($fUrl != '') {
-					$fair = new Fair;
+					$fair = new Fair();
 					$fair->load($fUrl, 'url');
 					$_SESSION['user_fair'] = $fair->get('id');
 					$_SESSION['fair_windowtitle'] = $fair->get('windowtitle');
@@ -422,7 +375,7 @@ class UserController extends Controller {
 				//if ($days > 72) {
 				//	header("Location: ".BASE_URL."user/changePassword/remind");
 				//} else {
-				/*$fair = new Fair;
+				/*$fair = new Fair();
 				$fair->load($_SESSION['user_fair'], 'id');
 
 				if ($fair->wasLoaded()) {
@@ -526,61 +479,31 @@ class UserController extends Controller {
 		$this->set('save_label', 'Save');
 		$this->set('pass_standard', 'Your password has to be at least 8 characters long, contain at least 2 numeric characters and 1 capital letter.');
 		$this->setNoTranslate('info', '');
-/*
-		if ($info == 'remind')
-			$this->set('info', "It has been more than a month since you last changed your password. It is recommended that you change it now.");
-		else
-			$this->setNoTranslate('info', '');*/
-			
-	$time_now = date('d-m-Y H:i');
-	
+
 		if (isset($_POST['save'])) {
-
 			if ($_POST['password'] == $_POST['password_repeat']) {
-
 				$this->User->load($_SESSION['user_id'], 'id');
-
 				if ($this->User->wasLoaded()) {
-
 					if ($this->User->login($this->User->get('alias'), $_POST['password_old'])) {
-
 						$this->User->setPassword($_POST['password']);
 						$this->User->save();
 						$this->set('ok', 'Password changed');
-						$email = EMAIL_FROM_ADDRESS;
-						$from = array($email => EMAIL_FROM_NAME);
-
-						$recipients = array($this->User->get('contact_email') => $this->User->get('name'));
-						try {
-							$mail = new Mail();
-							$mail->setTemplate('password_changed');
-							$mail->setPlainTemplate('password_changed');
-							$mail->setFrom($from);
-							$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-							$mail->setRecipients($recipients);
-							$mail->setMailVar('user_name', $this->User->get('name'));
-							$mail->setMailVar('edit_time', $time_now);
-							if(!$mail->send()) {
-								$errors[] = $this->User->get('email');
-							} else {
-								$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
-							}
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $this->User->get('email');
-							$mail_errors[] = $ex->getMessage();
-
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $this->User->get('email');
-							$mail_errors[] = $ex->getMessage();
-						}
-
+						/* Preparing to send the mail */
+						if ($this->User->get('contact_email') == '')
+						$recipient = array($this->User->get('email'), $this->User->get('name'));
+						else
+						$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
+						/* UPDATED TO FIT MAILJET */
+						$mail = new Mail();
+						$mail->setRecipient($recipient);
+						$mail->setTemplate('password_changed');
+						/* Setting mail variables */
+						$mail->setMailVar('exhibitor_company', $this->User->get('name'));
+						$mail->sendMessage();
 					} else {
 						$this->set('error', 'Your current password was wrong.');
 					}
 				}
-
 			} else {
 				$this->set('error', 'The passwords did not match.');
 			}
@@ -591,149 +514,64 @@ class UserController extends Controller {
 
 		$this->setNoTranslate('error', '');
 		$this->setNoTranslate('ok', '');
-		/*
-		if ($action == 'confirm') {
-			$this->User->load($param1, 'id');
-			if ($this->User->wasLoaded()) {
-				//confirm hash is correct
-				if (md5($this->User->get('email').BASE_URL.$this->User->get('id')) == $param2) {
-					if (time() - $param3 < 60*60) {
-						$arr = array_merge(range(0, 9), range('a', 'z'), range('A', 'Z'));
-						shuffle($arr);
-						$str = substr(implode('', $arr), 0, 13);
-						$email = EMAIL_FROM_ADDRESS;
-						$from = array($email => EMAIL_FROM_NAME);
-
-						$recipients = array($this->User->get('email') => $this->User->get('email'));
-						$this->User->setPassword($str);
-						$this->User->save();
-						$this->setNoTranslate('new_pass', $str);
-
-						try {
-							$mail = new Mail();
-							$mail->setTemplate('password_reset');
-							$mail->setPlainTemplate('password_reset');
-							$mail->setFrom($from);
-							$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-							$mail->setRecipients($recipients);
-							$mail->setMailVar('alias', $this->User->get('alias'));
-							$mail->setMailVar('password', $str);
-							$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-							if(!$mail->send()) {
-								$errors[] = $this->User->get('email');
-							} else {
-								$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
-							}
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $this->User->get('email');
-							$mail_errors[] = $ex->getMessage();
-
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $this->User->get('email');
-							$mail_errors[] = $ex->getMessage();
-						}
-
-					} else {
-						die('timeout');
-					}
-				} else {
-					die('hash mismatch');
-				}
-			} else {
-				die('user not found');
-			}
-		}
-		*/
 		if (isset($_POST['send'])) {
 
-			$email = EMAIL_FROM_ADDRESS;
-			$from = array($email => EMAIL_FROM_NAME);
+			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
 
 			$this->User->load($_POST['user'], 'alias');
 			if ($this->User->wasLoaded()) {
-				$recipients = array($this->User->get('email') => $this->User->get('name'));
+				/* Preparing to send the mail */
+				if ($this->User->get('contact_email') == '')
+				$recipient = array($this->User->get('email'), $this->User->get('name'));
+				else
+				$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
 				$pass = md5(date('YmdHis'));
 				$pass = substr($pass, -30, 6);
 				$this->User->setPassword($pass);
 				$this->User->save();
-
-				try {
-					$mail = new Mail();
-					$mail->setTemplate('password_reset');
-					$mail->setPlainTemplate('password_reset');
-					$mail->setFrom($from);
-					$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-					$mail->setRecipients($recipients);
-					$mail->setMailVar('alias', $this->User->alias);
-					$mail->setMailVar('password', $pass);
-					$mail->setMailVar('user_name', $this->User->name);
-					if(!$mail->send()) {
-						$errors[] = $this->User->get('email');
-					} else {
-						$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
-					}
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $this->User->get('email');
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $this->User->get('email');
-					$mail_errors[] = $ex->getMessage();
-				}
+				/* UPDATED TO FIT MAILJET */
+				$mail = new Mail();
+				$mail->setTemplate('resend_details');
+				$mail->setFrom($from);
+				$mail->setRecipient($recipient);
+				/* Setting mail variables */
+				$mail->setMailVar('username', $this->User->alias);
+				$mail->setMailVar('password', $pass);
+				$mail->setMailVar('exhibitor_company', $this->User->name);
+				$mail->sendMessage();
+				$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
 
 				$_SESSION['m'] = $this->User->get('email');
 				header('Location: '.BASE_URL.'user/login/ok');
 
 			} else {
-
 				$this->User->load($_POST['user'], 'email');
-				$recipients = array($this->User->get('email') => $this->User->get('name'));
+				/* Preparing to send the mail */
 				if ($this->User->wasLoaded()) {
 					$pass = md5(date('YmdHis'));
 					$pass = substr($pass, -30, 6);
 					$this->User->setPassword($pass);
 					$this->User->save();
-
-					try {
-						$mail = new Mail();
-						$mail->setTemplate('password_reset');
-						$mail->setPlainTemplate('password_reset');
-						$mail->setFrom($from);
-						$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-						$mail->setRecipients($recipients);
-						$mail->setMailVar('alias', $this->User->alias);
-						$mail->setMailVar('password', $pass);
-						$mail->setMailVar('user_name', $this->User->name);
-						if(!$mail->send()) {
-							$errors[] = $this->User->get('email');
-						} else {
-							$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
-						}
-					} catch(Swift_RfcComplianceException $ex) {
-						// Felaktig epost-adress
-						$errors[] = $this->User->get('email');
-						$mail_errors[] = $ex->getMessage();
-
-					} catch(Exception $ex) {
-						// Okänt fel
-						$errors[] = $this->User->get('email');
-						$mail_errors[] = $ex->getMessage();
-					}
-
+					/* UPDATED TO FIT MAILJET */
+					$mail = new Mail();
+					$mail->setTemplate('resend_details');
+					$mail->setFrom($from);
+					$mail->setRecipient($recipient);
+					/* Setting mail variables */
+					$mail->setMailVar('username', $this->User->alias);
+					$mail->setMailVar('password', $pass);
+					$mail->setMailVar('exhibitor_company', $this->User->name);
+					$mail->sendMessage();
+					$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
 					$_SESSION['m'] = $this->User->get('email');
 					header('Location: '.BASE_URL.'user/login/ok');
-
 				} else {
 					header('Location: '.BASE_URL.'user/login/err');
 				}
 			}
 		}
 
-		// If referring page sets "backref" action, the "Go back" button will refer back to all $param#
+		/* If referring page sets "backref" action, the "Go back" button will refer back to all $param# */
 		if ($action == 'backref') {
 			$this->setNoTranslate('go_back_url', $param1 . ($param2 != '' ? '/' . $param2 : '') . ($param3 != '' ? '/' . $param3 : ''));
 		} else {
@@ -749,50 +587,7 @@ class UserController extends Controller {
 		$this->set('line1', 'Write your username or e-mail adress in the field below.');
 		$this->set('line2', 'An e-mail will then be sent to you containing your account\'s username and a new password.');
 	}
-/*
-	function forgotUsername() {
-		setAuthLevel(0);
 
-		if (isset($_POST['remindme'])) {
-			$this->User->load($_POST['email'], 'email');
-			if ($this->User->wasLoaded()) {
-				$email = EMAIL_FROM_ADDRESS;
-				$from = array($email => EMAIL_FROM_NAME);
-				$recipients = array($this->User->get('email') => $this->User->get('email'));
-				try {
-					$mail = new Mail();
-					$mail->setTemplate('username_remind');
-					$mail->setPlainTemplate('username_remind');
-					$mail->setFrom($from);
-					$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-					$mail->setRecipients($recipients);
-					$mail->setMailVar('alias', $this->User->get('alias'));
-					if(!$mail->send()) {
-						$errors[] = $_POST['email'];
-					} else {
-						$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
-					}
-				} catch(Swift_RfcComplianceException $ex) {
-					// Felaktig epost-adress
-					$errors[] = $_POST['email'];
-					$mail_errors[] = $ex->getMessage();
-
-				} catch(Exception $ex) {
-					// Okänt fel
-					$errors[] = $_POST['email'];
-					$mail_errors[] = $ex->getMessage();
-				}
-			} else {
-				$this->setNoTranslate('error', true);
-				$this->set('usermessage', 'Sorry, we do not recognize that e-mail address.');
-			}
-		}
-
-		$this->set('email', 'E-mail');
-		$this->set('remindme', 'Remind me');
-		$this->set('headline', 'Request username reminder');
-	}
-*/
 	function accountSettings() {
   
 		setAuthLevel(1);
@@ -814,7 +609,7 @@ class UserController extends Controller {
 			}
 			if (userLevel() != 2) {
       
-        // Company section
+        		/* Company section */
 				$this->User->set('orgnr', $_POST['orgnr']);
 				$this->User->set('company', $_POST['company']);
 				$this->User->set('commodity', $_POST['commodity']);
@@ -822,16 +617,16 @@ class UserController extends Controller {
 				$this->User->set('zipcode', $_POST['zipcode']);
 				$this->User->set('city', $_POST['city']);
 				$this->User->set('country', $_POST['country']);
-        // Phone1 and Phone2 are handled above
+        		/* Phone1 and Phone2 are handled above */
 
-        // Email is handled above
+        		/* Email is handled above */
 				$this->User->set('website', $_POST['website']);
 				$this->User->set('facebook', $_POST['facebook']);
 				$this->User->set('twitter', $_POST['twitter']);
 				$this->User->set('google_plus', $_POST['google_plus']);
 				$this->User->set('youtube', $_POST['youtube']);
         
-        // Billing address section
+        		/* Billing address section */
 				$this->User->set('invoice_company', $_POST['invoice_company']);
 				$this->User->set('invoice_address', $_POST['invoice_address']);
 				$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
@@ -840,9 +635,9 @@ class UserController extends Controller {
 				$this->User->set('invoice_email', $_POST['invoice_email']);
 				$this->User->set('presentation', $_POST['presentation']);
 
-        // Contact section
-        // Alias field is disabled and should not be changed
-        // Name and Contact_Phone are handled above
+				/* Contact section
+				Alias field is disabled and should not be changed
+				Name and Contact_Phone are handled above */
 				$this->User->set('contact_phone2', $_POST['phone4']);
 				$this->User->set('contact_email', $_POST['contact_email']);
 			}
@@ -922,7 +717,7 @@ class UserController extends Controller {
 			chmod(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'], 0775);
 		}
 				if (is_uploaded_file($_FILES['image']['tmp_name'])) {
-					$im = new ImageMagick;
+					$im = new ImageMagick();
 					$now = time();
 					array_map('unlink', glob(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/*'));
 					move_uploaded_file($_FILES['image']['tmp_name'], ROOT.'public/images/tmp/'.$now.'.png');
@@ -973,7 +768,7 @@ public function deletelogo() {
 
 		if (isset($_POST['save'])) {
 
-      // Company section
+      		/* Company section */
 			$this->User->set('orgnr', $_POST['orgnr']);
 			$this->User->set('company', $_POST['company']);
 			$this->User->set('commodity', $_POST['commodity']);
@@ -989,10 +784,10 @@ public function deletelogo() {
 			$this->User->set('twitter', $_POST['twitter']);
 			$this->User->set('google_plus', $_POST['google_plus']);
 			$this->User->set('youtube', $_POST['youtube']);
-      // For popups, the presentation is located directly below the first section, not the second
+      		/* For popups, the presentation is located directly below the first section, not the second */
 			$this->User->set('presentation', $_POST['presentation']);
       
-      // Billing address section
+      		/* Billing address section */
 			$this->User->set('invoice_company', $_POST['invoice_company']);
 			$this->User->set('invoice_address', $_POST['invoice_address']);
 			$this->User->set('invoice_zipcode', $_POST['invoice_zipcode']);
@@ -1000,7 +795,7 @@ public function deletelogo() {
 			$this->User->set('invoice_country', $_POST['invoice_country']);
 			$this->User->set('invoice_email', $_POST['invoice_email']);
       
-      // Contact section
+      		/* Contact section */
 			$this->User->set('alias', $_POST['alias']);
 			$this->User->set('name', $_POST['name']);
 			$this->User->set('contact_phone', $_POST['phone3']);
@@ -1011,17 +806,11 @@ public function deletelogo() {
 			$this->User->set('locked', 0);
 
 			if ($this->User->aliasExists()) {
-      
 				$error.= 'The username already exists in our system.';
-        
 			} else if ($this->User->emailExists()) {
-      
 				$error.= 'The email address already exists in our system.';
-        
 			} else if (!$this->validAlias($_POST["alias"])) {
-
 				$error.= 'The username can only consist of numbers and lowercase letters.';
-				
 			} else {
       
 				if (strlen($_POST['alias']) > 3) {
@@ -1029,52 +818,25 @@ public function deletelogo() {
 
 						$this->User->setPassword($_POST['password']);
 						$userId = $this->User->save();
-						//$hash = md5($this->User->get('email').BASE_URL.$userId);
-						//$url = BASE_URL.'user/confirm/'.$userId.'/'.$hash;
 
-          				try {
-          					/*
-							$email = EMAIL_FROM_ADDRESS;
-							$from = array($email => EMAIL_FROM_NAME);
-							$recipients = array($this->User->get('email') => $this->User->get('email'));
-							$mail = new Mail();
-							$mail->setTemplate('confirm_mail');
-							$mail->setFrom($from);
-							$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-							$mail->setRecipients($recipients);
-							$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-							$mail->setMailVar('event_url', $url);
-							*/
-							$email = EMAIL_FROM_ADDRESS;
-							$from = array($email => EMAIL_FROM_NAME);
-							$recipients = array($this->User->get('email') => $this->User->get('email'));
-							$mail = new Mail();
-							$mail->setTemplate('activate_welcome');
-							$mail->setPlainTemplate('activate_welcome');
-							$mail->setFrom($from);
-							$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-							$mail->setRecipients($recipients);
-							$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-							$mail->setMailVar('alias', $this->User->get('alias'));
-							$mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
-							$mail->setMailVar('event_url', BASE_URL.$fairUrl);
-							if(!$mail->send()) {
-								$errors[] = $this->User->get('company');
-							}
-
-						} catch(Swift_RfcComplianceException $ex) {
-							// Felaktig epost-adress
-							$errors[] = $this->User->get('company');
-							$mail_errors[] = $ex->getMessage();
-
-						} catch(Exception $ex) {
-							// Okänt fel
-							$errors[] = $this->User->get('company');
-							$mail_errors[] = $ex->getMessage();
-						}
+						$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+						/* Preparing to send the mail */
+						if ($this->User->get('contact_email') == '')
+						$recipient = array($this->User->get('email'), $this->User->get('name'));
+						else
+						$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
+						/* UPDATED TO FIT MAILJET */
+						$mail = new Mail();
+						$mail->setTemplate('new_exhibitor');
+						$mail->setFrom($from);
+						$mail->setRecipient($recipient);
+						/* Setting mail variables */
+						$mail->setMailVar('exhibitor_company', $this->User->get('name'));
+						$mail->setMailVar('username', $this->User->get('alias'));
+						$mail->setMailVar('event_url', BASE_URL.$fairUrl);
+						$mail->sendMessage();
 
 						if ($fairUrl != '') {
-            
 							require_once ROOT.'application/models/Exhibitor.php';
 							require_once ROOT.'application/models/ExhibitorCategory.php';
 							require_once ROOT.'application/models/Fair.php';
@@ -1084,35 +846,23 @@ public function deletelogo() {
 							require_once ROOT.'application/models/FairUserRelation.php';
 							require_once ROOT.'application/models/FairExtraOption.php';
 							require_once ROOT.'application/models/FairArticle.php';
-              
-							$fair = new Fair;
+
+							$fair = new Fair();
 							$fair->load($fairUrl, 'url');
-              
 							if ($fair->wasLoaded()) {
-              
-								$fur = new FairUserRelation;
+								$fur = new FairUserRelation();
 								$fur->set('user', $userId);
 								$fur->set('fair', $fair->get('id'));
 								$fur->set('connected_time', time());
 								$fur->save();
 							}
-
 				            $this->setNoTranslate('noView', true);
 				            $_SESSION['m'] = $this->User->get('email');
-							if ($errors) {
-								$_SESSION['mail_errors'] = $mail_errors;
-								$_SESSION['errors'] = $errors;
-							}
 							header('Location: '.BASE_URL.'user/login/'.$fairUrl.'/new');
 				            exit;
-
 						} else {
 				            $this->setNoTranslate('noView', true);
 				            $_SESSION['m'] = $this->User->get('email');
-							if ($errors) {
-								$_SESSION['mail_errors'] = $mail_errors;
-								$_SESSION['errors'] = $errors;
-							}
 							header('Location: '.BASE_URL.'user/login/nofair/new');
 				            exit;
 						}
@@ -1132,9 +882,6 @@ public function deletelogo() {
 		$this->set('error', $error);
 		$this->setNoTranslate('fair_url', $fairUrl);
 		$this->setNoTranslate('user', $this->User);
-		//$fair = new Fair($this->User->db);
-		//$fair->loadsimple($_SESSION['outside_fair_url'], 'url');
-		//$this->setNoTranslate('fair', $fair);
 	}
 
 	function confirm($user, $hash) {
@@ -1151,35 +898,26 @@ public function deletelogo() {
         $stmt->execute(array($this->User->get('id')));
         $fair = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        $recipients = array($this->User->get('email') => $this->User->get('name'));
-		$email = EMAIL_FROM_ADDRESS;
-		$from = array($email => EMAIL_FROM_NAME);
-		try {
-			$mail = new Mail();
-			$mail->setTemplate('activate_welcome');
-			$mail->setPlainTemplate('activate_welcome');
-			$mail->setFrom($from);
-			$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-			$mail->setRecipients($recipients);
-			$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-			$mail->setMailVar('alias', $this->User->get('alias'));
-			$mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
-			$mail->setMailVar('event_url', BASE_URL.$fair['url']);
-			if(!$mail->send()) {
-				$errors[] = $this->User->get('email');
-			} else {
-				$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
-			}
-		} catch(Swift_RfcComplianceException $ex) {
-			// Felaktig epost-adress
-			$errors[] = $this->User->get('email');
-			$mail_errors[] = $ex->getMessage();
+		/* Preparing to send the mail */
+		if ($this->User->get('contact_email') == '')
+		$recipient = array($this->User->get('email'), $this->User->get('name'));
+		else
+		$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
+		$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+		/* UPDATED TO FIT MAILJET */
+		$mail = new Mail();
+		$mail->setTemplate('new_exhibitor');
+		$mail->setFrom($from);
+		$mail->setRecipient($recipient);
+		/* Setting mail variables */
+		$mail->setMailVar('exhibitor_company', $this->User->get('name'));
+		$mail->setMailVar('username', $this->User->get('alias'));
+		$mail->setMailVar('accesslevel', accessLevelToText($this->User->get('level')));
+		$mail->setMailVar('event_url', BASE_URL.$fair['url']);
+		$mail->sendMessage();
 
-		} catch(Exception $ex) {
-			// Okänt fel
-			$errors[] = $this->User->get('email');
-			$mail_errors[] = $ex->getMessage();
-		}
+		$this->set('usermessage', 'An e-mail has been sent to the provided e-mail address.');
+
         // Log the user in
 		$_SESSION['user_id'] = $this->User->get('id');
 		$_SESSION['user_level'] = $this->User->get('level');
@@ -1278,43 +1016,26 @@ public function deletelogo() {
 
 			$this->User->setPassword($pass);
 			$this->User->save();
-			
-			$mail_errors = array();
-			$errors = array();
-			try {
-		        $recipients = array($this->User->get('email') => $this->User->get('name'));
-				$email = EMAIL_FROM_ADDRESS;
-				$from = array($email => EMAIL_FROM_NAME);
-			    $mail = new Mail();
-			    $mail->setTemplate('resend_details');
-			    $mail->setPlainTemplate('resend_details');
-			    $mail->setFrom($from);
-			    $mail->addReplyTo(EMAIL_FROM_NAME, $email);
-			    $mail->setRecipients($recipients);
-				$mail->setMailVar('exhibitor_name', $this->User->get('name'));
-				$mail->setMailVar('alias', $this->User->get('alias'));
-				$mail->setMailVar('password', $pass);
-				$this->set('result', 'The user\'s password was reset and a mail was sent.');
-				if(!$mail->send()) {
-					$errors[] = $this->User->get('email');
-				}
 
-			} catch(Swift_RfcComplianceException $ex) {
-				// Felaktig epost-adress
-				$errors[] = $this->User->get('email');
-				$mail_errors[] = $ex->getMessage();
-
-			} catch(Exception $ex) {
-				// Okänt fel
-				$errors[] = $this->User->get('email');
-				$mail_errors[] = $ex->getMessage();
-			}
+			/* Preparing to send the mail */
+			if ($this->User->get('contact_email') == '')
+			$recipient = array($this->User->get('email'), $this->User->get('name'));
+			else
+			$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
+			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+			/* UPDATED TO FIT MAILJET */
+			$mail = new Mail();
+			$mail->setTemplate('resend_details');
+			$mail->setFrom($from);
+			$mail->setRecipient($recipient);
+			/* Setting mail variables */
+			$mail->setMailVar('exhibitor_company', $this->User->get('name'));
+			$mail->setMailVar('username', $this->User->get('alias'));
+			$mail->setMailVar('password', $pass);
+			$mail->sendMessage();
+			$this->set('result', 'The user\'s password was reset and a mail was sent.');
 		} else {
 			$this->set('result', 'That user does not exist.');
-		}
-		if ($errors) {
-			$this->setNoTranslate('mail_errors', $mail_errors);
-			$this->setNoTranslate('errors', $errors);
 		}
 	}
 
@@ -1354,7 +1075,7 @@ public function deletelogo() {
 			$this->logout();
 			exit;
 
-		} //else {
+		} else {
 			$stmt_content = $this->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = ?");
 			$stmt_content->execute(array('user_terms', LANGUAGE));
 			$terms_row = $stmt_content->fetchObject();
@@ -1380,7 +1101,7 @@ public function deletelogo() {
 			$this->set('label_headline', 'Approve our User Terms');
 			$this->set('label_approve', 'Approve');
 			$this->set('label_decline', 'Decline');
-		//}
+		}
 	}
 	public function pub() {
 		setAuthLevel(3);

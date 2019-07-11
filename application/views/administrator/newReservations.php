@@ -498,7 +498,7 @@ function createInvoices(e) {
 			</table>
 		</div>
 		<input type="button" name="cancel" class="cancelbutton redbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Cancel'}); ?>" />
-		<input type="button" class="book_first_step greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
+		<input type="button" id="book_first_step" class="greenbutton mediumbutton nomargin" value="<?php echo uh($translator->{'Next'}); ?>" />
 		<input type="button" name="next" class="book_review lastStep greenbutton mediumbutton nomargin floatright" value="<?php echo uh($translator->{'Go to summary'}); ?>" />
 
 	</fieldset>

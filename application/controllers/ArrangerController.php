@@ -27,7 +27,7 @@ class ArrangerController extends Controller {
 			$spots = array();
 			foreach ($res as $result) {
 				$u = new User;
-				$u->load($result['id'], 'id');
+				$u->load2($result['id'], 'id');
 
 				$stmt = $this->Arranger->db->prepare("SELECT COUNT(*) AS eventcount FROM fair WHERE created_by = ?");
 				$stmt->execute(array($u->get('id')));
@@ -294,49 +294,23 @@ class ArrangerController extends Controller {
 
 	        $this->Arranger->setPassword($password);
 	        $id = $this->Arranger->save();
-	        
-	        // For some reason the autoload won't even attempt to load Mail
-	        require_once(ROOT.'application/models/Mail.php');
 
-			$me = new User;
-			$me->load($_SESSION['user_id'], 'id');
-			$errors = array();
-			$mail_errors = array();
-			$email = EMAIL_FROM_ADDRESS;
-			$from = array($email => EMAIL_FROM_NAME);
-			try {
-				$recipients = array($_POST['contact_email'] => $_POST['name']);
-				$mail = new Mail();
-				$mail->setTemplate('organizer_new_account');
-				$mail->setPlainTemplate('organizer_new_account');
-				$mail->setFrom($from);
-				$mail->addReplyTo(EMAIL_FROM_NAME, $email);
-				$mail->setRecipients($recipients);
-					$mail->setMailVar('alias', $_POST['alias']);
-					$mail->setMailVar('password', $password);
-					$mail->setMailVar('accesslevel', $this->translate->{'Organizer'});
-					$mail->setMailVar('creator_accesslevel', $this->translate->{'Master'});
-					$mail->setMailVar('creator_name', $me->get('name'));
-					
-				if(!$mail->send()) {
-					$errors[] = $_POST['company'];
-				}
+			/* Prepare to send the mail */
+			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
+			$recipient = array($_POST['contact_email'], $_POST['name']);
+			/* UPDATED TO FIT MAILJET */
+			$mail = new Mail();
+			$mail->setTemplate('new_account');
+			$mail->setFrom($from);
+			$mail->setRecipient($recipient);
+			/* Setting mail variables */
+			$mail->setMailVar('exhibitor_company', $_POST['company']);
+			$mail->setMailVar('username', $_POST['alias']);
+			$mail->setMailVar('password', $password);
+			$mail->setMailVar('accesslevel', $this->translate->{'Organizer'});
+			$mail->sendMessage();
 
-			} catch(Swift_RfcComplianceException $ex) {
-				// Felaktig epost-adress
-				$errors[] = $_POST['company'];
-				$mail_errors[] = $ex->getMessage();
-
-			} catch(Exception $ex) {
-				// Okänt fel
-				$errors[] = $_POST['company'];
-				$mail_errors[] = $ex->getMessage();
-			}
-			if ($errors) {
-				$_SESSION['errors'] = $errors;
-				$_SESSION['mail_errors'] = $mail_errors;
-			}
-	        // Redirect to organizer's new profile
+	        /* Redirect to organizer's new profile */
         	header('Location: '.BASE_URL.'arranger/info/'.$id);
 	        exit;
 	        
@@ -347,7 +321,7 @@ class ArrangerController extends Controller {
 	          return;
 	        }
 	      }
-	      // All went well, save changes
+	      /* All went well, save changes */
 	      $this->Arranger->save();
 	      
 	      //header('Location: '.BASE_URL.'arranger/overview');

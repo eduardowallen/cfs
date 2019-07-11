@@ -5,6 +5,8 @@
 }
 .tableNoBorder td {
 	padding: 12px 12px 0px;
+}
+.tableNoBorder td:first-child {
 	text-align: left;
 }
 
@@ -12,307 +14,169 @@
 <button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/overview'"><?php echo uh($translator->{'Go back'}); ?></button>
 <br />
 <h1><?php echo $fair->get('name'); ?> - <?php echo $headline; ?></h1>
-<h2><?php echo $heading; ?></h2>
 <form action="fair/event_mail/<?php echo $id; ?>" method="POST">
 	<table class="tableNoBorder">
-		<!--		Skapa en bokning start				-->
+		<thead>
+			<tr>
+				<th><?php echo $heading; ?></th>
+				<th><?php echo $ToMyself; ?></th>
+				<th><?php echo $ToExhibitor; ?></th>
+			</tr>
+		</thead>
+		<tbody>
+		<!--		Create a booking start				-->
+		<tr>
+			<td><?php echo $BookingCreated; ?></td>
+			<td></td>
+			<td class="center">
+				<input
+					type="checkbox"
+					name="BookingCreated[]"
+					id="BookingCreated1"
+					value="1"
+					<?php echo (is_array($mailSettings->BookingCreated) && in_array("1", $mailSettings->BookingCreated)) ? "checked=\"checked\"" : ""; ?>
+				/>
+				<label class="squaredFour" for="BookingCreated1" />
+			</td>
+		</tr>
+		<!--		Create a booking end				-->
+		
+		<!--		Cancel a booking start				-->
+		<tr>
+			<td><?php echo $BookingCancelled; ?></td>
+			<td></td>
+			<td class="center">
+				<input
+				type="checkbox"
+				name="BookingCancelled[]"
+				id="BookingCancelled1"
+				value="1"
+				<?php echo (is_array($mailSettings->BookingCancelled) && in_array("1", $mailSettings->BookingCancelled)) ? "checked=\"checked\"" : ""; ?>
+				/>
+				<label class="squaredFour" for="BookingCancelled1" />
+			</td>
+		</tr>
+		<!--		Cancel a booking end				-->
+
+		<!--		Recieve a preliminary booking start		-->
+		<tr>
+			<td><?php echo $PreliminaryCreated; ?></td>
+			<td class="center">
+				<input
+					type="checkbox"
+					name="PreliminaryCreated[]"
+					id="PreliminaryCreated0"
+					value="0"
+					<?php echo (is_array($mailSettings->PreliminaryCreated) && in_array("0", $mailSettings->PreliminaryCreated)) ? "checked=\"checked\"" : ""; ?>
+				/>
+				<label class="squaredFour" for="PreliminaryCreated0" />
+			</td>
+			<td></td>
+		</tr>		
+		<!--		Recieve a preliminary booking end		-->
+
+		<!--		Preliminary to booking start			-->
 				<tr>
-			<td><?php echo $bookingCreated; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
+			<td><?php echo $PreliminaryToBooking; ?></td>
+			<td class="center">
 				<input
 					type="checkbox"
-					name="bookingCreated[]"
-					id="bookingCreated0"
+					name="PreliminaryToBooking[]"
+					id="PreliminaryToBooking0"
 					value="0"
-					<?php echo (is_array($mailSettings->bookingCreated) && in_array("0", $mailSettings->bookingCreated)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->PreliminaryToBooking) && in_array("0", $mailSettings->PreliminaryToBooking)) ? "checked=\"checked\"" : ""; ?>
 				/>
-			<label class="squaredFour" for="bookingCreated0" />
+				<label class="squaredFour" for="PreliminaryToBooking0" />
 			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
+			<td class="center">
 				<input
 					type="checkbox"
-					name="bookingCreated[]"
-					id="bookingCreated1"
+					name="PreliminaryToBooking[]"
+					id="PreliminaryToBooking1"
 					value="1"
-					<?php echo (is_array($mailSettings->bookingCreated) && in_array("1", $mailSettings->bookingCreated)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->PreliminaryToBooking) && in_array("1", $mailSettings->PreliminaryToBooking)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="bookingCreated1" />
-			</td>
-		</tr>
-		<!--		Skapa en bokning slut				-->
-		
-		<!--		Ändra en bokning start				-->
-		<tr>
-			<td><?php echo $bookingEdited; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
-				<input
-					type="checkbox"
-					name="bookingEdited[]"
-					id="bookingEdited0"
-					value="0"
-					<?php echo (is_array($mailSettings->bookingEdited) && in_array("0", $mailSettings->bookingEdited)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="bookingEdited0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
-				<input
-					type="checkbox"
-					name="bookingEdited[]"
-					id="bookingEdited1"
-					value="1"
-					<?php echo (is_array($mailSettings->bookingEdited) && in_array("1", $mailSettings->bookingEdited)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="bookingEdited1" />
-			</td>
-		</tr>
-		<!--		Ändra en bokning slut				-->
-		
-		<!--		Avbryt en bokning eller reservation start				-->
-		<tr>
-			<td><?php echo $bookingCancelled; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
-				<input 
-					type="checkbox"
-					name="bookingCancelled[]"
-					id="bookingCancelled0"
-					value="0"
-					<?php echo (is_array($mailSettings->bookingCancelled) && in_array("0", $mailSettings->bookingCancelled)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="bookingCancelled0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
-				<input
-				type="checkbox"
-				name="bookingCancelled[]"
-				id="bookingCancelled1"
-				value="1"
-				<?php echo (is_array($mailSettings->bookingCancelled) && in_array("1", $mailSettings->bookingCancelled)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="bookingCancelled1" />
-			</td>
-			<td>
-				<?php echo $toCurrentUser; ?>
-				<input 
-					type="checkbox"
-					name="bookingCancelled[]"
-					id="bookingCancelled2"
-					value="2"
-					<?php echo (is_array($mailSettings->bookingCancelled) && in_array("2", $mailSettings->bookingCancelled)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="bookingCancelled2" />
-			</td>			
-		</tr>
-		<!--		Avbryt en bokning slut				-->		
-		<!--		Nedgradera en bokning start				-->
-		<tr>
-			<td><?php echo $bookingToReservation; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
-				<input 
-					type="checkbox"
-					name="bookingToReservation[]"
-					id="bookingToReservation0"
-					value="0"
-					<?php echo (is_array($mailSettings->bookingToReservation) && in_array("0", $mailSettings->bookingToReservation)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="bookingToReservation0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
-				<input
-				type="checkbox"
-				name="bookingToReservation[]"
-				id="bookingToReservation1"
-				value="1"
-				<?php echo (is_array($mailSettings->bookingToReservation) && in_array("1", $mailSettings->bookingToReservation)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="bookingToReservation1" />
-			</td>	
-		</tr>
-		<!--		Nedgradera en bokning slut				-->
-		<!--		Uppgradera en reservation start				-->
-		<tr>
-			<td><?php echo $reservationToBooking; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
-				<input 
-					type="checkbox"
-					name="reservationToBooking[]"
-					id="reservationToBooking0"
-					value="0"
-					<?php echo (is_array($mailSettings->reservationToBooking) && in_array("0", $mailSettings->reservationToBooking)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="reservationToBooking0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
-				<input
-				type="checkbox"
-				name="reservationToBooking[]"
-				id="reservationToBooking1"
-				value="1"
-				<?php echo (is_array($mailSettings->reservationToBooking) && in_array("1", $mailSettings->reservationToBooking)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="reservationToBooking1" />
-			</td>	
-		</tr>
-		<!--		Uppgradera en reservation slut				-->
-		<!--		Ta emot en preliminärbokning start			-->
-		<tr>
-			<td><?php echo $recievePreliminaryBooking; ?></td>
-			<td><?php echo $toMyself; ?>
-				<input
-					type="checkbox"
-					name="recievePreliminaryBooking[]"
-					id="recievePreliminaryBooking0"
-					value="0"
-					<?php echo (is_array($mailSettings->recievePreliminaryBooking) && in_array("0", $mailSettings->recievePreliminaryBooking)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="recievePreliminaryBooking0" />
+				<label class="squaredFour" for="PreliminaryToBooking1" />
 			</td>
 		</tr>		
-		<!--		Ta emot en preliminärbokning slut			-->
-		<!--		Godkänner en preliminärbokning start			-->
+		<!--		Preliminary to booking end 				-->
+		
+		<!--		Preliminary to reservation start		-->
 		<tr>
-			<td><?php echo $acceptPreliminaryBooking; ?></td>
-			<td><?php echo $toMyself; ?>
+			<td><?php echo $PreliminaryToReservation; ?></td>
+			<td class="center">
 				<input
 					type="checkbox"
-					name="acceptPreliminaryBooking[]"
-					id="acceptPreliminaryBooking0"
+					name="PreliminaryToReservation[]"
+					id="PreliminaryToReservation0"
 					value="0"
-					<?php echo (is_array($mailSettings->acceptPreliminaryBooking) && in_array("0", $mailSettings->acceptPreliminaryBooking)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->PreliminaryToReservation) && in_array("0", $mailSettings->PreliminaryToReservation)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="acceptPreliminaryBooking0" />
+				<label class="squaredFour" for="PreliminaryToReservation0" />
 			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
+			<td class="center">
 				<input
 					type="checkbox"
-					name="acceptPreliminaryBooking[]"
-					id="acceptPreliminaryBooking1"
+					name="PreliminaryToReservation[]"
+					id="PreliminaryToReservation1"
 					value="1"
-					<?php echo (is_array($mailSettings->acceptPreliminaryBooking) && in_array("1", $mailSettings->acceptPreliminaryBooking)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->PreliminaryToReservation) && in_array("1", $mailSettings->PreliminaryToReservation)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="acceptPreliminaryBooking1" />
+				<label class="squaredFour" for="PreliminaryToReservation1" />
 			</td>
 		</tr>		
-		<!--		Godkänner en preliminärbokning slut			-->
-		<!--		Avbryt en preliminärbokning start			-->
+		<!--		Preliminary to reservation end			-->
+
+		<!--		Cancel a preliminary start				-->
 		<tr>
-			<td><?php echo $cancelPreliminaryBooking; ?></td>
-			<td><?php echo $toMyself; ?>
+			<td><?php echo $PreliminaryCancelled; ?></td>
+			<td></td>
+			<td class="center">
 				<input
 					type="checkbox"
-					name="cancelPreliminaryBooking[]"
-					id="cancelPreliminaryBooking0"
-					value="0"
-					<?php echo (is_array($mailSettings->cancelPreliminaryBooking) && in_array("0", $mailSettings->cancelPreliminaryBooking)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="cancelPreliminaryBooking0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
-				<input
-					type="checkbox"
-					name="cancelPreliminaryBooking[]"
-					id="cancelPreliminaryBooking1"
+					name="PreliminaryCancelled[]"
+					id="PreliminaryCancelled1"
 					value="1"
-					<?php echo (is_array($mailSettings->cancelPreliminaryBooking) && in_array("1", $mailSettings->cancelPreliminaryBooking)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->PreliminaryCancelled) && in_array("1", $mailSettings->PreliminaryCancelled)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="cancelPreliminaryBooking1" />
+				<label class="squaredFour" for="PreliminaryCancelled1" />
 			</td>
 		</tr>
-		<!--		Avbryt en preliminärbokning slut			-->
-		<!--		Tar emot en ansökan om plats (kölista/anmälan till ett dolt event) start		-->	
+		<!--		Cancel a preliminary end				-->
+		<!--		Recieve application start				-->	
 		<tr>
-			<td><?php echo $recieveRegistration; ?></td>
-			<td><?php echo $toMyself; ?>
+			<td><?php echo $RegistrationCreated; ?></td>
+			<td class="center">
 				<input
 					type="checkbox"
-					name="recieveRegistration[]"
-					id="recieveRegistration0"
+					name="RegistrationCreated[]"
+					id="RegistrationCreated0"
 					value="0"
-					<?php echo (is_array($mailSettings->recieveRegistration) && in_array("0", $mailSettings->recieveRegistration)) ? "checked=\"checked\"" : ""; ?>
+					<?php echo (is_array($mailSettings->RegistrationCreated) && in_array("0", $mailSettings->RegistrationCreated)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="recieveRegistration0" />
+				<label class="squaredFour" for="RegistrationCreated0" />
 			</td>
+			<td></td>
 		</tr>
-		<!--		Tar emot en ansökan om plats (kölista/anmälan till ett dolt event) slut			-->
+		<!--		Recieve application end					-->	
 
-		<!--		Avbryt en anmälan start				-->
+		<!--		Cancel application start				-->	
 		<tr>
-			<td><?php echo $registrationCancelled; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
-				<input 
-					type="checkbox"
-					name="registrationCancelled[]"
-					id="registrationCancelled0"
-					value="0"
-					<?php echo (is_array($mailSettings->registrationCancelled) && in_array("0", $mailSettings->registrationCancelled)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="registrationCancelled0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
+			<td><?php echo $RegistrationCancelled; ?></td>
+			<td></td>
+			<td class="center">
 				<input
 				type="checkbox"
-				name="registrationCancelled[]"
-				id="registrationCancelled1"
+				name="RegistrationCancelled[]"
+				id="RegistrationCancelled1"
 				value="1"
-				<?php echo (is_array($mailSettings->registrationCancelled) && in_array("1", $mailSettings->registrationCancelled)) ? "checked=\"checked\"" : ""; ?>
+				<?php echo (is_array($mailSettings->RegistrationCancelled) && in_array("1", $mailSettings->RegistrationCancelled)) ? "checked=\"checked\"" : ""; ?>
 				/>
-				<label class="squaredFour" for="registrationCancelled1" />
-			</td>
-			<td>
-				<?php echo $toCurrentUser; ?>
-				<input 
-					type="checkbox"
-					name="registrationCancelled[]"
-					id="registrationCancelled2"
-					value="2"
-					<?php echo (is_array($mailSettings->registrationCancelled) && in_array("2", $mailSettings->registrationCancelled)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="registrationCancelled2" />
+				<label class="squaredFour" for="RegistrationCancelled1" />
 			</td>
 		</tr>
-		<!--		Avbryt en anmälan slut				-->
-
-		<!--		Påminnelser för utgående reservationer start				-->
-		<tr>
-			<td><?php echo $reservationReminders; ?></td>
-			<td>
-				<?php echo $toMyself; ?>
-				<input 
-					type="checkbox"
-					name="reservationReminders[]"
-					id="reservationReminders0"
-					value="0"
-					<?php echo (is_array($mailSettings->reservationReminders) && in_array("0", $mailSettings->reservationReminders)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="reservationReminders0" />
-			</td>
-			<td>
-				<?php echo $toExhibitor; ?>
-				<input
-				type="checkbox"
-				name="reservationReminders[]"
-				id="reservationReminders1"
-				value="1"
-				<?php echo (is_array($mailSettings->reservationReminders) && in_array("1", $mailSettings->reservationReminders)) ? "checked=\"checked\"" : ""; ?>
-				/>
-				<label class="squaredFour" for="reservationReminders1" />
-			</td>
-		</tr>
-		<!--		Påminnelser för utgående reservationer slut				-->
-		
+		<!--		Cancel application end					-->
+	</tbody>
 	</table>
 
 	<input type="submit" name="save" class="greenbutton bigbutton" value="<?php echo $save; ?>" />

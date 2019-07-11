@@ -2184,7 +2184,7 @@ $("#reserve_first_step").click(function(){
 });
 
 
-$(".book_first_step").click(function(){
+$("#book_first_step").click(function(){
 
 	var count = 0;
 	var cats = [];
