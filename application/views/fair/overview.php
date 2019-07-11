@@ -13,9 +13,6 @@
 	border-right: none;
 	border-left: none;
 }
-.container {
-	background-color: #FDFDFD;
-}
 
 .mediumbutton, .blackbutton{
 	font-size: 1em;
@@ -27,6 +24,19 @@ td {
 	text-align: left;
 }
 </style>
+<script>
+function lockEvent(id, name) {
+	$.confirm({
+	  title: '<?php echo $lock_event_title; ?>',
+	  content: '<?php echo $lock_event_content; ?> <br>' + name + '? <br>' + '<?php echo $lock_event_explain; ?>',
+		escapeKey: true,
+	  confirm: function(){
+	  	window.location = 'fair/lock/' + id
+	  },
+	  cancel: function(){}
+	});
+}
+</script>
 <button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>start/home'"><?php echo uh($translator->{'Go back'}); ?></button>
 <br />
 <script type="text/javascript" src="js/tablesearch.js<?php echo $unique?>"></script>
@@ -41,7 +51,7 @@ td {
 			<td class="container">
 				<table style="min-width:100%; border: 1px solid rgba(155, 155, 155, 0.52);">
 					<tr>
-						<td><?php echo $th_fair ?>: <a href="mapTool/map/<?php echo $fair->id; ?>"><?php echo $fair->name; ?></a></td>
+						<td><?php echo $th_fair ?>: <a href="page/loggedin/setFair/<?php echo $fair->id; ?>"><?php echo $fair->name; ?></a></td>
 						<td><?php echo $th_approved ?>: 
 							<?php
 								if ($fair->approved == 2) {
@@ -70,7 +80,6 @@ td {
 						<td>
 						<?php if (userLevel() > 3): ?>
 							<?php echo $th_arranger_name ?>: <a href="arranger/info/<?php echo $fair->created_by; ?>"><?php echo $fair->arranger_name; ?></a></td>
-							<!--<td><?php echo $th_arranger_cnr ?>: <?php echo $fair->arranger_cnr; ?></td>-->
 						<?php endif; ?>
 						</td>
 						<td><?php echo $th_event_stop ?>: <?php echo date('d-m-Y H:i:s', $fair->event_stop); ?></td>
@@ -86,11 +95,12 @@ td {
 							<a class="td_button greenbutton mediumbutton" href="exhibitor/exhibitors/<?php echo $fair->id; ?>"><?php echo $th_exhibitors ?></a>
 							<a class="td_button greenbutton mediumbutton" href="fair/edit/<?php echo $fair->id; ?>"><?php echo $th_settings ?></a>
 							<a class="td_button greenbutton mediumbutton" href="fair/event_mail/<?php echo $fair->id; ?>"><?php echo $th_mailSettings; ?></a>
+							<a class="td_button greenbutton mediumbutton" href="fair/rules/<?php echo $fair->id; ?>"><?php echo $th_rules ?></a>
 							<?php
 							$modules = json_decode($fair->modules);
 							if (isset($modules->invoiceFunction)):
 								if (is_array($modules->invoiceFunction) && in_array("1", $modules->invoiceFunction)) { ?>
-								<a class="td_button greenbutton mediumbutton" href="fair/invoice/<?php echo $fair->id; ?>"><?php echo $th_invoiceSettings ?></a>
+								<a class="td_button greenbutton mediumbutton" href="fair/invoiceSettings/<?php echo $fair->id; ?>"><?php echo $th_invoiceSettings ?></a>
 								<?php } 
 							endif;
 							/*
@@ -99,11 +109,14 @@ td {
 								<!--<a class="td_button greenbutton mediumbutton" href="fair/RDsettings/<?php echo $fair->id; ?>"><?php echo $th_RDsettings ?></a>-->
 								<?php } ?>
 							<?php endif; */?>
-							<?php if(/*$fair->approved != 2 && */userLevel() == 4) : ?>
+							<?php if (userLevel() == 4) : ?>
 							<a class="td_button greenbutton mediumbutton" href="fair/modules/<?php echo $fair->id; ?>"><?php echo $th_modules ?></a>
 							<a class="td_button redbutton mediumbutton" href="fair/delete/<?php echo $fair->id; ?>"><?php echo $th_delete ?></a>
 							<?php endif; ?>
 							<a href="<?php echo ($fair->approved == 2 ? '#' : 'fair/makeclone/' . $fair->id); ?>" style="margin-top:0.8em; float:right;" class="fair-clone-confirm blackbutton mediumbutton td_button"><?php echo $th_clone ?></a>
+							<?php if ($fair->approved != 2) { ?>
+								<button class="fair-clone-confirm redbutton mediumbutton td_button" onclick="lockEvent('<?php echo $fair->id; ?>', '<?php echo $fair->windowtitle; ?>')"><?php echo $th_lock ?></button>
+							<?php } ?>
 						</td>
 					</tr>
 				</table>

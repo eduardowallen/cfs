@@ -27,7 +27,7 @@ a {
 	max-width:1.7em;
 }
 .go_back {
-	border:0.0833em solid #616261; 
+	border:0.0833em;
 	-webkit-border-radius: 0.25em;
 	-moz-border-radius: 0.25em;
 	border-radius: 0.25em;
@@ -54,7 +54,7 @@ a {
 }
 
 .go_back:hover {
- border:0.0833em solid #4a4b4a;
+ border:0.0833em;
  background-color: #646464; background-image: -webkit-gradient(linear, left top, left bottom, from(#646464), to(#282828));
  background-image: -webkit-linear-gradient(top, #646464, #282828);
  background-image: -moz-linear-gradient(top, #646464, #282828);
@@ -63,6 +63,21 @@ a {
  background-image: linear-gradient(to bottom, #646464, #282828);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#646464, endColorstr=#282828);
 }
 
+.blue {
+	background-color: rgba(125, 88, 246, 0.3) !important;
+}
+.blue:hover {
+	background-color: rgba(125, 88, 246, 0.1) !important;
+}
+.red {
+	background-color: red;
+}
+.larger {
+	font-size: 1.5em;
+	font-weight: 700;
+	padding: 1px 7px !important;
+	vertical-align: -webkit-baseline-middle;
+}
 input[type=checkbox] {
     padding: 0;
     margin: -0.1em 0 0 -0.66em;
@@ -75,6 +90,9 @@ input[type=checkbox] {
 }
 .nomargin {
 	margin: 0 !important;
+}
+.nopadding {
+	padding: 0 !important;
 }
 /* SQUARED FOUR */
 
@@ -140,7 +158,7 @@ input[type=checkbox]:checked + .squaredFour:before {
 }
 
 td {text-align:center;}
-th {text-align:center;}
+th {text-align:center; font-weight:600;}
 #maintenance-message {
     position: absolute;
     z-index: 101;
@@ -199,14 +217,12 @@ input[type=button]:hover, input[type=submit]:hover {
 
 .redbutton[type=button], .redbutton, #confirm_abort, #confirm_no, a.link-button.close-popup {
 	display:inline-block;
-	padding: 0.416em 1.25em;
 	margin: 0.833em 0.416em;
 	width: auto;
-	border:0.0833em solid #df0909;
+	border:0.0833em;
 	-webkit-border-radius: 0.25em;
 	-moz-border-radius: 0.25em;
 	border-radius: 0.25em;
-	font-size: 1.2em;
 	font-weight: 600;
 	text-decoration:none;
 	text-shadow: -0.0833em -0.0833em 0 rgba(0,0,0,0.3);
@@ -222,7 +238,6 @@ input[type=button]:hover, input[type=submit]:hover {
 }
 
 .redbutton[type=button]:hover, .redbutton:hover, #confirm_abort:hover, #confirm_no:hover, a.link-button.close-popup:hover {
-	border:0.0833em solid #b30808;
 	background-color: #e40a0a; 
 	color: #FFF;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#e40a0a), to(#9f0202));
@@ -235,7 +250,7 @@ input[type=button]:hover, input[type=submit]:hover {
 }
 
 .bluebutton {
-	border:0.0833em solid #25729a;
+	border:0.0833em;
 	-webkit-border-radius: 0.25em;
 	-moz-border-radius: 0.25em;
 	border-radius: 0.25em;
@@ -257,7 +272,7 @@ input[type=button]:hover, input[type=submit]:hover {
 }
 
 .bluebutton:hover {
-	border:0.0833em solid #1c5675;
+	border:0.0833em;
 	background-color: #26759e; 
 	color: #FFF;
 	background-image: -webkit-gradient(linear, left top, left bottom, from(#26759e), to(#133d5b));
@@ -270,7 +285,7 @@ input[type=button]:hover, input[type=submit]:hover {
 }
 
 .blackbutton {
-	border:0.0833em solid #616261; 
+	border:0.0833em;
 	-webkit-border-radius: 0.25em;
 	-moz-border-radius: 0.25em;
 	border-radius: 0.25em;
@@ -296,7 +311,7 @@ input[type=button]:hover, input[type=submit]:hover {
 }
 
 .blackbutton:hover {
- border:0.0833em solid #4a4b4a;
+ border:0.0833em;
  background-color: #646464; background-image: -webkit-gradient(linear, left top, left bottom, from(#646464), to(#282828));
  background-image: -webkit-linear-gradient(top, #646464, #282828);
  background-image: -moz-linear-gradient(top, #646464, #282828);
@@ -309,35 +324,30 @@ input[type=button]:hover, input[type=submit]:hover {
 .td_button_disabled a {
 	color: #CB0E0E;
 }
-
+a.greenbutton {
+	text-decoration: none;
+}
 .greenbutton {
-	margin: 0.833em 0.416em;
-	width: auto;
-	font-weight: 600;
-	border:0.0833em solid #34740e;
-	-webkit-border-radius: 0.25em;
-	-moz-border-radius: 0.25em;
-	border-radius: 0.25em;
-	text-decoration:none !important; 
-	display:inline-block;
-	text-shadow: -0.0833em -0.0833em 0 rgba(0,0,0,0.3);
-	color: #FFFFFF;
-	background-color: #4ba614; 
-	background-image: -webkit-gradient(linear, left top, left bottom, from(#4ba614), to(#008c00));
-	background-image: -webkit-linear-gradient(top, #4ba614, #008c00);
-	background-image: -moz-linear-gradient(top, #4ba614, #008c00);
-	background-image: -ms-linear-gradient(top, #4ba614, #008c00);
-	background-image: -o-linear-gradient(top, #4ba614, #008c00);
-	background-image: linear-gradient(to bottom, #4ba614, #008c00);filter:progid:DXImageTransform.Microsoft.gradient(GradientType=0,startColorstr=#4ba614, endColorstr=#008c00);
+    margin: 0.833em 0.416em;
+    width: auto;
+    font-weight: 600;
+    border: 0.0833em;
+    -webkit-border-radius: 0.25em;
+    -moz-border-radius: 0.25em;
+    border-radius: 0.25em;
+    display: inline-block;
+    text-shadow: -0.0833em -0.0833em 0 rgba(0,0,0,0.3);
+    color: #FFFFFF;
+    background-color: #5BA538;
 }
 
 .greenbutton:hover {
-	background-image: linear-gradient(to bottom, #36780F, #005900);
 	background-color: #36780F;
-	border: 0.0833em solid #224B09;
 	color: #FFF;
 }
-
+.greenbutton:disabled {
+	opacity: 0.5;
+}
 .bigbutton {
 	padding: 0.416em 1.25em;
 	font-size:1.5em;
@@ -501,10 +511,7 @@ input[type=button].search_button, input[type=button]#search_button {
 	padding:1.66em;
 	background:#ffffff;
 	border:0.0833em solid #333333;
-	-moz-border-radius:0.66em;
-	-webkit-border-radius:0.66em;
 	border-top: 5em solid #47a547;
-	border-radius:0;
 	overflow:visible;
 	}
 
@@ -521,9 +528,6 @@ input[type=button].search_button, input[type=button]#search_button {
 	background:#ffffff;
 	border:0.0833em solid #333333;
 	border-top: 5em solid #47a547;
-	-moz-border-radius:0.66em;
-	-webkit-border-radius:0.66em;
-	border-radius:0;
 	overflow:visible;
 }
 
@@ -550,40 +554,22 @@ input[type=button].search_button, input[type=button]#search_button {
 	overflow:hidden;	 		
 }
 
-.booking_dialogue {
-	display:none;
-	position: absolute;
-	z-index:10000;
-	width: auto;
-	top:50%;
-	left:50%;
-	margin-left:-18.5em;
-	margin-top:-16.66em;
-	padding:0.33em;
-	background:#ffffff;
-	border:0.0833em solid #333333;
-	-moz-border-radius:0.66em;
-	-webkit-border-radius:0.66em;
-	border-radius:0;
-	overflow:auto;
-}
-
-#arranger_message_popup.dialogue {
+#arranger_message_popup.dialogue, #deletion_message_popup.dialogue {
 	position:fixed;
 	z-index:10001;
 }
 
-#arranger_message_popup h3 {
+#arranger_message_popup h3, #deletion_message_popup h3 {
 	margin-left:0;
 	text-align: center;
 	width: 100%;
     margin-top: -2.8em;
     color: #FFF;	
 }
-#arranger_message_text {
+#arranger_message_text, #deletion_message_text {
 	padding:2.9166em 0 0.833em;
 }
-#arranger_message_popup p {
+#arranger_message_popup p, #deletion_message_popup p {
 	margin:0;
 }
 #nouser_dialogue {
@@ -659,6 +645,11 @@ label[for=search_user_input] {
 	margin-right:-0.5em;
 }
 
+.popupCloseDialogue {
+	margin-top: -4em; 
+	margin-right: -2em;
+}
+
 #content h2.clear {
 	margin-top: 1.33em;
 }
@@ -692,9 +683,9 @@ label[for=search_user_input] {
 }
 
 .nouser_cfslogo {
-	width:43.166em;
+	width:30em;
 	height:auto;
-	margin-left: 5px;
+	margin: 0.833em 0;
 }
 
 #nouser_dialogue .cfspanel {
@@ -959,6 +950,9 @@ textarea:focus {
 	box-shadow: inset 0 0.0833em 0.0833em rgba(0, 0, 0, 0.075), 0 0 0.66em rgba(82, 168, 236, 0.6);
 	
 }
+fieldset {
+	border-radius: 0.4em;
+}
 .msg_to_organizer {
 	width:54em;
 	height:15em;
@@ -968,7 +962,13 @@ textarea:focus {
 	width: 25em;
 	height: 8em;
 }
-
+.table-border {
+	border: 0.5px solid #ddd;
+}
+.greenBG {
+	background-color: #48A648;
+	color: #FFF;
+}
 .scrolltable-wrap {
 	position: relative;
 	overflow-x: hidden;
@@ -1080,6 +1080,9 @@ p.pricetag input{margin:0; padding:0; margin-top:0.166em; height:1.9166em; width
 .inline-block {
 	display:inline-block;
 }
+.inline-i {
+	display:inline !important;
+}
 .floatright {
 	float:right
 }
@@ -1137,13 +1140,19 @@ p.pricetag input{margin:0; padding:0; margin-top:0.166em; height:1.9166em; width
 .open-view-this-preliminary {
 	cursor:pointer;
 }
-
+progress {
+  background-color: #eee;
+  border-radius: 2px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.25) inset;
+  width:250px;
+  height:20px;
+}
 /* Start by setting display:none to make this hidden.
    Then we position it in relation to the viewport window
    with position:fixed. Width, height, top and left speak
    for themselves. Background we set to 80% white with
    our animation centered, and no-repeating */
-.modal {
+.modal, .modal-2, .modal-3 {
     display:    none;
     position:   fixed;
     z-index:    10001;
@@ -1159,12 +1168,12 @@ p.pricetag input{margin:0; padding:0; margin-top:0.166em; height:1.9166em; width
 
 /* When the body has the loading class, we turn
    the scrollbar off with overflow:hidden */
-body.loading {
+body.loading, body.progress {
     overflow: hidden;   
 }
 
 /* Anytime the body has the loading class, our
    modal element will be visible */
-body.loading .modal {
+body.loading .modal, body.progress .modal-2, body.progress2 .modal-3 {
     display: block;
 }

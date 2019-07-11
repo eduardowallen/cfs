@@ -136,6 +136,46 @@ class Exhibitor extends User {
 		}
 
 	}
+	public function loadself($key, $by) {
+		$stmt = $this->db->prepare("SELECT * FROM exhibitor WHERE `".$by."` = ?");
+		//echo "SELECT * FROM ".$this->table_name." WHERE `".$by."` = ".$key;
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
+	public function loadmsg($key, $by) {
+		$stmt = $this->db->prepare("SELECT id, arranger_message FROM exhibitor WHERE `".$by."` = ?");
+		//echo "SELECT * FROM ".$this->table_name." WHERE `".$by."` = ".$key;
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
 
 	public function wasLoaded() {
 		return (isset($this->loaded)) ? $this->loaded : false;
@@ -156,30 +196,29 @@ class Exhibitor extends User {
 		
 		return ($this->wasLoaded()) ? $this->exhibitor_id : $this->db->lastInsertId();
 	}
+	public function delete($message='') {
 
-	public function delete() {
-		$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history SELECT * FROM exhibitor WHERE id = ?");
-		$stmt_history->execute(array($this->exhibitor_id));
-		$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ?");
-		$stmt->execute(array($this->exhibitor_id));
-	}
-
-
-	// Preliminary bookings
-	public function del_pre_booking($id, $user_id, $position){
-		$stmt_history = "INSERT INTO `preliminary_booking_history` SELECT * FROM `preliminary_booking` WHERE id = '{$id}' AND user = '{$user_id}'";
-		$query3 = $this->db->query($stmt_history);
-		$sql = "DELETE FROM `preliminary_booking` WHERE id = '{$id}' AND user = '{$user_id}'";
-		$query = $this->db->query($sql);
+		$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history (id, user, fair, position, commodity, arranger_message, booking_time, edit_time, deletion_time, clone, status, recurring, deletion_message) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+		$stmt_history->execute(array($this->exhibitor_id, $this->user, $this->fair, $this->position, $this->commodity, $this->arranger_message, $this->booking_time, $this->edit_time, time(), $this->clone, $this->status, $this->recurring, $message));
+		$stmt_delete = $this->db->prepare("DELETE FROM exhibitor WHERE id = ?");
+		$stmt_delete->execute(array($this->exhibitor_id));
 	}
 
 	public function del_booking($id, $user_id, $position){
-		$stmt_history = "INSERT INTO exhibitor_history SELECT * FROM exhibitor WHERE id = '{$id}' AND user = '{$user_id}'";
-		$query3 = $this->db->query($stmt_history);
-		$sql = "DELETE FROM `exhibitor` WHERE id = '{$id}' AND user = '{$user_id}'";
-		$query = $this->db->query($sql);
-		$reset_pos = "UPDATE `fair_map_position` SET `status` = '0' WHERE id = '{$position}' LIMIT 1";
-		$query2 = $this->db->query($reset_pos);
+			$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history (id, user, fair, position, commodity, arranger_message, booking_time, edit_time, deletion_time, clone, status, recurring) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			$stmt_history->execute(array($id, $user_id, $this->fair, $position, $this->commodity, $this->arranger_message, $this->booking_time, $this->edit_time, time(), $this->clone, $this->status, $this->recurring));
+			$stmt_delete = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND user = ? AND position = ?");
+			$stmt_delete->execute(array($id, $user_id, $position));
+			$reset_pos = $this->db->prepare("UPDATE fair_map_position SET status = 0 WHERE id = ? LIMIT 1");
+			$reset_pos->execute(array($position));
+	}
+
+	// Preliminary bookings
+	public function del_pre_booking($id, $user_id, $position) {
+		$stmt_history = $this->db->prepare("INSERT INTO preliminary_booking_history SELECT id, user, fair, position, categories, options, articles, amount, commodity, arranger_message, booking_time, ? AS deletion_time, NULL AS deletion_message FROM preliminary_booking WHERE id = ? AND user = ? AND position = ?");
+		$stmt_history->execute(array(time(), $id, $user_id, $position));
+		$stmt = $this->db->prepare("DELETE FROM preliminary_booking WHERE id = ? AND user = ?");
+		$stmt->execute(array($id, $user_id));
 	}
 
 	// Confirm cloned reservation
@@ -208,22 +247,22 @@ class Exhibitor extends User {
 		if ($hash = $hashcheck) {
 			if ($linkstatus == 1) {
 				if ($type == 'accept') {
-					$stmt_verify_ex = "UPDATE exhibitor SET `clone` = '0' WHERE id = '{$exid}'";
-					$query = $this->db->query($stmt_verify_ex);
-					$stmt_verify_pos = "UPDATE fair_map_position SET `expires` = '{$newexpirationdate}' WHERE id = '{$position}'";
-					$query1 = $this->db->query($stmt_verify_pos);
-					$stmt_update_link = "UPDATE exhibitor_link SET `status` = 0 WHERE exhibitor = '{$exid}'";
-					$query2 = $this->db->query($stmt_update_link);
+					$stmt_verify_ex = $this->db->prepare("UPDATE exhibitor SET clone = 0 WHERE id = ?");
+					$stmt_verify_ex->execute(array($exid));
+					$stmt_verify_pos = $this->db->prepare("UPDATE fair_map_position SET expires = ? WHERE id = ?");
+					$stmt_verify_pos->execute(array($newexpirationdate, $position));
+					$stmt_update_link = $this->db->prepare("UPDATE exhibitor_link SET status = 0 WHERE exhibitor = ?");
+					$stmt_update_link->execute(array($exid));
 				}
 				if ($type == 'deny') {
-					$stmt_history = "INSERT INTO exhibitor_history SELECT * FROM exhibitor WHERE id = '{$exid}' AND user = '{$userid}'";
-					$query3 = $this->db->query($stmt_history);
-					$sql = "DELETE FROM `exhibitor` WHERE id = '{$exid}' AND user = '{$userid}'";
-					$query = $this->db->query($sql);
-					$reset_pos = "UPDATE `fair_map_position` SET `status` = '0', `expires` = '0000-00-00 00:00:00' WHERE id = '{$position}' LIMIT 1";
-					$query2 = $this->db->query($reset_pos);
-					$stmt_update_link = "UPDATE exhibitor_link SET `status` = 0 WHERE exhibitor = '{$exid}'";
-					$query2 = $this->db->query($stmt_update_link);
+					$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history SELECT id, user, fair, position, commodity, arranger_message, booking_time, edit_time, ? AS deletion_time, clone, status, recurring, NULL as deletion_message FROM exhibitor WHERE id = ? AND user = ?");
+					$stmt_history->execute(array(time(), $exid, $userid));
+					$stmt_delete_ex = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND user = ?");
+					$stmt_delete_ex->execute(array($exid, $userid));
+					$stmt_reset_pos = $this->db->prepare("UPDATE fair_map_position SET status = 0, expires = '0000-00-00 00:00:00' WHERE id = ? LIMIT 1");
+					$stmt_reset_pos->execute(array($position));
+					$stmt_update_link = $this->db->prepare("UPDATE exhibitor_link SET status = 0 WHERE exhibitor = ?");
+					$stmt_update_link->execute(array($exid));
 				}
 			}
 		}

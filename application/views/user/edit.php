@@ -248,9 +248,6 @@
 	<label for="commodity"><?php echo $commodity_label; ?></label>
 	<textarea rows="3" style="width:250px; height:40px; resize:none;" name="commodity" id="commodity"><?php echo $user->get('commodity'); ?></textarea>
 
-	<label for="customer_nr"><?php echo $customer_nr_label; ?></label>
-	<input type="text" name="customer_nr" id="customer_nr" value="<?php echo $user->get('customer_nr'); ?>"/>
-
 	<label for="name"><?php echo $contact_label; ?> <?php echo ($openFields) ? '' : '*'; ?></label>
 	<input type="text" name="name" id="name" value="<?php echo $user->get('name'); ?>"/>
 
@@ -279,9 +276,6 @@
 
 	<label for="phone2"><?php echo $phone2_label; ?></label>
 	<input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
-
-	<label for="fax"><?php echo $fax_label; ?></label>
-	<input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
 
 	<label for="website"><?php echo $website_label; ?></label>
 	<input type="text" name="website" id="website" value="<?php echo $user->get('website'); ?>"/>

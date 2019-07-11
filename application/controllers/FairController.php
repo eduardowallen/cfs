@@ -7,19 +7,16 @@ class FairController extends Controller {
 	}
 
 	public function search() {
-		setAuthLevel(1);
+		
 
-		$stmt_open_fairs = $this->db->prepare("SELECT f.*, u.website, COUNT(ex.id) AS cnt_exhibitors, COUNT(pb.id) AS cnt_prel_bookings FROM fair AS f
-				LEFT JOIN user AS u ON u.id = f.created_by
-				LEFT JOIN exhibitor AS ex ON ex.fair = f.id AND ex.user = ?
-				LEFT JOIN preliminary_booking AS pb ON pb.fair = f.id AND pb.user = ?
+		$stmt_open_fairs = $this->db->prepare("SELECT * FROM fair AS f
 				WHERE f.approved = 1
 				AND f.hidden_search = 0
 				AND f.event_stop > UNIX_TIMESTAMP()
 				GROUP BY f.id
 				ORDER BY f.name
 		");
-		$stmt_open_fairs->execute(array($_SESSION['user_id'], $_SESSION['user_id']));
+		$stmt_open_fairs->execute();
 
 		$fairs = $stmt_open_fairs->fetchAll(PDO::FETCH_CLASS);
 
@@ -56,6 +53,7 @@ class FairController extends Controller {
 		$this->set('th_organizer', 'Organizer');
 		$this->set('th_approved', 'Approved');
 		$this->set('th_maps', 'Maps');
+		$this->set('th_rules', 'Rules');
 		$this->set('th_page_views', 'Page views');
 		$this->set('th_categories', 'Categories');
 		$this->set('th_extraOptions', 'Options');
@@ -69,6 +67,10 @@ class FairController extends Controller {
 		$this->set('th_invoiceSettings', 'Invoice settings');
 		$this->set('th_delete', 'Delete');
 		$this->set('th_clone', 'Clone');
+		$this->set('th_lock', 'Lock');
+		$this->set('lock_event_title', 'Lock event');
+		$this->set('lock_event_content', 'Are you sure to lock the event');
+		$this->set('lock_event_explain', 'The event will not be editable while locked and is only unlockable by the Chartbooker support team.');
 		$this->set('app_yes', 'Yes');
 		$this->set('app_no', 'No');
 		$this->set('app_locked', 'Locked');
@@ -81,9 +83,9 @@ class FairController extends Controller {
 			$this->set('msg_cloning_complete', 'Cloning of the event complete.');
 		}
 
-		$sql = "SELECT f.id, f.name, approved, modules, creation_time, page_views, f.event_start, f.event_stop, f.created_by,
+		$sql = "SELECT f.id, f.name, f.windowtitle, approved, modules, creation_time, page_views, f.event_start, f.event_stop, f.created_by,
 				COUNT(fmap.id) AS maps_cnt,
-				u.company AS arranger_name, u.customer_nr AS arranger_cnr,
+				u.company AS arranger_name,
 				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 2) AS booked_cnt,
 				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 1) AS reserved_cnt,
 				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id) AS total_cnt
@@ -129,84 +131,86 @@ class FairController extends Controller {
 		setAuthLevel(3);
 		$this->Fair->load($fairId, 'id');
 		if ($this->Fair->wasLoaded() && ($this->Fair->get('created_by') == $_SESSION['user_id'] || userLevel() == 4)) {
-
-			if ($do == 'delete') {
-				$fa = new FairArticle;
-				$fa->load($item, 'id');
-				if ($fa->wasLoaded() && $fa->get('fair') == $fairId) {
-					$fa->delete();
+			if (!$this->Fair->isLocked()) {
+				if ($do == 'delete') {
+					$fa = new FairArticle;
+					$fa->load($item, 'id');
+					if ($fa->wasLoaded() && $fa->get('fair') == $fairId) {
+						$fa->delete();
+					}
 				}
-			}
-			
-			$this->setNoTranslate('do', $do);
-			$this->setNoTranslate('item', $item);
-			
-			if ($do == 'edit') {
-				$this->set('form_headline', 'Edit articles');
-				$fa = new FairArticle;
-				$fa->load($item, 'id');
-				$this->setNoTranslate('current_cid', $fa->get('custom_id'));
-				$this->setNoTranslate('current_text', $fa->get('text'));
-				$this->setNoTranslate('current_price', $fa->get('price'));
-				$this->setNoTranslate('required_status', $fa->get('required'));
-				if ($fa->get('vat') == 25)
-				$this->set('vat', 25);
-				if ($fa->get('vat') == 18)
-				$this->set('vat', 18);
-				if ($fa->get('vat') == 12)
-				$this->set('vat', 12);
-				if ($fa->get('vat') == 0)
-				$this->set('vat', 0);
-
-			} else
-				$this->set('form_headline', 'New article');
-			
-			$this->set('headline', 'Fair articles');
-			$this->setNoTranslate('fair_id', $this->Fair->get('id'));
-			$this->setNoTranslate('fair', $this->Fair);
-			$this->set('id_label', 'ID');
-			$this->set('name_label', 'Text');
-			$this->set('price_label', 'Price (without VAT)');
-			$this->set('vat_label', 'Select VAT for this article');
-			$this->set('no_vat_label', 'No VAT (0%)');
-//			$this->set('required_label', 'Required');
-			$this->set('hidden_label', 'Only available for admin');
-			$this->set('yes_label', 'Yes');
-			$this->set('no_label', 'No');
-			$this->set('save_label', 'Save');
-			$this->set('th_id', 'ID');
-			$this->set('th_name', 'Article');
-			$this->set('th_edit', 'Edit');
-			$this->set('th_price', 'Price');
-//			$this->set('th_required', 'Required');
-			$this->set('th_vat', 'Vat');
-			$this->set('th_delete', 'Delete');
-			$this->set('confirm_delete', 'Do you really want to delete this article? All bookings that are related to this article will have their relation to this article removed.');
-
-			if (isset($_POST['save'])) {
-				$fa = new FairArticle;
-				if ($do == 'edit')
-				$fa->load($item, 'id');
-				$fa->set('custom_id', $_POST['custom_id']);
-				$fa->set('text', $_POST['text']);
-				$fa->set('price', $_POST['price']);
-				$fa->set('required', $_POST['required']);
-				$fa->set('vat', $_POST['vat']);
-				$fa->set('fair', $this->Fair->get('id'));
-				$fa->save();
+				
+				$this->setNoTranslate('do', $do);
+				$this->setNoTranslate('item', $item);
 				
 				if ($do == 'edit') {
-					header('Location: '.BASE_URL.'fair/articles/'.$fairId);
-					exit;
-				}
+					$this->set('form_headline', 'Edit articles');
+					$fa = new FairArticle;
+					$fa->load($item, 'id');
+					$this->setNoTranslate('current_cid', $fa->get('custom_id'));
+					$this->setNoTranslate('current_text', $fa->get('text'));
+					$this->setNoTranslate('current_price', $fa->get('price'));
+					$this->setNoTranslate('required_status', $fa->get('required'));
+					if ($fa->get('vat') == 25)
+					$this->setNoTranslate('vat', 25);
+					if ($fa->get('vat') == 18)
+					$this->setNoTranslate('vat', 18);
+					if ($fa->get('vat') == 12)
+					$this->setNoTranslate('vat', 12);
+					if ($fa->get('vat') == 0)
+					$this->setNoTranslate('vat', 0);
+
+				} else
+					$this->set('form_headline', 'New article');
 				
+				$this->set('headline', 'Fair articles');
+				$this->setNoTranslate('fair_id', $this->Fair->get('id'));
+				$this->setNoTranslate('fair', $this->Fair);
+				$this->set('id_label', 'ID');
+				$this->set('name_label', 'Text');
+				$this->set('price_label', 'Price (without VAT)');
+				$this->set('vat_label', 'Select VAT for this article');
+				$this->set('no_vat_label', 'No VAT (0%)');
+	//			$this->set('required_label', 'Required');
+				$this->set('hidden_label', 'Only available for admin');
+				$this->set('yes_label', 'Yes');
+				$this->set('no_label', 'No');
+				$this->set('save_label', 'Save');
+				$this->set('th_id', 'ID');
+				$this->set('th_name', 'Article');
+				$this->set('th_edit', 'Edit');
+				$this->set('th_price', 'Price');
+	//			$this->set('th_required', 'Required');
+				$this->set('th_vat', 'Vat');
+				$this->set('th_delete', 'Delete');
+				$this->set('confirm_delete', 'Do you really want to delete this article? All bookings that are related to this article will have their relation to this article removed.');
+
+				if (isset($_POST['save'])) {
+					$fa = new FairArticle;
+					if ($do == 'edit')
+					$fa->load($item, 'id');
+					$fa->set('custom_id', $_POST['custom_id']);
+					$fa->set('text', $_POST['text']);
+					$fa->set('price', $_POST['price']);
+					$fa->set('required', $_POST['required']);
+					$fa->set('vat', $_POST['vat']);
+					$fa->set('fair', $this->Fair->get('id'));
+					$fa->save();
+					
+					if ($do == 'edit') {
+						header('Location: '.BASE_URL.'fair/articles/'.$fairId);
+						exit;
+					}
+					
+				}
+
+				$this->Fair->load($fairId, 'id');
+				$this->setNoTranslate('articles', $this->Fair->get('articles'));
+
+			} else {
+				$this->setNoTranslate('event_locked', true);
 			}
-
-			$this->Fair->load($fairId, 'id');
-			$this->setNoTranslate('articles', $this->Fair->get('articles'));
-
 		}
-
 	}
 
 
@@ -215,144 +219,204 @@ class FairController extends Controller {
 		setAuthLevel(3);
 		$this->Fair->load($fairId, 'id');
 		if ($this->Fair->wasLoaded() && ($this->Fair->get('created_by') == $_SESSION['user_id'] || userLevel() == 4)) {
-
-			if ($do == 'delete') {
-				$feo = new FairExtraOption;
-				$feo->load($item, 'id');
-				if ($feo->wasLoaded() && $feo->get('fair') == $fairId) {
-					$feo->delete();
+			if (!$this->Fair->isLocked()) {
+				if ($do == 'delete') {
+					$feo = new FairExtraOption;
+					$feo->load($item, 'id');
+					if ($feo->wasLoaded() && $feo->get('fair') == $fairId) {
+						$feo->delete();
+					}
 				}
-			}
-			
-			$this->setNoTranslate('do', $do);
-			$this->setNoTranslate('item', $item);
-			
-			if ($do == 'edit') {
-				$this->set('form_headline', 'Edit extra options');
-				$feo = new FairExtraOption;
-				$feo->load($item, 'id');
-				$this->setNoTranslate('current_cid', $feo->get('custom_id'));
-				$this->setNoTranslate('current_text', $feo->get('text'));
-				$this->setNoTranslate('current_price', $feo->get('price'));
-				$this->setNoTranslate('required_status', $feo->get('required'));
-
-				if ($feo->get('vat') == 25)
-				$this->set('vat', 25);
-				if ($feo->get('vat') == 18)
-				$this->set('vat', 18);
-				if ($feo->get('vat') == 12)
-				$this->set('vat', 12);
-				if ($feo->get('vat') == 0)
-				$this->set('vat', 0);
-
-			} else
-				$this->set('form_headline', 'New extra option');
-			
-			$this->set('headline', 'Fair options');
-			$this->setNoTranslate('fair_id', $this->Fair->get('id'));
-			$this->setNoTranslate('fair', $this->Fair);
-			$this->set('id_label', 'ID');
-			$this->set('name_label', 'Text');
-			$this->set('price_label', 'Price (without VAT)');
-			$this->set('vat_label', 'Select VAT for this option');
-			$this->set('no_vat_label', 'No VAT (0%)');
-			$this->set('required_label', 'Required');
-			$this->set('requiredyes_label', 'Yes');
-			$this->set('requiredno_label', 'No');	
-			$this->set('save_label', 'Save');
-			$this->set('th_id', 'ID');
-			$this->set('th_name', 'Option');
-			$this->set('th_edit', 'Edit');
-			$this->set('th_price', 'Price');
-			$this->set('th_required', 'Required');
-			$this->set('th_vat', 'Vat');
-			$this->set('th_delete', 'Delete');
-			$this->set('confirm_delete', 'Do you really want to delete this option? All bookings that are related to this option will have their relation to this option removed.');
-
-			if (isset($_POST['save'])) {
-				$feo = new FairExtraOption;
-				if ($do == 'edit')
-				$feo->load($item, 'id');
-				$feo->set('custom_id', $_POST['custom_id']);
-				$feo->set('text', $_POST['text']);
-				$feo->set('price', $_POST['price']);
-				$feo->set('required', $_POST['required']);
-				$feo->set('vat', $_POST['vat']);
-				$feo->set('fair', $this->Fair->get('id'));
-				$feo->save();
+				
+				$this->setNoTranslate('do', $do);
+				$this->setNoTranslate('item', $item);
 				
 				if ($do == 'edit') {
-					header('Location: '.BASE_URL.'fair/extraOptions/'.$fairId);
-					exit;
+					$this->set('form_headline', 'Edit extra options');
+					$feo = new FairExtraOption;
+					$feo->load($item, 'id');
+					$this->setNoTranslate('current_cid', $feo->get('custom_id'));
+					$this->setNoTranslate('current_text', $feo->get('text'));
+					$this->setNoTranslate('current_price', $feo->get('price'));
+					$this->setNoTranslate('required_status', $feo->get('required'));
+
+					if ($feo->get('vat') == 25)
+					$this->setNoTranslate('vat', 25);
+					if ($feo->get('vat') == 18)
+					$this->setNoTranslate('vat', 18);
+					if ($feo->get('vat') == 12)
+					$this->setNoTranslate('vat', 12);
+					if ($feo->get('vat') == 0)
+					$this->setNoTranslate('vat', 0);
+
+				} else
+					$this->set('form_headline', 'New extra option');
+				if ($this->Fair->isLocked()) {
+					$this->setNoTranslate('event_locked', true);
 				}
-				
+				$this->set('headline', 'Fair options');
+				$this->setNoTranslate('fair_id', $this->Fair->get('id'));
+				$this->setNoTranslate('fair', $this->Fair);
+				$this->set('id_label', 'ID');
+				$this->set('name_label', 'Text');
+				$this->set('price_label', 'Price (without VAT)');
+				$this->set('vat_label', 'Select VAT for this option');
+				$this->set('no_vat_label', 'No VAT (0%)');
+				$this->set('required_label', 'Required');
+				$this->set('requiredyes_label', 'Yes');
+				$this->set('requiredno_label', 'No');	
+				$this->set('save_label', 'Save');
+				$this->set('th_id', 'ID');
+				$this->set('th_name', 'Option');
+				$this->set('th_edit', 'Edit');
+				$this->set('th_price', 'Price');
+				$this->set('th_required', 'Required');
+				$this->set('th_vat', 'Vat');
+				$this->set('th_delete', 'Delete');
+				$this->set('confirm_delete', 'Do you really want to delete this option? All bookings that are related to this option will have their relation to this option removed.');
+
+				if (isset($_POST['save'])) {
+					$feo = new FairExtraOption;
+					if ($do == 'edit')
+					$feo->load($item, 'id');
+					$feo->set('custom_id', $_POST['custom_id']);
+					$feo->set('text', $_POST['text']);
+					$feo->set('price', $_POST['price']);
+					$feo->set('required', $_POST['required']);
+					$feo->set('vat', $_POST['vat']);
+					$feo->set('fair', $this->Fair->get('id'));
+					$feo->save();
+					
+					if ($do == 'edit') {
+						header('Location: '.BASE_URL.'fair/extraOptions/'.$fairId);
+						exit;
+					}
+					
+				}
+
+				$this->Fair->load($fairId, 'id');
+				$this->setNoTranslate('extraOptions', $this->Fair->get('extraOptions'));
+			} else {
+				$this->setNoTranslate('event_locked', true);
 			}
-
-			$this->Fair->load($fairId, 'id');
-			$this->setNoTranslate('extraOptions', $this->Fair->get('extraOptions'));
-
 		}
 
 	}
+/*
+	public function fairgroups($owner) {
 
+		setAuthLevel(3);
+		$this->setNoTranslate('owner', $owner);
+		$this->set('headline', 'Event groups overview');
+		$this->set('th_fair', 'Name');
+		$this->set('th_organizer', 'Organizer');
+		$this->set('th_delete', 'Delete');
+
+		$sql = "SELECT f.id, f.name, f.windowtitle, approved, modules, creation_time, page_views, f.event_start, f.event_stop, f.created_by,
+				COUNT(fmap.id) AS maps_cnt,
+				u.company AS arranger_name, u.customer_nr AS arranger_cnr,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 2) AS booked_cnt,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id AND status = 1) AS reserved_cnt,
+				(SELECT COUNT(*) FROM fair_map_position AS fmp WHERE fmp.map = fmap.id) AS total_cnt
+				FROM fair AS f
+				LEFT JOIN fair_map AS fmap ON fmap.fair = f.id
+				LEFT JOIN user AS u ON f.created_by = u.id";
+
+		switch (userLevel()) {
+			case 4:
+				$params = array();
+
+				if ($param == 'new') {
+					$sql .= " WHERE approved = ?";
+					array_push($params, '0');
+				} else if ((int) $param > 0) {
+					$sql .= " WHERE f.created_by = ?";
+					array_push($params, $param);
+				}
+
+				break;
+
+			case 3:
+				$sql .= " WHERE f.created_by = ?";
+				$params = array($_SESSION['user_id']);
+				break;
+
+			default:
+				toLogin();
+				break;
+		}
+
+		$sql .= " GROUP BY f.id ORDER BY approved, name";
+
+		$stmt = $this->Fair->db->prepare($sql);
+		$stmt->execute($params);
+		$fairs = $stmt->fetchAll(PDO::FETCH_CLASS);
+
+		$this->setNoTranslate('fairs', $fairs);
+	}
+	*/
 	public function categories($fairId, $do='', $item=0) {
 		setAuthLevel(3);
 		$this->Fair->load($fairId, 'id');
 		if ($this->Fair->wasLoaded() && ($this->Fair->get('created_by') == $_SESSION['user_id'] || userLevel() == 4)) {
-
-			if ($do == 'delete') {
-				$cat = new ExhibitorCategory;
-				$cat->load($item, 'id');
-				if ($cat->wasLoaded() && $cat->get('fair') == $fairId) {
-					$cat->delete();
-				}
-			}
-			
-			$this->setNoTranslate('do', $do);
-			$this->setNoTranslate('item', $item);
-			
-			if ($do == 'edit') {
-				$this->set('form_headline', 'Edit category');
-				$cat = new ExhibitorCategory;
-				$cat->load($item, 'id');
-				$this->setNoTranslate('current_title', $cat->get('name'));
-			} else
-				$this->set('form_headline', 'New category');
-			
-			$this->set('headline', 'Exhibitor categories for');
-			$this->setNoTranslate('fair_id', $this->Fair->get('id'));
-			$this->setNoTranslate('fair', $this->Fair);
-			$this->set('name_label', 'Name');
-			$this->set('save_label', 'Save');
-			$this->set('th_name', 'Category');
-			$this->set('th_edit', 'Edit');
-			$this->set('th_delete', 'Delete');
-			$this->set('confirm_delete', 'Do you really want to delete this category? All bookings that are related to this category will have their relation to this category removed.');
-
-			if (isset($_POST['save'])) {
-				$cat = new ExhibitorCategory;
-				if ($do == 'edit')
+			if (!$this->Fair->isLocked()) {
+				if ($do == 'delete') {
+					$cat = new ExhibitorCategory;
 					$cat->load($item, 'id');
-				$cat->set('name', $_POST['name']);
-				$cat->set('fair', $this->Fair->get('id'));
-				$cat->save();
+					if ($cat->wasLoaded() && $cat->get('fair') == $fairId) {
+						$cat->delete();
+					}
+				}
+				
+				$this->setNoTranslate('do', $do);
+				$this->setNoTranslate('item', $item);
 				
 				if ($do == 'edit') {
-					header('Location: '.BASE_URL.'fair/categories/'.$fairId);
-					exit;
+					$this->set('form_headline', 'Edit category');
+					$cat = new ExhibitorCategory;
+					$cat->load($item, 'id');
+					$this->setNoTranslate('current_title', $cat->get('name'));
+				} else
+					$this->set('form_headline', 'New category');
+				if ($this->Fair->isLocked()) {
+					$this->setNoTranslate('event_locked', true);
 				}
-				
+				$this->set('headline', 'Exhibitor categories for');
+				$this->setNoTranslate('fair_id', $this->Fair->get('id'));
+				$this->setNoTranslate('fair', $this->Fair);
+				$this->set('name_label', 'Name');
+				$this->set('save_label', 'Save');
+				$this->set('th_name', 'Category');
+				$this->set('th_edit', 'Edit');
+				$this->set('th_delete', 'Delete');
+				$this->set('confirm_delete', 'Do you really want to delete this category? All bookings that are related to this category will have their relation to this category removed.');
+
+				if (isset($_POST['save'])) {
+					$cat = new ExhibitorCategory;
+					if ($do == 'edit')
+						$cat->load($item, 'id');
+					$cat->set('name', $_POST['name']);
+					$cat->set('fair', $this->Fair->get('id'));
+					$cat->save();
+					
+					if ($do == 'edit') {
+						header('Location: '.BASE_URL.'fair/categories/'.$fairId);
+						exit;
+					}
+					
+				}
+
+				$this->Fair->load($fairId, 'id');
+				$this->setNoTranslate('categories', $this->Fair->get('categories'));
+			} else {
+				$this->setNoTranslate('event_locked', true);
 			}
-
-			$this->Fair->load($fairId, 'id');
-			$this->setNoTranslate('categories', $this->Fair->get('categories'));
-
 		}
 
 	}
 
 
-	public function invoice($id) {
+	public function invoiceSettings($id) {
 
 		setAuthLevel(3);
 
@@ -389,7 +453,7 @@ class FairController extends Controller {
 
 				$fairInvoice->save();
 
-				header("Location: ".BASE_URL."fair/invoice/".$id);
+				header("Location: ".BASE_URL."fair/invoiceSettings/".$id);
 
 			}
 			if ($fairInvoice->get('default_expirationdate')) {
@@ -412,7 +476,7 @@ class FairController extends Controller {
 			$this->set('iban_no_label', 'IBAN');
 			$this->set('swift_no_label', 'SWIFT');
 			$this->set('swish_no_label', 'SWISH');
-			$this->set('phone_label', 'Phone');
+			$this->set('phone_label', 'phone');
 			$this->set('email_label', 'Email');
 			$this->set('website_label', 'Website');
 			$this->set('default_expirationdate_label', 'Default expirationdate for invoices');
@@ -422,38 +486,95 @@ class FairController extends Controller {
 			$this->set('credit_invoice_id_start_label', 'Starting number for the first credited invoice');
 			$this->set('pos_vat_label', 'Position VAT');
 			$this->set('no_vat_label', 'No VAT (0%)');
-			$this->set('reference', $fairInvoice->get('reference'));
-			$this->set('company_name', $fairInvoice->get('company_name'));
-			$this->set('address', $fairInvoice->get('address'));
-			$this->set('zipcode', $fairInvoice->get('zipcode'));
-			$this->set('city', $fairInvoice->get('city'));
-			$this->set('country', $fairInvoice->get('country'));
-			$this->set('orgnr', $fairInvoice->get('orgnr'));
-			$this->set('bank_no', $fairInvoice->get('bank_no'));
-			$this->set('postgiro', $fairInvoice->get('postgiro'));
-			$this->set('vat_no', $fairInvoice->get('vat_no'));
-			$this->set('iban_no', $fairInvoice->get('iban_no'));
-			$this->set('swift_no', $fairInvoice->get('swift_no'));
-			$this->set('swish_no', $fairInvoice->get('swish_no'));
-			$this->set('phone', $fairInvoice->get('phone'));
-			$this->set('invoice_email', $fairInvoice->get('email'));
-			$this->set('website', $fairInvoice->get('website'));
-			$this->set('default_expirationdate', $date);
-			$this->set('fair', $fairInvoice->get('fair'));
-			$this->set('invoice_id_start', $fairInvoice->get('invoice_id_start'));
-			$this->set('credit_invoice_id_start', $fairInvoice->get('credit_invoice_id_start'));
+			$this->setNoTranslate('reference', $fairInvoice->get('reference'));
+			$this->setNoTranslate('company_name', $fairInvoice->get('company_name'));
+			$this->setNoTranslate('address', $fairInvoice->get('address'));
+			$this->setNoTranslate('zipcode', $fairInvoice->get('zipcode'));
+			$this->setNoTranslate('city', $fairInvoice->get('city'));
+			$this->setNoTranslate('country', $fairInvoice->get('country'));
+			$this->setNoTranslate('orgnr', $fairInvoice->get('orgnr'));
+			$this->setNoTranslate('bank_no', $fairInvoice->get('bank_no'));
+			$this->setNoTranslate('postgiro', $fairInvoice->get('postgiro'));
+			$this->setNoTranslate('vat_no', $fairInvoice->get('vat_no'));
+			$this->setNoTranslate('iban_no', $fairInvoice->get('iban_no'));
+			$this->setNoTranslate('swift_no', $fairInvoice->get('swift_no'));
+			$this->setNoTranslate('swish_no', $fairInvoice->get('swish_no'));
+			$this->setNoTranslate('phone', $fairInvoice->get('phone'));
+			$this->setNoTranslate('invoice_email', $fairInvoice->get('email'));
+			$this->setNoTranslate('website', $fairInvoice->get('website'));
+			$this->setNoTranslate('default_expirationdate', $date);
+			$this->setNoTranslate('fair', $fairInvoice->get('fair'));
+			$this->setNoTranslate('invoice_id_start', $fairInvoice->get('invoice_id_start'));
+			$this->setNoTranslate('credit_invoice_id_start', $fairInvoice->get('credit_invoice_id_start'));
 
 			if ($fairInvoice->get('pos_vat') == 25)
-			$this->set('pos_vat', 25);
+			$this->setNoTranslate('pos_vat', 25);
 			if ($fairInvoice->get('pos_vat') == 18)
-			$this->set('pos_vat', 18);
+			$this->setNoTranslate('pos_vat', 18);
 			if ($fairInvoice->get('pos_vat') == 0)
-			$this->set('pos_vat', 0);
+			$this->setNoTranslate('pos_vat', 0);
 			
 			} else {
 				toLogin();
 			}
 		}
+
+
+	public function rules($id) {
+
+		setAuthLevel(3);
+		
+		if (!empty($id)) {
+			function makeUserOptions($db, $sel=0) {
+				global $id;
+				$stmt = $db->prepare("SELECT id, company, name FROM user WHERE level = '3'");
+				$stmt->execute(array());
+				$result = $stmt->fetchAll();
+				$opts = '';
+				foreach ($result as $res) {
+					$s = ($sel == $res['id']) ? ' selected="selected"' : '';
+					$opts.= '<option'.$s.' value="'.$res['id'].'">'.$res['company'].', '.$res['name'].'</option>';
+				}
+				return $opts;
+			}
+
+			$this->setNoTranslate('fair_id', $id);
+			$this->set('rules_headline', 'Edit rules for event');
+			$this->Fair->load($id, 'id');
+			
+			if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
+				toLogin();
+
+			if (isset($_POST['save'])) {
+
+				$this->Fair->set('rules', $_POST['rules']);
+				$fId = $this->Fair->save();
+
+				header("Location: ".BASE_URL."fair/rules/".$id);
+				exit;
+			}
+
+			$this->setNoTranslate('edit_id', $id);
+			$this->setNoTranslate('fair', $this->Fair);
+
+			$this->set('rules_label', 'Rules for this event');
+			$this->set('save_label', 'Save');
+			$this->set('cancel_label', 'Cancel');
+		}
+	}
+
+	public function lock($id) {
+		setAuthLevel(3);
+		if (!empty($id)) {
+			$this->Fair->load($id, 'id');
+			if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
+				toLogin();
+			$this->Fair->set('approved', 2);
+			$this->Fair->save();
+		}
+		header("Location: ".BASE_URL."fair/overview");
+		exit;
+	}
 
 	public function edit($id) {
 
@@ -502,10 +623,12 @@ class FairController extends Controller {
 				$this->Fair->set('contact_phone', $_POST['contact_phone']);
 				$this->Fair->set('website', $_POST['website']);
 				$this->Fair->set('contact_email', $_POST['contact_email']);
+				$this->Fair->set('contact_name', $_POST['contact_name']);
 				$this->Fair->set('hidden_info', $_POST['hidden_info']);
 				$this->Fair->set('event_start', strtotime($_POST['event_start']));
 				$this->Fair->set('event_stop', strtotime($_POST['event_stop']));
 				$this->Fair->set('accepted_clone_date', strtotime($_POST['accepted_clone_date']));
+				$this->Fair->set('default_reservation_date', strtotime($_POST['default_reservation_date']));
 				if (userLevel() == 4) {
 					$this->Fair->set('approved', $_POST['approved']);
 					$this->Fair->set('created_by', $_POST['arranger']);	
@@ -544,7 +667,9 @@ class FairController extends Controller {
 					chmod($target_dir, 0775);
 					unlink(ROOT.'public/images/tmp/'.$now.'.png');
 				}
-				
+
+				$this->updateAliases();
+
 				if ($id == 'new') {
 					$userLevel = userLevel();
 
@@ -557,41 +682,28 @@ class FairController extends Controller {
 						$user->load($_SESSION['user_id'], 'id');
 					}
 
-					/* Alias */
-					$organizermail = $_POST['contact_email'];
-					$fairmail = $this->Fair->get('name');
-
-					if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
-						Alias::addNew($fairmail, array($organizermail));
-						Alias::commit();
-					}
-
 					if ($userLevel === "3") {
-					    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-						$mail->setMailVar('url', BASE_URL.$this->Fair->get('url'));
-						$mail->setMailVar('company', $user->get('company'));
-						$mail->setMailVar('event_start', $_POST['event_start']);
-						$mail->setMailVar('event_stop', $_POST['event_stop']);
+						$email = EMAIL_FROM_ADDRESS;
+						$from = array($email => EMAIL_FROM_NAME);
+						$recipients = array(EMAIL_TO_ADMIN => EMAIL_TO_ADMIN);
+				        $mail = new Mail();
+				        $mail->setTemplate('new_fair');
+				        $mail->setPlainTemplate('new_fair');
+				        $mail->setFrom($from);
+				        $mail->addReplyTo(EMAIL_FROM_NAME, $email);
+				        $mail->setRecipients($recipients);
+						$mail->setMailVar('event_url', BASE_URL.$this->Fair->get('url'));
+						$mail->setMailVar('creator_name', $user->get('company'));
 						$mail->setMailVar('event_name', $this->Fair->get('name'));
 					    $mail->send();
 					  }
 
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
-				} else {
-
-					/* Alias */
-					$organizermail = $_POST['contact_email'];
-					$fairmail = $this->Fair->get('name');
-
-					if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
-						Alias::edit($fairmail, array($organizermail));
-						Alias::commit();
-					}
-
+				}/* else {
 					header("Location: ".BASE_URL."fair/overview");
 					exit;
-				}
+				}*/
 			}
 
 			$this->setNoTranslate('edit_id', $id);
@@ -638,7 +750,7 @@ class FairController extends Controller {
 				}else{
 					$this->setNoTranslate('disable', '');
 			}
-			$this->set('image_path', '../images/fairs/'.$id.'/logotype');
+			$this->setNoTranslate('image_path', '../images/fairs/'.$id.'/logotype');
 			$this->set('currency_label', 'Currency');
 			$this->set('approved_label', 'Status');
 			$this->set('arranger_label', 'Organizer');
@@ -651,12 +763,14 @@ class FairController extends Controller {
 			$this->set('logo_label', 'Logotype');
 			$this->set('contact_label', 'Contact information');
 			$this->set('contact_email_label', 'Contact Email');
+			$this->set('contact_name_label', 'Contact Name');
 			$this->set('website_label', 'Website');
 			$this->set('contact_phone_label', 'Contact Phone');
 			$this->set('hidden_info_label', 'Information when event is hidden');
 			$this->set('event_start', 'Event opening date');
 			$this->set('event_stop', 'Event closing date');
 			$this->set('accepted_cloned_reservations', 'Date for accepted cloned reservations');
+			$this->set('default_reservation_date', 'Default date for new reservations');
 			$this->set('interval_reminders_label', 'Interval for reminders');
 			$this->set('reminder_1_label', '1st reminder');
 			//$this->set('reminder_2_label', '2nd reminder');
@@ -713,6 +827,7 @@ class FairController extends Controller {
 				$fair_clone->set('contact_phone', $_POST['contact_phone']);
 				$fair_clone->set('website', $_POST['website']);
 				$fair_clone->set('contact_email', $_POST['contact_email']);
+				$fair_clone->set('contact_name', $_POST['contact_name']);
 				$fair_clone->set('hidden_info', $this->Fair->get('hidden_info'));
 				$fair_clone->set('created_by', $this->Fair->get('created_by'));
 				$fair_clone->set('page_views', 0);
@@ -720,6 +835,7 @@ class FairController extends Controller {
 				$fair_clone->set('event_start', strtotime($_POST['event_start']));
 				$fair_clone->set('event_stop', strtotime($_POST['event_stop']));
 				$fair_clone->set('accepted_clone_date', strtotime($_POST['accepted_clone_date']));
+				$fair_clone->set('default_reservation_date', strtotime($_POST['default_reservation_date']));
 				$fair_clone->set('hidden', $this->Fair->get('hidden'));
 				$fair_clone->set('reminder_day1', $this->Fair->get('reminder_day1'));
 				$fair_clone->set('reminder_note1', $this->Fair->get('reminder_note1'));
@@ -864,10 +980,18 @@ class FairController extends Controller {
 				$exhibitors = $statement->fetchAll(PDO::FETCH_ASSOC);
 
 				foreach ($exhibitors as $exhibitor) {
-					/* Kopiera utställaren */
-					$statement = $this->db->prepare("INSERT INTO exhibitor (user, fair, position, commodity, arranger_message, booking_time, clone, status) VALUES (?, ?, ?, ?, ?, ?, 1, ?)");
-					$statement->execute(array($exhibitor['user'], $fair_clone_id, $position_ids[$exhibitor['position']], $exhibitor['commodity'],  $exhibitor['arranger_message'], $exhibitor['booking_time'], $exhibitor['status']));
-					$exhibitor_clone_id = $this->db->lastInsertId();
+					/* Kopiera bokningen */
+					if ($exhibitor['recurring'] == 1) {
+						$statement = $this->db->prepare("UPDATE fair_map_position SET status = 2 WHERE id = ?");
+						$statement->execute(array($position_ids[$exhibitor['position']]));
+						$statement = $this->db->prepare("INSERT INTO exhibitor (user, fair, position, commodity, arranger_message, booking_time, clone, status, recurring) VALUES (?, ?, ?, ?, ?, ?, 0, 2, 1)");
+						$statement->execute(array($exhibitor['user'], $fair_clone_id, $position_ids[$exhibitor['position']], $exhibitor['commodity'],  $exhibitor['arranger_message'], $exhibitor['booking_time']));
+						$exhibitor_clone_id = $this->db->lastInsertId();
+					} else {
+						$statement = $this->db->prepare("INSERT INTO exhibitor (user, fair, position, commodity, arranger_message, booking_time, clone, status) VALUES (?, ?, ?, ?, ?, ?, 1, 1)");
+						$statement->execute(array($exhibitor['user'], $fair_clone_id, $position_ids[$exhibitor['position']], $exhibitor['commodity'],  $exhibitor['arranger_message'], $exhibitor['booking_time']));
+						$exhibitor_clone_id = $this->db->lastInsertId();
+					}
 
 					/* Hämta alla kopplingar mellan utställare och kategorier */
 					$statement = $this->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ?');
@@ -915,22 +1039,23 @@ class FairController extends Controller {
 
 				$userLevel = userLevel();
 
-				/* Alias */					
 				if ($userLevel === "4") {
 					$user->load($this->Fair->get('created_by'), 'id');
 				} else if ($userLevel === "3") {
 					$user->load($_SESSION['user_id'], 'id');
 				}
 
-				$organizermail = $user->get('email');
-				$fairmail = $_POST['name'];
-
-				if ((strlen($organizermail) > 1) && (strlen($fairmail) > 1)) {
-					Alias::addNew($fairmail, array($organizermail));
-				}
-
-			    $mail = new Mail(EMAIL_FROM_ADDRESS, 'new_fair');
-				$mail->setMailVar('url', BASE_URL.$fair_clone->get('url'));
+				$this->updateAliases();
+				$email = EMAIL_FROM_ADDRESS;
+				$from = array($email => EMAIL_FROM_NAME);
+				$recipients = array(EMAIL_TO_ADMIN => EMAIL_TO_ADMIN);
+		        $mail = new Mail();
+		        $mail->setTemplate('new_fair');
+		        $mail->setPlainTemplate('new_fair');
+		        $mail->setFrom($from);
+		        $mail->addReplyTo(EMAIL_FROM_NAME, $email);
+		        $mail->setRecipients($recipients);
+				$mail->setMailVar('event_url', BASE_URL.$fair_clone->get('url'));
 				$mail->setMailVar('company', $user->get('company'));
 				$mail->setMailVar('event_name', $fair_clone->get('name'));
 				$mail->send();
@@ -948,9 +1073,11 @@ class FairController extends Controller {
 			$this->set('event_start', 'Event opening date');
 			$this->set('event_stop', 'Event closing date');
 			$this->set('accepted_cloned_reservations', 'Date for accepted cloned reservations');
+			$this->set('default_reservation_date', 'Default date for new reservations');
 			$this->set('contact_label', 'Contact information');
 			$this->set('website_label', 'Website');
 			$this->set('contact_email_label', 'Contact Email');
+			$this->set('contact_name_label', 'Contact Name');
 			$this->set('contact_phone_label', 'Contact Phone');
 			$this->set('hidden_info_label', 'Information when event is hidden');
 			$this->set('clone_label', 'Complete cloning');
@@ -1021,7 +1148,9 @@ class FairController extends Controller {
 			if (isset($_POST['save'])) {
 				
 			}
-
+			if ($this->Fair->isLocked()) {
+				$this->setNoTranslate('event_locked', true);
+			}
 			$this->set('headline', 'Map overview for');
 			$this->setNoTranslate('fair', $this->Fair);
 			$this->set('create_link', 'New map');
@@ -1032,7 +1161,6 @@ class FairController extends Controller {
 			$this->set('th_delete', 'Delete');
 			$this->set('th_move_up', 'Move up');
 			$this->set('th_move_down', 'Move down');
-			$this->setNoTranslate('fair', $this->Fair);
 
 		}
 	}
@@ -1072,6 +1200,9 @@ class FairController extends Controller {
 				toLogin();
 			} else {
 				$this->Fair->delete();
+
+				$this->updateAliases();
+
 				header("Location: ".BASE_URL."fair/overview");
 				exit;
 			}
@@ -1101,6 +1232,7 @@ class FairController extends Controller {
 			$this->set("invoiceFunction", "Enable Invoice-module for this fair");
 			$this->set("raindanceFunction", "Enable RainDance-module for this fair");
 			$this->set("economyFunction", "Enable Economy-module for this fair");
+			$this->set("recurringFunction", "Enable Recurring-module for this fair");
 			$this->set("active", "active");
 			$this->set("save", "Save");
 			
@@ -1122,28 +1254,29 @@ class FairController extends Controller {
 		$fair = new Fair();
 		$fair->load($id, "id");
 
-		if ($fair->wasLoaded()) {
+		if ($fair->wasLoaded() && !$fair->isLocked()) {
 			if (isset($_POST["save"])) {
 				unset($_POST["save"]);
 				$fair->set("mail_settings", json_encode($_POST));
 				$fair->save();
 			}
-
-			$this->set("heading", "Automatically send a mail when I:");
+			$this->setNoTranslate("fair", $fair);
+			$this->set("headline", "Mail settings");
+			$this->set("heading", "Automatically send a mail:");
 			$this->set("toMyself", "To myself");
 			$this->set("toExhibitor", "To the Exhibitor");
 			$this->set("toCurrentUser", "To the currently administrating user");
-			$this->set("bookingCreated", "Make a booking");
-			$this->set("bookingEdited", "Edit a booking");
-			$this->set("bookingCancelled", "Cancel a booking or reservation");
-			$this->set("reservationCreated", "Make a reservation");
-			$this->set("reservationEdited", "Edit a reservation");
-			$this->set("recievePreliminaryBooking", "Recieve a preliminary booking");
-			$this->set("acceptPreliminaryBooking", "Accept a preliminary booking");
-			$this->set("cancelPreliminaryBooking", "Cancel a preliminary booking");
-			$this->set("registerForFair", "Recieve a fair registration");
-			$this->set("registrationCancelled", "Cancel a registration");
-			$this->set("reservationReminders", "Reminders for expiring reservations");
+			$this->set("bookingCreated", "When I create a booking or reservation");
+			$this->set("bookingEdited", "When I edit a booking or reservation");
+			$this->set("bookingCancelled", "When I cancel a booking or reservation");
+			$this->set("bookingToReservation", "When I change a booking (paid) to reserved (unpaid) status");
+			$this->set("reservationToBooking", "When I change a reservation (unpaid) to booked (paid) status");
+			$this->set("recievePreliminaryBooking", "When I recieve a request for stand");
+			$this->set("acceptPreliminaryBooking", "When I accept a request for stand");
+			$this->set("cancelPreliminaryBooking", "When I cancel a request for stand");
+			$this->set("recieveRegistration", "When an exhibitor applies for stand");
+			$this->set("registrationCancelled", "When I cancel an application for stand");
+			$this->set("reservationReminders", "When reminders are active for expiring reservations");
 			$this->set("save", "Save");
 
 			$mailSettings = json_decode($fair->get("mail_settings"));
@@ -1152,32 +1285,36 @@ class FairController extends Controller {
 				$mailSettings->bookingCreated = null;
 				$mailSettings->bookingEdited = null;
 				$mailSettings->bookingCancelled = null;
-				$mailSettings->reservationCreated = null;
-				$mailSettings->reservationEdited = null;
+				$mailSettings->bookingToReservation = null;
+				$mailSettings->reservationToBooking = null;
 				$mailSettings->recievePreliminaryBooking = null;
 				$mailSettings->acceptPreliminaryBooking = null;
 				$mailSettings->cancelPreliminaryBooking = null;
-				$mailSettings->registerForFair = null;
+				$mailSettings->recieveRegistration = null;
 				$mailSettings->registrationCancelled = null;
 				$mailSettings->reservationReminders = null;
 			}
-
 			$this->setNoTranslate("mailSettings", $mailSettings);
 			$this->setNoTranslate("id", $id);
+		} else {
+			header('Location: '.BASE_URL.'fair/overview');
+			$this->setNoTranslate('event_locked', true);
+			exit;
 		}
 	}
-	public function updateAliases() {
-		$result = $this->Fair->db->query("SELECT `fair`.`url`, `user`.`email` FROM `fair` INNER JOIN `user` ON `fair`.`created_by` = `user`.`id` ");
 
-		Alias::clear();
+	public function updateAliases() {
+		$result = $this->Fair->db->query("SELECT `fair`.`url`, `fair`.`contact_email`
+			FROM `fair`
+			ORDER BY `fair`.`url` ASC
+			");
 
 		while (($fair = $result->fetch(PDO::FETCH_ASSOC))) {
-			Alias::addNew($fair["url"], array($fair["email"]));
+			Alias::add($fair['url'], array($fair['contact_email']));
 		}
 
 		Alias::commit();
 	}
-
 
 	public function exportToRainDance($id) {
 
@@ -1703,7 +1840,7 @@ class FairController extends Controller {
 			$stmt->execute(array($id));
 			$extractions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
-			$this->set('extractions', $extractions);
+			$this->setNoTranslate('extractions', $extractions);
 
 		}
 	}
@@ -1799,26 +1936,28 @@ class FairController extends Controller {
 					if (count($articletexts) > 0) {
 						foreach ($articletexts as $arttext) {
 							if ($_POST['invoicestatus'] == 4) {
-								$stmt = $this->db->prepare("SELECT DISTINCT(eir.text) AS text, eir.price AS price, COUNT(amount) FROM exhibitor_invoice_rel AS eir LEFT JOIN exhibitor_invoice_history AS ex_invoice ON eir.invoice = ex_invoice.id WHERE eir.text = ? AND eir.type = 'article' AND eir.fair = ? AND ex_invoice.fair = ? AND ex_invoice.id IN (" . implode(',', $invoice_ids) . ")");
+								$stmt = $this->db->prepare("SELECT DISTINCT(eir.text) AS text, eir.price AS price FROM exhibitor_invoice_rel AS eir LEFT JOIN exhibitor_invoice_history AS ex_invoice ON eir.invoice = ex_invoice.id WHERE eir.text = ? AND eir.type = 'article' AND eir.fair = ? AND ex_invoice.fair = ? AND ex_invoice.id IN (" . implode(',', $invoice_ids) . ")");
 								$stmt2 = $this->db->prepare("SELECT eir.amount AS amount FROM exhibitor_invoice_rel AS eir LEFT JOIN exhibitor_invoice_history AS ex_invoice ON eir.invoice = ex_invoice.id WHERE eir.text = ? AND eir.type = 'article' AND eir.fair = ? AND ex_invoice.fair = ? AND ex_invoice.id IN (" . implode(',', $invoice_ids) . ")");
 
 							} else {
-								$stmt = $this->db->prepare("SELECT DISTINCT(eir.text) AS text, eir.price AS price, COUNT(amount) FROM exhibitor_invoice_rel AS eir LEFT JOIN exhibitor_invoice AS ex_invoice ON eir.invoice = ex_invoice.id WHERE eir.text = ? AND eir.type = 'article' AND eir.fair = ? AND ex_invoice.fair = ? AND ex_invoice.id IN (" . implode(',', $invoice_ids) . ")");
-								$stmt2 = $this->db->prepare("SELECT eir.amount AS amount FROM exhibitor_invoice_rel AS eir LEFT JOIN exhibitor_invoice AS ex_invoice ON eir.invoice = ex_invoice.id WHERE eir.text = ? AND eir.type = 'article' AND eir.fair = ? AND ex_invoice.fair = ? AND ex_invoice.id IN (" . implode(',', $invoice_ids) . ")");
+								$stmt = $this->db->prepare("SELECT DISTINCT(eir.text) AS text, eir.price AS price FROM exhibitor_invoice_rel AS eir LEFT JOIN exhibitor_invoice AS ex_invoice ON eir.invoice = ex_invoice.id WHERE eir.text = ? AND eir.type = 'article' AND eir.fair = ? AND ex_invoice.fair = ? AND ex_invoice.id IN (" . implode(',', $invoice_ids) . ")");
+								$stmt2 = $this->db->prepare("SELECT SUM(eir.amount) AS amount FROM exhibitor_invoice_rel AS eir LEFT JOIN exhibitor_invoice AS ex_invoice ON eir.invoice = ex_invoice.id WHERE eir.text = ? AND eir.type = 'article' AND eir.fair = ? AND ex_invoice.fair = ? AND ex_invoice.id IN (" . implode(',', $invoice_ids) . ")");
 							}
 							$stmt->execute(array($arttext['text'], $id, $id));
 							$stmt2->execute(array($arttext['text'], $id, $id));
 							$articles[] = $stmt->fetchAll(PDO::FETCH_ASSOC);
 							$articleamounts[] = $stmt2->fetchAll(PDO::FETCH_ASSOC);
 						}
-							$articleamount = 0;
-						foreach ($articleamounts[0] as $art) {
-							foreach ($art as $amt) {
-								$articleamount += $amt;
-							}
+
+						for($i = 0; $i < count($articles); $i++) {
+							$arts[] = array(
+								'text' => $articles[$i][0]['text'], 
+								'price' => $articles[$i][0]['price'], 
+								'amount' => $articleamounts[$i][0]['amount']
+							);
 						}
-						$this->setNoTranslate('articles', $articles);
-						$this->setNoTranslate('articleamount', $articleamount);
+
+						$this->setNoTranslate('articles', $arts);
 					}
 					
 					$this->setNoTranslate('positions', $positions);

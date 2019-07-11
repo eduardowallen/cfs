@@ -12,7 +12,7 @@
   ExpiresByType text/javascript           "access plus 2 months"
 
   <IfModule mod_headers.c>
-    Header set Access-Control-Allow-Origin "http://www.chartbooking.com/"
+    Header set Access-Control-Allow-Origin "https://www.chartbooking.com/"
     Header append Cache-Control "public"
   </IfModule>
 </IfModule>
@@ -25,7 +25,7 @@ RewriteEngine On
 ## Force www ##
 # 2014-08-22 Mattias: Bortkommenterade rader för att prova sidan
 RewriteCond %{HTTP_HOST} ^chartbooking.com [NC]
-RewriteRule ^(.*)$ http://www.chartbooking.com/$1 [R=301,L]
+RewriteRule ^(.*)$ https://www.chartbooking.com/$1 [R=301,L]
 
 RewriteRule .*favicon.ico favicon.ico [passthrough]
 

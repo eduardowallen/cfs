@@ -97,7 +97,6 @@
 	}
 	#dl-menu {
 		display:block;
-		z-index:1;
 	}
 	#dl-menu a:hover{
 		text-decoration: none;
@@ -132,7 +131,7 @@
 	}
 
 
-}
+}/*
 @media screen and (-webkit-device-pixel-ratio:3), screen and (-webkit-device-pixel-ratio:2) {
 	
 	body {font-size: 6px;}
@@ -281,7 +280,7 @@
 		}
 	}
 }
-
+*/
 @media screen and (-webkit-device-pixel-ratio:3) and (orientation:portrait){
 
     #popupform_login {

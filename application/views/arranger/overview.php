@@ -37,7 +37,7 @@
 				<td class="center"><?php echo $spots[$user->get('id')]['booked']; ?></td>
 				<td class="center"><?php if ($user->get('last_login')) { echo date('d-m-Y H:i:s', $user->get('last_login')); } ?></td>
 				<td class="center"><a href="arranger/edit/<?php echo $user->get('id'); ?>"><img src="images/icons/pencil.png" class="icon_img" alt="" title="<?php echo $th_edit; ?>" /></a></td>
-				<td class="center"><a onclick="confirmBox(event, 'Vill du verkligen ta bort arrangör <?php echo $user->get('name') ?>', 'arranger/delete/<?php echo $user->get('id'); ?>/confirmed')" href="arranger/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_delete; ?>" /></a></td>
+				<td class="center"><a onclick="confirmBox(event, 'Detta raderar ARRANGÖREN men tar inte bort evenemangen, bokningarna, kartorna eller annat som hör till arrangören. Detta pga säkerhetsskäl vid felaktig radering. Vill du verkligen ta bort arrangör <?php echo $user->get('name') ?>?', 'arranger/delete/<?php echo $user->get('id'); ?>/confirmed')" href="arranger/delete/<?php echo $user->get('id'); ?>"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_delete; ?>" /></a></td>
 			</tr>
 			<?php endforeach; ?>
 		</tbody>

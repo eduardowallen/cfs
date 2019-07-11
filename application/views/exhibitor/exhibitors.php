@@ -23,7 +23,6 @@ $column_info = array(
 		'country' => $translator->{'Country'},
 		'phone1' => $translator->{'Phone 1'},
 		'phone2' => $translator->{'Phone 2'},
-		'fax' => $translator->{'Fax number'},
 		'email' => $translator->{'E-mail'},
 		'website' => $translator->{'Website'}
 	),
@@ -74,7 +73,7 @@ $column_info = array(
 		<?php 
 		$fair = new Fair;
 		$fair->load($_SESSION['user_fair'], 'id');
-			if($fair->get('modules') === '{"smsFunction":["1"]}') {?>		
+			if($fair->get('modules') === '{"smsFunction":["1"]}') { ?>		
 			<button type="submit" class="open-sms-send" name="send_sms" title="<?php echo uh($send_sms_label); ?>" data-for="exhibitors_list" data-fair="<?php echo $fairId; ?>"></button>
 		<?php } ?>
 			<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export_button); ?>" data-for="exhibitors_list"></button>

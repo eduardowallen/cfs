@@ -13,7 +13,7 @@
 }
 ::-webkit-scrollbar-thumb
 {
-   background-color: #54B253;
+   background-color: #5BA538;
    border-radius:0.166em;
 }
 /* HEADER AND ITS DESCENDANTS */
@@ -73,28 +73,41 @@
 	text-align:center;
 	box-sizing: content-box;
 }
-#new_header ul {
-	list-style-type:none;
-	padding:0;
-	margin:0;
-	text-align:center;
-}
-#new_header > ul > li {
-	display:inline;
-}
-#new_header ul li a, #new_header ul li span {
-	display:block;
-	height:2.3em;
-	line-height:2.3em;
-	padding-top:0;
-	padding-left:3em;
+/*****************
+NEW SETTINGS FOR GREEN MAIN MENU
+************************/
+#new_header li {
+	position: static;
+	width: auto;
+	list-style: none;
+	white-space: nowrap;
 	text-align:left;
-	color:#FFFFFF;
-	background:#48A648;
-	font-size: 1.2em;
-	font-weight:600;
-	text-decoration:none;
 	cursor:pointer;
+}
+#new_header > ul > li > a {
+	padding-left:3em;
+}
+#new_header li a {
+	line-height:2em;
+	font-size:1.15em;
+	text-decoration: none;
+	display:block;
+}
+#new_header ul li .menu-wrapper ul li a {
+	padding: 0em 1.5em;
+}
+#new_header > ul > li:hover, #new_header > ul > li > .menu-wrapper > ul > li:hover, #new_header > ul > li > .menu-wrapper > ul > li > .menu-wrapper > ul > li:hover {
+	background:#ffffff !important;
+}
+#new_header > ul > li:hover > a, #new_header > ul > li > .menu-wrapper > ul > li:hover > a, #new_header > ul > li > .menu-wrapper > ul > li > .menu-wrapper > ul > li:hover > a {
+	color:#168912 !important;
+}
+#new_header > ul > li:hover > .sub-menu-arrow, #new_header > ul > li > .menu-wrapper > ul > li:hover > .sub-menu-arrow, #new_header > ul > li > .menu-wrapper > ul > li > .menu-wrapper > ul > li:hover > .sub-menu-arrow {
+	filter: invert(100%);
+}
+
+#new_header li a, #new_header li {
+	color: #FFF;
 }
 @media screen and (max-height : 766px) {
 	#new_header ul li a, #new_header ul li span {
@@ -111,43 +124,48 @@
 #new_header ul li img {
 	margin-right:0.667em;
 }
-#new_header ul li a:hover, #new_header ul li span:hover {
-	background:#ffffff;
-	color:#168912;
-	text-overflow: clip;
+#new_header ul ul {
+	max-height: 25vh;
+	overflow-y: auto;
+	overflow-x: hidden;
+	-webkit-box-shadow: inset 0 0 20px 20px #4ea94e;
 }
-#new_header ul li ul {
-	display:none;
-	width:0;
-	margin-top:-2.83em
+.menu-wrapper {
+  /* the wrapper acts as the submenus' positioned parent */
+  position: relative;
+  background:#48A648;
 }
-#new_header ul li:hover ul {
-	display:block;
-	position:absolute;
+.sub-menu-arrow {
+    float: right;
+    height: 2.2em;
+    padding: 0.3em 1em 0.3em 0;
+    filter: invert(0%);
+    margin-right:0 !important;
 }
-#new_header ul li ul li {
-	display:block;
-	margin-left:20em;
+li .menu-wrapper ul::-webkit-scrollbar-thumb {
+	background-color: #b1b1b1;
 }
-#new_header ul li ul li span {
-	padding: 0 0.916em;
-	border-top-right-radius:0;
-	border-top-left-radius:0;
-	text-align: left;
-	min-width: 18em;
+li .menu-wrapper {
+	/* position on top of the menu item */
+	position: absolute;
+
+	/* these are not useful because our positioned parent is not the menu item */
+	/* top: 0; */
+	/* left: 75%; */
+
+	/* show on top of the menu item */
+	z-index: 10;
+
+	/* do not show the submenu by default */
+	display: none;
 }
-#new_header ul li ul li a {
-	padding: 0 0.916em;
-	border-top-right-radius:0;
-	border-top-left-radius:0;
-	text-align: left;
-	min-width: 18em;
-	height: 2.37em;
+
+/* display the submenu when we hover on the menu item */
+li.parent:hover > .menu-wrapper {
+	display: block;
 }
-.hovereffect {
-	background:#ffffff !important;
-	color:#168912 !important;
-	text-overflow: clip !important;
+.defaultcursor {
+	cursor:default !important;
 }
 #loggedin_user {
 	position:absolute;
@@ -183,7 +201,7 @@
 table.floatThead-table {
     border-top: none;
     border-bottom: none;
-    background-color: #48a648;
+    background-color: #5BA538;
     color: #FFF;
 }
 thead {
@@ -192,7 +210,11 @@ thead {
 li.active {
 	font-weight:bold;
 }
-
+.dt-blueButton {
+	background-color: #337ab7;
+	margin-left: 0;
+	color: #FFF;
+}
 .nav {
 	border-bottom:none;
 	max-width:90em;
@@ -514,13 +536,10 @@ img#logo {
 #popupform_login {
 	z-index: 10001;
 	width: 48.33em;
-	height: 44.576em;
+	height: 49.576em;
 	margin-left: -18%;
  	min-height: 12.5em;
 	border: 1px solid #333333;
-	-moz-border-radius: 0;
-	-webkit-border-radius: 0;
-	border-radius: 0;
  	top: 39.9%;
  	padding-bottom: 45em;
 }
@@ -538,7 +557,7 @@ img#logo {
         outline-style: none;
         outline-color: -moz-use-text-color;
     transition: border-color 0.05s ease-in-out 0s;
-    border-radius: 0px;
+    border-radius: 0;
     font-weight: inherit;
     box-sizing: border-box;
     line-height: 1.5;
@@ -577,22 +596,27 @@ font-weight:bold;
 .dialog-content textarea {
 	width: 97%;
 }
-
-#popupformTwo {
+.popup {
+	border-radius: 0.4em;
+}
+#contactPopup {
 	position:absolute;
 	z-index:99999;
-	overflow:scroll;
-	overflow-x:hidden;
 	background:#ffffff;
+	width: auto;
+	min-width: 30em;
+	max-height:85%;
 	text-align:left;
+	left:38%;
+	top:2.5em;
+	margin:0 0 0 -20.833em;
 	border:1px solid #333333;
-	-moz-border-radius:0px;
-	-webkit-border-radius:0px;
-	border-radius:0px;
-	max-height:66.66em;
+	border-top: 5em solid #47a547;
+	padding: 0 1.66em 1.66em 1.66em;
+	overflow:visible;
 }
 
-#popupform_help {
+#popupform_help, #rulesPopup {
 	position:absolute;
 	z-index:99999;
 	background:#ffffff;
@@ -603,29 +627,36 @@ font-weight:bold;
 	top:2.5em;
 	margin:0 0 0 -20.833em;
 	border:1px solid #333333;
-	border-top: 4em solid #47a547;
-	-moz-border-radius:0px;
-	-webkit-border-radius:0px;
-	border-radius:0px;
-	padding: 0 1.66em 1.66em 1.66em;
+	border-top: 5em solid #47a547;
+	padding: 0 2.66em 2.66em 2.66em;
 	overflow:visible;
 }
 
-#popupform_help h1 {
+#popupform_help h1, #contactPopup > h1:nth-of-type(1), #rulesPopup > h1:nth-of-type(1) {
 	padding:1.2em 1.2em 2em;
 	color: #FFF;
 	margin-left: -1.2em;
-	margin-top: -3.1em;
+	margin-top: -3.35em;
 	width:90%;
 	word-wrap:break-word;
 	overflow:hidden;
 }
+.rulesSpan {
+	font-size: 1.3em;
+}
 
-#help_content {
+#help_content, #rules_content {
 	overflow-y:auto;
-	height: 65vh;
+	height: 42.5vh;
 	max-width: 82em;
 	max-height: 54em;
+}
+#rulesPopup > h1:nth-of-type(2) {
+    padding: 0px;
+    font-size: 2em;
+    margin: 0.5em 0;
+    color: #000000;
+    overflow: visible;
 }
 #help_content h2 {
 	cursor: pointer;
@@ -664,9 +695,6 @@ font-weight:bold;
 	left:50%;
 	margin:5% 0 0 -27%;
 	border:1px solid #333333;
-	-moz-border-radius:0px;
-	-webkit-border-radius:0px;
-	border-radius:0px;
 	border-top: 4em solid #47a547;
 }
 
@@ -870,7 +898,13 @@ label[for=presentation]{
 	max-height: 33.33em;
 	border: 1px solid #000;
 }
-
+.pub-scrollbox {
+	overflow: auto;
+	padding: 0.833em;
+	max-width: 75em;
+	max-height: 33.33em;
+	border: 1px solid #000;
+}
 #note_dialogue {
 	max-width: 50em;
  	min-height: 12.5em;
@@ -963,7 +997,7 @@ label[for=presentation]{
 #required {
 	margin-left: 0.25em;
 }
-#column {
+.column {
 	width: 49.7%;
 	display: inline-block;
 	padding-top: 1em;
@@ -994,6 +1028,9 @@ label[for=presentation]{
 
 .select-list-menu li:first-child {
 	border-top:none;
+}
+.select-list-menu a li img {
+	padding-right:0.416em;
 }
 .column33 {
 	width: 33%;

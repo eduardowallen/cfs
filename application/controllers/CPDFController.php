@@ -74,8 +74,8 @@ class MYPDFController extends Controller {
 			$this->set('commodity', 'Commodity');
 			$this->set('website', 'Website');
 			$this->set('presentation', 'Presentation');
-			$this->set('exhibitor', $ex);
-			$this->set('position', $pos);
+			$this->setNoTranslate('exhibitor', $ex);
+			$this->setNoTranslate('position', $pos);
 			
 		} else {
 			exit;
@@ -101,8 +101,8 @@ class MYPDFController extends Controller {
 			$this->set('company', 'Company');
 			$this->set('commodity', 'Commodity');
 			$this->set('website', 'Website');
-			$this->set('exhibitor', $ex);
-			$this->set('position', $pos);
+			$this->setNoTranslate('exhibitor', $ex);
+			$this->setNoTranslate('position', $pos);
 			
 		} else {
 			exit;
@@ -128,8 +128,8 @@ class MYPDFController extends Controller {
 			$this->set('company', 'Company');
 			$this->set('commodity', 'Commodity');
 			$this->set('website', 'Website');
-			$this->set('exhibitor', $ex);
-			$this->set('position', $pos);
+			$this->setNoTranslate('exhibitor', $ex);
+			$this->setNoTranslate('position', $pos);
 			
 		} else {
 			exit;

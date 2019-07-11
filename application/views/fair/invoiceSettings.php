@@ -5,7 +5,7 @@
 <br />
 <h1><?php echo $fairname; ?> - <?php echo $invoice_headline; ?></h1>
 <br />
-<form action="fair/invoice/<?php echo $fair_id; ?>" method="post" enctype="multipart/form-data">
+<form action="fair/invoiceSettings/<?php echo $fair_id; ?>" method="post" enctype="multipart/form-data">
 
 	<div class="form_column" id="form_column1">
 		<h3><?php echo htmlspecialchars($translator->{'Customer contact'}); ?></h3>
@@ -64,9 +64,9 @@
 	<div class="form_column" id="form_column3">
 		<h3><?php echo htmlspecialchars($translator->{'Other invoice settings'}); ?></h3>
 		<label for="invoice_id_start"><?php echo $invoice_id_start_label; ?></label>
-		<input type="number" name="invoice_id_start" id="invoice_id_start" value="<?php echo $invoice_id_start; ?>" />
+		<input type="number" name="invoice_id_start" id="invoice_id_start" min="1" value="<?php echo $invoice_id_start; ?>" />
 		<label for="credit_invoice_id_start"><?php echo $credit_invoice_id_start_label; ?></label>
-		<input type="number" name="credit_invoice_id_start" id="credit_invoice_id_start" value="<?php echo $credit_invoice_id_start; ?>" />
+		<input type="number" name="credit_invoice_id_start" id="credit_invoice_id_start" min="1" value="<?php echo $credit_invoice_id_start; ?>" />
 	<br />
 		<label for="pos_vat"><?php echo $pos_vat_label; ?></label>
 			<select name="pos_vat" id="pos_vat">

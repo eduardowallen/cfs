@@ -17,6 +17,27 @@ class User extends Model {
 		if ($this->wasLoaded()) {}
 	}
 
+	public function loadAllView($key, $by) {
+		$stmt = $this->db->prepare("SELECT `id`, `company`, `orgnr`, `name`, `email`, `last_login`, `created`, `contact_phone2`, `commodity`, `city` FROM ".$this->table_name." WHERE `".$by."` = ?");
+		//echo "SELECT * FROM ".$this->table_name." WHERE `".$by."` = ".$key;
+		$stmt->execute(array($key));
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
+
 	public function bCrypt($pass, $user, $rounds=12) {
 
 	    //Make sure rounds are between 4 and 31
@@ -218,23 +239,47 @@ class User extends Model {
 	public static function getExhibitorsForFair($fairId) {
 		global $globalDB;
 		$users = array();
-		$sql = "SELECT DISTINCT user.* FROM user, fair_user_relation WHERE user.level=1 AND user.id = fair_user_relation.user AND fair_user_relation.fair = ? ORDER BY customer_nr";
-		$stmt = $globalDB->prepare($sql);
-		$stmt->execute(array($fairId));
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		foreach ($result as $res) {
-			$user = new User;
-			$user->loadFromArray($res);
-			$users[] = $user;
+		$fair = new Fair();
+		$fair->loadid($fairId, 'id');
+		if ($fair->wasLoaded()) {
+			$stmt = $globalDB->prepare("SELECT fair_group_rel.group FROM fair_group_rel WHERE `fair` = ?");
+			$stmt->execute(array($fairId));
+			$groupId = $stmt->fetch(PDO::FETCH_ASSOC);
+			if (count($groupId) > 0) {
+				// Get the fairs in the group
+				$stmt = $globalDB->prepare("SELECT fair_group_rel.fair FROM fair_group_rel WHERE `group` = ?");
+				$stmt->execute(array($groupId['group']));
+				$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				if (count($result) > 0) {
+					$fairs_grouped = array();
+					foreach ($result as $fairs) {
+						$fairs_grouped[] = $fairs['fair'];
+					}
+					$stmt = $globalDB->prepare("SELECT DISTINCT user.* FROM user, fair_user_relation WHERE user.level=1 AND user.id = fair_user_relation.user AND fair_user_relation.fair IN(".implode(',', $fairs_grouped).")");
+					$stmt->execute();
+				} else {
+					$stmt = $globalDB->prepare("SELECT DISTINCT user.* FROM user, fair_user_relation WHERE user.level=1 AND user.id = fair_user_relation.user AND fair_user_relation.fair = ?");
+					$stmt->execute(array($fairId));
+				}
+			} else {
+				$stmt = $globalDB->prepare("SELECT DISTINCT user.* FROM user, fair_user_relation WHERE user.level=1 AND user.id = fair_user_relation.user AND fair_user_relation.fair = ?");
+				$stmt->execute(array($fairId));
+			}
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			foreach ($result as $res) {
+				$user = new User;
+				$user->loadFromArray($res);
+				$users[] = $user;
+			}
 		}
+
 		return $users;
 	}
 
 	public static function getExhibitorsForArranger($arrId) {
 		global $globalDB;
 		$users = array();
-		$sql = "SELECT DISTINCT user.* FROM user,fair_user_relation,fair WHERE fair.created_by=? AND fair_user_relation.fair = fair.id  AND user.id = fair_user_relation.user AND user.level=1 ORDER BY customer_nr";
-		$stmt = $globalDB->prepare($sql);
+		$stmt = $globalDB->prepare("SELECT DISTINCT user.* FROM user,fair_user_relation,fair WHERE fair.created_by=? AND fair_user_relation.fair = fair.id  AND user.id = fair_user_relation.user AND user.level=1");
 		$stmt->execute(array($arrId));
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($result as $res) {

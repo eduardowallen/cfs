@@ -254,9 +254,6 @@
 		<label for="phone2"><?php echo $phone2_label; ?></label>
 		<input type="text" name="phone2" id="phone2" value="<?php echo $user->get('phone2'); ?>"/>
 	
-		<label for="fax"><?php echo $fax_label; ?></label>
-		<input type="text" name="fax" id="fax" value="<?php echo $user->get('fax'); ?>"/>
-	
 		<label for="email"><?php echo $email_label; ?> *</label>
 		<input type="text" name="email" id="email" value="<?php echo $user->get('email'); ?>"/>
 	

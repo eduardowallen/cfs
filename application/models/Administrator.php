@@ -41,18 +41,46 @@ class Administrator extends User {
 			$this->setPassword($str);
 			
 			$fair = new Fair;
-			$fair->load($_SESSION['user_fair'], 'id');		
+			$fair->loadsimple($_SESSION['user_fair'], 'id');		
 			
 			$me = new User;
 			$me->load($_SESSION['user_id'], 'id');
-			
-			$mail = new Mail($_POST['email'], 'administrator_new_account', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
-			$mail->setMailVar("url", BASE_URL . $fair->get("url"));
-			$mail->setMailVar('alias', $this->alias);
-			$mail->setMailVar('password', $str);
-			$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-			$mail->setMailVar('creator_name', $me->get('name'));
-			$mail->send();
+
+			$email = EMAIL_FROM_ADDRESS;
+			$from = array($email => EMAIL_FROM_NAME);
+
+			if($fair->get('contact_name')) {
+				$from = array($email => $fair->get('contact_name'));
+			}
+			try {
+				$recipients = array($_POST['email'] => $_POST['name']);
+				$mail = new Mail();
+				$mail->setTemplate('administrator_new_account');
+				$mail->setPlainTemplate('administrator_new_account');
+				$mail->setFrom($from);
+				$mail->addReplyTo($me->get('name'), $me->get('email'));
+				$mail->setRecipients($recipients);
+				$mail->setMailvar('administrator_name', $this->name);
+				$mail->setMailVar('alias', $this->alias);
+				$mail->setMailVar('password', $str);
+				$mail->setMailVar('creator_name', $me->get('name'));
+				if(!$mail->send()) {
+					$errors[] = $_POST['email'];
+				}
+
+			} catch(Swift_RfcComplianceException $ex) {
+				// Felaktig epost-adress
+				$errors[] = $_POST['email'];
+				$mail_errors[] = $ex->getMessage();
+
+			} catch(Exception $ex) {
+				// Okänt fel
+				$errors[] = $_POST['email'];
+				$mail_errors[] = $ex->getMessage();
+			}
+			if (isset($errors)) {
+				$_SESSION['mail_errors'] = $mail_errors;
+			}
 		}
 
 		$id = parent::save();

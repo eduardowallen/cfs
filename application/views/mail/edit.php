@@ -1,6 +1,7 @@
 <?php if ($mail != ''): ?>
 	
 <style>
+/*
 	.mceEditor > table {
 	width:560px !important;
 	height:100px !important;
@@ -13,14 +14,14 @@
 .defaultSkin * {
 max-width:1024px !important;
 }
-
+*/
 label{
 max-width:100% !important;
 }
 
 </style>
 <button class="go_back" onclick="location.href='../mail/edit'"><?php echo uh($translator->{'Go back'}); ?></button>
-<?php tiny_mce(); ?>
+<!--<?php tiny_mce(); ?>-->
 <form action="mail/edit/<?php echo $mail; ?>/<?php echo $lang; ?>" method="post">
   <?php if ($mail == 'new'): ?>
   <label for="maillabel"><?php echo $mail_label_label; ?></label>
@@ -43,9 +44,12 @@ max-width:100% !important;
 		<tr>
 			<th><?php echo $th_mail; ?></th>
 			<th><?php echo $th_subject; ?></th>
-			<?php foreach ($langs as $lang): ?>
-			<th><?php echo  $lang['name']; ?></th>
-			<?php endforeach; ?>
+			<th>English</th>
+			<th>Español</th>
+			<th>Svenska</th>
+<!--			<?php //foreach ($langs as $lang): ?>
+			<th><?php //echo  $lang['name']; ?></th>
+			<?php //endforeach; ?>-->
 		</tr>
 	</thead>
 	<tbody>
@@ -55,13 +59,17 @@ max-width:100% !important;
 			<td onclick="$(this).parent().next().toggle();"><?php echo $mail['subject']; ?></td>
 			
 			<?php foreach ($langs as $lang): ?>
-        <td class="center"><a href="mail/edit/<?php echo $mail['mail']; ?>/<?php echo $lang['id']; ?>">
-          <?php if(isset($mail[$lang['id']])): ?>
-            <img src="images/icons/pencil.png" class="icon_img" alt="" title="<?php echo $edit_label; ?>" />
-          <?php else: ?>
-            <img src="images/icons/add.png" class="icon_img" alt="" title="<?php echo $add_label; ?>" />
-          <?php endif; ?>
-        </a></td>
+			<?php if ($lang['id'] != 'en'): ?>
+			<td class="left">
+				<a href="mail/edit/<?php echo $mail['mail']; ?>/<?php echo $lang['id']; ?>">
+					<?php if(isset($mail[$lang['id']])): ?>
+					<img src="images/icons/pencil.png" class="icon_img" alt="" title="<?php echo $edit_label; ?>" />
+					<?php else: ?>
+					<img src="images/icons/add_32x32.png" class="icon_img" alt="" title="<?php echo $add_label; ?>" />
+					<?php endif; ?>
+				</a>
+			</td>
+			<?php endif; ?>
 			<?php endforeach; ?>
 			
 		</tr>

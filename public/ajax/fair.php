@@ -57,4 +57,11 @@ if (isset($_POST['checkName'])) {
 	$fairOption->set("text", $_POST["value"]);
 	$fairOption->save();
 }
+if (isset($_POST['getDefaultReservationDate'])) {
+	$fair = new Fair();
+	$fair->loadsimple($_SESSION['user_fair'], 'id');
+	if ($fair->wasLoaded()) {
+		echo json_encode(date('d-m-Y H:i', $fair->get('default_reservation_date')));
+	}
+}
 ?>

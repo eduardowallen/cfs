@@ -49,15 +49,15 @@ class AdministratorController extends Controller {
 		if ($res > 0) {
 			foreach ($res as $result) {
 				if (userLevel() == 4 || in_array($result['fair'], $myFairs)) {
-					$u = new User();
-					$u->load($result['user'], 'id');
-					if($u->get('level') == 2) {
+					$user = new User();
+					$user->load($result['user'], 'id');
+					if($user->get('level') == 2) {
 
 						$stmt = $this->Administrator->db->prepare("SELECT COUNT(*) AS pos_count FROM fair_map_position WHERE created_by = ?");
-						$stmt->execute(array($u->get('id')));
-						$res = $stmt->fetch();
-						$u->set('spots_created', $res['pos_count']);
-						$users[] = $u;
+						$stmt->execute(array($user->get('id')));
+						$res = $stmt->fetch(PDO::FETCH_ASSOC);
+						$user->set('spots_created', $res['pos_count']);
+						$users[] = $user;
 
 					}
 				}
@@ -66,42 +66,10 @@ class AdministratorController extends Controller {
 		}
 
 	}
-
-	public function exhibitors($param='', $value='') {
-
-		if ($param == 'copy') {
-
-			$_SESSION['copied_exhibitor'] = $value;
-			header('Location: '.BASE_URL.'administrator/exhibitors');
-			exit;
-
-		}
-
-		setAuthLevel(2);
-
-		$this->set('headline', 'Exhibitor overview');
-		$this->set('create_link', 'Create new exhibitor');
-
-		$this->set('th_status', 'Status');
-		$this->set('th_name', 'Stand space');
-		$this->set('th_company', 'Company');
-		$this->set('th_branch', 'Branch');
-		$this->set('th_phone', 'Phone number');
-		$this->set('th_contact', 'Name');
-		$this->set('th_email', 'E-mail');
-		$this->set('th_website', 'Website');
-		$this->set('th_profile', 'Details');
-		$this->set('th_copy', 'Copy to map');
-
-		//$this->Administrator->load($_SESSION['user_id'], 'id');
-
-		$fair = new Fair();
-		$fair->load($_SESSION['user_fair'], 'id');
-		$this->setNoTranslate('fair', $fair);
-
-	}
-
+/*
 	public function newExhibitor() {
+
+	/// KONTROLLERAD MAILMALL
 
 		setAuthLevel(2);
 
@@ -119,7 +87,6 @@ class AdministratorController extends Controller {
 			$user->set('country', $_POST['country']);
 			$user->set('phone1', $_POST['phone1']);
 			$user->set('phone2', $_POST['phone2']);
-			$user->set('fax', $_POST['fax']);
 			$user->set('email', $_POST['email']);
 			$user->set('website', $_POST['website']);
       
@@ -148,36 +115,60 @@ class AdministratorController extends Controller {
 				shuffle($arr);
 				$str = substr(implode('', $arr), 0, 10);
 				$fair = new Fair();
-				$fair->load($_POST['fair'], 'id');
-				$this->setNoTranslate('d', $fair->get('url'));
-				//$msg = "An organizer has created an account for you on his/her event ".BASE_URL.$fair->get('url')."\r\n\r\nUsername: ".$_POST['username']."\r\nPassword: ".$str;
+				$fair->loadsimple($_POST['fair'], 'id');
 				$user->setPassword($str);
 				$userId = $user->save();
 
-				$me = new User();
-				$me->load($_SESSION['user_id'], 'id');
+				$errors = array();
+				$mail_errors = array();
+				
+				try {
 
-				$mail = new Mail($user->email, 'event_account');
-				$mail->setMailVar('url', BASE_URL.$fair->get('url'));
-				$mail->setMailVar('alias', $_POST['alias']);
-				$mail->setMailVar('exhibitor_name', $_POST['company']);
-				$mail->setMailVar('event_name', $fair->get('name'));
-				$mail->setMailVar('event_email', $fair->get('contact_email'));
-				$mail->setMailVar('event_phone', $fair->get('contact_phone'));
-				$mail->setMailVar('event_website', $fair->get('website'));
-				$mail->setMailVar('password', $str);
-				$mail->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-				$mail->setMailVar('creator_name', $me->get('name'));
-				$mail->send();
+					$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+					$from = array($email => $fair->get("windowtitle"));
 
-				//require_once ROOT.'application/models/FairUserRelation.php';
-				$stmt = $this->Administrator->db->prepare("INSERT INTO fair_user_relation (fair, user, connected_time) VALUES (?, ?, ?)");
-				$stmt->execute(array($_POST['fair'], $userId, time()));
+					if($fair->get('contact_name')) {
+						$from = array($email => $fair->get('contact_name'));
+					}
 
-				//header('Location: '.BASE_URL.'administrator/exhibitors');
-				header('Location: '.BASE_URL.'exhibitor/forFair');
-				exit;
+					$recipients = array($_POST['contact_email'] => $_POST['name']);
 
+					$mail_user = new Mail();
+					$mail_user->setTemplate('event_account');
+					$mail_user->setPlainTemplate('event_account');
+					$mail_user->setFrom($from);
+					$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+					$mail_user->setRecipients($recipients);
+					$mail_user->setMailVar('event_url', BASE_URL.$fair->get('url'));
+					$mail_user->setMailVar('alias', $_POST['alias']);
+					$mail_user->setMailVar('exhibitor_name', $_POST['company']);
+					$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+					$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+					$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+					$mail_user->setMailVar('event_website', $fair->get('website'));
+					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_user->setMailVar('password', $str);
+
+					if(!$mail_user->send()) {
+						$errors[] = $_POST['email'];
+					}
+
+				} catch(Swift_RfcComplianceException $ex) {
+					// Felaktig epost-adress
+					$mail_errors[] = $ex->getMessage();
+
+				} catch(Exception $ex) {
+					// Okänt fel
+					$mail_errors[] = $ex->getMessage();
+				}
+					$stmt = $this->Administrator->db->prepare("INSERT INTO fair_user_relation (fair, user, connected_time) VALUES (?, ?, ?)");
+					$stmt->execute(array($_POST['fair'], $userId, time()));
+
+					$_SESSION['mail_errors'] = $mail_errors;
+					$_SESSION['success'] = 'yes';
+					header('Location: '.BASE_URL.'exhibitor/forFair');
+					exit;
 			}
 
 		}
@@ -210,111 +201,247 @@ class AdministratorController extends Controller {
 
 		$this->setNoTranslate('error', $error);
 		$this->setNoTranslate('user', $user);
-		
-		//$this->set('category_label', 'Category');
-		//$this->set('customer_nr_label', 'Customer number');
-    
+
 		$this->set('headline', 'New exhibitor');
     
 		$this->set('fair_label', 'Fair');
 
 		$this->set('company_section', 'Company');
-    $this->set('orgnr_label', 'Organization number');
-    $this->set('company_label', 'Company');
-    $this->set('commodity_label', 'Commodity');
-    $this->set('address_label', 'Address');
-    $this->set('zipcode_label', 'Zip code');
-    $this->set('city_label', 'City');
-    $this->set('country_label', 'Country');
-    $this->set('phone1_label', 'Phone 1');
-    $this->set('phone2_label', 'Phone 2');
-    $this->set('fax_label', 'Fax number');
-    $this->set('email_label', 'E-mail');
-    $this->set('website_label', 'Website');
+	    $this->set('orgnr_label', 'Organization number');
+	    $this->set('company_label', 'Company');
+	    $this->set('commodity_label', 'Commodity');
+	    $this->set('address_label', 'Address');
+	    $this->set('zipcode_label', 'Zip code');
+	    $this->set('city_label', 'City');
+	    $this->set('country_label', 'Country');
+	    $this->set('phone1_label', 'Phone 1');
+	    $this->set('phone2_label', 'Phone 2');
+	    $this->set('email_label', 'E-mail');
+	    $this->set('website_label', 'Website');
     
 		$this->set('invoice_section', 'Billing address');
 		$this->set('copy_label', 'Copy from company details');
-    $this->set('invoice_company_label', 'Company');
-    $this->set('invoice_address_label', 'Address');
-    $this->set('invoice_zipcode_label', 'Zip code');
-    $this->set('invoice_city_label', 'City');
-    $this->set('invoice_email_label', 'E-mail');
-    $this->set('presentation_label', 'Presentation');
+	    $this->set('invoice_company_label', 'Company');
+	    $this->set('invoice_address_label', 'Address');
+	    $this->set('invoice_zipcode_label', 'Zip code');
+	    $this->set('invoice_city_label', 'City');
+	    $this->set('invoice_email_label', 'E-mail');
+	    $this->set('presentation_label', 'Presentation');
     
 		$this->set('contact_section', 'Contact person');
-    $this->set('alias_label', 'Alias');
-    $this->set('contact_label', 'Contact person');
-    $this->set('phone3_label', 'Contact Phone');
-    $this->set('phone4_label', 'Contact Phone 2');
-    $this->set('contact_email', 'Contact Email');
+	    $this->set('alias_label', 'Alias');
+	    $this->set('contact_label', 'Contact person');
+	    $this->set('phone3_label', 'Contact Phone');
+	    $this->set('phone4_label', 'Contact Phone 2');
+	    $this->set('contact_email', 'Contact Email');
     
 		$this->set('save_label', 'Save');
 	}
+*/
 
+	public function sendInvoices() {
 
-	public function sendInvoices($tbl){
+		// KONTROLLERAD MAILMALL
+
 		setAuthLevel(2);
 		$this->setNoTranslate('noView', true);
 
-		if (isset($_POST['rows']) && is_array($_POST['rows'])) {
+		/* Samla relevant information till en array
+		beroende på vilken tabell som är vald */
+		$user = new User;
+		$user->load($_SESSION['user_id'], 'id');
 
-			/* Samla relevant information till en array
-			beroende på vilken tabell som är vald */
-			$u = new User;
-			$u->load($_SESSION['user_id'], 'id');
+		$fair = new Fair;
+		$fair->loadsimple($_SESSION['user_fair'], 'id');
 
-			$fair = new Fair;
-			$fair->loadsimple($_SESSION['user_fair'], 'id');
+		$organizer = new User;
+		$organizer->load2($fair->get('created_by'), 'id');
 
-			$organizer = new User;
-			$organizer->load2($fair->get('created_by'), 'id');
+		$invoice_files = array();
+		$errors = array();
+		$mail_errors = array();
 
-			if ($tbl == 1) {
-				$stmt = $u->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.exhibitor AS exhibitor, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
-					FROM user, exhibitor_invoice AS ex_invoice, exhibitor_invoice_rel AS pos
-					WHERE ex_invoice.ex_user = user.id
-					AND ex_invoice.id = pos.invoice
-					AND pos.type = 'space'
-					AND ex_invoice.fair = ?
-					AND pos.fair = ?
-					AND ex_invoice.status = ?
-					AND ex_invoice.id IN (" . implode(',', $_POST['rows']) . ")");
-				$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair'], 1));
-				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			}
-			foreach ($data_rows as $row) {
-//				var_dump($row);
-//				echo('<br/>');
-				$this->markAsSent($row['exhibitor']);
-				$arranger_message = $_POST['invoice_mail_comment'];
-				if ($arranger_message == '') {
-					$arranger_message = $this->translate->{'No message was given.'};
+		if (isset($_POST['invoice_id'])) {
+			$id = $_POST['invoice_id'];
+			if (isset($_POST['msg']))
+				$comment = htmlspecialchars_decode($_POST['msg']);
+			else
+				$comment = '';
+
+		$stmt = $user->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.r_reference AS r_reference, ex_invoice.exhibitor AS exhibitor, ex_invoice.row_id AS row_id, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
+			FROM user, exhibitor_invoice AS ex_invoice, exhibitor_invoice_rel AS pos
+			WHERE ex_invoice.ex_user = user.id
+			AND ex_invoice.id = pos.invoice
+			AND pos.type = 'space'
+			AND ex_invoice.row_id = ?");
+		$stmt->execute(array($id));
+		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+		$replace_chars = array(
+			'/' => '-',
+			':' => '_'
+		);
+		foreach ($result as $res) {
+			$r_name = strtr($res['r_name'], $replace_chars);
+			$posname = strtr($res['posname'], $replace_chars);
+			$invoice_file = ROOT.'public/invoices/fairs/'.$res['fair'].'/exhibitors/'.$res['exhibitor'].'/' . $r_name . '-' . $posname . '-' . $res['id'] . '.pdf';
+			try {
+					
+				if ($comment != '') {
+					$comment = '<br>'.$comment.'<br>';
+				}
+				$plain_comment = $comment;
+				if ($plain_comment == '') {
+					$plain_comment = $this->translate->{'No comment.'};
 				}
 
-				$posname = str_replace('/', '-', $row['posname']);
-				$mail_user = new Mail(($row['invoice_email']), 'send_invoice', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
-				$mail_user->setMailvar("exhibitor_company_name", $row['r_name']);
-				$mail_user->setMailvar("event_name", $fair->get("name"));
-				$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-				$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-				$mail_user->setMailVar('event_website', $fair->get('website'));
-				$mail_user->setMailvar("arranger_name", $organizer->get("company"));
-				$mail_user->setMailvar("invoice_link", BASE_URL.'invoices/fairs/'.$row['fair'].'/exhibitors/'.$row['exhibitor'].'/'.str_replace('/', '-', $row['r_name']) . '-' . $posname . '-' . $row['id'] . '.pdf');
-				$mail_user->setMailvar("arranger_message", $arranger_message);
+				$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+				$from = array($email => $fair->get("windowtitle"));
+
+				if($fair->get('contact_name')) {
+					$from = array($email => $fair->get('contact_name'));
+				}
+
+				$recipients = array($res['invoice_email'] => $res['r_reference']);
+
+				$mail_user = new Mail();
+				$mail_user->setTemplate('send_invoice');
+				$mail_user->setPlainTemplate('send_invoice');
+				$mail_user->setFrom($from);
+				$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+				$mail_user->setRecipients($recipients);
+					$mail_user->setMailvar('exhibitor_company_name', $res['r_name']);
+					$mail_user->setMailvar('exhibitor_name', $res['r_reference']);
+					$mail_user->setMailvar('event_name', $fair->get('windowtitle'));
+					$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+					$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+					$mail_user->setMailVar('event_website', $fair->get('website'));
+					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+					$mail_user->setMailvar('arranger_name', $organizer->get('company'));
+					$mail_user->setMailvar('invoice_no', $res['id']);
+					$mail_user->setMailvar('position_name', $res['posname']);
+					$mail_user->setMailvar('comment', $comment);
+					$mail_user->setMailvar('plain_comment', $plain_comment);
+
+				if(!file_exists($invoice_file))
+					throw new Exception($this->translate->{'Could not attatch file to email for invoice no.	 '}.$res['id'].'.');
+
+				if(!is_readable($invoice_file))
+					throw new Exception($this->translate->{'Could not open and read attatched file for invoice no. '}.$res['id'].'.');
+
+				$mail_user->attachFile($invoice_file);
+				$this->markAsSent($res['exhibitor'], $res['row_id']);
 				//$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-				$mail_user->send();
+				if(!$mail_user->send()) {
+					$errors[] = $res['id'];
+				}
+			} catch(Swift_RfcComplianceException $ex) {
+				// Felaktig epost-adress
+				$errors[] = $res['id'];
+				$mail_errors[] = $ex->getMessage();
+
+			} catch(Exception $ex) {
+				// Okänt fel
+				$errors[] = $res['id'];
+				$mail_errors[] = $ex->getMessage();
 			}
 		}
-		header("Location: ".BASE_URL."administrator/invoices");
+			if($errors) {
+				$_SESSION['mail_errors'] = $mail_errors;
+				header("Location: ".BASE_URL."administrator/invoices?errors=" . implode(',', $errors));
+				exit;
+			} else {
+				header("Location: ".BASE_URL."administrator/invoices");
+				exit;
+			}
+	}
 	}
 
-	function mailVerifyCloned() {
+	function setRecurring() {
 		setAuthLevel(2);
 		$this->setNoTranslate('noView', true);
 
+		$fair = new Fair();
+		$fair->loadsimple($_SESSION['user_fair'], 'id');
+
 		if (userLevel() == 3) {
-			$fair = new Fair();
-			$fair->load($_SESSION['user_fair'], 'id');
+			if ($fair->wasLoaded() && $fair->get('created_by') != $_SESSION['user_id']) {
+				toLogin();
+			}
+		}
+
+		if (userLevel() == 2) {
+			$stmt = $this->db->prepare('SELECT * FROM fair_user_relation WHERE user=? AND fair=?');
+			$stmt->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (!$result) {
+				$this->setNoTranslate('hasRights', false);
+				return;
+			}
+		}
+
+		$this->setNoTranslate('hasRights', true);
+
+		if (isset($_POST['exid']) && is_array($_POST['exid'])) {
+				$stmt = $this->db->prepare("UPDATE exhibitor AS ex SET ex.recurring = 1 WHERE ex.fair = ? AND ex.id IN (" . implode(',', $_POST['exid']) . ")");
+				$stmt->execute(array($_SESSION['user_fair']));
+		}
+	}
+	
+	function unsetRecurring() {
+		setAuthLevel(2);
+		$this->setNoTranslate('noView', true);
+
+		$fair = new Fair();
+		$fair->loadsimple($_SESSION['user_fair'], 'id');
+
+		if (userLevel() == 3) {
+			if ($fair->wasLoaded() && $fair->get('created_by') != $_SESSION['user_id']) {
+				toLogin();
+			}
+		}
+
+		if (userLevel() == 2) {
+			$stmt = $this->db->prepare('SELECT * FROM fair_user_relation WHERE user=? AND fair=?');
+			$stmt->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
+			$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			if (!$result) {
+				$this->setNoTranslate('hasRights', false);
+				return;
+			}
+		}
+
+		$this->setNoTranslate('hasRights', true);
+
+		if (isset($_POST['exid']) && is_array($_POST['exid'])) {
+				$stmt = $this->db->prepare("UPDATE exhibitor AS ex SET ex.recurring = 0 WHERE ex.fair = ? AND ex.id IN (" . implode(',', $_POST['exid']) . ")");
+				$stmt->execute(array($_SESSION['user_fair']));
+		}
+	}
+	function mailVerifyCloned() {
+		/// KONTROLLERAD MAILMALL
+				/*****************************************************************************************************************************************************************************/
+				/*****************************************************************************************************************************************************************************/
+				/*****************************************************************************************************************************************************************************/
+				/*****************************************************************************************************************************************************************************/
+				/*****************************************************************************************************************************************************************************/
+				/*****************************************************************************************************************************************************************************/
+				/*******>>>>>>>>>>>>>>>>         KONTROLLERA DENNA FUNKTION EFTERSOM DEN ÄR SESSIONSBASERAD OCH KAN BLI FEL OM MAN HAR OLIKA EVENT I OLIKA FLIKAR         <<<<<<<<<<<<*******/
+				/*****************************************************************************************************************************************************************************/
+				/*****************************************************************************************************************************************************************************/
+				/*****************************************************************************************************************************************************************************/
+				/*************************************^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^**********************************************/
+				/*************************************^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^**********************************************/
+				/*************************************^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^**********************************************/
+				/*************************************^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^**********************************************/
+				/*************************************^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^**********************************************/
+		setAuthLevel(2);
+		$this->setNoTranslate('noView', true);
+
+		$fair = new Fair();
+		$fair->loadsimple($_SESSION['user_fair'], 'id');
+
+		if (userLevel() == 3) {
 			if ($fair->wasLoaded() && $fair->get('created_by') != $_SESSION['user_id']) {
 				toLogin();
 			}
@@ -335,73 +462,117 @@ class AdministratorController extends Controller {
 		if (isset($_POST['exid']) && is_array($_POST['exid'])) {
 				$stmt = $this->db->prepare("SELECT ex.*, 
 					user.id AS uid, 
+					user.contact_email AS contact_email, 
 					user.alias AS alias, 
 					user.company AS company,
+					user.name AS name,
 					pos.name AS posname, 
 					pos.area AS posarea, 
 					pos.information AS posinfo, 
 					pos.expires AS expirationdate, 
 					pos.id AS posid,  
 					ex.id AS id, 
-					fair.name AS fairname,
-					fair.contact_email AS fmail,
-					fair.contact_phone AS fphone,
-					fair.website AS fwebsite
+					ex.commodity AS commodity
 						FROM user, 
-						fair, 
 						exhibitor AS ex, 
 						fair_map_position AS pos 
 							WHERE user.id = ex.user 
 							AND ex.position = pos.id 
 							AND ex.fair = ? 
-							AND fair.id = ?
 							AND pos.status = 1 
 							AND ex.clone = 1 
 							AND ex.id IN (" . implode(',', $_POST['exid']) . ")");
-				$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair']));
+				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+				$errors = array();
+				$mail_errors = array();
 
 				foreach ($data_rows as $row) {
 
-						$pos = new FairMapPosition;
-						$pos->load2($row['posid'], 'id');
+					$pos = new FairMapPosition;
+					$pos->load2($row['posid'], 'id');
 
-						$user = new User;
-						$user->load2($row['uid'], 'id');
+					$now = time();
 
-						$now = time();
+					$hash1 = md5($row['id'].BASE_URL.$row['alias']);
+					$accepturl = BASE_URL.'exhibitor/verifyReservation/'.$row['id'].'/'.$hash1.'/accept';
+					$denyurl = BASE_URL.'exhibitor/verifyReservation/'.$row['id'].'/'.$hash1.'/deny';
+					$alreadysentstmt = $this->db->prepare("SELECT `exhibitor` FROM `exhibitor_link` WHERE `exhibitor` = ?");
+					$alreadysentstmt->execute(array($row['id']));
+					$alreadySent = $alreadysentstmt->fetchAll(PDO::FETCH_ASSOC);
+					if (count($alreadySent) == 0) {
+						$stmt_insert = $this->db->prepare("INSERT INTO `exhibitor_link` (`exhibitor`, `link`, `status`, `linkdate`) VALUES (?, ?, ?, ?)");
+						$stmt_insert->execute(array($row['id'], $hash1, 1, $now));
+					} else {
+						$stmt_insert = $this->db->prepare("UPDATE `exhibitor_link` SET `linkdate` = ? WHERE `exhibitor` = ?");
+						$stmt_insert->execute(array($now, $row['id']));
+					}
 
-						$hash1 = md5($row['id'].BASE_URL.$row['alias']);
-						$accepturl = BASE_URL.'exhibitor/verifyReservation/'.$row['id'].'/'.$hash1.'/accept';
-						$denyurl = BASE_URL.'exhibitor/verifyReservation/'.$row['id'].'/'.$hash1.'/deny';
-						$alreadysentstmt = $this->db->prepare("SELECT `exhibitor` FROM `exhibitor_link` WHERE `exhibitor` = ?");
-						$alreadysentstmt->execute(array($row['id']));
-						$alreadySent = $alreadysentstmt->fetchAll(PDO::FETCH_ASSOC);
-						if (count($alreadySent) == 0) {
-							$stmt_insert = $this->db->prepare("INSERT INTO `exhibitor_link` (`exhibitor`, `link`, `status`, `linkdate`) VALUES (?, ?, ?, ?)");
-							$stmt_insert->execute(array($row['id'], $hash1, 1, $now));
-						} else {
-							$stmt_insert = $this->db->prepare("UPDATE `exhibitor_link` SET `linkdate` = ? WHERE `exhibitor` = ?");
-							$stmt_insert->execute(array($now, $row['id']));
+					try {
+						$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+						$from = array($email => $fair->get("windowtitle"));
+						if($fair->get('contact_name')) {
+							$from = array($email => $fair->get('contact_name'));
+						}
+						$position_information = $row['posinfo'];
+						if ($position_information == '')
+							$position_information = $this->translate->{'None specified.'};
+
+						$position_area = $row['posarea'];
+						if ($position_area == '')
+							$position_area = $this->translate->{'None specified.'};
+
+						$exhibitor_commodity = $row['commodity'];
+						if ($exhibitor_commodity == '')
+							$exhibitor_commodity = $this->translate->{'No commodity was entered.'};
+
+						$recipients = array($row['contact_email'] => $row['name']);
+						$mail_user = new Mail();
+						$mail_user->setTemplate('confirm_cloned_reservation');
+						$mail_user->setPlainTemplate('confirm_cloned_reservation');
+						$mail_user->setFrom($from);
+						$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+						$mail_user->setRecipients($recipients);
+							$mail_user->setMailVar('position_name', $row['posname']);
+							$mail_user->setMailVar('position_information', $position_information);
+							$mail_user->setMailVar('position_area', $position_area);
+							$mail_user->setMailVar('commodity', $exhibitor_commodity);
+							$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+							$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+							$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+							$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+							$mail_user->setMailVar('event_website', $fair->get('website'));
+							$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+							$mail_user->setMailVar('expirationdate', $row['expirationdate']);
+							$mail_user->setMailVar('exhibitor_name', $row['name']);
+							$mail_user->setMailVar('exhibitor_company_name', $row['company']);
+							$mail_user->setMailVar('accepturl', $accepturl);
+							$mail_user->setMailVar('denyurl', $denyurl);
+
+						if(!$mail_user->send()) {
+							$errors[] = $row['company'];
 						}
 
+					} catch(Swift_RfcComplianceException $ex) {
+						// Felaktig epost-adress
+						$errors[] = $row['company'];
+						$mail_errors[] = $ex->getMessage();
 
-					    $mail = new Mail($user->get('contact_email'), 'confirm_cloned_reservation');
-					    $mail->setMailVar('position_name', $row['posname']);
-					    $mail->setMailVar('position_information', $row['posinfo']);
-					    $mail->setMailVar('position_area', $row['posarea']);
-					  	$mail->setMailVar('fairname', $row['fairname']);
-						$mail->setMailVar('event_email', $row['fmail']);
-						$mail->setMailVar('event_phone', $row['fphone']);
-						$mail->setMailVar('event_website', $row['fwebsite']);
-					  	$mail->setMailVar('expirationdate', $row['expirationdate']);
-					  	$mail->setMailVar('exhibitor_name', $row['company']);
-					    $mail->setMailVar('accepturl', $accepturl);
-					    $mail->setMailVar('denyurl', $denyurl);
-					    $mail->send();
+					} catch(Exception $ex) {
+						// Okänt fel
+						$errors[] = $row['company'];
+						$mail_errors[] = $ex->getMessage();
+					}
 				}
 			}
+
+		if($errors) {
+			$_SESSION['mail_errors'] = $mail_errors;
+		} else {
+			$_SESSION['mail_success'] = 'yes';
 		}
+	}
 
 	public function exportNewReservations($tbl){
 		setAuthLevel(2);
@@ -411,51 +582,51 @@ class AdministratorController extends Controller {
 
 			/* Samla relevant information till en array
 			beroende på vilken tabell som är vald */
-			$u = new User;
-			$u->load($_SESSION['user_id'], 'id');
+			$user = new User;
+			$user->load2($_SESSION['user_id'], 'id');
 
 			if ($tbl == 1) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair'], 2));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 2) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 0 AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 0 AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair'], 1));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 3) {
-				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 				
 			} else if ($tbl == 4) {
-				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 5) {
-				$stmt = $u->db->prepare("SELECT fr.*, u.id AS userid, u.* FROM fair_registration AS fr LEFT JOIN user AS u ON u.id = fr.user WHERE fr.fair = ? AND fr.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT fr.*, u.id AS userid, u.* FROM fair_registration AS fr LEFT JOIN user AS u ON u.id = fr.user WHERE fr.fair = ? AND fr.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
 			} else if ($tbl == 6) {
-				$stmt = $u->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking_history AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT prel.*, user.id as userid, user.*, pos.area, pos.information, pos.name AS position, prel.id AS id FROM user, preliminary_booking_history AS prel, fair_map_position AS pos WHERE prel.fair = ? AND pos.id = prel.position AND user.id = prel.user AND prel.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 7) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor_history AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, ex.id AS id FROM user, exhibitor_history AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 8) {
-				$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 1 AND ex.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT ex.*, user.id as userid, user.*, pos.name AS position, pos.area, pos.information, pos.expires, ex.id AS id FROM user, exhibitor AS ex, fair_map_position AS pos WHERE user.id = ex.user AND ex.position = pos.id AND ex.fair = ? AND pos.status = ? AND ex.clone = 1 AND ex.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY CAST(pos.name AS UNSIGNED), pos.name");
 				$stmt->execute(array($_SESSION['user_fair'], 1));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			} else if ($tbl == 9) {
-				$stmt = $u->db->prepare("SELECT frh.*, u.id AS userid, u.* FROM fair_registration_history AS frh LEFT JOIN user AS u ON u.id = frh.user WHERE frh.fair = ? AND frh.id IN (" . implode(',', $_POST['rows']) . ")");
+				$stmt = $user->db->prepare("SELECT frh.*, u.id AS userid, u.* FROM fair_registration_history AS frh LEFT JOIN user AS u ON u.id = frh.user WHERE frh.fair = ? AND frh.id IN (" . implode(',', $_POST['rows']) . ")");
 				$stmt->execute(array($_SESSION['user_fair']));
 				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			
@@ -529,7 +700,6 @@ class AdministratorController extends Controller {
 				'country' => $this->translate->{'Country'},
 				'phone1' => $this->translate->{'Phone 1'},
 				'phone2' => $this->translate->{'Phone 2'},
-				'fax' => $this->translate->{'Fax number'},
 				'email' => $this->translate->{'E-mail'},
 				'website' => $this->translate->{'Website'},
 				'invoice_company' => $this->translate->{'Company'},
@@ -643,9 +813,16 @@ class AdministratorController extends Controller {
 		setAuthLevel(2);
 
 		$fair = new Fair();
-		$fair->load($_SESSION['user_fair'], 'id');
-
+		$fair->loadsimple($_SESSION['user_fair'], 'id');
+		$this->set('headline', 'Invoice overview');
 		$this->setNoTranslate('fair', $fair);
+		if (isset($_SESSION['mail_errors']) && !empty($_SESSION['mail_errors'])) {
+			$this->setNoTranslate('mail_errors', $_SESSION['mail_errors']);
+			$this->setNoTranslate('error_title', 'An error occured');
+			$_SESSION['mail_errors'] = '';
+		} else {
+			$this->setNoTranslate('mail_errors', '');
+		}
 		
 		if( userLevel() == 2 ){
 			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
@@ -692,237 +869,142 @@ class AdministratorController extends Controller {
 			$this->setNoTranslate('accessible_maps', array());
 		}
 
-		if (!$hasRights)
-			return;
+		if ($fair->wasLoaded() && $hasRights) {
 
+			/* Active invoices */
+			$stmt = $this->db->prepare("SELECT ei.*, eir.text AS posname FROM exhibitor_invoice AS ei, exhibitor_invoice_rel AS eir 
+												 WHERE ei.status = 1 AND eir.invoice = ei.id AND ei.fair = ? AND eir.fair = ? AND eir.type = 'space'");
+			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair']));
+			$active_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-		$u = new User();
-		$u->load($_SESSION['user_id'], 'id');
+			/* Paid invoices */
+			$stmt = $this->db->prepare("SELECT ei.*, eir.text AS posname FROM exhibitor_invoice AS ei, exhibitor_invoice_rel AS eir 
+												 WHERE ei.status = 2 AND eir.invoice = ei.id AND ei.fair = ? AND eir.fair = ? AND eir.type = 'space'");
+			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair']));
+			$paid_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-		/* Active invoices */
-		$stmt = $u->db->prepare("SELECT exhibitor_invoice.* FROM exhibitor_invoice WHERE exhibitor_invoice.fair = ? AND exhibitor_invoice.status = 1");
-		$stmt->execute(array($_SESSION['user_fair']));
-		$active_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$ainvoices = array();
-
-
-		foreach ($active_invoices as $invoice) {
-
-			/* Get positions */
-			$stmt = $u->db->prepare('SELECT `text` FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = "space"');
-			$stmt->execute(array($invoice['id'], $invoice['fair']));
-			$posnames = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-			
-			$positions = array();
-			if (count($posnames) > 0) {
-				foreach ($posnames as $pos) {
-					$positions[] = $pos;					
-				}
-			}
-			//var_dump($positions);
-
-			$invoice['posname'] = implode('|', $positions[0]);			
-
-			$ainvoices[] = $invoice;
-		}
-
-		/* Paid invoices */
-		$stmt = $u->db->prepare("SELECT exhibitor_invoice.* FROM exhibitor_invoice WHERE exhibitor_invoice.fair = ? AND exhibitor_invoice.status = 2");
-		$stmt->execute(array($_SESSION['user_fair']));
-		$paid_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$pinvoices = array();
-
-
-		foreach ($paid_invoices as $invoice) {
-
-			/* Get positions */
-			$stmt = $u->db->prepare('SELECT `text` FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = "space"');
-			$stmt->execute(array($invoice['id'], $invoice['fair']));
-			$posnames = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			
-			
-			$positions = array();
-			if (count($posnames) > 0) {
-				foreach ($posnames as $pos) {
-					$positions[] = $pos;					
-				}
-			}
-			//var_dump($positions);
-
-			$invoice['posname'] = implode('|', $positions[0]);			
-
-			$pinvoices[] = $invoice;
-		}
-
-
-		/* Credited invoices */
-		$stmt = $u->db->prepare("SELECT exhibitor_invoice.* FROM exhibitor_invoice WHERE exhibitor_invoice.fair = ? AND exhibitor_invoice.status = 3");
-		$stmt->execute(array($_SESSION['user_fair']));
-		$credited_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$cinvoices = array();
-
-
-		foreach ($credited_invoices as $invoice) {
-
-			/* Get positions */
-			$stmt = $u->db->prepare('SELECT `text` FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = "space"');
-			$stmt->execute(array($invoice['id'], $invoice['fair']));
-			$posnames = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			
-			
-			$positions = array();
-			if (count($posnames) > 0) {
-				foreach ($posnames as $pos) {
-					$positions[] = $pos;					
-				}
+			/* Old Credited invoices */
+			$stmt = $this->db->prepare("SELECT ei.*, eir.text AS posname, eic.cid, eic.created AS cidcreated
+													FROM exhibitor_invoice AS ei, 
+													exhibitor_invoice_rel AS eir,
+													exhibitor_invoice_credited AS eic
+													WHERE ei.status = 3 
+													AND ei.fair = ? 
+													AND eir.fair = ? 
+													AND eir.type = 'space'
+													AND eic.invoice = ei.id
+													AND eir.invoice = ei.id 
+													AND eic.fair = ei.fair");
+			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair']));
+			$old_credited_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$old_credited_invoices_id = array();
+			foreach ($old_credited_invoices AS $invoice) {
+				$old_credited_invoices_id[] = $invoice['id'];
 			}
 
-			$invoice['posname'] = implode('|', $positions[0]);
+			/* Credited invoices */
+			$stmt = $this->db->prepare("SELECT ei.*, eir.text AS posname FROM exhibitor_invoice AS ei, exhibitor_invoice_rel AS eir 
+												 WHERE ei.status = 3 AND eir.invoice = ei.id AND ei.fair = ? AND eir.fair = ? AND eir.type = 'space' AND ei.id NOT IN('".implode(',', $old_credited_invoices_id)."')");
+			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair']));
+			$credited_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-			/* Get credited invoices */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_invoice_credited WHERE invoice = ? AND fair = ?');
-			$stmt->execute(array($invoice['id'], $invoice['fair']));
-			$cids = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			
-			
-			$icredited_id = array();
-			$icredited_created = array();
-			if (count($cids) > 0) {
-				foreach ($cids as $cid) {
-					$icredited_id[] = $cid['cid'];
-					$icredited_created[] = $cid['created'];
-				}
+			/* Old Cancelled invoices */
+			$stmt = $this->db->prepare("SELECT eih.*, eir.text AS posname FROM exhibitor_invoice_history AS eih, exhibitor_invoice_rel AS eir 
+												 WHERE eih.status = 4 AND eir.invoice = eih.id AND eih.fair = ? AND eir.fair = ? AND eir.type = 'space'");
+			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair']));
+			$old_cancelled_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+			/* Cancelled invoices */
+			$stmt = $this->db->prepare("SELECT ei.*, eir.text AS posname FROM exhibitor_invoice AS ei, exhibitor_invoice_rel AS eir 
+												 WHERE ei.status = 4 AND eir.invoice = ei.id AND ei.fair = ? AND eir.fair = ? AND eir.type = 'space'");
+			$stmt->execute(array($_SESSION['user_fair'], $_SESSION['user_fair']));
+			$cancelled_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+			if ($fair->isLocked()) {
+				$this->setNoTranslate('event_locked', true);
+				$this->set('event_locked_title', 'Event is locked');
+				$this->set('event_locked_content', 'Event is locked and cannot be edited.');
 			}
 
-			$invoice['cid'] = implode('|', $icredited_id);
-			$invoice['cidcreated'] = implode('|', $icredited_created);
-
-
-			$cinvoices[] = $invoice;
-		}
-
-		/* Cancelled invoices */
-		$stmt = $u->db->prepare("SELECT * FROM exhibitor_invoice_history WHERE fair = ? AND status = 4");
-		$stmt->execute(array($_SESSION['user_fair']));
-		$cancelled_invoices = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		$minvoices = array();
-
-
-		foreach ($cancelled_invoices as $invoice) {
-
-			/* Get positions */
-			$stmt = $u->db->prepare('SELECT `text` FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = "space"');
-			$stmt->execute(array($invoice['id'], $invoice['fair']));
-			$posnames = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			
-			
-			$positions = array();
-			if (count($posnames) > 0) {
-				foreach ($posnames as $pos) {
-					$positions[] = $pos;					
-				}
-			}
-
-			$invoice['posname'] = implode('|', $positions[0]);
-
-			/* Get cancelled invoices */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_invoice_cancelled WHERE invoice = ? AND fair = ?');
-			$stmt->execute(array($invoice['id'], $_SESSION['user_fair']));
-			$cancelids = $stmt->fetchAll(PDO::FETCH_ASSOC);
-			
-			
-			$icancelled_id = array();
-			$icancelled_created = array();
-			if (count($cancelids) > 0) {
-				foreach ($cancelids as $cid) {
-					$icancelled_id[] = $cid['invoice'];
-					$icancelled_created[] = $cid['created'];
-				}
-			}
-
-			$invoice['cid'] = implode('|', $icancelled_id);
-			$invoice['cidcreated'] = implode('|', $icancelled_created);
-
-
-			$minvoices[] = $invoice;
-		}
-		$this->set('aheadline', 'Active invoices');
-		$this->set('pheadline', 'Paid invoices');
-		$this->set('cheadline', 'Credited invoices');
-		$this->set('dheadline', 'Cancelled invoices');
-		$this->setNoTranslate('ainvoices', $ainvoices);
-		$this->setNoTranslate('pinvoices', $pinvoices);
-		$this->setNoTranslate('cinvoices', $cinvoices);
-		$this->setNoTranslate('minvoices', $minvoices);
-		$this->set('confirm_mark_as_sent', 'Mark invoice as sent for');
-		$this->set('confirm_send_invoices', 'Are you sure that you want to send these invoices?');
-		$this->set('send_invoice_comment', 'Enter a message for this mail batch');
-		$this->set('confirm_credit_invoice', 'Credit invoice for');
-		$this->set('confirm_cancel_invoice', 'Cancel invoice for');
-		$this->set('iactive', '');
-		$this->set('ipaid', '');
-		$this->set('icredited', '');
-		$this->set('icancelled', '');
-		$this->set('tr_id', 'ID');
-		$this->set('tr_company', 'Company name');
-		$this->set('tr_created', 'Created');
-		$this->set('tr_view', 'View');
-		$this->set('tr_sent', 'Sent');
-		$this->set('tr_posname', 'Position');
-		$this->set('tr_expires', 'Expires');
-		$this->set('tr_credit', 'Credit');
-		$this->set('tr_cancel', 'Makulera');
-		$this->set('confirmcredit', 'Are you sure that you want to credit this invoice?');
-		$this->set('confirmcancel', 'Are you sure that you want to cancel this invoice?');
-
-	}
-
-
-
-
-public function exportedFile() {
-	$time = time();
-	$fixedLinks = $_POST['fileLink'];
-	$files = explode('|', $fixedLinks);
-	$zipname = 'invoices/tmp/'.$time.'.zip';
-	$zip = new ZipArchive;
-	$zip->open( $zipname, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE );
-	foreach ($files as $file) {
-		if (file_exists($file)) {
-	  		$zip->addFile($file, iconv("UTF-8", "CP865//IGNORE", pathinfo( $file, PATHINFO_BASENAME )));
+			$this->set('aheadline', 'Active invoices');
+			$this->set('pheadline', 'Paid invoices');
+			$this->set('cheadline', 'Credited invoices');
+			$this->set('dheadline', 'Cancelled invoices');
+			$this->setNoTranslate('active_invoices', $active_invoices);
+			$this->setNoTranslate('paid_invoices', $paid_invoices);
+			$this->setNoTranslate('credited_invoices', $credited_invoices);
+			$this->setNoTranslate('old_credited_invoices', $old_credited_invoices);
+			$this->setNoTranslate('cancelled_invoices', $cancelled_invoices);
+			$this->setNoTranslate('old_cancelled_invoices', $old_cancelled_invoices);
+			$this->set('confirm_mark_as_sent', 'Mark invoice as sent for');
+			$this->set('confirm_send_invoices', 'Are you sure that you want to send these invoices?');
+			$this->set('confirm_credit_invoices', 'Are you sure that you want to credit these invoices?');
+			$this->set('send_invoice_comment', 'Enter a message for this mail batch');
+			$this->set('confirm_credit_invoice', 'Credit invoice for');
+			$this->set('confirm_cancel_invoice', 'Cancel invoice for');
+			$this->set('tr_id', 'Invoice ID');
+			$this->set('tr_company', 'Company name');
+			$this->set('tr_created', 'Created');
+			$this->set('tr_view', 'View');
+			$this->set('tr_sent', 'Sent');
+			$this->set('tr_posname', 'Position');
+			$this->set('tr_expires', 'Expires');
+			$this->set('tr_credit', 'Credit');
+			$this->set('tr_cancel', 'Cancel invoice');
+			$this->set('confirmcredit', 'Are you sure that you want to credit this invoice?');
+			$this->set('confirmcancel', 'Are you sure that you want to cancel this invoice?');
 		}
 	}
-	$zip->close();
-}
 
-public function downloadInvoices($filename) {
-	if (isset($filename)) {
-
-		header('Content-Type: application/zip; charset=UTF-8');
-		header('Content-disposition: attachment; filename='.$filename.'.zip');
-		header('Content-Length: ' . filesize('invoices/tmp/'.$filename.'.zip'));
-		readfile('invoices/tmp/'.$filename.'.zip');
+	public function exportedFile() {
+		$time = time();
+		$fixedLinks = $_POST['fileLink'];
+		$files = explode('|', $fixedLinks);
+		$zipname = 'invoices/tmp/'.$time.'.zip';
+		$zip = new ZipArchive;
+		$zip->open( $zipname, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE );
+		foreach ($files as $file) {
+			if (file_exists($file)) {
+		  		$zip->addFile($file, iconv("UTF-8", "CP865//IGNORE", pathinfo( $file, PATHINFO_BASENAME )));
+			}
+		}
+		$zip->close();
 	}
-}
-public function exportFiles() {
-	if (isset($_POST['fileLink'])) {
-	$filename = $this->translate->{"Invoices"}.' '.date('Y-m-d H-i-s');
-	$files = explode('|', $_POST['fileLink']);
-	$zipfile = 'invoices/tmp/'.$filename.'.zip';
-	$zip = new ZipArchive;
-	$zip->open( $zipfile, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE );
-	foreach ($files as $file) {
-		$file = str_replace(':', '_', $file);
-		if (file_exists($file)) {
-			$fixedname = preg_replace ( '/Å/' , 'A' , $file );
-	  		$zip->addFile( $file, iconv("UTF-8", "CP865", pathinfo( $fixedname, PATHINFO_BASENAME )));
+
+	public function downloadInvoices($filename) {
+		if (isset($filename)) {
+
+			header('Content-Type: application/zip; charset=UTF-8');
+			header('Content-disposition: attachment; filename='.$filename.'.zip');
+			header('Content-Length: ' . filesize('invoices/tmp/'.$filename.'.zip'));
+			readfile('invoices/tmp/'.$filename.'.zip');
 		}
 	}
-	$zip->close();
-	echo $filename;
+	public function exportFiles() {
+		if (isset($_POST['fileLink'])) {
+		$filename = $this->translate->{"Invoices"}.' '.date('Y-m-d H-i-s');
+		$files = explode('|', $_POST['fileLink']);
+		$zipfile = 'invoices/tmp/'.$filename.'.zip';
+		$zip = new ZipArchive;
+		$zip->open( $zipfile, ZIPARCHIVE::CREATE | ZIPARCHIVE::OVERWRITE );
+		foreach ($files as $file) {
+			$file = str_replace(':', '_', $file);
+			if (file_exists($file)) {
+				$unwanted_array = array(    'Š'=>'S', 'š'=>'s', 'Ž'=>'Z', 'ž'=>'z', 'À'=>'A', 'Á'=>'A', 'Â'=>'A', 'Ã'=>'A', 'Ä'=>'A', 'Å'=>'A', 'Æ'=>'A', 'Ç'=>'C', 'È'=>'E', 'É'=>'E',
+				                            'Ê'=>'E', 'Ë'=>'E', 'Ì'=>'I', 'Í'=>'I', 'Î'=>'I', 'Ï'=>'I', 'Ñ'=>'N', 'Ò'=>'O', 'Ó'=>'O', 'Ô'=>'O', 'Õ'=>'O', 'Ö'=>'O', 'Ø'=>'O', 'Ù'=>'U',
+				                            'Ú'=>'U', 'Û'=>'U', 'Ü'=>'U', 'Ý'=>'Y', 'Þ'=>'B', 'ß'=>'Ss', 'à'=>'a', 'á'=>'a', 'â'=>'a', 'ã'=>'a', 'ä'=>'a', 'å'=>'a', 'æ'=>'a', 'ç'=>'c',
+				                            'è'=>'e', 'é'=>'e', 'ê'=>'e', 'ë'=>'e', 'ì'=>'i', 'í'=>'i', 'î'=>'i', 'ï'=>'i', 'ð'=>'o', 'ñ'=>'n', 'ò'=>'o', 'ó'=>'o', 'ô'=>'o', 'õ'=>'o',
+				                            'ö'=>'o', 'ø'=>'o', 'ù'=>'u', 'ú'=>'u', 'û'=>'u', 'ý'=>'y', 'þ'=>'b', 'ÿ'=>'y', '´'=>'', '`'=>'');
+				$fixedname = strtr( $file, $unwanted_array );
+		  		$zip->addFile( $file, iconv("UTF-8", "CP865", pathinfo( $fixedname, PATHINFO_BASENAME )));
+			}
+		}
+		$zip->close();
+		echo $filename;
+		}
 	}
-}
 
   // Helper function, used in /newReservations when changing current fair
   public function reservationsChangeFair($fairId=0) {
@@ -937,9 +1019,23 @@ public function exportFiles() {
 
 		$fair = new Fair();
 		$fair->load($_SESSION['user_fair'], 'id');
-
+		$this->set('headline', 'Bookings overview');
 		$this->setNoTranslate('fair', $fair);
-			
+		if (isset($_SESSION['mail_errors']) && !empty($_SESSION['mail_errors'])) {
+			$this->setNoTranslate('mail_errors', $_SESSION['mail_errors']);
+			$this->setNoTranslate('error_title', 'An error occured');
+			$_SESSION['mail_errors'] = '';
+		} else {
+			$this->setNoTranslate('mail_errors', '');
+		}
+		if (isset($_SESSION['mail_success']) && !empty($_SESSION['mail_success'])) {
+			$this->setNoTranslate('mail_success', 1);
+			$this->set('emails_sent', 'Emails were sent to the selected exhibitors.');
+			$this->set('success_title', 'Success');
+			$_SESSION['mail_success'] = '';
+		} else {
+			$this->setNoTranslate('mail_success', '');
+		}
 		if( userLevel() == 2 ){
 			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
 			$prep = $this->db->prepare($sql);
@@ -987,517 +1083,863 @@ public function exportFiles() {
 
 		if (!$hasRights)
 			return;
+		// Check if fair is locked before executing the command
+		if ($fair->wasLoaded() && !$fair->isLocked()) {
+			if ($action == 'approve' && isset($_POST['id'])) {
 
-		// Jag tror att den här koden inte används längre...
-		if ($action == 'deny') {/*
-			$pb = new PreliminaryBooking();
-			$pb->load($param, 'id');
-			
-			$u = new User();
-			$u->load($pb->get('user'), 'id');
-			
-			//Check mail settings and send only if setting is set
-			if ($fair->wasLoaded()) {
-				$mailSettings = json_decode($fair->get("mail_settings"));
-				if (is_array($mailSettings->reservationCancelled) && in_array("1", $mailSettings->reservationCancelled)) {
-					$mail = new Mail($u->get('email'), 'reservation_cancelled', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
-					$mail->send();
-				}
-			}
-			
-			$pb->delete();
-			header("Location: ".BASE_URL."administrator/newReservations");
-			exit;// Slutar här
-		*/} else if ($action == 'approve' && isset($_POST['id'])) {
+					/// KONTROLLERAD MAILMALL
 
-			$pb = new PreliminaryBooking();
-			$pb->load($_POST['id'], 'id');
+				$pb = new PreliminaryBooking();
+				$pb->load($_POST['id'], 'id');
 
-			if ($pb->wasLoaded()) {
-				$pos = new FairMapPosition();
-				$pos->load($pb->get('position'), 'id');
-				$booking_time = $pb->get('booking_time');
+				if ($pb->wasLoaded()) {
+					$pos = new FairMapPosition();
+					$pos->load($pb->get('position'), 'id');
+					$pos->set('status', 2);
+					$pos->set('expires', '0000-00-00 00:00:00');
 
-				$previous_status = 3;
-				$status = 2;
-				$pos->set('status', $status);
-				$pos->set('expires', '0000-00-00 00:00:00');
+					$ex = new Exhibitor();
+					$ex->set('user', $pb->get('user'));
+					$ex->set('fair', $pb->get('fair'));
+					$ex->set('position', $pb->get('position'));
+					$ex->set('commodity', $_POST['commodity']);
+					$ex->set('arranger_message', $pb->get('arranger_message'));
+					$ex->set('booking_time', $pb->get('booking_time'));
+					$ex->set('edit_time', time());
+					$ex->set('clone', 0);
+					$ex->set('status', 2);
+					
+					$exId = $ex->save();
+					$pos->save();
+					$pb->accept();
 
-				$ex = new Exhibitor();
-				$ex->set('user', $pb->get('user'));
-				$ex->set('fair', $pb->get('fair'));
-				$ex->set('position', $pb->get('position'));
-				$ex->set('commodity', $_POST['commodity']);
-				$ex->set('arranger_message', $_POST['arranger_message']);
-				$ex->set('edit_time', time());
-				$ex->set('clone', 0);
-				$ex->set('status', 2);
-				
-				$exId = $ex->save();
-				$pos->save();
-				$pb->delete();
+					$categories = array();
 
-				$categoryNames = array();
-
-				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
-					$stmt = $pos->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
-					foreach ($_POST['categories'] as $cat) {
-						$stmt->execute(array($exId, $cat));
-						$category = new ExhibitorCategory();
-						$category->load($cat, "id");
-						if ($category->wasLoaded()) {
-							$categoryNames[] = $category->get("name");
-						}
-					}
-				}
-
-
-				$options = array();
-				if (isset($_POST['options']) && is_array($_POST['options'])) {
-					$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
-
-					foreach ($_POST['options'] as $opt) {								
-						$stmt->execute(array($exId, $opt));
-						$ex_option = new FairExtraOption();
-						$ex_option->load($opt, 'id');
-						if ($ex_option->wasLoaded()) {
-							$option_id[] = $ex_option->get('custom_id');
-							$option_text[] = $ex_option->get('text');
-							$option_price[] = $ex_option->get('price');
-							$option_vat[] = $ex_option->get('vat');
-						}
-					}
-
-					$options = array($option_id, $option_text, $option_price, $option_vat);
-				}
-
-
-				$articles = array();
-				if (isset($_POST['articles']) && is_array($_POST['articles'])) {
-					$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
-					$arts = $_POST['articles'];
-					$amounts = $_POST['artamount'];
-
-					foreach (array_combine($arts, $amounts) as $art => $amount) {
-						$stmt->execute(array($exId, $art, $amount));
-						$arts = new FairArticle();
-						$arts->load($art, 'id');
-						if ($arts->wasLoaded()) {
-							$art_id[] = $arts->get('custom_id');
-							$art_text[] = $arts->get('text');
-							$art_amount[] = $amount;
-							$art_price[] = $arts->get('price');
-							$art_vat[] = $arts->get('vat');
-						}								
-					}
-					$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
-				}
-
-				$categories = implode('<br/> ', $categoryNames);
-
-				$time_now = date('d-m-Y H:i');
-				
-				$fair = new Fair();
-				$fair->load($pb->get('fair'), 'id');
-				
-				$organizer = new User();
-				$organizer->load($fair->get('created_by'), 'id');
-
-				$user = new User();
-				$user->load($ex->get('user'), 'id');
-
-				$fairInvoice = new FairInvoice();
-				$fairInvoice->load($pb->get('fair'), 'fair');
-
-				/*********************************************************************************/
-				/*********************************************************************************/
-				/*****************     SENDER ADDRESS AND PAYMENT OPTIONS        *****************/
-				/*********************************************************************************/
-				/*********************************************************************************/
-
-
-				$sender_billing_reference = $fairInvoice->get('reference');
-				$sender_billing_company_name = $fairInvoice->get('company_name');
-				$sender_billing_address = $fairInvoice->get('address');
-				$sender_billing_zipcode = $fairInvoice->get('zipcode');
-				$sender_billing_city = $fairInvoice->get('city');
-				$sender_billing_country = $fairInvoice->get('country');
-				$sender_billing_orgnr = $fairInvoice->get('orgnr');
-				$sender_billing_phone = $fairInvoice->get('phone');
-				$sender_billing_email = $fairInvoice->get('email');
-				$sender_billing_website = $fairInvoice->get('website');
-
-
-				$rec_billing_company_name = $user->get('invoice_company');
-				$rec_billing_address = $user->get('invoice_address');
-				$rec_billing_zipcode = $user->get('invoice_zipcode');
-				$rec_billing_city = $user->get('invoice_city');
-				$rec_billing_country = $user->get('invoice_country');
-
-				if ($rec_billing_country == 'Sweden')
-					$rec_billing_country = 'Sverige';
-
-				if ($rec_billing_country == 'Norway')
-					$rec_billing_country = 'Norge';
-
-
-				$description_label = $this->translate->{'Description'};
-				$price_label = $this->translate->{'Price'};
-				$amount_label = $this->translate->{'Quantity'};
-				$booked_space_label = $this->translate->{'Booked stand'};
-				$options_label = $this->translate->{'Options'};
-				$articles_label = $this->translate->{'Articles'};
-				$tax_label = $this->translate->{'Tax'};
-				$parttotal_label = $this->translate->{'Subtotal'};
-				$net_label = $this->translate->{'Net'};
-				$rounding_label = $this->translate->{'Rounding'};
-				$to_pay_label = $this->translate->{'to pay:'};
-				$st_label = $this->translate->{'st'};
-
-
-				$current_user = new User();
-				$current_user->load($_SESSION['user_id'], 'id');
-
-
-
-				/*************************************************************/
-				/*************************************************************/
-				/*****************     PRICES AND AMOUNTS        *****************
-				/*************************************************************/
-				/*************************************************************/
-
-				$fairId = $fair->get('id');
-				$fairname = $fair->get('name');
-				$fairurl = $fair->get('url');
-				$totalPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$position_vat = 0;
-				$currency = $fair->get('currency');
-				$author = $current_user->get('name');
-				$position_name = $pos->get('name');
-				$position_price = $pos->get('price');
-				$position_vat = $fairInvoice->get('pos_vat');
-				$exhibitor_company_name = $user->get('company');
-				$exhibitor_name = $user->get('name');
-
-
-
-					/*********************************************************************************************/
-					/*********************************************************************************************/
-					/*****************    					SET MAIL CONTENT 	  				******************/
-					/*********************************************************************************************/
-					/*********************************************************************************************/
-
-					$html = '<style>
-					* {
-						box-sizing:border-box;
-					}
-					hr {
-						width:690px;
-						text-align:left;
-					}
-					.id {
-						width: 80px;
-					}
-					.name {
-						width: 300px;
-					}
-					.price{
-						width: 80px;
-						text-align: right;
-						padding-right: 12px;
-					}
-					.amount {
-						width: 100px;
-						text-align:center;
-					}
-					.moms {
-						width:50px;
-					}
-					.center {
-						text-align:center;
-					}
-					.right {
-						text-align:right;
-					}
-					.vat {
-						width: 80px;
-						text-align: left;
-					}
-					.dark {
-						background-color: #D4D4D4;
-					}
-					.totalprice {
-						width: 445;
-						text-align: right;
-						font-size: 20px;
-					}
-					.totalprice2 {
-						width: 400;
-						text-align: right;
-						font-size: 20px;
-					}
-					.pennys {
-						width: 400;
-						text-align: right;
-						font-size: 16px;
-					}
-					</style>
-
-					<table>
-						<thead>
-						    <tr class="dark">
-						    	<th class="id">ID</th>
-						        <th class="name">'.$description_label.'</th>
-						        <th class="price">'.$price_label.'</th>
-						        <th class="amount">'.$amount_label.'</th>
-						        <th class="moms right">'.$tax_label.'</th>
-						        <th class="price">'.$parttotal_label.'</th>
-						    </tr>
-					    </thead>
-					    <tbody>';
-
-					$html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booked_space_label.'</b></td></tr>
-					<tr>
-						<td class="id"></td>
-					    <td class="name">' . $position_name . '</td>
-					    <td class="price">' . $position_price . '</td>
-						<td class="amount">1 '.$st_label.'</td>
-						<td class="moms right">' . $position_vat . '%</td>
-						<td class="price right">' . number_format($position_price, 2, ',', ' ') . '</td>
-					</tr>';
-
-					if ($position_vat == 25) {
-						$excludeVatPrice25 += $position_price;
-					} else if ($position_vat == 18) {
-						$excludeVatPrice18 += $position_price;
-					} else {
-						$excludeVatPrice0 += $position_price;
-					}
-
-					if (!empty($_POST['options']) && is_array($_POST['options'])) {
-						$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$options_label.'</b></td></tr>';
-
-						for ($row=0; $row<count($options[1]); $row++) {
-						    $html .= '<tr>
-						    	<td class="id">' . $options[0][$row] . '</td>
-						        <td class="name">' . $options[1][$row] . '</td>
-						        <td class="price">' . $options[2][$row] . '</td>
-						        <td class="amount">1 '.$st_label.'</td>
-						        <td class="moms right">' . $options[3][$row] . '%</td>
-						        <td class="price right">' . str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')) . '</td>
-						        </tr>';
-					    }
-					}
-
-					if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-						
-						$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$articles_label.'</b></td></tr>';
-						for ($row=0; $row<count($articles[1]); $row++) {
-						    $html .= '<tr>
-						    	<td class="id">' . $articles[0][$row] . '</td>
-						        <td class="name">' . $articles[1][$row] . '</td>
-						        <td class="price">' . str_replace('.', ',', $articles[2][$row]) . '</td>
-						        <td class="amount center">' . $articles[3][$row] . ' '.$st_label.'</td>
-						        <td class="moms right">' . $articles[4][$row] . '%</td>
-						        <td class="price right">' . str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')) . '</td>
-						        </tr>';
-						        $articles[2][$row] = str_replace(',', '.', $articles[2][$row]);
-					    }
-					}
-
-
-					if (!empty($_POST['options']) && is_array($_POST['options'])) {
-						for ($row=0; $row<count($options[1]); $row++) {
-
-							if ($options[3][$row] == 25) {
-								$excludeVatPrice25 += $options[2][$row];
-							}
-							if ($options[3][$row] == 18) {
-								$excludeVatPrice18 += $options[2][$row];
-							}
-							if ($options[3][$row] == 12) {
-								$excludeVatPrice12 += $options[2][$row];
-							}
-							if ($options[3][$row] == 0) {
-								$excludeVatPrice0 += $options[2][$row];
+					if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+						foreach ($_POST['categories'] as $cat) {
+							$category = new ExhibitorCategory();
+							$category->load($cat, "id");
+							if ($category->wasLoaded()) {
+								$categories[] = $category->get("name");
 							}
 						}
 					}
 
-					if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-						for ($row=0; $row<count($articles[1]); $row++) {
 
-							if ($articles[4][$row] == 25) {
-								$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-							}
-							if ($articles[4][$row] == 18) {
-								$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-							}
-							if ($articles[4][$row] == 12) {
-								$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-							}
-							if ($articles[4][$row] == 0) {
-								$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					$options = array();
+					if (isset($_POST['options']) && is_array($_POST['options'])) {
+						$stmt = $this->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+						foreach ($_POST['options'] as $opt) {								
+							$stmt->execute(array($exId, $opt));
+							$ex_option = new FairExtraOption();
+							$ex_option->load($opt, 'id');
+							if ($ex_option->wasLoaded()) {
+								$option_id[] = $ex_option->get('custom_id');
+								$option_text[] = $ex_option->get('text');
+								$option_price[] = $ex_option->get('price');
+								$option_vat[] = $ex_option->get('vat');
 							}
 						}
+
+						$options = array($option_id, $option_text, $option_price, $option_vat);
 					}
 
-					$VatPrice0 = $excludeVatPrice0;
-					$VatPrice12 = $excludeVatPrice12*0.12;
-					$VatPrice18 = $excludeVatPrice18*0.18;
-					$VatPrice25 = $excludeVatPrice25*0.25;
-					$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
 
-					$totalPriceRounded = round($totalPrice);
-					$pennys = ($totalPriceRounded - $totalPrice);
+					$articles = array();
+					if (isset($_POST['articles']) && is_array($_POST['articles'])) {
+						$stmt = $this->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
+						$arts = $_POST['articles'];
+						$amounts = $_POST['artamount'];
+						foreach (array_combine($arts, $amounts) as $art => $amount) {
+							$stmt->execute(array($exId, $art, $amount));
+							$arts = new FairArticle();
+							$arts->load($art, 'id');
+							if ($arts->wasLoaded()) {
+								$art_id[] = $arts->get('custom_id');
+								$art_text[] = $arts->get('text');
+								$art_amount[] = $amount;
+								$art_price[] = $arts->get('price');
+								$art_vat[] = $arts->get('vat');
+							}								
+						}
+						$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
+					}
 
-					$html .= '
-					</tbody></table>
-					<hr>
-					<table>
-						<thead>
-						    <tr>
-						        <th class="vat"></th>
-						        <th class="vat"></th>
-						        <th class="vat"></th>
-						        <th class="totalprice"></th>
-						    </tr>
-					    </thead>
-					    <tbody>
-						<tr>
-							<td class="vat">'.$net_label.'</td>
-							<td class="vat">'.$tax_label.' %</td>
-							<td class="vat">'.$tax_label.':</td>
-							<td class="totalprice"></td>
+					$articleNames = array();
+					for ($x=0; $x<count($articles[1]); $x++) {
+						$articleNames[] = ($articles[1][$x].' (x'.$art_amount[$x].')');
+					}
+					$htmlcategoryNames = implode('<br>', $categories);
+					$fairInvoice = new FairInvoice();
+					$fairInvoice->load($ex->get('fair'), 'fair');
+
+					$fair = new Fair();
+					$fair->loadsimple($ex->get('fair'), 'id');
+					
+					$organizer = new User();
+					$organizer->load2($fair->get('created_by'), 'id');
+
+					$user = new User();
+					$user->load2($ex->get('user'), 'id');
+
+					/*****************************************************************************************/
+					/*****************************************************************************************/
+					/************************				PREPARE MAIL START			  *************************/
+					/*****************************************************************************************/
+					/*****************************************************************************************/
+
+					/*********************************************************************************/
+					/*********************************************************************************/
+					/********************************       LABELS       *****************************/
+					/*********************************************************************************/
+					/*********************************************************************************/
+
+					$name_label = $this->translate->{'Name'};
+					$price_label = $this->translate->{'Price'};
+					$amount_label = $this->translate->{'Amount'};
+					$vat_label = $this->translate->{'Vat'};
+					$sum_label = $this->translate->{'Sum'};
+					$booked_space_label = $this->translate->{'Stand'};
+					$options_label = $this->translate->{'Options'};
+					$articles_label = $this->translate->{'Articles'};
+					$tax_label = $this->translate->{'Tax'};
+					$parttotal_label = $this->translate->{'Subtotal'};
+					$net_label = $this->translate->{'Net'};
+					$rounding_label = $this->translate->{'Rounding'};
+					$total_label = $this->translate->{'total:'};
+					$st_label = $this->translate->{'st'};
+					$nothing_selected_label = $this->translate->{'No articles or options selected.'};
+
+
+					/*************************************************************/
+					/*************************************************************/
+					/*****************     PRICES AND AMOUNTS        *************/
+					/*************************************************************/
+					/*************************************************************/ 
+
+					$totalPrice = 0;
+					$totalNetPrice = 0;
+					$VatPrice0 = 0;
+					$VatPrice12 = 0;
+					$VatPrice18 = 0;
+					$VatPrice25 = 0;
+					$excludeVatPrice0 = 0;
+					$excludeVatPrice12 = 0;
+					$excludeVatPrice18 = 0;
+					$excludeVatPrice25 = 0;
+					$currency = $fair->get('currency');
+					$position_vat = 0;
+					$position_name = $pos->get('name');
+					$position_price = $pos->get('price');
+					$position_vat = $fairInvoice->get('pos_vat');
+
+					/*********************************************************************************************/
+					/*********************************************************************************************/
+					/**********************					MAIL BOOKING TABLE START			  ***********************/
+					/*********************************************************************************************/
+					/*********************************************************************************************/
+			$html = '<!-- SIX COLUMN HEADERS -->
+						<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
+						 <!-- ID -->
+						 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+						     ID
+						   </p>
+						 </td>
+						 <!-- NAME -->
+						 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+						     '.$name_label.'
+						   </p>
+						 </td>
+						 <!-- PRICE -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+						     '.$price_label.'
+						   </p>
+						 </td>
+						 <!-- AMOUNT -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+						     '.$amount_label.'
+						   </p>
+						 </td>
+						 <!-- VAT % -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+						     '.$vat_label.'
+						   </p>
+						 </td>
+						 <!-- SUM -->
+						 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+						     '.$sum_label.'
+						   </p>
+						 </td>
+						</tr>
+						<!-- SPACER ROW -->
+						<tr style="mso-yfti-irow:1;height:11.1pt">
+						</tr>
+						<!-- STAND SPACE ROW LABEL-->
+						<tr style="mso-yfti-irow:1;height:25.1pt">
+						 	<!-- ID -->
+							<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						<!-- NAME -->
+							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$booked_space_label.'
+									</span>
+								</p>
+							</td>
+							<!-- PRICE -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- AMOUNT -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- VAT % -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- SUM -->
+							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						</tr>
+						<!-- STAND SPACE ROW INFO -->
+						<tr style="mso-yfti-irow:1;height:25.1pt">
+						 	<!-- ID -->
+							<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						<!-- NAME -->
+							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_name.'
+									</span>
+								</p>
+							</td>
+							<!-- PRICE -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_price.'
+									</span>
+								</p>
+							</td>
+							<!-- AMOUNT -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									1'.$st_label.'
+									</span>
+								</p>
+							</td>
+							<!-- VAT % -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_vat.'%
+									</span>
+								</p>
+							</td>
+							<!-- SUM -->
+							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.number_format($position_price, 2, ',', ' ').'
+									</span>
+								</p>
+							</td>
 						</tr>';
 
-					if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-						$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-						$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-					
-						$html .= '<tr>
-								<td class="vat">' . str_replace('.', ',', $excludeVatPrice12) . '</td>
-								<td class="vat">12,00</td>
-								<td class="vat">' . str_replace('.', ',', $VatPrice12) . '</td>
-								<td class="pennys">'.$rounding_label.':&nbsp;&nbsp;'
-								. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
-								'</td>
+			$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
+							<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
+								<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+									<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									</p>
+								</td>
+								<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									</p>
+								</td>
+							</tr>';
+
+			if ($position_vat == 25) {
+				$excludeVatPrice25 += $position_price;
+			} else if ($position_vat == 18) {
+				$excludeVatPrice18 += $position_price;
+			} else {
+				$excludeVatPrice0 += $position_price;
+			}
+
+			if (!empty($_POST['options']) && is_array($_POST['options'])) {
+				$html .= '<!-- SIX COLUMNS -->
+			               <tr style="mso-yfti-irow:1;height:25.1pt">
+			                	<!-- ID -->
+			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+			                  		</span>
+			                  	</p>
+			                  </td>
+			                  <!-- NAME -->
+									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											'.$options_label.'
+											</span>
+										</p>
+									</td>
+									<!-- PRICE -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- AMOUNT -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- VAT % -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- SUM -->
+									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
 								</tr>';
-					}
-					if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-						$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-						$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-					
-						$html .= '<tr>
-								<td class="vat">' . str_replace('.', ',', $excludeVatPrice18) . '</td>
-								<td class="vat">18,00</td>
-								<td class="vat">' . str_replace('.', ',', $VatPrice18) . '</td>
-								<td class="pennys">'.$rounding_label.':&nbsp;&nbsp;'
-								. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
-								'</td>
+
+				for ($row=0; $row<count($options[1]); $row++) {
+					$html .= '<!-- SIX COLUMNS -->
+				               <tr style="mso-yfti-irow:1;height:25.1pt">
+				                	<!-- ID -->
+				                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+				                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+				                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+				                  		'.$options[0][$row].'
+				                  		</span>
+				                  	</p>
+				                  </td>
+				                  <!-- NAME -->
+										<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[1][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- PRICE -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[2][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- AMOUNT -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												1'.$st_label.'
+												</span>
+											</p>
+										</td>
+										<!-- VAT % -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[3][$row].'%
+												</span>
+											</p>
+										</td>
+										<!-- SUM -->
+										<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
+												</span>
+											</p>
+										</td>
+									</tr>';
+				}
+			}
+
+			if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
+				$html .= '<!-- SIX COLUMNS -->
+			               <tr style="mso-yfti-irow:1;height:25.1pt">
+			                	<!-- ID -->
+			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+			                  		</span>
+			                  	</p>
+			                  </td>
+			                  <!-- NAME -->
+									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											'.$articles_label.'
+											</span>
+										</p>
+									</td>
+									<!-- PRICE -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- AMOUNT -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- VAT % -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- SUM -->
+									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
 								</tr>';
+
+				for ($row=0; $row<count($articles[1]); $row++) {
+					$html .= '<!-- SIX COLUMNS -->
+				               <tr style="mso-yfti-irow:1;height:25.1pt">
+				                	<!-- ID -->
+				                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+				                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+				                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+				                  		'.$articles[0][$row].'
+				                  		</span>
+				                  	</p>
+				                  </td>
+				                  <!-- NAME -->
+										<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[1][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- PRICE -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', $articles[2][$row]).'
+												</span>
+											</p>
+										</td>
+										<!-- AMOUNT -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[3][$row].' '.$st_label.'
+												</span>
+											</p>
+										</td>
+										<!-- VAT % -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[4][$row].'%
+												</span>
+											</p>
+										</td>
+										<!-- SUM -->
+										<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
+												</span>
+											</p>
+										</td>
+									</tr>';
+			    }
+			}
+
+
+			if (!empty($_POST['options']) && is_array($_POST['options'])) {
+				for ($row=0; $row<count($options[1]); $row++) {
+
+					if ($options[3][$row] == 25) {
+						$excludeVatPrice25 += $options[2][$row];
 					}
-					if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-						$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-						$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-					
-					$html .= '<tr>
-							<td class="vat">' . str_replace('.', ',', $excludeVatPrice25) . '</td>
-							<td class="vat">25,00</td>
-							<td class="vat">' . str_replace('.', ',', $VatPrice25) . '</td>
-							<td class="totalprice2">'.$currency.' '.$to_pay_label.'&nbsp;&nbsp;'
-							. str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')) . 
-							'</td>';
+					if ($options[3][$row] == 18) {
+						$excludeVatPrice18 += $options[2][$row];
 					}
-
-
-
-					$html .= '</tbody></table>';
-
-					$arranger_message = $_POST['arranger_message'];
-					if ($arranger_message == '') {
-						$arranger_message = $this->translate->{'No message was given.'};
+					if ($options[3][$row] == 12) {
+						$excludeVatPrice12 += $options[2][$row];
 					}
-					$exhibitor_commodity = $_POST['commodity'];
-					if ($exhibitor_commodity == '') {
-						$exhibitor_commodity = $this->translate->{'No commodity was entered.'};
-					}
-
-
-				//Check mail settings and send only if setting is set
-				if ($fair->wasLoaded()) {
-					$mailSettings = json_decode($fair->get("mail_settings"));
-					if (is_array($mailSettings->acceptPreliminaryBooking)) {
-						$previous_status = posStatusToText($previous_status);
-						$status = posStatusToText($status);
-
-						if (in_array("0", $mailSettings->acceptPreliminaryBooking)) {
-							$mail_organizer = new Mail($organizer->get('email'), 'booking_approved_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
-							$mail_organizer->setMailVar('booking_table', $html);
-							$mail_organizer->setMailVar('status', $status);
-							$mail_organizer->setMailVar('company_name', $user->get('company'));
-							$mail_organizer->setMailvar("exhibitor_name", $user->get("name"));
-							$mail_organizer->setMailvar("event_name", $fair->get("name"));
-							$mail_organizer->setMailVar('position_name', $pos->get('name'));
-							$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($booking_time)));
-							$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
-							$mail_organizer->setMailVar('position_information', $pos->get('information'));
-							$mail_organizer->setMailVar('position_area', $pos->get('area'));
-							$mail_organizer->setMailVar('arranger_message', $arranger_message);
-							$mail_organizer->setMailVar('exhibitor_commodity', $exhibitor_commodity);
-							$mail_organizer->setMailVar('exhibitor_category', $categories);
-							$mail_organizer->setMailVar('edit_time', $time_now);
-							$mail_organizer->send();
-						}
-						if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
-							$mail_user = new Mail($user->get('email'), 'booking_approved_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
-							$mail_user->setMailVar('booking_table', $html);
-							$mail_user->setMailVar('status', $status);
-							$mail_user->setMailVar('company_name', $user->get('company'));
-							$mail_user->setMailvar("exhibitor_name", $user->get("name"));
-							$mail_user->setMailvar("event_name", $fair->get("name"));
-							$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-							$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-							$mail_user->setMailVar('event_website', $fair->get('website'));
-							$mail_user->setMailVar('position_name', $pos->get('name'));
-							$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($booking_time)));
-							$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('position_area', $pos->get('area'));
-							$mail_user->setMailVar('arranger_message', $arranger_message);
-							$mail_user->setMailVar('exhibitor_commodity', $exhibitor_commodity);
-							$mail_user->setMailVar('exhibitor_category', $categories);
-							$mail_user->setMailVar('edit_time', $time_now);
-							$mail_user->send();
-						}
+					if ($options[3][$row] == 0) {
+						$excludeVatPrice0 += $options[2][$row];
 					}
 				}
 			}
 
-			if (isset($_POST["redirect"])) {
-				header("location: {$_POST["redirect"]}");
-			} else {
-				header("Location: ".BASE_URL."administrator/newReservations");
-			}
-			exit;
-			
-		}
+			if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
+				for ($row=0; $row<count($articles[1]); $row++) {
 
-		$u = new User();
-		$u->load($_SESSION['user_id'], 'id');
+					if ($articles[4][$row] == 25) {
+						$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 18) {
+						$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 12) {
+						$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 0) {
+						$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+				}
+			}
+
+			$VatPrice0 = $excludeVatPrice0;
+			$VatPrice12 = $excludeVatPrice12*0.12;
+			$VatPrice18 = $excludeVatPrice18*0.18;
+			$VatPrice25 = $excludeVatPrice25*0.25;
+			$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
+			$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
+
+			$totalPriceRounded = round($totalPrice);
+			$pennys = ($totalPriceRounded - $totalPrice);
+
+			if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
+				$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
+				$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
+
+				$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (12%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice12).'
+										</p>
+									</td>
+								</tr>';
+
+			}
+			if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
+				$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
+				$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
+				$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (18%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice18).'
+										</p>
+									</td>
+								</tr>';
+			}
+			if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
+				$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
+				$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
+				$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (25%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice25).'
+										</p>
+									</td>
+								</tr>';
+			}
+			if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											0,00
+										</p>
+									</td>
+								</tr>';
+			} 
+			if (empty($totalPrice)) {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$net_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											0,00
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
+										</p>
+									</td>
+								</tr>';
+			} else {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$net_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>';
+			}
+
+			/*********************************************************************************************/
+			/*********************************************************************************************/
+			/**********************					MAIL BOOKING TABLE END				  ***********************/
+			/*********************************************************************************************/
+			/*********************************************************************************************/
+				
+				$position_name = $pos->get('name');
+				$position_information = $pos->get('information');
+				if ($position_information == '')
+					$position_information = $this->translate->{'None specified.'};
+
+				$position_area = $pos->get('area');
+				if ($position_area == '')
+					$position_area = $this->translate->{'None specified.'};
+
+				$arranger_message = $_POST['arranger_message'];
+				if ($arranger_message == '')
+					$arranger_message = $this->translate->{'No message was given.'};
+				
+				$exhibitor_commodity = $_POST['commodity'];
+				if ($exhibitor_commodity == '')
+					$exhibitor_commodity = $this->translate->{'No commodity was entered.'};
+
+					//Check mail settings and send only if setting is set
+					$errors = array();
+					$mail_errors = array();
+					$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+					$from = array($email => $fair->get("windowtitle"));
+					$mailSettings = json_decode($fair->get("mail_settings"));
+
+					if($fair->get('contact_name')) {
+						$from = array($email => $fair->get('contact_name'));
+					}
+
+					//Check mail settings and send only if setting is set
+					if ($fair->wasLoaded()) {
+						if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
+							if (in_array('0', $mailSettings->acceptPreliminaryBooking)) {
+								try {
+									if ($organizer->get('contact_email') == '')
+										$recipients = array($organizer->get('email') => $organizer->get('company'));
+									else
+										$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
+
+									$mail_organizer = new Mail();
+									$mail_organizer->setTemplate('booking_approved_confirm');
+									$mail_organizer->setPlainTemplate('booking_approved_confirm');
+									$mail_organizer->setFrom($from);
+									$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+									$mail_organizer->setRecipients($recipients);
+										$mail_organizer->setMailVar('booking_table', $html);
+										$mail_organizer->setMailVar('booking_sum', $html_sum);
+										$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
+										$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
+										$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+										$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+										$mail_organizer->setMailVar('position_name', $pos->get('name'));
+										$mail_organizer->setMailVar('position_information', $position_information);
+										$mail_organizer->setMailVar('position_area', $position_area);
+										$mail_organizer->setMailVar('arranger_message', $arranger_message);
+										$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
+										$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
+
+									if(!$mail_organizer->send()) {
+										$errors[] = $organizer->get('company');
+									}
+
+								} catch(Swift_RfcComplianceException $ex) {
+									// Felaktig epost-adress
+									$errors[] = $organizer->get('company');
+									$mail_errors[] = $ex->getMessage();
+
+								} catch(Exception $ex) {
+									// Okänt fel
+									$errors[] = $organizer->get('company');
+									$mail_errors[] = $ex->getMessage();
+								}
+
+							}
+
+							if (in_array('1', $mailSettings->acceptPreliminaryBooking)) {
+
+								try {
+									if ($user->get('contact_email') == '')
+										$recipients = array($user->get('email') => $user->get('company'));
+									else
+										$recipients = array($user->get('contact_email') => $user->get('name'));
+
+									$mail_user = new Mail();
+									$mail_user->setTemplate('booking_approved_receipt');
+									$mail_user->setPlainTemplate('booking_approved_receipt');
+									$mail_user->setFrom($from);
+									$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+									$mail_user->setRecipients($recipients);
+										$mail_user->setMailVar('booking_table', $html);
+										$mail_user->setMailVar('booking_sum', $html_sum);
+										$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
+										$mail_user->setMailvar('exhibitor_name', $user->get('name'));
+										$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+										$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+										$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+										$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+										$mail_user->setMailVar('event_website', $fair->get('website'));
+										$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+										$mail_user->setMailVar('position_name', $pos->get('name'));
+										$mail_user->setMailVar('position_information', $position_information);
+										$mail_user->setMailVar('position_area', $position_area);
+										$mail_user->setMailVar('arranger_message', $arranger_message);
+										$mail_user->setMailVar('commodity', $exhibitor_commodity);
+										$mail_user->setMailVar('html_categories', $htmlcategoryNames);
+
+									if(!$mail_user->send()) {
+										$errors[] = $user->get('company');
+									}
+
+								} catch(Swift_RfcComplianceException $ex) {
+									// Felaktig epost-adress
+									$errors[] = $user->get('company');
+									$mail_errors[] = $ex->getMessage();
+
+								} catch(Exception $ex) {
+									// Okänt fel
+									$errors[] = $user->get('company');
+									$mail_errors[] = $ex->getMessage();
+								}
+							}
+							if ($errors) {
+								$_SESSION['mail_errors'] = $mail_errors;
+							}
+						}
+					}
+				}
+
+				if (isset($_POST["redirect"])) {
+					header("location: {$_POST["redirect"]}");
+				} else {
+					header("Location: ".BASE_URL."administrator/newReservations");
+				}
+				exit;
+				
+			}
+		} else {
+			$this->setNoTranslate('event_locked', true);
+			$this->set('event_locked_title', 'Event is locked');
+			$this->set('event_locked_content', 'Event is locked and cannot be edited.');
+		}
+		$user = new User();
+		$user->load($_SESSION['user_id'], 'id');
 		$fairInvoice = new FairInvoice();
 		$fairInvoice->load($_SESSION['user_fair'], 'fair');
 
 		/* Bookings */
-		$stmt = $u->db->prepare("SELECT ex.*, user.id as userid, 
+		$stmt = $user->db->prepare("SELECT ex.*, 
+			user.id as userid, 
 			user.company, 
 			pos.id AS position, 
 			pos.name, 
@@ -1521,7 +1963,7 @@ public function exportFiles() {
 
 		foreach ($positions_unfinished as $pos) {
 			/* Get categories */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
 			$stmt->execute(array($pos['id']));
 			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1540,7 +1982,7 @@ public function exportFiles() {
 			$pos['categoriesid'] = implode('|', $categoriesid);
 
 			/* Get extra options */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
 			$stmt->execute(array($pos['id']));
 			$posoptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1569,6 +2011,36 @@ public function exportFiles() {
 			$pos['optiontext'] = implode('|', $option_text);
 			$pos['optionprice'] = implode('|', $option_price);
 			$pos['optionvat'] = implode('|', $option_vat);
+
+			/* Get invoice id */
+			$stmt = $this->db->prepare("SELECT row_id, id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ? AND status IN (1, 2) ORDER BY created DESC LIMIT 1");
+			$stmt->execute(array($pos['id']));
+			$posinvoiceid = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$invoicecompany = array();
+			$invoiceid = array();
+			$invoicerowid = array();
+			$invoiceposname = array();
+			$invoicestatus = array();
+			$invoicesent = array();
+			$invoice_credited_id = array();
+			if (count($posinvoiceid) > 0) {
+				$arrlength = count($posinvoiceid);
+				for($x = 0; $x < $arrlength; $x++) {
+					 $invoicecompany[] = $posinvoiceid[$x]['r_name'];
+				     $invoiceid[] = $posinvoiceid[$x]['id'];
+				     $invoicerowid[] = $posinvoiceid[$x]['row_id'];
+				     $invoicestatus[] = $posinvoiceid[$x]['status'];
+				     $invoicesent[] = $posinvoiceid[$x]['sent'];
+				     $invoice_credited = new ExhibitorInvoiceCredited();
+				     $invoice_credited->load($posinvoiceid[$x]['id'], 'invoice');
+				     if ($invoice_credited->wasLoaded()) {
+				     	$invoice_credited_id[] = $invoice_credited->get('cid');
+				     }
+					$stmt = $this->db->prepare("SELECT text FROM exhibitor_invoice_rel WHERE `invoice` = ? AND `fair` = ? AND type = 'space' ORDER BY id DESC LIMIT 1");
+					$stmt->execute(array($posinvoiceid[$x]['id'], $posinvoiceid[$x]['fair']));
+					$invoiceposname = $stmt->fetch(PDO::FETCH_ASSOC);
+				}
+			}
 
 			/* Get articles and amounts */
 			$stmt = $this->db->prepare("SELECT * FROM exhibitor_article_rel AS ear LEFT JOIN fair_article AS fa ON ear.article = fa.id WHERE exhibitor = ? AND ear.amount != 0");
@@ -1607,12 +2079,19 @@ public function exportFiles() {
 			$pos['articlevat'] = implode('|', $article_vat);
 			$pos['articleamount'] = implode('|', $article_amount);
 			$pos['vat'] = $fairInvoice->get('pos_vat');
+			$pos['invoicecompany'] = implode('|', $invoicecompany);
+			$pos['invoiceposname'] = implode('|', $invoiceposname);
+			$pos['invoicerowid'] = implode('|', $invoicerowid);
+			$pos['invoiceid'] = implode('|', $invoiceid);
+			$pos['invoicestatus'] = implode('|', $invoicestatus);
+			$pos['invoicesent'] = implode('|', $invoicesent);
+			$pos['invoicecreditedid'] = implode('|', $invoice_credited_id);
 
 			$positions[$pos['position']] = $pos;
 		}
 
 		/* Reservations */
-		$stmt = $u->db->prepare("SELECT ex.*, 
+		$stmt = $user->db->prepare("SELECT ex.*, 
 			user.id as userid, 
 			user.company, 
 			pos.id AS position, 
@@ -1638,12 +2117,12 @@ public function exportFiles() {
 
 		foreach ($rpositions_unfinished as $pos) {
 			/* Get categories */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
 			$stmt->execute(array($pos['id']));
 			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 			$categories = array();
-      		$categoriesid = array();
+      	$categoriesid = array();
 			if (count($poscats) > 0) {
 				foreach ($poscats as $cat) {
 					$categoriesid[] = $cat['category'];
@@ -1654,10 +2133,10 @@ public function exportFiles() {
 			}
 
 			$pos['categories'] = implode('|', $categories);
-      		$pos['categoriesid'] = implode('|', $categoriesid);
+      	$pos['categoriesid'] = implode('|', $categoriesid);
 
 			/* Get extra options */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
 			$stmt->execute(array($pos['id']));
 			$posoptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1669,7 +2148,7 @@ public function exportFiles() {
 
 			if (count($posoptions) > 0) {
 				foreach ($posoptions as $option) {
-          			$options[] = $option['option'];
+          		$options[] = $option['option'];
 					$ex_option = new FairExtraOption();
 					$ex_option->load($option['option'], 'id');
 						if ($ex_option->wasLoaded()) {
@@ -1681,18 +2160,19 @@ public function exportFiles() {
 				}
 			}
 
-      		$pos['options'] = implode('|', $options);
+      	$pos['options'] = implode('|', $options);
 			$pos['optionid'] = implode('|', $option_id);
 			$pos['optiontext'] = implode('|', $option_text);
 			$pos['optionprice'] = implode('|', $option_price);
 			$pos['optionvat'] = implode('|', $option_vat);
 
 			/* Get invoice id */
-			$stmt = $this->db->prepare("SELECT id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ?");
+			$stmt = $this->db->prepare("SELECT row_id, id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ? AND status IN (1, 2) ORDER BY created DESC LIMIT 1");
 			$stmt->execute(array($pos['id']));
 			$posinvoiceid = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$invoicecompany = array();
 			$invoiceid = array();
+			$invoicerowid = array();
 			$invoiceposname = array();
 			$invoicestatus = array();
 			$invoicesent = array();
@@ -1700,8 +2180,9 @@ public function exportFiles() {
 			if (count($posinvoiceid) > 0) {
 				$arrlength = count($posinvoiceid);
 				for($x = 0; $x < $arrlength; $x++) {
-					 $invoicecompany[] = $posinvoiceid[$x]['r_name'];
+					  $invoicecompany[] = $posinvoiceid[$x]['r_name'];
 				     $invoiceid[] = $posinvoiceid[$x]['id'];
+				     $invoicerowid[] = $posinvoiceid[$x]['row_id'];
 				     $invoicestatus[] = $posinvoiceid[$x]['status'];
 				     $invoicesent[] = $posinvoiceid[$x]['sent'];
 				     $invoice_credited = new ExhibitorInvoiceCredited();
@@ -1709,9 +2190,10 @@ public function exportFiles() {
 				     if ($invoice_credited->wasLoaded()) {
 				     	$invoice_credited_id[] = $invoice_credited->get('cid');
 				     }
-					$stmt = $this->db->prepare("SELECT text FROM exhibitor_invoice_rel WHERE `invoice` = ? AND `fair` = ? AND type = 'space'");
+					$stmt = $this->db->prepare("SELECT `text` FROM exhibitor_invoice_rel WHERE `invoice` = ? AND `fair` = ? AND type = 'space' ORDER BY id DESC LIMIT 1");
 					$stmt->execute(array($posinvoiceid[$x]['id'], $posinvoiceid[$x]['fair']));
-					$invoiceposname = $stmt->fetch(PDO::FETCH_ASSOC);
+					$result = $stmt->fetch(PDO::FETCH_ASSOC);
+					$invoiceposname[] = $result['text'];
 				}
 			}
 
@@ -1720,8 +2202,8 @@ public function exportFiles() {
 			$stmt->execute(array($pos['id']));
 			$posarticles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-      		$articles = array();
-      		$amount = array();
+      	$articles = array();
+      	$amount = array();
 			$article_id = array();
 			$article_text = array();
 			$article_price = array();
@@ -1730,8 +2212,8 @@ public function exportFiles() {
 
 			if (count($posarticles) > 0) {
 				foreach ($posarticles as $res) {
-          			$articles[] = $res['article'];
-          			$amount[] = $res['amount'];
+          		$articles[] = $res['article'];
+          		$amount[] = $res['amount'];
 			  		$ex_article = new FairArticle();
 			  		$ex_article->load($res['article'], 'id');
 						if ($ex_article->wasLoaded()) {
@@ -1743,7 +2225,7 @@ public function exportFiles() {
 						}
 				}
 			}
-
+			//print_r($invoiceposname);
 			$pos['articles'] = implode('|', $articles);
 			$pos['amount'] = implode('|', $amount);
 			$pos['articleid'] = implode('|', $article_id);
@@ -1754,6 +2236,7 @@ public function exportFiles() {
 			$pos['vat'] = $fairInvoice->get('pos_vat');
 			$pos['invoicecompany'] = implode('|', $invoicecompany);
 			$pos['invoiceposname'] = implode('|', $invoiceposname);
+			$pos['invoicerowid'] = implode('|', $invoicerowid);
 			$pos['invoiceid'] = implode('|', $invoiceid);
 			$pos['invoicestatus'] = implode('|', $invoicestatus);
 			$pos['invoicesent'] = implode('|', $invoicesent);
@@ -1763,7 +2246,7 @@ public function exportFiles() {
 		}
 
 		/* Cloned reservations */
-		$stmt = $u->db->prepare("SELECT ex.*, 
+		$stmt = $user->db->prepare("SELECT ex.*, 
 			user.id as userid, 
 			user.company, 
 			pos.id AS position, 
@@ -1789,7 +2272,7 @@ public function exportFiles() {
 
 		foreach ($rcpositions_unfinished as $pos) {
 			/* Get categories */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
 			$stmt->execute(array($pos['id']));
 			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1808,7 +2291,7 @@ public function exportFiles() {
       		$pos['categoriesid'] = implode('|', $categoriesid);
 
 			/* Get extra options */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
 			$stmt->execute(array($pos['id']));
 			$posoptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1839,10 +2322,11 @@ public function exportFiles() {
 			$pos['optionvat'] = implode('|', $option_vat);
 
 			// Get invoice id
-			$stmt = $this->db->prepare("SELECT id, status, sent FROM exhibitor_invoice WHERE exhibitor = ?");
+			$stmt = $this->db->prepare("SELECT row_id, id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ? AND status IN (1, 2) ORDER BY created DESC LIMIT 1");
 			$stmt->execute(array($pos['id']));
 			$posinvoiceid = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$invoiceid = array();
+			$invoicerowid = array();
 			$invoicestatus = array();
 			$invoicesent = array();
 			$invoice_credited_id = array();
@@ -1850,6 +2334,7 @@ public function exportFiles() {
 				$arrlength = count($posinvoiceid);
 				for($x = 0; $x < $arrlength; $x++) {
 				     $invoiceid[] = $posinvoiceid[$x]['id'];
+				     $invoicerowid[] = $posinvoiceid[$x]['row_id'];
 				     $invoicestatus[] = $posinvoiceid[$x]['status'];
 				     $invoicesent[] = $posinvoiceid[$x]['sent'];
 				     $invoice_credited = new ExhibitorInvoiceCredited();
@@ -1904,6 +2389,7 @@ public function exportFiles() {
 			$pos['linkdate'] = $confirmlink->get('linkdate');
 			$pos['vat'] = $fairInvoice->get('pos_vat');
 			$pos['invoiceid'] = implode('|', $invoiceid);
+			$pos['invoicerowid'] = implode('|', $invoicerowid);
 			$pos['invoicestatus'] = implode('|', $invoicestatus);
 			$pos['invoicesent'] = implode('|', $invoicesent);
 			$pos['invoicecreditedid'] = implode('|', $invoice_credited_id);
@@ -1912,7 +2398,7 @@ public function exportFiles() {
 		}
 
 		/* History of deleted boookings and reservations */
-		$stmt = $u->db->prepare("SELECT ex.*, 
+		$stmt = $user->db->prepare("SELECT ex.*, 
 			user.id as userid, 
 			user.company, 
 			pos.id AS position, 
@@ -1927,14 +2413,14 @@ public function exportFiles() {
 					WHERE user.id = ex.user 
 					AND ex.position = pos.id 
 					AND ex.fair = ?
-					ORDER BY ex.booking_time DESC");
+					ORDER BY ex.deletion_time DESC");
 		$stmt->execute(array($_SESSION['user_fair']));
 		$positions_deleted = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$del_positions = array();
 
 		foreach ($positions_deleted as $pos) {
 			/* Get categories */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_category_rel WHERE exhibitor = ? AND category > 0');
 			$stmt->execute(array($pos['id']));
 			$poscats = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1950,7 +2436,7 @@ public function exportFiles() {
 			$pos['categories'] = implode('|', $categories);
 
 			/* Get extra options */
-			$stmt = $u->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
+			$stmt = $user->db->prepare('SELECT * FROM exhibitor_option_rel WHERE exhibitor = ? AND `option` > 0');
 			$stmt->execute(array($pos['id']));
 			$posoptions = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
@@ -2009,12 +2495,12 @@ public function exportFiles() {
 			$pos['articleamount'] = implode('|', $article_amount);
 			$pos['vat'] = $fairInvoice->get('pos_vat');
 
-			$del_positions[$pos['position']] = $pos;
+			$del_positions[] = $pos;
 		}
 
 
 	// History of deleted Preliminary bookings
-	$stmt = $u->db->prepare("SELECT prel.*, 
+	$stmt = $user->db->prepare("SELECT prel.*, 
 		user.id as userid, 
 		user.company, 
 		pos.id AS position, 
@@ -2028,7 +2514,8 @@ public function exportFiles() {
 			fair_map_position AS pos 
 				WHERE user.id = prel.user 
 				AND prel.position = pos.id 
-				AND prel.fair = ?");
+				AND prel.fair = ?
+				ORDER BY prel.deletion_time DESC");
 	$stmt->execute(array($_SESSION['user_fair']));
 	$prel_del = $stmt->fetchAll(PDO::FETCH_ASSOC);
 	$del_prelpos = array();
@@ -2107,12 +2594,12 @@ public function exportFiles() {
 		$pos['articleamount'] = implode('|', $article_amount);
 		$pos['vat'] = $fairInvoice->get('pos_vat');
 		$pos['categories'] = implode('|', $categories);
-		$del_prelpos[$pos['position']] = $pos;
+		$del_prelpos[] = $pos;
 	}
 
 		
 		// Active Preliminary bookings
-	$stmt = $u->db->prepare("SELECT prel.*, 
+	$stmt = $user->db->prepare("SELECT prel.*, 
 		user.id as userid, 
 		user.company, 
 		pos.id AS position, 
@@ -2214,7 +2701,7 @@ public function exportFiles() {
 	}
 
 		// Inactive Preliminary bookings
-	$stmt = $u->db->prepare("SELECT prel.*, 
+	$stmt = $user->db->prepare("SELECT prel.*, 
 		user.id as userid, 
 		user.company, 
 		pos.id AS position, 
@@ -2482,7 +2969,7 @@ public function exportFiles() {
 
 			$fair_registrations_deleted[] = $pos;
 		}
-
+			$this->set('headline', 'Bookings overview');
 			$this->setNoTranslate('positions', $positions);
 			$this->setNoTranslate('rpositions', $rpositions);
 			$this->setNoTranslate('rcpositions', $rcpositions);
@@ -2505,7 +2992,7 @@ public function exportFiles() {
 			$this->set('reserv_cloned_notfound', 'No cloned reservations was found.');
 			$this->set('prel_notfound', 'No preliminary bookings was found.');
 			$this->set('del_prel_notfound', 'No previously deleted preliminary bookings was found.');
-			$this->set('headline', 'Booked stand spaces');
+			$this->set('bheadline', 'Booked stand spaces');
 			$this->set('rheadline', 'Reservations');
 			$this->set('rcheadline', 'Cloned reservations');
 			$this->set('prel_table', 'Preliminary bookings (active)');
@@ -2515,8 +3002,9 @@ public function exportFiles() {
 			$this->set('fregistrations_notfound', 'No registrations was found.');
 			$this->set('fair_registrations_deleted_headline', 'Registrations (deleted)');
 			$this->set('fregistrations_deleted_notfound', 'No deleted registrations was found.');
-			$this->set('booked_label', 'Booked');
-			$this->set('reserved_label', 'Reserved');
+			$this->set('booked_label', 'booked');
+			$this->set('reserved_label', 'reserved');
+			$this->set('cloned_label', 'Reservation (cloned)');
 			$this->set('unknown_label', 'Unknown');
 			$this->set('tr_fair', 'Fair');
 			$this->set('tr_status', 'Status');
@@ -2524,10 +3012,13 @@ public function exportFiles() {
 			$this->set('tr_area', 'Area');
 			$this->set('tr_booker', 'Booked by');
 			$this->set('tr_field', 'Trade');
-			$this->set('tr_time', 'Time of booking');
-			$this->set('tr_last_edited', 'Last edited');
+			$this->set('tr_accepted', 'Accepted');
+			$this->set('tr_time', 'Time');
+			$this->set('tr_deletiontime', 'Deleted');
+			$this->set('tr_last_edited', 'Edited');
 			$this->set('tr_reserved_until', 'Reserved until');
 			$this->set('tr_message', 'Message to organizer in list');
+			$this->set('tr_del_message', 'Deletion message');
 			$this->set('tr_view', 'View on map');
 			$this->set('tr_viewinvoice', 'View invoice');
 			$this->set('tr_created', 'Created');
@@ -2540,6 +3031,7 @@ public function exportFiles() {
 			$this->set('tr_cancelinvoice', 'Cancel invoice');
 			$this->set('tr_mark_as_sent', 'Mark invoice as sent');
 			$this->set('tr_copy', 'Copy to map');
+			$this->set('tr_restore', 'Restore on map');
 			$this->set('tr_edit', 'Edit');
 			$this->set('tr_review', 'Review');
 			$this->set('tr_delete', 'Delete');
@@ -2563,61 +3055,65 @@ public function exportFiles() {
 			$this->set('ok_label', 'OK');
 		}
 
-	public function markAsSent($id) {
+	public function markAsSent($ex_id, $row_id) {
 		setAuthLevel(2);
 
 		$ex_invoice = new ExhibitorInvoice();
-		$ex_invoice->load($id, 'exhibitor');
+		$ex_invoice->load($row_id, 'row_id');
 
 		$fair = new Fair();
 		$fair->load($ex_invoice->get('fair'), 'id');
 
 		$this->setNoTranslate('fair', $fair);
-		
-		if( userLevel() == 2 ){
-			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
-			$prep = $this->db->prepare($sql);
-			$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
-			$result = $prep->fetch(PDO::FETCH_ASSOC);
-			if(!$result) {
-				$this->setNoTranslate('hasRights', false);
-				$hasRights = false;
+
+		// Check if fair is locked before executing the command
+		if ($fair->wasLoaded() && !$fair->isLocked()) {
+			if( userLevel() == 2 ){
+				$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
+				$prep = $this->db->prepare($sql);
+				$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
+				$result = $prep->fetch(PDO::FETCH_ASSOC);
+				if(!$result) {
+					$this->setNoTranslate('hasRights', false);
+					$hasRights = false;
+				} else {
+					$this->setNoTranslate('hasRights', true);
+					$hasRights = true;
+				}
+
+			} elseif( userLevel()  == 3 ) {
+
+				$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
+				$prep = $this->db->prepare($sql);
+				$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
+				$result = $prep->fetchAll();
+				if(!$result) {
+					$this->setNoTranslate('hasRights', false);
+					$hasRights = false;
+				} else {
+					$this->setNoTranslate('hasRights', true);
+					$hasRights = true;
+				}
+
 			} else {
+
 				$this->setNoTranslate('hasRights', true);
 				$hasRights = true;
 			}
 
-		} elseif( userLevel()  == 3 ) {
+			if (!$hasRights)
+				return;
 
-			$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
-			$prep = $this->db->prepare($sql);
-			$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
-			$result = $prep->fetchAll();
-			if(!$result) {
-				$this->setNoTranslate('hasRights', false);
-				$hasRights = false;
-			} else {
-				$this->setNoTranslate('hasRights', true);
-				$hasRights = true;
-			}
+			$now = time();
+			$fairId = $fair->get('id');
+			$invoice_id = $ex_invoice->get('id');
 
+			// Update the invoice sent status in the database
+			$stmt = $this->db->prepare("UPDATE exhibitor_invoice SET sent = ? WHERE exhibitor = ? AND id = ?");
+			$stmt->execute(array($now, $ex_id, $invoice_id));
 		} else {
-
-			$this->setNoTranslate('hasRights', true);
-			$hasRights = true;
+			$this->setNoTranslate('event_locked', true);
 		}
-
-		if (!$hasRights)
-			return;
-
-		$now = time();
-		$fairId = $fair->get('id');
-		$invoice_id = $ex_invoice->get('id');
-
-		// Update the invoice sent status in the database
-		$stmt_invoice = $this->db->prepare("UPDATE exhibitor_invoice SET sent = ? WHERE exhibitor = ? AND id = ? AND fair = ?");
-		$stmt_invoice->execute(array($now, $id, $invoice_id, $fairId));
-
 	}
 
 	public function arrangerMessage($type = '', $id = 0) {
@@ -2630,27 +3126,27 @@ public function exportFiles() {
 
 			if ($type == 'preliminary') {
 				$prel_booking = new PreliminaryBooking();
-				$prel_booking->load($id, 'id');
+				$prel_booking->loadmsg($id, 'id');
 				$message = $prel_booking->get('arranger_message');
 			} else if ($type == 'registration') {
 				$fair_registration = new FairRegistration();
-				$fair_registration->load($id, 'id');
+				$fair_registration->loadmsg($id, 'id');
 				$message = $fair_registration->get('arranger_message');
 			} else if ($type == 'history_registration') {
 				$fair_registration_history = new FairRegistrationHistory();
-				$fair_registration_history->load($id, 'id');
+				$fair_registration_history->loadmsg($id, 'id');
 				$message = $fair_registration_history->get('arranger_message');
 			} else if ($type == 'history_preliminary') {
 				$prel_booking_history = new PreliminaryBookingHistory();
-				$prel_booking_history->load($id, 'id');
+				$prel_booking_history->loadmsg($id, 'id');
 				$message = $prel_booking_history->get('arranger_message');
 			}  else if ($type == 'history_deleted') {
-				$exhibitor = new Exhibitor();
-				$exhibitor->loadDeleted($id, 'id');
+				$exhibitor = new ExhibitorHistory();
+				$exhibitor->loadmsg($id, 'id');
 				$message = $exhibitor->get('arranger_message');
 			} else {
 				$exhibitor = new Exhibitor();
-				$exhibitor->load($id, 'id');
+				$exhibitor->loadmsg($id, 'id');
 				$message = $exhibitor->get('arranger_message');
 			}
 
@@ -2661,7 +3157,35 @@ public function exportFiles() {
 			$this->setNoTranslate('message', $message);
 		}
 	}
+	public function deletionMessage($type = '', $id = 0) {
 
+		setAuthLevel(1);
+
+		if ($type !== '' && $id > 0) {
+
+			$message = '';
+
+			if ($type == 'history_registration') {
+				$fair_registration_history = new FairRegistrationHistory();
+				$fair_registration_history->loaddelmsg($id, 'id');
+				$message = $fair_registration_history->get('deletion_message');
+			} else if ($type == 'history_preliminary') {
+				$prel_booking_history = new PreliminaryBookingHistory();
+				$prel_booking_history->loaddelmsg($id, 'id');
+				$message = $prel_booking_history->get('deletion_message');
+			}  else {
+				$exhibitor = new ExhibitorHistory();
+				$exhibitor->loaddelmsg($id, 'id');
+				$message = $exhibitor->get('deletion_message');
+			}
+
+			if ($this->is_ajax) {
+				$this->createJsonResponse();
+			}
+
+			$this->setNoTranslate('message', $message);
+		}
+	}
 
 	public function delete($id, $confirmed='', $from='') {
 
@@ -2793,7 +3317,7 @@ public function exportFiles() {
 		$this->set('th_user', 'User');
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
-		$this->set('admins', $as);
+		$this->setNoTranslate('admins', $as);
 	}
 
 	public function edit($id=0, $fair=0) {
@@ -2953,263 +3477,371 @@ public function exportFiles() {
 
 	// Fair Registrations
 	public function deleteRegistration($id = 0) {
+
+		/// KONTROLLERAD MAILMALL
 		setAuthLevel(2);
 
 		$registration = new FairRegistration();
 		$registration->load($id, 'id');
 
 		$fair = new Fair();
-		$fair->load2($_SESSION['user_fair'], 'id');
+		$fair->loadsimple($_SESSION['user_fair'], 'id');
 
-		$u = new User();
-		$u->load2($registration->get('user'), 'id');
+		// Check if fair is locked before executing the command
+		if ($fair->wasLoaded() && !$fair->isLocked()) {
+			$user = new User();
+			$user->load2($registration->get('user'), 'id');
 
-		$current_user = new User();
-		$current_user->load2($_SESSION['user_id'], 'id');
+			$current_user = new User();
+			$current_user->load2($_SESSION['user_id'], 'id');
 
-		$organizer = new User();
-		$organizer->load2($fair->get('created_by'), 'id');
+			$organizer = new User();
+			$organizer->load2($fair->get('created_by'), 'id');
 
-		$stmt_history = "INSERT INTO `fair_registration_history` SELECT * FROM `fair_registration` WHERE id = '{$id}'";
-		$query3 = $this->db->query($stmt_history);
-		$sql = "DELETE FROM `fair_registration` WHERE id = '{$id}'";
-		$query = $this->db->query($sql);
+			// Delete the Fair Registration
+			$registration->delete($_POST['comment']);
 
-		$time_now = date('d-m-Y H:i');
+			$comment = $_POST['comment'];
+			if ($comment != '') {
+				$comment = '<br>'.$_POST['comment'];
+			}
+			$plain_comment = $_POST['comment'];
+			if ($plain_comment == '') {
+				$plain_comment = $this->translate->{'No comment.'};
+			}
+			//Check mail settings and send only if setting is set
+			if ($fair->wasLoaded()) {
+				$errors = array();
+				$mail_errors = array();
+				$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+				$from = array($email => $fair->get("windowtitle"));
+				$mailSettings = json_decode($fair->get("mail_settings"));
 
-		$comment = $_POST['comment'];
-		if ($comment == '') {
-			$comment = $this->translate->{'No message was given.'};
-		}
-
-		//Check mail settings and send only if setting is set
-		if ($fair->wasLoaded()) {
-			$mailSettings = json_decode($fair->get("mail_settings"));
-			if (is_array($mailSettings->registrationCancelled)) {
-
-				if (in_array("1", $mailSettings->registrationCancelled)) {
-					$mail_exhibitor = new Mail($u->get('email'), 'registration_cancelled_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-					$mail_exhibitor->setMailVar('exhibitor_name', $u->get('name'));
-					$mail_exhibitor->setMailVar('company_name', $u->get('company'));
-					$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
-					$mail_exhibitor->setMailVar('event_name', $fair->get('name'));
-					$mail_exhibitor->setMailVar('event_email', $fair->get('contact_email'));
-					$mail_exhibitor->setMailVar('event_phone', $fair->get('contact_phone'));
-					$mail_exhibitor->setMailVar('event_website', $fair->get('website'));
-					$mail_exhibitor->setMailVar("url", BASE_URL . $fair->get("url"));
-					$mail_exhibitor->setMailVar('edit_time', $time_now);
-					$mail_exhibitor->setMailVar('comment', $comment);
-					$mail_exhibitor->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-					$mail_exhibitor->send();
+				if($fair->get('contact_name')) {
+					$from = array($email => $fair->get('contact_name'));
 				}
-				if ($current_user->get('email') != $organizer->get('email')) {
-					if (in_array("2", $mailSettings->registrationCancelled)) {
-						$mail_user = new Mail($current_user->get('email'), 'registration_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-						$mail_user->setMailVar('exhibitor_name', $u->get('name'));
-						$mail_user->setMailVar('company_name', $u->get('company'));
-						$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
-						$mail_user->setMailVar('event_name', $fair->get('name'));
-						$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-						$mail_user->setMailVar('edit_time', $time_now);
-						$mail_user->setMailVar('comment', $comment);
-						$mail_user->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-						$mail_user->send();
+
+				if (isset($mailSettings->registrationCancelled) && is_array($mailSettings->registrationCancelled)) {
+					if (in_array("1", $mailSettings->registrationCancelled)) {
+						try {
+							if ($user->get('contact_email') == '')
+								$recipients = array($user->get('email') => $user->get('company'));
+							else
+								$recipients = array($user->get('contact_email') => $user->get('name'));
+
+							$mail_user = new Mail();
+							$mail_user->setTemplate('registration_cancelled_receipt');
+							$mail_user->setPlainTemplate('registration_cancelled_receipt');
+							$mail_user->setFrom($from);
+							$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+							$mail_user->setRecipients($recipients);
+								$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
+								$mail_user->setMailvar('exhibitor_name', $user->get('name'));
+								$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+								$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+								$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+								$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+								$mail_user->setMailVar('event_website', $fair->get('website'));
+								$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+								$mail_user->setMailVar('comment', $comment);
+								$mail_user->setMailVar('plain_comment', $plain_comment);
+
+							if(!$mail_user->send()) {
+								$errors[] = $user->get('company');
+							}
+
+						} catch(Swift_RfcComplianceException $ex) {
+							// Felaktig epost-adress
+							$errors[] = $user->get('company');
+							$mail_errors[] = $ex->getMessage();
+
+						} catch(Exception $ex) {
+							// Okänt fel
+							$errors[] = $user->get('company');
+							$mail_errors[] = $ex->getMessage();
+						}
+					}
+
+					if ($current_user->get('email') != $organizer->get('email')) {
+						if (in_array("2", $mailSettings->registrationCancelled)) {
+							try {
+								$recipients = array($current_user->get('email') => $current_user->get('name'));
+								$mail_current_user = new Mail();
+								$mail_current_user->setTemplate('registration_cancelled_confirm');
+								$mail_current_user->setPlainTemplate('registration_cancelled_confirm');
+								$mail_current_user->setFrom($from);
+								$mail_current_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+								$mail_current_user->setRecipients($recipients);
+									$mail_current_user->setMailVar('exhibitor_company_name', $user->get('company'));
+									$mail_current_user->setMailVar('event_name', $fair->get('windowtitle'));
+									$mail_current_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+									$mail_current_user->setMailVar('comment', $comment);
+									$mail_current_user->setMailVar('plain_comment', $plain_comment);
+
+								if(!$mail_current_user->send()) {
+									$errors[] = $current_user->get('company');
+								}
+
+							} catch(Swift_RfcComplianceException $ex) {
+								// Felaktig epost-adress
+								$errors[] = $current_user->get('company');
+								$mail_errors[] = $ex->getMessage();
+
+							} catch(Exception $ex) {
+								// Okänt fel
+								$errors[] = $current_user->get('company');
+								$mail_errors[] = $ex->getMessage();
+							}
+						}
+					}
+
+					if (in_array("0", $mailSettings->registrationCancelled)) {
+
+						try {
+							if ($organizer->get('contact_email') == '')
+								$recipients = array($organizer->get('email') => $organizer->get('company'));
+							else
+								$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
+
+							$mail_organizer = new Mail();
+							$mail_organizer->setTemplate('registration_cancelled_confirm');
+							$mail_organizer->setPlainTemplate('registration_cancelled_confirm');
+							$mail_organizer->setFrom($from);
+							$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+							$mail_organizer->setRecipients($recipients);
+								$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
+								$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+								$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+								$mail_organizer->setMailVar('comment', $comment);
+								$mail_organizer->setMailVar('plain_comment', $plain_comment);
+
+							if(!$mail_organizer->send()) {
+								$errors[] = $organizer->get('company');
+							}
+
+						} catch(Swift_RfcComplianceException $ex) {
+							// Felaktig epost-adress
+							$errors[] = $organizer->get('company');
+							$mail_errors[] = $ex->getMessage();
+
+						} catch(Exception $ex) {
+							// Okänt fel
+							$errors[] = $organizer->get('company');
+							$mail_errors[] = $ex->getMessage();
+						}
+					}
+
+					if ($errors) {
+						$_SESSION['mail_errors'] = $mail_errors;
 					}
 				}
-
-				if (in_array("0", $mailSettings->registrationCancelled)) {
-					$mail_organizer = new Mail($organizer->get('email'), 'registration_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-					$mail_organizer->setMailVar('exhibitor_name', $u->get('name'));
-					$mail_organizer->setMailVar('company_name', $u->get('company'));
-					$mail_organizer->setMailVar('event_name', $fair->get('name'));
-					$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
-					$mail_organizer->setMailVar('edit_time', $time_now);
-					$mail_organizer->setMailVar('comment', $comment);
-					$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
-					$mail_organizer->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-					$mail_organizer->send();
-				}
 			}
+		} else {
+			$this->setNoTranslate('event_locked', true);
 		}
 	}
 
-	public function creditInvoicePDF($id) {
+	public function creditInvoicePDF($ex_id, $row_id) {
 		setAuthLevel(2);
 
 		require_once ROOT.'lib/tcpdf/tcpdf.php';
 
 		$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
-		$ex_invoice = new ExhibitorInvoice();
-		$ex_invoice->load($id, 'exhibitor');
+		$exhibitor = new Exhibitor();
+		$exhibitor->load($ex_id, 'id');
 
-		$fair = new Fair();
-		$fair->load($ex_invoice->get('fair'), 'id');
-
-		$this->setNoTranslate('fair', $fair);
-		
-		if( userLevel() == 2 ){
-			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
-			$prep = $this->db->prepare($sql);
-			$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
-			$result = $prep->fetch(PDO::FETCH_ASSOC);
-			if(!$result) {
-				$this->setNoTranslate('hasRights', false);
-				$hasRights = false;
-			} else {
-				$this->setNoTranslate('hasRights', true);
-				$hasRights = true;
-			}
-
-		} elseif( userLevel()  == 3 ) {
-
-			$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
-			$prep = $this->db->prepare($sql);
-			$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
-			$result = $prep->fetchAll();
-			if(!$result) {
-				$this->setNoTranslate('hasRights', false);
-				$hasRights = false;
-			} else {
-				$this->setNoTranslate('hasRights', true);
-				$hasRights = true;
-			}
-
+		if ($exhibitor->wasLoaded()) {
+			$exId = $exhibitor->get('exhibitor_id');
 		} else {
-
-			$this->setNoTranslate('hasRights', true);
-			$hasRights = true;
+			$exhibitor = new ExhibitorHistory();
+			$exhibitor->load($ex_id, 'id');
+			$exId = $exhibitor->get('id');
 		}
 
-		if (!$hasRights)
-			return;
+		$ex_user = new User();
+		$ex_user->load($exhibitor->get('user'), 'id');
+		$ex_userId = $ex_user->get('id');
+
+		$ex_invoice = new ExhibitorInvoice();
+		$ex_invoice->load($row_id, 'row_id');
+
+		$fair = new Fair();
+		$fair->loadsimple($ex_invoice->get('fair'), 'id');
+
+		$this->setNoTranslate('fair', $fair);
+		// Check if fair is locked before executing the command
+		if ($fair->wasLoaded() && !$fair->isLocked()) {
+			if( userLevel() == 2 ){
+				$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
+				$prep = $this->db->prepare($sql);
+				$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
+				$result = $prep->fetch(PDO::FETCH_ASSOC);
+				if(!$result) {
+					$this->setNoTranslate('hasRights', false);
+					$hasRights = false;
+				} else {
+					$this->setNoTranslate('hasRights', true);
+					$hasRights = true;
+				}
+
+			} elseif( userLevel()  == 3 ) {
+
+				$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
+				$prep = $this->db->prepare($sql);
+				$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
+				$result = $prep->fetchAll();
+				if(!$result) {
+					$this->setNoTranslate('hasRights', false);
+					$hasRights = false;
+				} else {
+					$this->setNoTranslate('hasRights', true);
+					$hasRights = true;
+				}
+
+			} else {
+
+				$this->setNoTranslate('hasRights', true);
+				$hasRights = true;
+			}
+
+			if (!$hasRights)
+				return;
 
 
 
-/*********************************************************************************/
-/*********************************************************************************/
-/*****************     SENDER ADDRESS AND PAYMENT OPTIONS        *****************/
-/*********************************************************************************/
-/*********************************************************************************/
-				$sender_billing_reference = $ex_invoice->get('s_reference');
-				$sender_billing_company_name = $ex_invoice->get('s_name');
-				$sender_billing_address = $ex_invoice->get('s_address');
-				$sender_billing_zipcode = $ex_invoice->get('s_zipcode');
-				$sender_billing_city = $ex_invoice->get('s_city');
-				$sender_billing_country = $ex_invoice->get('s_country');
-				$sender_billing_website = $ex_invoice->get('s_website');
-				$sender_billing_phone = $ex_invoice->get('s_phone');
-				$sender_billing_email = $ex_invoice->get('s_email');
-				$sender_billing_orgnr = $ex_invoice->get('orgnr');
-				$sender_billing_bank_no = $ex_invoice->get('bank_no');
-				$sender_billing_postgiro = $ex_invoice->get('postgiro');
-				$sender_billing_vat_no = $ex_invoice->get('vat_no');
-				$sender_billing_iban_no = $ex_invoice->get('iban_no');
-				$sender_billing_swift_no = $ex_invoice->get('swift_no');
+	/*********************************************************************************/
+	/*********************************************************************************/
+	/*****************     SENDER ADDRESS AND PAYMENT OPTIONS        *****************/
+	/*********************************************************************************/
+	/*********************************************************************************/
+			$sender_billing_reference = $ex_invoice->get('s_reference');
+			$sender_billing_company_name = $ex_invoice->get('s_name');
+			$sender_billing_address = $ex_invoice->get('s_address');
+			$sender_billing_zipcode = $ex_invoice->get('s_zipcode');
+			$sender_billing_city = $ex_invoice->get('s_city');
+			$sender_billing_country = $ex_invoice->get('s_country');
+			$sender_billing_orgnr = $ex_invoice->get('orgnr');
+			$sender_billing_bank_no = $ex_invoice->get('bank_no');
+			$sender_billing_postgiro = $ex_invoice->get('postgiro');
+			$sender_billing_vat_no = $ex_invoice->get('vat_no');
+			$sender_billing_iban_no = $ex_invoice->get('iban_no');
+			$sender_billing_swift_no = $ex_invoice->get('swift_no');
+			$sender_billing_swish_no = $ex_invoice->get('swish_no');
+			$sender_billing_phone = $ex_invoice->get('s_phone');
+			$sender_billing_email = $ex_invoice->get('s_email');
+			$sender_billing_website = $ex_invoice->get('s_website');
 
 
-				$rec_billing_company_name = $ex_invoice->get('r_name');
-				$rec_billing_address = $ex_invoice->get('r_address');
-				$rec_billing_zipcode = $ex_invoice->get('r_zipcode');
-				$rec_billing_city = $ex_invoice->get('r_city');
-				$rec_billing_country = $ex_invoice->get('r_country');
+			$rec_billing_company_name = $ex_invoice->get('r_name');
+			$rec_billing_address = $ex_invoice->get('r_address');
+			$rec_billing_zipcode = $ex_invoice->get('r_zipcode');
+			$rec_billing_city = $ex_invoice->get('r_city');
+			$rec_billing_country = $ex_invoice->get('r_country');
 
-				if ($rec_billing_country == 'Sweden')
-					$rec_billing_country = 'Sverige';
+			if ($rec_billing_country == 'Sweden')
+				$rec_billing_country = 'Sverige';
 
-				if ($rec_billing_country == 'Norway')
-					$rec_billing_country = 'Norge';
+			if ($rec_billing_country == 'Norway')
+				$rec_billing_country = 'Norge';
 
 
-				$invoice_for_label = $this->translate->{'Invoice for'};
-				$printdate_label = $this->translate->{'Print date'};
-				$postgiro_label = $this->translate->{'Postgiro'};
-				$iban_label = $this->translate->{'IBAN'};
-				$swift_label = $this->translate->{'SWIFT'};
-				$orgnr_label = $this->translate->{'Org.no'};
-				$vat_label = $this->translate->{'TAX.no'};
-				$bankgiro_label = $this->translate->{'Bank number'};
-				$description_label = $this->translate->{'Description'};
-				$price_label = $this->translate->{'Price'};
-				$phone_label = $this->translate->{'Phone'};
+			$invoice_for_label = $this->translate->{'Invoice for'};
+			$printdate_label = $this->translate->{'Print date'};
+			$postgiro_label = $this->translate->{'Postgiro'};
+			$iban_label = $this->translate->{'IBAN'};
+			$swift_label = $this->translate->{'SWIFT'};
+			$swish_label = $this->translate->{'Swish'};
+			$orgnr_label = $this->translate->{'Org.no'};
+			$vat_label = $this->translate->{'TAX.no'};
+			$bankgiro_label = $this->translate->{'Bank number'};
+			$description_label = $this->translate->{'Description'};
+			$price_label = $this->translate->{'Price'};
+			$phone_label = $this->translate->{'phone'};
+			if ($sender_billing_email != '') {
 				$email_label = $this->translate->{'Email'};
-				$amount_label = $this->translate->{'Quantity'};
-				$booked_space_label = $this->translate->{'Booked stand'};
-				$options_label = $this->translate->{'Options'};
-				$articles_label = $this->translate->{'Articles'};
-				$tax_label = $this->translate->{'Tax'};
-				$parttotal_label = $this->translate->{'Subtotal'};
-				$net_label = $this->translate->{'Net'};
-				$rounding_label = $this->translate->{'Rounding'};
-				$credited_label = $this->translate->{'Credited'};
-				$credit_invoice_label = $this->translate->{'Credit note'};
-				$to_pay_label = $this->translate->{'to pay:'};
-				$address_label = $this->translate->{'Address'};
-				$organization_label = $this->translate->{'Organization'};
-				$payment_info_label = $this->translate->{'Payment information'};
-				$s_reference_label = $this->translate->{'Our reference'};
-				$r_reference_label = $this->translate->{'Your reference'};
-				$invoice_no_label = $this->translate->{'Credits invoice'};
-				$invoice_date_label = $this->translate->{'Invoice date'};
-				$invoice_expirationdate_label = $this->translate->{'Expiration date'};
-				$st_label = $this->translate->{'st'};
+			} else {
+				$email_label = '';
+			}
+			$amount_label = $this->translate->{'Quantity'};
+			$booked_space_label = $this->translate->{'Booked stand'};
+			$options_label = $this->translate->{'Options'};
+			$articles_label = $this->translate->{'Articles'};
+			$tax_label = $this->translate->{'Tax'};
+			$parttotal_label = $this->translate->{'Subtotal'};
+			$net_label = $this->translate->{'Net'};
+			$rounding_label = $this->translate->{'Rounding'};
+			$credited_label = $this->translate->{'Credited'};
+			$credit_invoice_label = $this->translate->{'Credit note'};
+			$to_pay_label = $this->translate->{'to pay:'};
+			$address_label = $this->translate->{'Address'};
+			$organization_label = $this->translate->{'Organization'};
+			$payment_info_label = $this->translate->{'Payment information'};
+			$s_reference_label = $this->translate->{'Our reference'};
+			$r_reference_label = $this->translate->{'Your reference'};
+			$invoice_no_label = $this->translate->{'Credits invoice'};
+			$invoice_date_label = $this->translate->{'Invoice date'};
+			$invoice_expirationdate_label = $this->translate->{'Expiration date'};
+			$st_label = $this->translate->{'st'};
 
 
-				if ($sender_billing_postgiro == '')
-					$postgiro_label = '';
+			if ($sender_billing_postgiro == '')
+				$postgiro_label = '';
 
-				if ($sender_billing_iban_no == '')
-					$iban_label = '';
+			if ($sender_billing_iban_no == '')
+				$iban_label = '';
 
-				if ($sender_billing_swift_no == '')
-					$swift_label = '';
-				$current_user = new User();
-				$current_user->load($_SESSION['user_id'], 'id');
-		//		$fairInvoiceExpDate = date('Y-m-d');
+			if ($sender_billing_swift_no == '')
+				$swift_label = '';
 
+			if ($sender_billing_swish_no == '')
+				$swish_label = '';
 
-/*************************************************************/
-/*************************************************************/
-/*****************     PRICES AND AMOUNTS        *****************
-/*************************************************************/
-/*************************************************************/
-
-				$fairId = $fair->get('id');
-				$totalPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$position_vat = 0;
-				$currency = $fair->get('currency');
-				$author = $current_user->get('name');
+			$current_user = new User();
+			$current_user->load($_SESSION['user_id'], 'id');
 
 
-				// Positions
+	/*************************************************************/
+	/*************************************************************/
+	/*****************     PRICES AND AMOUNTS        *****************
+	/*************************************************************/
+	/*************************************************************/
 
-				$stmt = $this->db->prepare("SELECT text, price, vat, information FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'space'");
-				$stmt->execute(array($ex_invoice->get('id'), $fairId));
-				$invoice_position = $stmt->fetch(PDO::FETCH_ASSOC);
-				
-				$position_name = $invoice_position['text'];
-				$position_information = $invoice_position['information'];
-				$position_price = $invoice_position['price'];
-				$position_vat = $invoice_position['vat'];
+			$fairId = $fair->get('id');
+			$totalPrice = 0;
+			$VatPrice0 = 0;
+			$VatPrice12 = 0;
+			$VatPrice18 = 0;
+			$VatPrice25 = 0;
+			$excludeVatPrice0 = 0;
+			$excludeVatPrice12 = 0;
+			$excludeVatPrice18 = 0;
+			$excludeVatPrice25 = 0;
+			$currency = $fair->get('currency');
+			$author = $current_user->get('name');
 
 
-				// Options
+			// Positions
 
-				$stmt = $this->db->prepare("SELECT custom_id, text, price, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'option'");
-				$stmt->execute(array($ex_invoice->get('id'), $fairId));
-				$invoice_options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt = $this->db->prepare("SELECT text, price, vat, information FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'space'");
+			$stmt->execute(array($ex_invoice->get('id'), $fairId));
+			$invoice_position = $stmt->fetch(PDO::FETCH_ASSOC);
+			
+			$position_name = $invoice_position['text'];
+			$position_information = $invoice_position['information'];
+			$position_price = $invoice_position['price'];
+			$position_vat = $invoice_position['vat'];
 
-				$options = array();
 
-				
+			// Options
+
+			$stmt = $this->db->prepare("SELECT custom_id, text, price, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'option'");
+			$stmt->execute(array($ex_invoice->get('id'), $fairId));
+			$invoice_options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+			$options = array();
+
+			if (!empty($invoice_options)) {
 				foreach ($invoice_options as $opts) {
 							$option_id[] = $opts['custom_id'];
 							$option_text[] = $opts['text'];
@@ -3218,318 +3850,341 @@ public function exportFiles() {
 				}
 					
 				$options = array($option_id, $option_text, $option_price, $option_vat);
-				//die(var_dump($options));
+			}
 
+			// Articles
 
-				// Articles
+			$stmt = $this->db->prepare("SELECT custom_id, text, price, amount, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'article'");
+			$stmt->execute(array($ex_invoice->get('id'), $fairId));
+			$invoice_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-				$stmt = $this->db->prepare("SELECT custom_id, text, price, amount, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'article'");
-				$stmt->execute(array($ex_invoice->get('id'), $fairId));
-				$invoice_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-//				die(var_dump($invoice_articles));
-
-				$articles = array();
-
-					foreach ($invoice_articles as $arts) {
-							$art_id[] = $arts['custom_id'];
-							$art_text[] = $arts['text'];
-							$art_price[] = $arts['price'];
-							$art_amount[] = $arts['amount'];
-							$art_vat[] = $arts['vat'];
-					}
+			$articles = array();
+			if (!empty($invoice_articles)) {
+				foreach ($invoice_articles as $arts) {
+						$art_id[] = $arts['custom_id'];
+						$art_text[] = $arts['text'];
+						$art_price[] = $arts['price'];
+						$art_amount[] = $arts['amount'];
+						$art_vat[] = $arts['vat'];
+				}
 
 				$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
-				
-				//die(var_dump($articles));
-
-				$exhibitor_company_name = $ex_invoice->get('r_name');
-				$exhibitor_name = $ex_invoice->get('r_reference');
-				$date = date('d-m-Y');
-				$now = time();
-				$expirationdate = $ex_invoice->get('expires');
-				$invoice_id = $ex_invoice->get('id');
-
-
-				$stmt_invoiceid = $this->db->prepare("SELECT cid FROM exhibitor_invoice_credited as cid WHERE fair = ? order by cid desc limit 1");
-				$stmt_invoiceid->execute(array($fairId));
-				$res = $stmt_invoiceid->fetch(PDO::FETCH_ASSOC);
-				$credit_invoice_id = $res['cid'];
+			}
+			
+			$exhibitor_company_name = $ex_invoice->get('r_name');
+			$exhibitor_name = $ex_invoice->get('r_reference');
+			$date = date('d-m-Y');
+			$now = time();
+			$expirationdate = $ex_invoice->get('expires');
+			$parent_invoice_id = $ex_invoice->get('id');
 
 
-/******************************************************************************/
-/******************************************************************************/
-/*****************     FIND OUT WHAT INVOICE ID TO USE        *****************/
-/******************************************************************************/
-/******************************************************************************/
-				if (is_null($credit_invoice_id)) {
-					$stmt_invoiceid2 = $this->db->prepare("SELECT credit_invoice_id_start as cid FROM fair_invoice WHERE fair = ?");
-					$stmt_invoiceid2->execute(array($fairId));
-					$res = $stmt_invoiceid2->fetch();
-					$credit_invoice_id = $res['cid'];
+	/******************************************************************************/
+	/******************************************************************************/
+	/*****************     FIND OUT WHAT INVOICE ID TO USE        *****************/
+	/******************************************************************************/
+	/******************************************************************************/
 
-					// uppdatera exhibitor tabellen
-/*
-					$sql = "INSERT INTO exhibitor_invoice (id, ex_user, fair, created, author, exhibitor, expires, r_name, r_address, r_zipcode, r_city, r_country, s_name, s_address, s_zipcode, s_city, s_country, s_website, s_phone, orgnr, bank_no, postgiro, vat_no, iban_no, swift_no) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-					$params = array();
-					
-					$stmt_invoice = $this->db->prepare("INSERT INTO exhibitor_invoice as id WHERE fair = ? order by id desc limit 1");
-					$stmt_invoice->execute(array($fairId));
-					$res = $stmt_invoice->fetch(PDO::FETCH_ASSOC);
-					$invoice_id = $res['id'];
-					*/
-					if (is_null($credit_invoice_id)){
-						$credit_invoice_id += 1;
-					}
-				} else {
 
-					$credit_invoice_id += 1;
+		// Check for the newest invoice id for this fair
+		$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice as id WHERE fair = ? order by id desc limit 1");
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$current_invoices_id = $result['id'];
+		// Check for the newest invoice id for this fair in deleted invoices as well
+		$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice_history as id WHERE fair = ? order by id desc limit 1");
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$deleted_invoices_id = $result['id'];
+		// Now that we know the invoice IDs, check which one is highest and save it to a new variable ($invoice_id), or if none was found, set the new variable to null
+		if ($current_invoices_id > $deleted_invoices_id) {
+			$invoice_id = $current_invoices_id;
+		} else if ($current_invoices_id < $deleted_invoices_id) {
+			$invoice_id = $deleted_invoices_id;
+		} else {
+			$invoice_id = null;
+		}
+		// Check if the arranger set a new invoice number in the invoice settings
+		$stmt = $this->db->prepare("SELECT invoice_id_start as id FROM fair_invoice WHERE fair = ?");
+		$stmt->execute(array($fairId));
+		$result = $stmt->fetch(PDO::FETCH_ASSOC);
+		$invoice_settings_id = $result['id'];
+		$use_invoice_settings = false;
 
+		// Compare the invoice ids and use the highest one.
+		if ($invoice_id < $invoice_settings_id) {
+			$invoice_id = $invoice_settings_id;
+			$use_invoice_settings = true;
+		}
+
+		// Check if fair is part of any fairgroup and if it also shares invoice id with that group.
+		$isGrouped = new FairGroupRel();
+		$isGrouped->load($fairId, 'fair');
+		if ($isGrouped->wasLoaded() && ($isGrouped->get('share_invoice') == 1)) {
+			$fairGroup = new FairGroup();
+			$fairGroup->loadself($isGrouped->get('group'), 'id');
+			if ($fairGroup->wasLoaded()) {
+				if ($invoice_id <= $fairGroup->get('invoice_no')) {
+					$invoice_id = $fairGroup->get('invoice_no');
+					$fairGroupInvoiceId = $fairGroup->get('invoice_no');
+					$fairGroupInvoiceId++;
+					$fairGroup->set('invoice_no', $fairGroupInvoiceId);
+					$fairGroup->save();
 				}
-				// Insert the invoice data to database
-				$stmt_invoice = $this->db->prepare("INSERT INTO exhibitor_invoice_credited (cid, fair, created, author, invoice) VALUES (?, ?, ?, ?, ?)");
-				$stmt_invoice->execute(array($credit_invoice_id, $fairId, $now, $author, $invoice_id));
+			}
+		}
+		if (!$use_invoice_settings) {
+			$invoice_id++;
+		}
 
-				// Update the active invoice to credited in the database
-				$stmt_invoice_parent = $this->db->prepare("UPDATE exhibitor_invoice SET `status` = 3 WHERE id = ? AND fair = ?");
-				$stmt_invoice_parent->execute(array($invoice_id, $fairId));
-
-				$logo_name = array();
-				foreach(glob(ROOT.'public/images/fairs/'.$fairId.'/logotype/*') as $filename) {
-					$logo_name[] = (basename($filename) . "\n");
-				}
-
-				if (!$logo_name) {
-					$logo_name = BASE_URL.'/images/fairs/cfslogo.png';
-				} else {
-					$logo_name = BASE_URL.'/images/fairs/'. $fairId . '/logotype/' . $logo_name[0];
-				}
-
-//die(var_dump($articles[]));
-/*********************************************************************************************/
-/*********************************************************************************************/
-/*****************    				SET DOCUMENT INFORMATION   				******************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-
-		$pdf->SetCreator('Chartbooker Fair System');
-		$pdf->SetAuthor($author);
-		$pdf->SetTitle($invoice_for_label . ' ' . $exhibitor_company_name);
-		//$pdf->SetSubject('TCPDF Tutorial');
-		//$pdf->SetKeywords('TCPDF, PDF, example, test, guide');
-
-		$pdf->setHtmlHeader('
-			<table>
-				<tr>
-					<td style="width:335px;">
-						<img style="height:70px;" src="'. $logo_name . '"/>
-					</td>
-					<td>
-						<br/><br/><b style="font-size:23px; text-alight:right;">' . $credit_invoice_label . ' ' . $credit_invoice_id . '</b><br>' . $printdate_label . ': ' . $date . '
-					</td>
-				</tr>
-			</table>');
-
-		$pdf->setHtmlFooter('
-			<hr>
-			<br/>
-			<table>
-				<tr>
-					<td style="width:200px;"><b>'. $address_label .'</b></td>
-					<td style="width:200px;"><b>'. $organization_label .'</b></td>
-					<td style="width:200px;"><b>'. $payment_info_label .'</b></td>
-				</tr>
-				<tr>
-					<td style="width:200px;">' . $sender_billing_company_name . '</td>
-					<td style="width:200px;">' . $orgnr_label . ' &nbsp; ' . $sender_billing_orgnr . '</td>
-					<td style="width:200px;">' . $bankgiro_label . ' &nbsp;' . $sender_billing_bank_no . '</td>
-				</tr>
-				<tr>
-					<td style="width:200px;"><br>' . $sender_billing_address . '</td>
-					<td style="width:200px;">' . $vat_label . ' &nbsp;' . $sender_billing_vat_no . '</td>
-					<td style="width:200px;">' . $postgiro_label . ' &nbsp;' . $sender_billing_postgiro . '</td>
-				</tr>
-				<tr>
-					<td style="width:200px;">' . $sender_billing_zipcode . ' ' . $sender_billing_city . '</td>
-					<td style="width:200px;">' . $phone_label . ': ' . $sender_billing_phone . '</td>
-					<td style="width:200px;">' . $iban_label . ' &nbsp;' . $sender_billing_iban_no . '</td>
-				</tr>
-				<tr>
-					<td style="width:200px;">' . $sender_billing_website . '</td>
-					<td style="width:200px;">' . $email_label . ': ' . $sender_billing_email . '</td>
-					<td style="width:200px;">' . $swift_label . ' &nbsp;' . $sender_billing_swift_no . '</td>
-				</tr>
-			<br>
-			</table>');
-
-//		$pdf->setFooterData($tc=array(0,64,0), $lc=array(0,64,128));
-
-		// set header and footer fonts
-		$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-		$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
-
-		// set default monospaced font
-		$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-
-		//set margins
-		$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-		$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-		$pdf->SetFooterMargin(30);
-
-		//set auto page breaks
-		$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-		//set image scale factor
-		$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+		// Insert the invoice data to database
+		$stmt = $this->db->prepare("INSERT INTO exhibitor_invoice (id, ex_user, fair, created, author, exhibitor, expires, r_reference, r_name, r_address, r_zipcode, r_city, r_country, s_reference, s_name, s_address, s_zipcode, s_city, s_country, s_website, s_phone, s_email, orgnr, bank_no, postgiro, vat_no, iban_no, swift_no, swish_no, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 3)");
+		$stmt->execute(array($invoice_id, $ex_userId, $fairId, $now, $author, $exId, $expirationdate, $exhibitor_name, $rec_billing_company_name, $rec_billing_address, $rec_billing_zipcode, $rec_billing_city, $rec_billing_country, $sender_billing_reference, $sender_billing_company_name, $sender_billing_address, $sender_billing_zipcode, $sender_billing_city, $sender_billing_country, $sender_billing_website, $sender_billing_phone, $sender_billing_email, $sender_billing_orgnr, $sender_billing_bank_no, $sender_billing_postgiro, $sender_billing_vat_no, $sender_billing_iban_no, $sender_billing_swift_no, $sender_billing_swish_no));
 
 
-		// set default font subsetting mode
-		$pdf->setFontSubsetting(true);
+			// Update the active invoice to credited in the database
+			$stmt = $this->db->prepare("UPDATE exhibitor_invoice SET `status` = 5 WHERE exhibitor = ? AND id = ?");
+			$stmt->execute(array($exId, $parent_invoice_id));
 
-		// Set font
-		// dejavusans is a UTF-8 Unicode font, if you only need to
-		// print standard ASCII chars, you can use core fonts like
-		// helvetica or times to reduce file size.
-		$pdf->SetFont('helvetica', '', 11, '', true);
+			$logo_name = 'file://' . ROOT . 'public/images/fairs/cfslogo.png';
 
-		// Add a page
-		// This method has several options, check the source code documentation for more information.
-		$pdf->AddPage();
+			foreach (new DirectoryIterator(ROOT . 'public/images/fairs/' . $fairId . '/logotype/') as $file) {
+			 if ($file->isDot()) {
+			  continue;
+			 }
+			 
+			 if (!$file->isFile()) {
+			  continue;
+			 }
+			 
+			 $logo_name = $file->getPathname();
+			 break;
+			}
 
-		// set text shadow effect
-		//$pdf->setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>0.5, 'blend_mode'=>'Normal'));
+	/*********************************************************************************************/
+	/*********************************************************************************************/
+	/*****************    				SET DOCUMENT INFORMATION   				******************/
+	/*********************************************************************************************/
+	/*********************************************************************************************/
+
+			$pdf->SetCreator('Chartbooker Fair System');
+			$pdf->SetAuthor($author);
+			$pdf->SetTitle($invoice_for_label . ' ' . $exhibitor_company_name);
+
+			$pdf->setHtmlHeader('
+				<table>
+					<tr>
+						<td style="width:335px;">
+							<img style="height:70px;" src="'. $logo_name . '"/>
+						</td>
+						<td>
+							<br/><br/><b style="font-size:23px; text-alight:right;">' . $credit_invoice_label . ' ' . $invoice_id . '</b><br>' . $printdate_label . ': ' . $date . '
+						</td>
+					</tr>
+				</table>');
+
+			$pdf->setHtmlFooter('
+				<hr>
+				<br/>
+				<table>
+					<tr>
+						<td colspan="1"><b>'. $address_label .'</b></td>
+						<td colspan="1"><b>'. $organization_label .'</b></td>
+						<td colspan="1"><b>'. $payment_info_label .'</b></td>
+					</tr>
+					<tr>
+						<td colspan="1">' . $sender_billing_company_name . '</td>
+						<td colspan="1">' . $orgnr_label . ' &nbsp; ' . $sender_billing_orgnr . '</td>
+						<td colspan="1">' . $bankgiro_label . ' &nbsp;' . $sender_billing_bank_no . '</td>
+					</tr>
+					<tr>
+						<td colspan="1"><br>' . $sender_billing_address . '</td>
+						<td colspan="1">' . $vat_label . ' &nbsp;' . $sender_billing_vat_no . '</td>
+						<td colspan="1">' . $swish_label . ' &nbsp;' . $sender_billing_swish_no . '</td>
+					</tr>
+					<tr>
+						<td colspan="1">' . $sender_billing_zipcode . ' ' . $sender_billing_city . '</td>
+						<td colspan="1">' . $phone_label . ' &nbsp;' . $sender_billing_phone . '</td>
+						<td colspan="1">' . $postgiro_label . ' &nbsp;' . $sender_billing_postgiro . '</td>
+					</tr>
+					<tr>
+						<td colspan="1">' . $sender_billing_website . '</td>
+						<td colspan="1">' . $email_label . ' &nbsp;' . $sender_billing_email . '</td>
+						<td colspan="1">' . $iban_label . ' &nbsp;' . $sender_billing_iban_no . '</td>
+					</tr>
+					<tr>
+						<td colspan="1"></td>
+						<td colspan="1"></td>
+						<td colspan="1">' . $swift_label . ' &nbsp;' . $sender_billing_swift_no . '</td>
+					</tr>
+				<br>
+				</table>');
 
 
-$html = '<style>
-tr .normal {
-	width: 150px;
-}
-tr .normal2 {
-	width:250px;
-}
-</style>
-<table>
-		<tr class="normal">
-			<td class="normal"></td>
-			<td class="normal"></td>
-			<td class="short"></td>
-			<td class="normal"></td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$s_reference_label.':</b></td>
-			<td class="normal">' . $sender_billing_reference . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_company_name . '</td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$r_reference_label.':</b></td>
-			<td class="normal">' . $exhibitor_name . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_address . '</td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$invoice_no_label.':</b></td>
-			<td class="normal">' . $invoice_id . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_zipcode . ' ' . $rec_billing_city . '</td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$invoice_date_label.':</b></td>
-			<td class="normal">' . $date . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_country . '</td>
-		</tr>
-</table>
+			// set header and footer fonts
+			$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+			$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+			// set default monospaced font
+			$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+			//set margins
+			$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+			$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+			$pdf->SetFooterMargin(30);
+
+			//set auto page breaks
+			$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+			//set image scale factor
+			$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
 
 
-<br /><br /><br />
-';
-$html .= '<style>
-* {
-	box-sizing:border-box;
-}
-.short {
-	width: 31px;
-}
-.id {
-	width: 80px;
-}
-.name {
-	width: 300px;
-}
-.price{
-	width: 80px;
-	text-align: right;
-}
-.amount {
-	width: 70px;
-}
-.moms {
-	width:50px;
-}
-.center {
-	text-align:center;
-}
-.left {
-	text-align:left;
-}
-.right {
-	text-align:right;
-}
-.vat {
-	width: 80px;
-	text-align: left;
-}
-.dark {
-	background-color: #D4D4D4;
-}
-.totalprice {
-	width: 350;
-	text-align: right;
-	font-size: 20px;
-}
-.totalprice2 {
-	width: 400;
-	text-align: right;
-	font-size: 20px;
-}
-.pennys {
-	width: 400;
-	text-align: right;
-	font-size: 16px;
-}
-</style>
+			// set default font subsetting mode
+			$pdf->setFontSubsetting(true);
 
-<table>
-	<thead>
-	    <tr class="dark">
-	    	<th class="id">ID</th>
-	        <th class="name">'.$description_label.'</th>
-	        <th class="price">'.$price_label.'</th>
-	        <th class="amount right">'.$amount_label.'</th>
-	        <th class="moms right">'.$tax_label.'</th>
-	        <th class="price">'.$parttotal_label.'</th>
-	    </tr>
-    </thead>
-    <tbody>';
+			// Set font
+			// dejavusans is a UTF-8 Unicode font, if you only need to
+			// print standard ASCII chars, you can use core fonts like
+			// helvetica or times to reduce file size.
+			$pdf->SetFont('helvetica', '', 11, '', true);
+
+			// Add a page
+			// This method has several options, check the source code documentation for more information.
+			$pdf->AddPage();
+
+			// set text shadow effect
+			//$pdf->setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>0.5, 'blend_mode'=>'Normal'));
+
+
+	$html = '<style>
+	tr .normal {
+		width: 150px;
+	}
+	tr .normal2 {
+		width:250px;
+	}
+	</style>
+	<table>
+			<tr class="normal">
+				<td class="normal"></td>
+				<td class="normal"></td>
+				<td class="short"></td>
+				<td class="normal"></td>
+			</tr>
+			<tr class="normal">
+				<td class="normal"><b>'.$s_reference_label.':</b></td>
+				<td class="normal">' . $sender_billing_reference . '</td>
+				<td class="short"></td>
+				<td class="normal2">' . $rec_billing_company_name . '</td>
+			</tr>
+			<tr class="normal">
+				<td class="normal"><b>'.$r_reference_label.':</b></td>
+				<td class="normal">' . $exhibitor_name . '</td>
+				<td class="short"></td>
+				<td class="normal2">' . $rec_billing_address . '</td>
+			</tr>
+			<tr class="normal">
+				<td class="normal"><b>'.$invoice_no_label.':</b></td>
+				<td class="normal">' . $parent_invoice_id . '</td>
+				<td class="short"></td>
+				<td class="normal2">' . $rec_billing_zipcode . ' ' . $rec_billing_city . '</td>
+			</tr>
+			<tr class="normal">
+				<td class="normal"><b>'.$invoice_date_label.':</b></td>
+				<td class="normal">' . $date . '</td>
+				<td class="short"></td>
+				<td class="normal2">' . $rec_billing_country . '</td>
+			</tr>
+	</table>
+
+
+	<br /><br /><br />
+	';
+	$html .= '<style>
+	* {
+		box-sizing:border-box;
+	}
+	.short {
+		width: 31px;
+	}
+	.id {
+		width: 80px;
+	}
+	.name {
+		width: 300px;
+	}
+	.price{
+		width: 80px;
+		text-align: right;
+	}
+	.amount {
+		width: 70px;
+	}
+	.moms {
+		width:50px;
+	}
+	.center {
+		text-align:center;
+	}
+	.left {
+		text-align:left;
+	}
+	.right {
+		text-align:right;
+	}
+	.vat {
+		width: 80px;
+		text-align: left;
+	}
+	.dark {
+		background-color: #D4D4D4;
+	}
+	.totalprice {
+		width: 350;
+		text-align: right;
+		font-size: 20px;
+	}
+	.payment_instructions {
+		font-size: 20px;
+	}
+	.pennys {
+		width: 400;
+		text-align: right;
+		font-size: 16px;
+	}
+	</style>
+
+	<table>
+		<thead>
+		    <tr class="dark">
+		    	<th class="id">ID</th>
+		        <th class="name">'.$description_label.'</th>
+		        <th class="price">'.$price_label.'</th>
+		        <th class="amount right">'.$amount_label.'</th>
+		        <th class="moms right">'.$tax_label.'</th>
+		        <th class="price">'.$parttotal_label.'</th>
+		    </tr>
+	    </thead>
+	    <tbody>';
 
 $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booked_space_label.'</b></td></tr>
-<tr>
-	<td class="id"></td>
-    <td class="name">' . $position_name . '</td>
-    <td class="price">' . $position_price . '</td>
-	<td class="amount right">1 '.$st_label.'</td>
-	<td class="moms right">' . $position_vat . '%</td>
-	<td class="price right">' . number_format($position_price, 2, ',', ' ') . '</td>
-</tr>
-<tr>
-	<td class="id"></td>
-    <td class="name">' . $position_information . '</td>
-    <td class="price"></td>
-	<td class="amount right"></td>
-	<td class="moms right"></td>
-	<td class="price right"></td>
-</tr>';
+	<tr>
+		<td class="id"></td>
+	    <td class="name">' . $position_name . '</td>
+	    <td class="price">' . $position_price . '</td>
+		<td class="amount right">1 '.$st_label.'</td>
+		<td class="moms right">' . $position_vat . '%</td>
+		<td class="price right">' . number_format($position_price, 2, ',', ' ') . '</td>
+	</tr>
+	<tr>
+		<td class="id"></td>
+	    <td class="name">' . $position_information . '</td>
+	    <td class="price"></td>
+		<td class="amount right"></td>
+		<td class="moms right"></td>
+		<td class="price right"></td>
+	</tr>';
 
 	if ($position_vat == 25) {
 		$excludeVatPrice25 += $position_price;
@@ -3538,198 +4193,207 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 	} else {
 		$excludeVatPrice0 += $position_price;
 	}
+	// Insert the invoice space data to database
+	$stmt_invoice_rel1 = $this->db->prepare("INSERT INTO exhibitor_invoice_rel (invoice, fair, text, price, amount, vat, type, information) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+	$stmt_invoice_rel1->execute(array($invoice_id, $fairId, $position_name, $position_price, 1, $position_vat, 'space', $position_information));
 
-if (!empty($invoice_options) && is_array($invoice_options)) {
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$options_label.'</b></td></tr>';
+	if (!empty($invoice_options) && is_array($invoice_options)) {
+		$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$options_label.'</b></td></tr>';
 
-	for ($row=0; $row<count($options[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $options[0][$row] . '</td>
-	        <td class="name">' . $options[1][$row] . '</td>
-	        <td class="price">' . $options[2][$row] . '</td>
-	        <td class="amount right">1 '.$st_label.'</td>
-	        <td class="moms right">' . $options[3][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')) . '</td>
-	        </tr>';
-    }
-}
+		for ($row=0; $row<count($options[1]); $row++) {
+		    $html .= '<tr>
+		    	<td class="id">' . $options[0][$row] . '</td>
+		        <td class="name">' . $options[1][$row] . '</td>
+		        <td class="price">' . $options[2][$row] . '</td>
+		        <td class="amount right">1 '.$st_label.'</td>
+		        <td class="moms right">' . $options[3][$row] . '%</td>
+		        <td class="price right">' . str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')) . '</td>
+		        </tr>';
 
-if (!empty($invoice_articles) && is_array($invoice_articles)) {
-	
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$articles_label.'</b></td></tr>';
-	for ($row=0; $row<count($articles[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $articles[0][$row] . '</td>
-	        <td class="name">' . $articles[1][$row] . '</td>
-	        <td class="price">' . str_replace('.', ',', $articles[2][$row]) . '</td>
-	        <td class="amount right">' . $articles[3][$row] . ' '.$st_label.'</td>
-	        <td class="moms right">' . $articles[4][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')) . '</td>
-	        </tr>';
-	        $articles[2][$row] = str_replace(',', '.', $articles[2][$row]);
-    }
-}
+				// Insert the invoice option data to database
+				$stmt_invoice_rel2 = $this->db->prepare("INSERT INTO exhibitor_invoice_rel (invoice, fair, custom_id, text, price, amount, vat, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+				$stmt_invoice_rel2->execute(array($invoice_id, $fairId, $options[0][$row], $options[1][$row], $options[2][$row], 1, $options[3][$row], 'option'));
+	    }
+	}
+
+	if (!empty($invoice_articles) && is_array($invoice_articles)) {
+		
+		$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$articles_label.'</b></td></tr>';
+		for ($row=0; $row<count($articles[1]); $row++) {
+		    $html .= '<tr>
+		    	<td class="id">' . $articles[0][$row] . '</td>
+		        <td class="name">' . $articles[1][$row] . '</td>
+		        <td class="price">' . str_replace('.', ',', $articles[2][$row]) . '</td>
+		        <td class="amount right">' . $articles[3][$row] . ' '.$st_label.'</td>
+		        <td class="moms right">' . $articles[4][$row] . '%</td>
+		        <td class="price right">' . str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')) . '</td>
+		        </tr>';
+		        $articles[2][$row] = str_replace(',', '.', $articles[2][$row]);
+				// Insert the invoice option data to database
+				$stmt_invoice_rel3 = $this->db->prepare("INSERT INTO exhibitor_invoice_rel (invoice, fair, custom_id, text, price, amount, vat, type) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+				$stmt_invoice_rel3->execute(array($invoice_id, $fairId, $articles[0][$row], $articles[1][$row], $articles[2][$row], $articles[3][$row], $articles[4][$row], 'article'));
+	    }
+	}
 
 
-if (!empty($invoice_options) && is_array($invoice_options)) {
-	for ($row=0; $row<count($options[1]); $row++) {
+	if (!empty($invoice_options) && is_array($invoice_options)) {
+		for ($row=0; $row<count($options[1]); $row++) {
 
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
+			if ($options[3][$row] == 25) {
+				$excludeVatPrice25 += $options[2][$row];
+			}
+			if ($options[3][$row] == 18) {
+				$excludeVatPrice18 += $options[2][$row];
+			}
+			if ($options[3][$row] == 12) {
+				$excludeVatPrice12 += $options[2][$row];
+			}
+			if ($options[3][$row] == 0) {
+				$excludeVatPrice0 += $options[2][$row];
+			}
 		}
 	}
-}
 
-if (!empty($invoice_articles) && is_array($invoice_articles)) {
-	for ($row=0; $row<count($articles[1]); $row++) {
+	if (!empty($invoice_articles) && is_array($invoice_articles)) {
+		for ($row=0; $row<count($articles[1]); $row++) {
 
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+			if ($articles[4][$row] == 25) {
+				$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+			}
+			if ($articles[4][$row] == 18) {
+				$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+			}
+			if ($articles[4][$row] == 12) {
+				$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+			}
+			if ($articles[4][$row] == 0) {
+				$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+			}
 		}
 	}
-}
 
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
+	$VatPrice0 = $excludeVatPrice0;
+	$VatPrice12 = $excludeVatPrice12*0.12;
+	$VatPrice18 = $excludeVatPrice18*0.18;
+	$VatPrice25 = $excludeVatPrice25*0.25;
+	$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
 
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
+	$totalPriceRounded = round($totalPrice);
+	$pennys = ($totalPriceRounded - $totalPrice);
 
-$html .= '
-	<hr>
-	<br />
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice"></td>
-	</tr>	
-	<tr>
-		<td class="vat">'.$net_label.'</td>
-		<td class="vat">'.$tax_label.' %</td>
-		<td class="vat">'.$tax_label.':</td>
-		<td class="totalprice"></td>
-	</tr>';
+	$html .= '
+		<hr>
+		<br />
+		<tr>
+			<td class="vat"></td>
+			<td class="vat"></td>
+			<td class="vat"></td>
+			<td class="totalprice"></td>
+		</tr>	
+		<tr>
+			<td class="vat">'.$net_label.'</td>
+			<td class="vat">'.$tax_label.' %</td>
+			<td class="vat">'.$tax_label.':</td>
+			<td class="totalprice"></td>
+		</tr>';
 
-if (!empty($excludeVatPrice0) && !empty($VatPrice0)) {
-	$excludeVatPrice0 = number_format($excludeVatPrice0, 2, ',', ' ');
-	$VatPrice0 = number_format($VatPrice0, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice0) . '</td>
-		<td class="vat">0,00</td>
-		<td class="vat">0,00</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
+	if (!empty($excludeVatPrice0) && !empty($VatPrice0)) {
+		$excludeVatPrice0 = number_format($excludeVatPrice0, 2, ',', ' ');
+		$VatPrice0 = number_format($VatPrice0, 2, ',', ' ');
+	$html .= '<tr>
+			<td class="vat">' . str_replace('.', ',', $excludeVatPrice0) . '</td>
+			<td class="vat">0,00</td>
+			<td class="vat">0,00</td>	
+			<td class="totalprice"></td>
+		</tr>';
+	}
 
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice12) . '</td>
-		<td class="vat">12,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice12) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
+	if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
+		$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
+		$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
+	$html .= '<tr>
+			<td class="vat">' . str_replace('.', ',', $excludeVatPrice12) . '</td>
+			<td class="vat">12,00</td>
+			<td class="vat">' . str_replace('.', ',', $VatPrice12) . '</td>	
+			<td class="totalprice"></td>
+		</tr>';
+	}
 
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice18) . '</td>
-		<td class="vat">18,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice18) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
+	if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
+		$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
+		$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
+	$html .= '<tr>
+			<td class="vat">' . str_replace('.', ',', $excludeVatPrice18) . '</td>
+			<td class="vat">18,00</td>
+			<td class="vat">' . str_replace('.', ',', $VatPrice18) . '</td>	
+			<td class="totalprice"></td>
+		</tr>';
+	}
 
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice25) . '</td>
-		<td class="vat">25,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice25) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-$html .= '
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="pennys">'.$rounding_label.':&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
-		'</td>
-	</tr>
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice2">'.$currency.' '.$credited_label.':&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')) . 
-		'</td>
-	</tr>';
+	if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
+		$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
+		$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
+	$html .= '<tr>
+			<td class="vat">' . str_replace('.', ',', $excludeVatPrice25) . '</td>
+			<td class="vat">25,00</td>
+			<td class="vat">' . str_replace('.', ',', $VatPrice25) . '</td>	
+			<td class="totalprice"></td>
+		</tr>';
+	}
+	$html .= '
+		<tr>
+			<td class="vat"></td>
+			<td class="vat"></td>
+			<td class="vat"></td>
+			<td class="pennys">'.$rounding_label.':&nbsp;&nbsp;'
+			. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
+			'</td>
+		</tr>
+		<tr>
+			<td colspan="4" class="payment_instructions" nobr="true" align="right">'.$currency.' '.$credited_label.':&nbsp;&nbsp;'
+			. str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')) . 
+			'</td>
+		</tr>';
 
 
 
-$html .= '</tbody></table>';
+	$html .= '</tbody></table>';
 
 
 
-// Print text using writeHTMLCell()
-$pdf->writeHTML($html, true, false, true, false, '');
-$pdf->lastPage();
+	// Print text using writeHTMLCell()
+	$pdf->writeHTML($html, true, false, true, false, '');
+	$pdf->lastPage();
 
-// ---------------------------------------------------------
-if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId)) {
-	mkdir(ROOT.'public/invoices/fairs/'.$fairId);
-	chmod(ROOT.'public/invoices/fairs/'.$fairId, 0775);
-	mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors');
-	chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors', 0775);
-}
+	// ---------------------------------------------------------
+	if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId)) {
+		mkdir(ROOT.'public/invoices/fairs/'.$fairId);
+		chmod(ROOT.'public/invoices/fairs/'.$fairId, 0775);
+		mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors');
+		chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors', 0775);
+	}
 
-if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'))) {	
-	mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'));
-	chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'), 0775);
-}
+	if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'))) {	
+		mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'));
+		chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'), 0775);
+	}
 
-$exhibitor_company_name = str_replace('/', '-', $exhibitor_company_name);
-//Close and output PDF document
-$pdf->Output(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $credit_invoice_id . '_credited.pdf', 'F');
+	$exhibitor_company_name = str_replace('/', '-', $exhibitor_company_name);
+	//Close and output PDF document
+	$pdf->Output(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $invoice_id . '_credited.pdf', 'F');
 
-header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $credit_invoice_id . '_credited.pdf');
-//============================================================+
-// END OF FILE
-//============================================================+
-
+	header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $invoice_id . '_credited.pdf');
+	//============================================================+
+	// END OF FILE
+	//============================================================+
+	} else {
+		$this->setNoTranslate('event_locked', true);
+	}
 } 
 
 
 
-	public function cancelInvoicePDF($id) {
+	public function cancelInvoicePDF($ex_id, $row_id) {
 		setAuthLevel(2);
 
 		require_once ROOT.'lib/tcpdf/tcpdf.php';
@@ -3737,663 +4401,648 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoic
 		$pdf = new MYPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
 
 		$ex_invoice = new ExhibitorInvoice();
-		$ex_invoice->load($id, 'exhibitor');
+		$ex_invoice->load($row_id, 'row_id');
 
 		$fair = new Fair();
 		$fair->load($ex_invoice->get('fair'), 'id');
 
 		$this->setNoTranslate('fair', $fair);
-		
-		if( userLevel() == 2 ){
-			$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
-			$prep = $this->db->prepare($sql);
-			$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
-			$result = $prep->fetch(PDO::FETCH_ASSOC);
-			if(!$result) {
-				$this->setNoTranslate('hasRights', false);
-				$hasRights = false;
-			} else {
-				$this->setNoTranslate('hasRights', true);
-				$hasRights = true;
-			}
-
-		} elseif( userLevel()  == 3 ) {
-
-			$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
-			$prep = $this->db->prepare($sql);
-			$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
-			$result = $prep->fetchAll();
-			if(!$result) {
-				$this->setNoTranslate('hasRights', false);
-				$hasRights = false;
-			} else {
-				$this->setNoTranslate('hasRights', true);
-				$hasRights = true;
-			}
-
-		} else {
-
-			$this->setNoTranslate('hasRights', true);
-			$hasRights = true;
-		}
-
-		if (!$hasRights)
-			return;
-
-
-/*********************************************************************************/
-/*********************************************************************************/
-/*****************     SENDER ADDRESS AND PAYMENT OPTIONS        *****************/
-/*********************************************************************************/
-/*********************************************************************************/
-				$sender_billing_reference = $ex_invoice->get('s_reference');
-				$sender_billing_company_name = $ex_invoice->get('s_name');
-				$sender_billing_address = $ex_invoice->get('s_address');
-				$sender_billing_zipcode = $ex_invoice->get('s_zipcode');
-				$sender_billing_city = $ex_invoice->get('s_city');
-				$sender_billing_country = $ex_invoice->get('s_country');
-				$sender_billing_website = $ex_invoice->get('s_website');
-				$sender_billing_phone = $ex_invoice->get('s_phone');
-				$sender_billing_email = $ex_invoice->get('s_email');
-				$sender_billing_orgnr = $ex_invoice->get('orgnr');
-				$sender_billing_bank_no = $ex_invoice->get('bank_no');
-				$sender_billing_postgiro = $ex_invoice->get('postgiro');
-				$sender_billing_vat_no = $ex_invoice->get('vat_no');
-				$sender_billing_iban_no = $ex_invoice->get('iban_no');
-				$sender_billing_swift_no = $ex_invoice->get('swift_no');
-
-
-				$rec_billing_company_name = $ex_invoice->get('r_name');
-				$rec_billing_address = $ex_invoice->get('r_address');
-				$rec_billing_zipcode = $ex_invoice->get('r_zipcode');
-				$rec_billing_city = $ex_invoice->get('r_city');
-				$rec_billing_country = $ex_invoice->get('r_country');
-
-				if ($rec_billing_country == 'Sweden')
-					$rec_billing_country = 'Sverige';
-
-				if ($rec_billing_country == 'Norway')
-					$rec_billing_country = 'Norge';
-
-
-				$invoice_for_label = $this->translate->{'Invoice for'};
-				$printdate_label = $this->translate->{'Print date'};
-				$postgiro_label = $this->translate->{'Postgiro'};
-				$iban_label = $this->translate->{'IBAN'};
-				$swift_label = $this->translate->{'SWIFT'};
-				$orgnr_label = $this->translate->{'Org.no'};
-				$vat_label = $this->translate->{'TAX.no'};
-				$bankgiro_label = $this->translate->{'Bank number'};
-				$description_label = $this->translate->{'Description'};
-				$price_label = $this->translate->{'Price'};
-				$phone_label = $this->translate->{'Phone'};
-				$email_label = $this->translate->{'Email'};
-				$amount_label = $this->translate->{'Quantity'};
-				$booked_space_label = $this->translate->{'Booked stand'};
-				$options_label = $this->translate->{'Options'};
-				$articles_label = $this->translate->{'Articles'};
-				$tax_label = $this->translate->{'Tax'};
-				$parttotal_label = $this->translate->{'Subtotal'};
-				$net_label = $this->translate->{'Net'};
-				$rounding_label = $this->translate->{'Rounding'};
-				$cancelled_label = $this->translate->{'Cancelled'};
-				$cancel_invoice_label = $this->translate->{'cancel note'};
-				$to_pay_label = $this->translate->{'to pay:'};
-				$address_label = $this->translate->{'Address'};
-				$organization_label = $this->translate->{'Organization'};
-				$payment_info_label = $this->translate->{'Payment information'};
-				$s_reference_label = $this->translate->{'Our reference'};
-				$r_reference_label = $this->translate->{'Your reference'};
-				$invoice_cancels_label = $this->translate->{'cancels invoice'};
-				$invoice_date_label = $this->translate->{'Invoice date'};
-				$invoice_expirationdate_label = $this->translate->{'Expiration date'};
-				$st_label = $this->translate->{'st'};
-
-
-				if ($sender_billing_postgiro == '')
-					$postgiro_label = '';
-
-				if ($sender_billing_iban_no == '')
-					$iban_label = '';
-
-				if ($sender_billing_swift_no == '')
-					$swift_label = '';
-				$current_user = new User();
-				$current_user->load($_SESSION['user_id'], 'id');
-		//		$fairInvoiceExpDate = date('Y-m-d');
-
-
-/*************************************************************/
-/*************************************************************/
-/*****************     PRICES AND AMOUNTS        *****************
-/*************************************************************/
-/*************************************************************/
-
-				$fairId = $fair->get('id');
-				$totalPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$position_vat = 0;
-				$currency = $fair->get('currency');
-				$author = $current_user->get('name');
-
-
-				// Positions
-
-				$stmt = $this->db->prepare("SELECT text, price, vat, information FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'space'");
-				$stmt->execute(array($ex_invoice->get('id'), $fairId));
-				$invoice_position = $stmt->fetch(PDO::FETCH_ASSOC);
-				
-				$position_name = $invoice_position['text'];
-				$position_information = $invoice_position['information'];
-				$position_price = $invoice_position['price'];
-				$position_vat = $invoice_position['vat'];
-
-
-				// Options
-
-				$stmt = $this->db->prepare("SELECT custom_id, text, price, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'option'");
-				$stmt->execute(array($ex_invoice->get('id'), $fairId));
-				$invoice_options = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-				$options = array();
-
-				
-				foreach ($invoice_options as $opts) {
-							$option_id[] = $opts['custom_id'];
-							$option_text[] = $opts['text'];
-							$option_price[] = $opts['price'];
-							$option_vat[] = $opts['vat'];
-				}
-					
-				$options = array($option_id, $option_text, $option_price, $option_vat);
-				//die(var_dump($options));
-
-
-				// Articles
-
-				$stmt = $this->db->prepare("SELECT custom_id, text, price, amount, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'article'");
-				$stmt->execute(array($ex_invoice->get('id'), $fairId));
-				$invoice_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-//				die(var_dump($invoice_articles));
-
-				$articles = array();
-
-					foreach ($invoice_articles as $arts) {
-							$art_id[] = $arts['custom_id'];
-							$art_text[] = $arts['text'];
-							$art_price[] = $arts['price'];
-							$art_amount[] = $arts['amount'];
-							$art_vat[] = $arts['vat'];
+		if ($fair->wasLoaded() && !$fair->isLocked() && $ex_invoice->get('exhibitor') == $ex_id) {
+				if( userLevel() == 2 ){
+					$sql = "SELECT * FROM fair_user_relation WHERE user = ? AND fair = ?";
+					$prep = $this->db->prepare($sql);
+					$prep->execute(array($_SESSION['user_id'], $fair->get('id')));
+					$result = $prep->fetch(PDO::FETCH_ASSOC);
+					if(!$result) {
+						$this->setNoTranslate('hasRights', false);
+						$hasRights = false;
+					} else {
+						$this->setNoTranslate('hasRights', true);
+						$hasRights = true;
 					}
 
-				$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
-				
-				//die(var_dump($articles));
+				} elseif( userLevel()  == 3 ) {
 
-				$exhibitor_company_name = $ex_invoice->get('r_name');
-				$exhibitor_name = $ex_invoice->get('r_reference');
-				$date = date('d-m-Y');
-				$now = time();
-				$expirationdate = $ex_invoice->get('expires');
-				$invoice_id = $ex_invoice->get('id');
+					$sql = "SELECT * FROM fair WHERE created_by = ? AND id = ?";
+					$prep = $this->db->prepare($sql);
+					$prep->execute(array($_SESSION['user_id'], $_SESSION['user_fair']));
+					$result = $prep->fetchAll();
+					if(!$result) {
+						$this->setNoTranslate('hasRights', false);
+						$hasRights = false;
+					} else {
+						$this->setNoTranslate('hasRights', true);
+						$hasRights = true;
+					}
 
-
-				$cancel_invoice_id = $invoice_id;
-
-				// Update the active invoice to cancelled in the database
-				$stmt_invoice_parent = $this->db->prepare("UPDATE exhibitor_invoice SET `status` = 4 WHERE exhibitor = ?");
-				$stmt_invoice_parent->execute(array($id));
-				$stmt_invoice_parent2 = $this->db->prepare("INSERT INTO `exhibitor_invoice_history` SELECT * FROM `exhibitor_invoice` WHERE exhibitor = ?");
-				$stmt_invoice_parent2->execute(array($id));
-				$stmt_invoice_parent3 = $this->db->prepare("DELETE FROM `exhibitor_invoice` WHERE exhibitor = ?");
-				$stmt_invoice_parent3->execute(array($id));
-				// Insert the invoice data to database
-				$stmt_invoice = $this->db->prepare("INSERT INTO exhibitor_invoice_cancelled (fair, created, author, invoice) VALUES (?, ?, ?, ?)");
-				$stmt_invoice->execute(array($fairId, $now, $author, $invoice_id));
-
-				$logo_name = array();
-				foreach(glob(ROOT.'public/images/fairs/'.$fairId.'/logotype/*') as $filename) {
-					$logo_name[] = (basename($filename) . "\n");
-				}
-
-				if (!$logo_name) {
-					$logo_name = BASE_URL.'/images/fairs/cfslogo.png';
 				} else {
-					$logo_name = BASE_URL.'/images/fairs/'. $fairId . '/logotype/' . $logo_name[0];
+
+					$this->setNoTranslate('hasRights', true);
+					$hasRights = true;
 				}
 
-//die(var_dump($articles[]));
-/*********************************************************************************************/
-/*********************************************************************************************/
-/*****************    				SET DOCUMENT INFORMATION   				******************/
-/*********************************************************************************************/
-/*********************************************************************************************/
+				if (!$hasRights)
+					return;
 
-		$pdf->SetCreator('Chartbooker Fair System');
-		$pdf->SetAuthor($author);
-		$pdf->SetTitle($invoice_for_label . ' ' . $exhibitor_company_name);
-		//$pdf->SetSubject('TCPDF Tutorial');
-		//$pdf->SetKeywords('TCPDF, PDF, example, test, guide');
 
-		$pdf->setHtmlHeader('
-			<table>
-				<tr>
-					<td style="width:335px;">
-						<img style="height:70px;" src="'. $logo_name . '"/>
-					</td>
-					<td>
-						<br/><br/><b style="font-size:23px; text-alight:right;">' . $cancel_invoice_label . ' ' . $cancel_invoice_id . '</b><br>' . $printdate_label . ': ' . $date . '
-					</td>
+		/*********************************************************************************/
+		/*********************************************************************************/
+		/*****************     SENDER ADDRESS AND PAYMENT OPTIONS        *****************/
+		/*********************************************************************************/
+		/*********************************************************************************/
+						$sender_billing_reference = $ex_invoice->get('s_reference');
+						$sender_billing_company_name = $ex_invoice->get('s_name');
+						$sender_billing_address = $ex_invoice->get('s_address');
+						$sender_billing_zipcode = $ex_invoice->get('s_zipcode');
+						$sender_billing_city = $ex_invoice->get('s_city');
+						$sender_billing_country = $ex_invoice->get('s_country');
+						$sender_billing_website = $ex_invoice->get('s_website');
+						$sender_billing_phone = $ex_invoice->get('s_phone');
+						$sender_billing_email = $ex_invoice->get('s_email');
+						$sender_billing_orgnr = $ex_invoice->get('orgnr');
+						$sender_billing_bank_no = $ex_invoice->get('bank_no');
+						$sender_billing_postgiro = $ex_invoice->get('postgiro');
+						$sender_billing_vat_no = $ex_invoice->get('vat_no');
+						$sender_billing_iban_no = $ex_invoice->get('iban_no');
+						$sender_billing_swift_no = $ex_invoice->get('swift_no');
+
+
+						$rec_billing_company_name = $ex_invoice->get('r_name');
+						$rec_billing_address = $ex_invoice->get('r_address');
+						$rec_billing_zipcode = $ex_invoice->get('r_zipcode');
+						$rec_billing_city = $ex_invoice->get('r_city');
+						$rec_billing_country = $ex_invoice->get('r_country');
+
+						if ($rec_billing_country == 'Sweden')
+							$rec_billing_country = 'Sverige';
+
+						if ($rec_billing_country == 'Norway')
+							$rec_billing_country = 'Norge';
+
+
+						$invoice_for_label = $this->translate->{'Invoice for'};
+						$printdate_label = $this->translate->{'Print date'};
+						$postgiro_label = $this->translate->{'Postgiro'};
+						$iban_label = $this->translate->{'IBAN'};
+						$swift_label = $this->translate->{'SWIFT'};
+						$orgnr_label = $this->translate->{'Org.no'};
+						$vat_label = $this->translate->{'TAX.no'};
+						$bankgiro_label = $this->translate->{'Bankgiro'};
+						$description_label = $this->translate->{'Description'};
+						$price_label = $this->translate->{'Price'};
+						$phone_label = $this->translate->{'phone'};
+						$email_label = $this->translate->{'Email'};
+						$amount_label = $this->translate->{'Quantity'};
+						$booked_space_label = $this->translate->{'Booked stand'};
+						$options_label = $this->translate->{'Options'};
+						$articles_label = $this->translate->{'Articles'};
+						$tax_label = $this->translate->{'Tax'};
+						$parttotal_label = $this->translate->{'Subtotal'};
+						$total_label = $this->translate->{'total:'};
+						$net_label = $this->translate->{'Net'};
+						$rounding_label = $this->translate->{'Rounding'};
+						$cancelled_label = $this->translate->{'Cancelled'};
+						$to_pay_label = $this->translate->{'to pay:'};
+						$address_label = $this->translate->{'Address'};
+						$organization_label = $this->translate->{'Organization'};
+						$payment_info_label = $this->translate->{'Payment information'};
+						$s_reference_label = $this->translate->{'Our reference'};
+						$r_reference_label = $this->translate->{'Your reference'};
+						$invoice_cancels_label = $this->translate->{'cancels invoice'};
+						$invoice_date_label = $this->translate->{'Invoice date'};
+						$invoice_expirationdate_label = $this->translate->{'Expiration date'};
+						$st_label = $this->translate->{'st'};
+
+
+						if ($sender_billing_postgiro == '')
+							$postgiro_label = '';
+
+						if ($sender_billing_iban_no == '')
+							$iban_label = '';
+
+						if ($sender_billing_swift_no == '')
+							$swift_label = '';
+						$current_user = new User();
+						$current_user->load($_SESSION['user_id'], 'id');
+				//		$fairInvoiceExpDate = date('Y-m-d');
+
+
+		/*************************************************************/
+		/*************************************************************/
+		/*****************     PRICES AND AMOUNTS        *****************
+		/*************************************************************/
+		/*************************************************************/
+
+						$fairId = $fair->get('id');
+						$totalPrice = 0;
+						$VatPrice0 = 0;
+						$VatPrice12 = 0;
+						$VatPrice18 = 0;
+						$VatPrice25 = 0;
+						$excludeVatPrice0 = 0;
+						$excludeVatPrice12 = 0;
+						$excludeVatPrice18 = 0;
+						$excludeVatPrice25 = 0;
+						$position_vat = 0;
+						$currency = $fair->get('currency');
+						$author = $current_user->get('name');
+
+
+						// Positions
+
+						$stmt = $this->db->prepare("SELECT text, price, vat, information FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'space'");
+						$stmt->execute(array($ex_invoice->get('id'), $fairId));
+						$invoice_position = $stmt->fetch(PDO::FETCH_ASSOC);
+						
+						$position_name = $invoice_position['text'];
+						$position_information = $invoice_position['information'];
+						$position_price = $invoice_position['price'];
+						$position_vat = $invoice_position['vat'];
+
+
+						// Options
+
+						$stmt = $this->db->prepare("SELECT custom_id, text, price, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'option'");
+						$stmt->execute(array($ex_invoice->get('id'), $fairId));
+						$invoice_options = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+						$options = array();
+						if (!empty($invoice_options)) {					
+							foreach ($invoice_options as $opts) {
+										$option_id[] = $opts['custom_id'];
+										$option_text[] = $opts['text'];
+										$option_price[] = $opts['price'];
+										$option_vat[] = $opts['vat'];
+							}
+							
+							$options = array($option_id, $option_text, $option_price, $option_vat);
+						}
+
+						// Articles
+
+						$stmt = $this->db->prepare("SELECT custom_id, text, price, amount, vat FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ? AND type = 'article'");
+						$stmt->execute(array($ex_invoice->get('id'), $fairId));
+						$invoice_articles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+						$articles = array();
+						if (!empty($invoice_articles)) {
+							foreach ($invoice_articles as $arts) {
+									$art_id[] = $arts['custom_id'];
+									$art_text[] = $arts['text'];
+									$art_price[] = $arts['price'];
+									$art_amount[] = $arts['amount'];
+									$art_vat[] = $arts['vat'];
+							}
+
+							$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
+						}
+						
+						$exhibitor_company_name = $ex_invoice->get('r_name');
+						$exhibitor_name = $ex_invoice->get('r_reference');
+						$date = date('d-m-Y');
+						$now = time();
+						$expirationdate = $ex_invoice->get('expires');
+						$invoice_id = $ex_invoice->get('id');
+
+
+						$cancel_invoice_id = $invoice_id;
+
+						// Update the active invoice to cancelled in the database
+						$stmt = $this->db->prepare("UPDATE exhibitor_invoice SET `status` = 4 WHERE row_id = ? AND id = ? AND exhibitor = ?");
+						$stmt->execute(array($row_id, $invoice_id, $ex_id));
+
+						$logo_name = 'file://' . ROOT . 'public/images/fairs/cfslogo.png';
+
+						foreach (new DirectoryIterator(ROOT . 'public/images/fairs/' . $fairId . '/logotype/') as $file) {
+						 if ($file->isDot()) {
+						  continue;
+						 }
+						 
+						 if (!$file->isFile()) {
+						  continue;
+						 }
+						 
+						 $logo_name = $file->getPathname();
+						 break;
+						}
+
+		//die(var_dump($articles[]));
+		/*********************************************************************************************/
+		/*********************************************************************************************/
+		/*****************    				SET DOCUMENT INFORMATION   				******************/
+		/*********************************************************************************************/
+		/*********************************************************************************************/
+
+				$pdf->SetCreator('Chartbooker Fair System');
+				$pdf->SetAuthor($author);
+				$pdf->SetTitle($invoice_for_label . ' ' . $exhibitor_company_name);
+				//$pdf->SetSubject('TCPDF Tutorial');
+				//$pdf->SetKeywords('TCPDF, PDF, example, test, guide');
+
+				$pdf->setHtmlHeader('
+					<table>
+						<tr>
+							<td style="width:335px;">
+								<img style="height:70px;" src="'. $logo_name . '"/>
+							</td>
+							<td>
+								<br/><br/><b style="font-size:23px; text-alight:right;">' . $invoice_cancels_label . ' ' . $cancel_invoice_id . '</b><br>' . $printdate_label . ': ' . $date . '
+							</td>
+						</tr>
+					</table>');
+
+				$pdf->setHtmlFooter('
+					<hr>
+					<br/>
+					<table>
+						<tr>
+							<td colspan="1"><b>'. $address_label .'</b></td>
+							<td colspan="1"><b>'. $organization_label .'</b></td>
+							<td colspan="1"><b>'. $payment_info_label .'</b></td>
+						</tr>
+						<tr>
+							<td colspan="1">' . $sender_billing_company_name . '</td>
+							<td colspan="1">' . $orgnr_label . ' &nbsp; ' . $sender_billing_orgnr . '</td>
+							<td colspan="1">' . $bankgiro_label . ' &nbsp;' . $sender_billing_bank_no . '</td>
+						</tr>
+						<tr>
+							<td colspan="1"><br>' . $sender_billing_address . '</td>
+							<td colspan="1">' . $vat_label . ' &nbsp;' . $sender_billing_vat_no . '</td>
+							<td colspan="1">' . $postgiro_label . ' &nbsp;' . $sender_billing_postgiro . '</td>
+						</tr>
+						<tr>
+							<td colspan="1">' . $sender_billing_zipcode . ' ' . $sender_billing_city . '</td>
+							<td colspan="1">' . $phone_label . ': ' . $sender_billing_phone . '</td>
+							<td colspan="1">' . $iban_label . ' &nbsp;' . $sender_billing_iban_no . '</td>
+						</tr>
+						<tr>
+							<td colspan="1">' . $sender_billing_website . '</td>
+							<td colspan="1">' . $email_label . ': ' . $sender_billing_email . '</td>
+							<td colspan="1">' . $swift_label . ' &nbsp;' . $sender_billing_swift_no . '</td>
+						</tr>
+					<br>
+					</table>');
+
+		//		$pdf->setFooterData($tc=array(0,64,0), $lc=array(0,64,128));
+
+				// set header and footer fonts
+				$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
+				$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+
+				// set default monospaced font
+				$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+
+				//set margins
+				$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
+				$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
+				$pdf->SetFooterMargin(30);
+
+				//set auto page breaks
+				$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+				//set image scale factor
+				$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
+
+
+				// set default font subsetting mode
+				$pdf->setFontSubsetting(true);
+
+				// Set font
+				// dejavusans is a UTF-8 Unicode font, if you only need to
+				// print standard ASCII chars, you can use core fonts like
+				// helvetica or times to reduce file size.
+				$pdf->SetFont('helvetica', '', 11, '', true);
+
+				// Add a page
+				// This method has several options, check the source code documentation for more information.
+				$pdf->AddPage();
+
+				// set text shadow effect
+				//$pdf->setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>0.5, 'blend_mode'=>'Normal'));
+
+
+		$html = '<style>
+		tr .normal {
+			width: 150px;
+		}
+		tr .normal2 {
+			width:250px;
+		}
+		</style>
+		<table>
+				<tr class="normal">
+					<td class="normal"></td>
+					<td class="normal"></td>
+					<td class="short"></td>
+					<td class="normal"></td>
 				</tr>
-			</table>');
+				<tr class="normal">
+					<td class="normal"><b>'.$s_reference_label.':</b></td>
+					<td class="normal">' . $sender_billing_reference . '</td>
+					<td class="short"></td>
+					<td class="normal2">' . $rec_billing_company_name . '</td>
+				</tr>
+				<tr class="normal">
+					<td class="normal"><b>'.$r_reference_label.':</b></td>
+					<td class="normal">' . $exhibitor_name . '</td>
+					<td class="short"></td>
+					<td class="normal2">' . $rec_billing_address . '</td>
+				</tr>
+				<tr class="normal">
+					<td class="normal"><b>'.$invoice_cancels_label.':</b></td>
+					<td class="normal">' . $invoice_id . '</td>
+					<td class="short"></td>
+					<td class="normal2">' . $rec_billing_zipcode . ' ' . $rec_billing_city . '</td>
+				</tr>
+				<tr class="normal">
+					<td class="normal"><b>'.$invoice_date_label.':</b></td>
+					<td class="normal">' . $date . '</td>
+					<td class="short"></td>
+					<td class="normal2">' . $rec_billing_country . '</td>
+				</tr>
+		</table>
 
-		$pdf->setHtmlFooter('
+
+		<br /><br /><br />
+		';
+		$html .= '<style>
+		* {
+			box-sizing:border-box;
+		}
+		.short {
+			width: 31px;
+		}
+		.id {
+			width: 80px;
+		}
+		.name {
+			width: 300px;
+		}
+		.price{
+			width: 80px;
+			text-align: right;
+		}
+		.amount {
+			width: 70px;
+		}
+		.moms {
+			width:50px;
+		}
+		.center {
+			text-align:center;
+		}
+		.left {
+			text-align:left;
+		}
+		.right {
+			text-align:right;
+		}
+		.vat {
+			width: 80px;
+			text-align: left;
+		}
+		.dark {
+			background-color: #D4D4D4;
+		}
+		.totalprice {
+			width: 350;
+			text-align: right;
+			font-size: 20px;
+		}
+		.payment_instructions {
+			font-size: 20px;
+		}
+		.pennys {
+			font-size: 16px;
+		}
+		</style>
+
+		<table>
+			<thead>
+			    <tr class="dark">
+			    	<th class="id">ID</th>
+			        <th class="name">'.$description_label.'</th>
+			        <th class="price">'.$price_label.'</th>
+			        <th class="amount right">'.$amount_label.'</th>
+			        <th class="moms right">'.$tax_label.'</th>
+			        <th class="price">'.$parttotal_label.'</th>
+			    </tr>
+		    </thead>
+		    <tbody>';
+
+		$html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booked_space_label.'</b></td></tr>
+		<tr>
+			<td class="id"></td>
+		    <td class="name">' . $position_name . '</td>
+		    <td class="price">' . $position_price . '</td>
+			<td class="amount right">1 '.$st_label.'</td>
+			<td class="moms right">' . $position_vat . '%</td>
+			<td class="price right">' . number_format($position_price, 2, ',', ' ') . '</td>
+		</tr>
+		<tr>
+			<td class="id"></td>
+		    <td class="name">' . $position_information . '</td>
+		    <td class="price"></td>
+			<td class="amount right"></td>
+			<td class="moms right"></td>
+			<td class="price right"></td>
+		</tr>';
+
+			if ($position_vat == 25) {
+				$excludeVatPrice25 += $position_price;
+			} else if ($position_vat == 18) {
+				$excludeVatPrice18 += $position_price;
+			} else {
+				$excludeVatPrice0 += $position_price;
+			}
+
+		if (!empty($invoice_options) && is_array($invoice_options)) {
+			$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$options_label.'</b></td></tr>';
+
+			for ($row=0; $row<count($options[1]); $row++) {
+			    $html .= '<tr>
+			    	<td class="id">' . $options[0][$row] . '</td>
+			        <td class="name">' . $options[1][$row] . '</td>
+			        <td class="price">' . $options[2][$row] . '</td>
+			        <td class="amount right">1 '.$st_label.'</td>
+			        <td class="moms right">' . $options[3][$row] . '%</td>
+			        <td class="price right">' . str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')) . '</td>
+			        </tr>';
+		    }
+		}
+
+		if (!empty($invoice_articles) && is_array($invoice_articles)) {
+			
+			$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$articles_label.'</b></td></tr>';
+			for ($row=0; $row<count($articles[1]); $row++) {
+			    $html .= '<tr>
+			    	<td class="id">' . $articles[0][$row] . '</td>
+			        <td class="name">' . $articles[1][$row] . '</td>
+			        <td class="price">' . str_replace('.', ',', $articles[2][$row]) . '</td>
+			        <td class="amount right">' . $articles[3][$row] . ' '.$st_label.'</td>
+			        <td class="moms right">' . $articles[4][$row] . '%</td>
+			        <td class="price right">' . str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')) . '</td>
+			        </tr>';
+			        $articles[2][$row] = str_replace(',', '.', $articles[2][$row]);
+		    }
+		}
+
+
+		if (!empty($invoice_options) && is_array($invoice_options)) {
+			for ($row=0; $row<count($options[1]); $row++) {
+
+				if ($options[3][$row] == 25) {
+					$excludeVatPrice25 += $options[2][$row];
+				}
+				if ($options[3][$row] == 18) {
+					$excludeVatPrice18 += $options[2][$row];
+				}
+				if ($options[3][$row] == 12) {
+					$excludeVatPrice12 += $options[2][$row];
+				}
+				if ($options[3][$row] == 0) {
+					$excludeVatPrice0 += $options[2][$row];
+				}
+			}
+		}
+
+		if (!empty($invoice_articles) && is_array($invoice_articles)) {
+			for ($row=0; $row<count($articles[1]); $row++) {
+
+				if ($articles[4][$row] == 25) {
+					$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+				}
+				if ($articles[4][$row] == 18) {
+					$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+				}
+				if ($articles[4][$row] == 12) {
+					$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+				}
+				if ($articles[4][$row] == 0) {
+					$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+				}
+			}
+		}
+
+		$VatPrice0 = $excludeVatPrice0;
+		$VatPrice12 = $excludeVatPrice12*0.12;
+		$VatPrice18 = $excludeVatPrice18*0.18;
+		$VatPrice25 = $excludeVatPrice25*0.25;
+		$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
+
+		$totalPriceRounded = round($totalPrice);
+		$pennys = ($totalPriceRounded - $totalPrice);
+
+		$html .= '
 			<hr>
-			<br/>
-			<table>
-				<tr>
-					<td style="width:200px;"><b>'. $address_label .'</b></td>
-					<td style="width:200px;"><b>'. $organization_label .'</b></td>
-					<td style="width:200px;"><b>'. $payment_info_label .'</b></td>
-				</tr>
-				<tr>
-					<td style="width:200px;">' . $sender_billing_company_name . '</td>
-					<td style="width:200px;">' . $orgnr_label . ' &nbsp; ' . $sender_billing_orgnr . '</td>
-					<td style="width:200px;">' . $bankgiro_label . ' &nbsp;' . $sender_billing_bank_no . '</td>
-				</tr>
-				<tr>
-					<td style="width:200px;"><br>' . $sender_billing_address . '</td>
-					<td style="width:200px;">' . $vat_label . ' &nbsp;' . $sender_billing_vat_no . '</td>
-					<td style="width:200px;">' . $postgiro_label . ' &nbsp;' . $sender_billing_postgiro . '</td>
-				</tr>
-				<tr>
-					<td style="width:200px;">' . $sender_billing_zipcode . ' ' . $sender_billing_city . '</td>
-					<td style="width:200px;">' . $phone_label . ': ' . $sender_billing_phone . '</td>
-					<td style="width:200px;">' . $iban_label . ' &nbsp;' . $sender_billing_iban_no . '</td>
-				</tr>
-				<tr>
-					<td style="width:200px;">' . $sender_billing_website . '</td>
-					<td style="width:200px;">' . $email_label . ': ' . $sender_billing_email . '</td>
-					<td style="width:200px;">' . $swift_label . ' &nbsp;' . $sender_billing_swift_no . '</td>
-				</tr>
-			<br>
-			</table>');
+			<br />
+			<tr>
+				<td class="vat"></td>
+				<td class="vat"></td>
+				<td class="vat"></td>
+				<td class="totalprice"></td>
+			</tr>	
+			<tr>
+				<td class="vat">'.$net_label.'</td>
+				<td class="vat">'.$tax_label.' %</td>
+				<td class="vat">'.$tax_label.':</td>
+				<td class="totalprice"></td>
+			</tr>';
 
-//		$pdf->setFooterData($tc=array(0,64,0), $lc=array(0,64,128));
+		if (!empty($excludeVatPrice0) && !empty($VatPrice0)) {
+			$excludeVatPrice0 = number_format($excludeVatPrice0, 2, ',', ' ');
+			$VatPrice0 = number_format($VatPrice0, 2, ',', ' ');
+		$html .= '<tr>
+				<td class="vat">' . str_replace('.', ',', $excludeVatPrice0) . '</td>
+				<td class="vat">0,00</td>
+				<td class="vat">0,00</td>	
+				<td class="totalprice"></td>
+			</tr>';
+		}
 
-		// set header and footer fonts
-		$pdf->setHeaderFont(Array(PDF_FONT_NAME_MAIN, '', PDF_FONT_SIZE_MAIN));
-		$pdf->setFooterFont(Array(PDF_FONT_NAME_DATA, '', PDF_FONT_SIZE_DATA));
+		if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
+			$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
+			$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
+		$html .= '<tr>
+				<td class="vat">' . str_replace('.', ',', $excludeVatPrice12) . '</td>
+				<td class="vat">12,00</td>
+				<td class="vat">' . str_replace('.', ',', $VatPrice12) . '</td>	
+				<td class="totalprice"></td>
+			</tr>';
+		}
 
-		// set default monospaced font
-		$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+		if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
+			$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
+			$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
+		$html .= '<tr>
+				<td class="vat">' . str_replace('.', ',', $excludeVatPrice18) . '</td>
+				<td class="vat">18,00</td>
+				<td class="vat">' . str_replace('.', ',', $VatPrice18) . '</td>	
+				<td class="totalprice"></td>
+			</tr>';
+		}
 
-		//set margins
-		$pdf->SetMargins(PDF_MARGIN_LEFT, PDF_MARGIN_TOP, PDF_MARGIN_RIGHT);
-		$pdf->SetHeaderMargin(PDF_MARGIN_HEADER);
-		$pdf->SetFooterMargin(30);
-
-		//set auto page breaks
-		$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-
-		//set image scale factor
-		$pdf->setImageScale(PDF_IMAGE_SCALE_RATIO);
-
-
-		// set default font subsetting mode
-		$pdf->setFontSubsetting(true);
-
-		// Set font
-		// dejavusans is a UTF-8 Unicode font, if you only need to
-		// print standard ASCII chars, you can use core fonts like
-		// helvetica or times to reduce file size.
-		$pdf->SetFont('helvetica', '', 11, '', true);
-
-		// Add a page
-		// This method has several options, check the source code documentation for more information.
-		$pdf->AddPage();
-
-		// set text shadow effect
-		//$pdf->setTextShadow(array('enabled'=>true, 'depth_w'=>0.2, 'depth_h'=>0.2, 'color'=>array(196,196,196), 'opacity'=>0.5, 'blend_mode'=>'Normal'));
-
-
-$html = '<style>
-tr .normal {
-	width: 150px;
-}
-tr .normal2 {
-	width:250px;
-}
-</style>
-<table>
-		<tr class="normal">
-			<td class="normal"></td>
-			<td class="normal"></td>
-			<td class="short"></td>
-			<td class="normal"></td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$s_reference_label.':</b></td>
-			<td class="normal">' . $sender_billing_reference . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_company_name . '</td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$r_reference_label.':</b></td>
-			<td class="normal">' . $exhibitor_name . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_address . '</td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$invoice_cancels_label.':</b></td>
-			<td class="normal">' . $invoice_id . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_zipcode . ' ' . $rec_billing_city . '</td>
-		</tr>
-		<tr class="normal">
-			<td class="normal"><b>'.$invoice_date_label.':</b></td>
-			<td class="normal">' . $date . '</td>
-			<td class="short"></td>
-			<td class="normal2">' . $rec_billing_country . '</td>
-		</tr>
-</table>
+		if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
+			$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
+			$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
+		$html .= '<tr>
+				<td class="vat">' . str_replace('.', ',', $excludeVatPrice25) . '</td>
+				<td class="vat">25,00</td>
+				<td class="vat">' . str_replace('.', ',', $VatPrice25) . '</td>	
+				<td class="totalprice"></td>
+			</tr>';
+		}
+		$html .= '
+			<tr>
+				<td colspan="4" class="pennys" align="right" nobr="true">'.$rounding_label.':&nbsp;&nbsp;'
+				. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
+				'</td>
+			</tr>
+			<tr>
+				<td colspan="4" class="payment_instructions" nobr="true" align="right">'.$currency.' '.$total_label.'&nbsp;&nbsp;0,00</td>
+			</tr>';
 
 
-<br /><br /><br />
-';
-$html .= '<style>
-* {
-	box-sizing:border-box;
-}
-.short {
-	width: 31px;
-}
-.id {
-	width: 80px;
-}
-.name {
-	width: 300px;
-}
-.price{
-	width: 80px;
-	text-align: right;
-}
-.amount {
-	width: 70px;
-}
-.moms {
-	width:50px;
-}
-.center {
-	text-align:center;
-}
-.left {
-	text-align:left;
-}
-.right {
-	text-align:right;
-}
-.vat {
-	width: 80px;
-	text-align: left;
-}
-.dark {
-	background-color: #D4D4D4;
-}
-.totalprice {
-	width: 350;
-	text-align: right;
-	font-size: 20px;
-}
-.totalprice2 {
-	width: 400;
-	text-align: right;
-	font-size: 20px;
-}
-.pennys {
-	width: 400;
-	text-align: right;
-	font-size: 16px;
-}
-</style>
 
-<table>
-	<thead>
-	    <tr class="dark">
-	    	<th class="id">ID</th>
-	        <th class="name">'.$description_label.'</th>
-	        <th class="price">'.$price_label.'</th>
-	        <th class="amount right">'.$amount_label.'</th>
-	        <th class="moms right">'.$tax_label.'</th>
-	        <th class="price">'.$parttotal_label.'</th>
-	    </tr>
-    </thead>
-    <tbody>';
+		$html .= '</tbody></table>';
 
-$html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booked_space_label.'</b></td></tr>
-<tr>
-	<td class="id"></td>
-    <td class="name">' . $position_name . '</td>
-    <td class="price">' . $position_price . '</td>
-	<td class="amount right">1 '.$st_label.'</td>
-	<td class="moms right">' . $position_vat . '%</td>
-	<td class="price right">' . number_format($position_price, 2, ',', ' ') . '</td>
-</tr>
-<tr>
-	<td class="id"></td>
-    <td class="name">' . $position_information . '</td>
-    <td class="price"></td>
-	<td class="amount right"></td>
-	<td class="moms right"></td>
-	<td class="price right"></td>
-</tr>';
 
-	if ($position_vat == 25) {
-		$excludeVatPrice25 += $position_price;
-	} else if ($position_vat == 18) {
-		$excludeVatPrice18 += $position_price;
+
+		// Print text using writeHTMLCell()
+		$pdf->writeHTML($html, true, false, true, false, '');
+		$pdf->lastPage();
+
+		// ---------------------------------------------------------
+		if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId)) {
+			mkdir(ROOT.'public/invoices/fairs/'.$fairId);
+			chmod(ROOT.'public/invoices/fairs/'.$fairId, 0775);
+			mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors');
+			chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors', 0775);
+		}
+
+		if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'))) {	
+			mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'));
+			chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'), 0775);
+		}
+
+		$exhibitor_company_name = str_replace('/', '-', $exhibitor_company_name);
+		//Close and output PDF document
+		$pdf->Output(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $cancel_invoice_id . '_cancelled.pdf', 'F');
+
+		header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $cancel_invoice_id . '_cancelled.pdf');
+		//============================================================+
+		// END OF FILE
+		//============================================================+
 	} else {
-		$excludeVatPrice0 += $position_price;
+		$this->setNoTranslate('event_locked', true);
 	}
-
-if (!empty($invoice_options) && is_array($invoice_options)) {
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$options_label.'</b></td></tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $options[0][$row] . '</td>
-	        <td class="name">' . $options[1][$row] . '</td>
-	        <td class="price">' . $options[2][$row] . '</td>
-	        <td class="amount right">1 '.$st_label.'</td>
-	        <td class="moms right">' . $options[3][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')) . '</td>
-	        </tr>';
-    }
-}
-
-if (!empty($invoice_articles) && is_array($invoice_articles)) {
-	
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$articles_label.'</b></td></tr>';
-	for ($row=0; $row<count($articles[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $articles[0][$row] . '</td>
-	        <td class="name">' . $articles[1][$row] . '</td>
-	        <td class="price">' . str_replace('.', ',', $articles[2][$row]) . '</td>
-	        <td class="amount right">' . $articles[3][$row] . ' '.$st_label.'</td>
-	        <td class="moms right">' . $articles[4][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')) . '</td>
-	        </tr>';
-	        $articles[2][$row] = str_replace(',', '.', $articles[2][$row]);
-    }
-}
-
-
-if (!empty($invoice_options) && is_array($invoice_options)) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($invoice_articles) && is_array($invoice_articles)) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-$html .= '
-	<hr>
-	<br />
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice"></td>
-	</tr>	
-	<tr>
-		<td class="vat">'.$net_label.'</td>
-		<td class="vat">'.$tax_label.' %</td>
-		<td class="vat">'.$tax_label.':</td>
-		<td class="totalprice"></td>
-	</tr>';
-
-if (!empty($excludeVatPrice0) && !empty($VatPrice0)) {
-	$excludeVatPrice0 = number_format($excludeVatPrice0, 2, ',', ' ');
-	$VatPrice0 = number_format($VatPrice0, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice0) . '</td>
-		<td class="vat">0,00</td>
-		<td class="vat">0,00</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice12) . '</td>
-		<td class="vat">12,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice12) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice18) . '</td>
-		<td class="vat">18,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice18) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice25) . '</td>
-		<td class="vat">25,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice25) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-$html .= '
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="pennys">'.$rounding_label.':&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
-		'</td>
-	</tr>
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice2">'.$currency.' '.$cancelled_label.':&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')) . 
-		'</td>
-	</tr>';
-
-
-
-$html .= '</tbody></table>';
-
-
-
-// Print text using writeHTMLCell()
-$pdf->writeHTML($html, true, false, true, false, '');
-$pdf->lastPage();
-
-// ---------------------------------------------------------
-if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId)) {
-	mkdir(ROOT.'public/invoices/fairs/'.$fairId);
-	chmod(ROOT.'public/invoices/fairs/'.$fairId, 0775);
-	mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors');
-	chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors', 0775);
-}
-
-if (!file_exists(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'))) {	
-	mkdir(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'));
-	chmod(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('ex_user'), 0775);
-}
-
-$exhibitor_company_name = str_replace('/', '-', $exhibitor_company_name);
-//Close and output PDF document
-$pdf->Output(ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $cancel_invoice_id . '_cancelled.pdf', 'F');
-
-header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoice->get('exhibitor').'/'.$exhibitor_company_name . '-' . $position_name . '-' . $cancel_invoice_id . '_cancelled.pdf');
-//============================================================+
-// END OF FILE
-//============================================================+
-
 }
 
 
 	public function deleteBooking($id = 0, $posId = 0) {
+
+		/// KONTROLLERAD MAILMALL
+
 		setAuthLevel(2);
 
 		$status = $_POST['status'];
@@ -4407,120 +5056,187 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoic
 		$fair = new Fair();
 		$fair->load($fairMap->get('fair'), 'id');
 
-		$current_user = new User();
-		$current_user->load($_SESSION['user_id'], 'id');
+		// Check if fair is locked before executing the command
+		if ($fair->wasLoaded() && !$fair->isLocked()) {
+			$current_user = new User();
+			$current_user->load($_SESSION['user_id'], 'id');
 
-		$organizer = new User();
-		$organizer->load($fair->get('created_by'), 'id');
+			$organizer = new User();
+			$organizer->load($fair->get('created_by'), 'id');
 
-		if ($status == "Preliminary Booking") {
-			$pb = new PreliminaryBooking();
-			$pb->load($id, 'id');
-			
-			$u = new User();
-			$u->load($pb->get('user'), 'id');
-			$stmt_history = $this->db->prepare("INSERT INTO preliminary_booking_history SELECT * FROM preliminary_booking WHERE id = ? AND position = ?");
-			$stmt_history->execute(array($id, $posId));
-			$pb->delete();
-
-			$mail_type = 'booking';
-			$status = 3;
-
-		} else {
-			$exhib = new Exhibitor();
-			$exhib->load($id, 'id');
-
-			$u = new User();
-			$u->load($exhib->get('user'), 'id');
-			$stmt_history = $this->db->prepare("INSERT INTO exhibitor_history SELECT * FROM exhibitor WHERE id = ? AND position = ?");
-			$stmt_history->execute(array($id, $posId));
-			$stmt = $this->db->prepare("DELETE FROM exhibitor WHERE id = ? AND position = ?");
-			$stmt->execute(array($id, $posId));
-
-			$position->set('status', 0);
-			$position->save();
-
-			if ($status == 'Reservation') {
-				$mail_type = 'reservation';
-				$status = 1;
-			} else {
+			if ($status == "preliminary") {
+				$pb = new PreliminaryBooking();
+				$pb->load($id, 'id');			
+				$user = new User();
+				$user->load($pb->get('user'), 'id');
+				$pb->delete($_POST['comment']);
 				$mail_type = 'booking';
-				$status = 2;
-			}
-		}
-
-		$time_now = date('d-m-Y H:i');
-
-		$mailSetting = $mail_type . "Cancelled";
-
-		$comment = $_POST['comment'];
-		if ($comment == '') {
-			$comment = $this->translate->{'No message was given.'};
-		}
-
-		//Check mail settings and send only if setting is set
-		if ($fair->wasLoaded()) {
-			$mailSettings = json_decode($fair->get("mail_settings"));
-			if (is_array($mailSettings->bookingCancelled)) {
-				$status = posStatusToText($status);
-
-				if (in_array("1", $mailSettings->bookingCancelled)) {
-					$mail_exhibitor = new Mail($u->get('email'), $mail_type . '_cancelled_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-					$mail_exhibitor->setMailVar('previous_status', $status);
-					$mail_exhibitor->setMailVar('position_name', $position->get('name'));
-					$mail_exhibitor->setMailVar('exhibitor_name', $u->get('name'));
-					$mail_exhibitor->setMailVar('company_name', $u->get('company'));
-					$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
-					$mail_exhibitor->setMailVar('event_name', $fair->get('name'));
-					$mail_exhibitor->setMailVar('event_email', $fair->get('contact_email'));
-					$mail_exhibitor->setMailVar('event_phone', $fair->get('contact_phone'));
-					$mail_exhibitor->setMailVar('event_website', $fair->get('website'));
-					$mail_exhibitor->setMailVar("url", BASE_URL . $fair->get("url"));
-					$mail_exhibitor->setMailVar('edit_time', $time_now);
-					$mail_exhibitor->setMailVar('comment', $comment);
-					$mail_exhibitor->setMailVar('cancelled_name', $current_user->get('name'));
-					$mail_exhibitor->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-					$mail_exhibitor->send();
+				$status = 3;
+				$mailSetting = "cancelPreliminaryBooking";
+			} else {
+				$ex = new Exhibitor();
+				$ex->load($id, 'id');
+				$user = new User();
+				$user->load($ex->get('user'), 'id');
+				$ex->delete($_POST['comment']);
+				$position->set('status', 0);
+				$position->save();
+				if ($status == 'Reservation') {
+					$mail_type = 'reservation';
+					$status = 1;
+				} else {
+					$mail_type = 'booking';
+					$status = 2;
 				}
-				if ($current_user->get('email') != $organizer->get('email')) {
-					if (in_array("2", $mailSettings->bookingCancelled)) {
-						$mail_user = new Mail($current_user->get('email'), $mail_type . '_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-						$mail_user->setMailVar('previous_status', $status);
-						$mail_user->setMailVar('position_name', $position->get('name'));
-						$mail_user->setMailVar('exhibitor_name', $u->get('name'));
-						$mail_user->setMailVar('company_name', $u->get('company'));
-						$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
-						$mail_user->setMailVar('event_name', $fair->get('name'));
-						$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-						$mail_user->setMailVar('edit_time', $time_now);
-						$mail_user->setMailVar('comment', $comment);
-						$mail_user->setMailVar('cancelled_name', $current_user->get('name'));
-						$mail_user->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-						$mail_user->send();
+				$mailSetting = "bookingCancelled";
+			}
+
+			$comment = $_POST['comment'];
+			if ($comment != '') {
+				$comment = '<br>'.$_POST['comment'];
+			}
+			$plain_comment = $_POST['comment'];
+			if ($plain_comment == '') {
+				$plain_comment = $this->translate->{'No comment.'};
+			}
+			//Check mail settings and send only if setting is set
+			if ($fair->wasLoaded()) {
+				$mailSettings = json_decode($fair->get("mail_settings"));
+				if (isset($mailSettings->$mailSetting) && is_array($mailSettings->$mailSetting)) {
+					$status = posStatusToText($status);
+					$errors = array();
+					$mail_errors = array();
+
+					$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+					$from = array($email => $fair->get("windowtitle"));
+
+					if($fair->get('contact_name')) {
+						$from = array($email => $fair->get('contact_name'));
+					}
+
+					if (in_array("1", $mailSettings->$mailSetting)) {
+						try {
+							if ($user->get('contact_email') == '')
+								$recipients = array($user->get('email') => $user->get('company'));
+							else
+								$recipients = array($user->get('contact_email') => $user->get('name'));
+
+							$mail_user = new Mail();
+							$mail_user->setTemplate($mail_type . '_cancelled_receipt');
+							$mail_user->setPlainTemplate($mail_type . '_cancelled_receipt');
+							$mail_user->setFrom($from);
+							$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+							$mail_user->setRecipients($recipients);
+								$mail_user->setMailVar('position_name', $position->get('name'));
+								$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
+								$mail_user->setMailvar('exhibitor_name', $user->get('name'));
+								$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+								$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+								$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+								$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+								$mail_user->setMailVar('event_website', $fair->get('website'));
+								$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+								$mail_user->setMailVar('comment', $comment);
+								$mail_user->setMailVar('plain_comment', $plain_comment);
+
+							if(!$mail_user->send()) {
+								$errors[] = $user->get('company');
+							}
+
+						} catch(Swift_RfcComplianceException $ex) {
+							// Felaktig epost-adress
+							$errors[] = $user->get('company');
+							$mail_errors[] = $ex->getMessage();
+
+						} catch(Exception $ex) {
+							// Okänt fel
+							$errors[] = $user->get('company');
+							$mail_errors[] = $ex->getMessage();
+						}
+					}
+
+					if ($current_user->get('email') != $organizer->get('email')) {
+						if (in_array("2", $mailSettings->$mailSetting)) {
+							try {
+								$recipients = array($current_user->get('email') => $current_user->get('name'));
+								$mail_current_user = new Mail();
+								$mail_current_user->setTemplate($mail_type . '_cancelled_confirm');
+								$mail_current_user->setPlainTemplate($mail_type . '_cancelled_confirm');
+								$mail_current_user->setFrom($from);
+								$mail_current_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+								$mail_current_user->setRecipients($recipients);
+									$mail_current_user->setMailVar('position_name', $position->get('name'));
+									$mail_current_user->setMailVar('exhibitor_company_name', $user->get('company'));
+									$mail_current_user->setMailvar('exhibitor_name', $user->get('name'));
+									$mail_current_user->setMailVar('event_name', $fair->get('windowtitle'));
+									$mail_current_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+									$mail_current_user->setMailVar('comment', $comment);
+									$mail_current_user->setMailVar('plain_comment', $plain_comment);
+
+								if(!$mail_current_user->send()) {
+									$errors[] = $current_user->get('company');
+								}
+
+							} catch(Swift_RfcComplianceException $ex) {
+								// Felaktig epost-adress
+								$errors[] = $current_user->get('company');
+								$mail_errors[] = $ex->getMessage();
+
+							} catch(Exception $ex) {
+								// Okänt fel
+								$errors[] = $current_user->get('company');
+								$mail_errors[] = $ex->getMessage();
+							}
+						}
+					}
+
+					if (in_array("0", $mailSettings->$mailSetting)) {
+						try {
+							if ($organizer->get('contact_email') == '')
+								$recipients = array($organizer->get('email') => $organizer->get('company'));
+							else
+								$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
+
+							$mail_organizer = new Mail();
+							$mail_organizer->setTemplate($mail_type . '_cancelled_confirm');
+							$mail_organizer->setPlainTemplate($mail_type . '_cancelled_confirm');
+							$mail_organizer->setFrom($from);
+							$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+							$mail_organizer->setRecipients($recipients);
+								$mail_organizer->setMailVar('position_name', $position->get('name'));
+								$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
+								$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
+								$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+								$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+								$mail_organizer->setMailVar('comment', $comment);
+								$mail_organizer->setMailVar('plain_comment', $plain_comment);
+
+							if(!$mail_organizer->send()) {
+								$errors[] = $organizer->get('company');
+							}
+
+						} catch(Swift_RfcComplianceException $ex) {
+							// Felaktig epost-adress
+							$errors[] = $organizer->get('company');
+							$mail_errors[] = $ex->getMessage();
+
+						} catch(Exception $ex) {
+							// Okänt fel
+							$errors[] = $organizer->get('company');
+							$mail_errors[] = $ex->getMessage();
+						}
+					}
+					if ($errors) {
+						$_SESSION['mail_errors'] = $mail_errors;
 					}
 				}
-
-				if (in_array("0", $mailSettings->bookingCancelled)) {
-					$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_cancelled_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-					$mail_organizer->setMailVar('previous_status', $status);
-					$mail_organizer->setMailVar('position_name', $position->get('name'));
-					$mail_organizer->setMailVar('exhibitor_name', $u->get('name'));
-					$mail_organizer->setMailVar('company_name', $u->get('company'));
-					$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
-					$mail_organizer->setMailVar('event_name', $fair->get('name'));
-					$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
-					$mail_organizer->setMailVar('edit_time', $time_now);
-					$mail_organizer->setMailVar('comment', $comment);
-					$mail_organizer->setMailVar('cancelled_name', $current_user->get('name'));
-					$mail_organizer->setMailVar('creator_accesslevel', accessLevelToText(userLevel()));
-					$mail_organizer->send();
-				}
 			}
-		}
-
-		if (!isset($_POST["ajax"])){
-			header('Location: '.BASE_URL.'administrator/newReservations');
-		}
+			if (!isset($_POST["ajax"])) {
+				header('Location: '.BASE_URL.'administrator/newReservations');
+			}
+		} else {
+			$this->setNoTranslate('event_locked', true);
+		}		
 	}
 
 	public function approveReservation() {
@@ -4532,8 +5248,19 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoic
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 	}
+	public function bookingtoReservation() {
+		setAuthLevel(2);
 
+		if (isset($_POST['id'])) {
+			$this->editBooking($_POST['id'], 1);
+		}
+
+		header('Location: '.BASE_URL.'administrator/newReservations');
+	}
 	public function editBooking($exhibitor_id = 0, $set_status = null) {
+
+		/// KONTROLLERAD MAILMALL
+
 		setAuthLevel(2);
 
 		if ($exhibitor_id > 0) {
@@ -4543,7 +5270,7 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoic
 
 			if ($exhibitor->wasLoaded()) {
 				$exhibitor->set('commodity', $_POST['commodity']);
-				$exhibitor->set('arranger_message', $_POST['arranger_message']);
+				//$exhibitor->set('arranger_message', $_POST['arranger_message']);
 				$exhibitor->set('clone', 0);
 				$exId = $exhibitor->save();
 
@@ -4553,7 +5280,7 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoic
 				$stmt->execute(array($exId));
 
 				// Set new categories for this booking
-				$categoryNames = array();
+				$categories = array();
 
 				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
 					$stmt = $this->db->prepare("INSERT INTO exhibitor_category_rel (exhibitor, category) VALUES (?, ?)");
@@ -4562,7 +5289,7 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoic
 						$category = new ExhibitorCategory();
 						$category->load($cat, "id");
 						if ($category->wasLoaded()) {
-							$categoryNames[] = $category->get("name");
+							$categories[] = $category->get("name");
 						}
 					}
 				}
@@ -4622,478 +5349,832 @@ header('Location: '.BASE_URL.'invoices/fairs/'.$fairId.'/exhibitors/'.$ex_invoic
 				$pos = new FairMapPosition();
 				$pos->load($exhibitor->get('position'), 'id');
 
-				$fair = new Fair();
-				$fair->load($exhibitor->get('fair'), 'id');
-
-				$organizer = new User();
-				$organizer->load($fair->get('created_by'), 'id');
-
-				$mail_type = ($pos->get('status') == 1 ? 'reservation' : 'booking');
-
-				if ($set_status == null) {
-					// If this is a reservation (status is 1), then also set the expiry date
-					if ($pos->wasLoaded() && $pos->get('status') == 1) {
-						$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
-					}
-				} else {
-					$previous_status = $pos->get('status');
-					$pos->set('status', $set_status);
-					$stmt = $this->db->prepare("UPDATE exhibitor_invoice SET status = 2 WHERE exhibitor = ?");
-					$stmt->execute(array($exId));
-					$stmt2 = $this->db->prepare("UPDATE exhibitor SET status = 2 WHERE id = ?");
-					$stmt2->execute(array($exId));
-				}
-				if ($pos->get('status') == 2) {
-					$pos->set('expires', '0000-00-00 00:00:00');
-				}
-				$status = $pos->get('status');			
-				$time_now = date('d-m-Y H:i');
-
-				$mailSetting = $mail_type . "Edited";
-
-				$categories = implode('<br/> ', $categoryNames);
-
-				$fairInvoice = new FairInvoice();
-				$fairInvoice->load($exhibitor->get('fair'), 'fair');
-
 				$user = new User();
 				$user->load($exhibitor->get('user'), 'id');
-				$userId = $user->get('id');
 
+				$fair = new Fair();
+				$fair->load($exhibitor->get('fair'), 'id');
+				// Check if fair is locked before executing the command
+				if ($fair->wasLoaded() && !$fair->isLocked()) {
 
-/*********************************************************************************/
-/*********************************************************************************/
-/*****************     SENDER ADDRESS AND PAYMENT OPTIONS        *****************/
-/*********************************************************************************/
-/*********************************************************************************/
+					$organizer = new User();
+					$organizer->load($fair->get('created_by'), 'id');
 
+					$mail_type = ($pos->get('status') == 1 ? 'reservation' : 'booking');
+					$mailSetting = 'bookingEdited';
+					if ($set_status == null) {
+						// If this is a reservation (status is 1), then also set the expiry date
+						if ($pos->wasLoaded() && $pos->get('status') == 1) {
+							$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+						}
+					} else if ($set_status == 2) {
+						$previous_status = $pos->get('status');
+						$pos->set('status', $set_status);
+						$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice WHERE exhibitor = ? AND status = 1");
+						$stmt->execute(array($exId));
+						$result = $stmt->fetch(PDO::FETCH_ASSOC);
+						if ($result > 0) {
+							$stmt = $this->db->prepare("UPDATE exhibitor_invoice SET status = 2 WHERE exhibitor = ? AND id = ?");
+							$stmt->execute(array($exId, $result['id']));
+						}
+						$stmt2 = $this->db->prepare("UPDATE exhibitor SET status = 2 WHERE id = ?");
+						$stmt2->execute(array($exId));
+						$mailSetting = 'reservationToBooking';
+						$pos->set('expires', '0000-00-00 00:00:00');
+					} else {
+						$previous_status = $pos->get('status');
+						$pos->set('status', $set_status);
+						$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+						$stmt = $this->db->prepare("SELECT id FROM exhibitor_invoice WHERE exhibitor = ? AND status = 2");
+						$stmt->execute(array($exId));
+						$result = $stmt->fetch(PDO::FETCH_ASSOC);
+						if ($result > 0) {
+							$stmt = $this->db->prepare("UPDATE exhibitor_invoice SET status = 1 WHERE exhibitor = ? AND id = ?");
+							$stmt->execute(array($exId, $result['id']));
+						}
+						$stmt2 = $this->db->prepare("UPDATE exhibitor SET status = 1 WHERE id = ?");
+						$stmt2->execute(array($exId));
+						$mailSetting = 'bookingToReservation';
+					}
+					$pos->save();
+					
+					$htmlcategoryNames = implode('<br>', $categories);
+					$fairInvoice = new FairInvoice();
+					$fairInvoice->load($exhibitor->get('fair'), 'fair');
 
-				$sender_billing_reference = $fairInvoice->get('reference');
-				$sender_billing_company_name = $fairInvoice->get('company_name');
-				$sender_billing_address = $fairInvoice->get('address');
-				$sender_billing_zipcode = $fairInvoice->get('zipcode');
-				$sender_billing_city = $fairInvoice->get('city');
-				$sender_billing_country = $fairInvoice->get('country');
-				$sender_billing_orgnr = $fairInvoice->get('orgnr');
-				$sender_billing_phone = $fairInvoice->get('phone');
-				$sender_billing_email = $fairInvoice->get('email');
-				$sender_billing_website = $fairInvoice->get('website');
+					/*****************************************************************************************/
+					/*****************************************************************************************/
+					/************************				PREPARE MAIL START			  *************************/
+					/*****************************************************************************************/
+					/*****************************************************************************************/
 
+					/*********************************************************************************/
+					/*********************************************************************************/
+					/********************************       LABELS       *****************************/
+					/*********************************************************************************/
+					/*********************************************************************************/
 
-				$rec_billing_company_name = $user->get('invoice_company');
-				$rec_billing_address = $user->get('invoice_address');
-				$rec_billing_zipcode = $user->get('invoice_zipcode');
-				$rec_billing_city = $user->get('invoice_city');
-				$rec_billing_country = $user->get('invoice_country');
+					$name_label = $this->translate->{'Name'};
+					$price_label = $this->translate->{'Price'};
+					$amount_label = $this->translate->{'Amount'};
+					$vat_label = $this->translate->{'Vat'};
+					$sum_label = $this->translate->{'Sum'};
+					$booked_space_label = $this->translate->{'Stand'};
+					$options_label = $this->translate->{'Options'};
+					$articles_label = $this->translate->{'Articles'};
+					$tax_label = $this->translate->{'Tax'};
+					$parttotal_label = $this->translate->{'Subtotal'};
+					$net_label = $this->translate->{'Net'};
+					$rounding_label = $this->translate->{'Rounding'};
+					$total_label = $this->translate->{'total:'};
+					$st_label = $this->translate->{'st'};
+					$nothing_selected_label = $this->translate->{'No articles or options selected.'};
 
-				if ($rec_billing_country == 'Sweden')
-					$rec_billing_country = 'Sverige';
+					/*************************************************************/
+					/*************************************************************/
+					/*****************     PRICES AND AMOUNTS        *************/
+					/*************************************************************/
+					/*************************************************************/ 
 
-				if ($rec_billing_country == 'Norway')
-					$rec_billing_country = 'Norge';
+					$totalPrice = 0;
+					$totalNetPrice = 0;
+					$VatPrice0 = 0;
+					$VatPrice12 = 0;
+					$VatPrice18 = 0;
+					$VatPrice25 = 0;
+					$excludeVatPrice0 = 0;
+					$excludeVatPrice12 = 0;
+					$excludeVatPrice18 = 0;
+					$excludeVatPrice25 = 0;
+					$currency = $fair->get('currency');
+					$position_vat = 0;
+					$position_name = $pos->get('name');
+					$position_price = $pos->get('price');
+					$position_vat = $fairInvoice->get('pos_vat');
 
+					/*********************************************************************************************/
+					/*********************************************************************************************/
+					/**********************					MAIL BOOKING TABLE START			  ***********************/
+					/*********************************************************************************************/
+					/*********************************************************************************************/
+			$html = '<!-- SIX COLUMN HEADERS -->
+						<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
+						 <!-- ID -->
+						 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+						     ID
+						   </p>
+						 </td>
+						 <!-- NAME -->
+						 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+						     '.$name_label.'
+						   </p>
+						 </td>
+						 <!-- PRICE -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+						     '.$price_label.'
+						   </p>
+						 </td>
+						 <!-- AMOUNT -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+						     '.$amount_label.'
+						   </p>
+						 </td>
+						 <!-- VAT % -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+						     '.$vat_label.'
+						   </p>
+						 </td>
+						 <!-- SUM -->
+						 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+						     '.$sum_label.'
+						   </p>
+						 </td>
+						</tr>
+						<!-- SPACER ROW -->
+						<tr style="mso-yfti-irow:1;height:11.1pt">
+						</tr>
+						<!-- STAND SPACE ROW LABEL-->
+						<tr style="mso-yfti-irow:1;height:25.1pt">
+						 	<!-- ID -->
+							<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						<!-- NAME -->
+							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$booked_space_label.'
+									</span>
+								</p>
+							</td>
+							<!-- PRICE -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- AMOUNT -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- VAT % -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- SUM -->
+							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						</tr>
+						<!-- STAND SPACE ROW INFO -->
+						<tr style="mso-yfti-irow:1;height:25.1pt">
+						 	<!-- ID -->
+							<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						<!-- NAME -->
+							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_name.'
+									</span>
+								</p>
+							</td>
+							<!-- PRICE -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_price.'
+									</span>
+								</p>
+							</td>
+							<!-- AMOUNT -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									1'.$st_label.'
+									</span>
+								</p>
+							</td>
+							<!-- VAT % -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_vat.'%
+									</span>
+								</p>
+							</td>
+							<!-- SUM -->
+							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.number_format($position_price, 2, ',', ' ').'
+									</span>
+								</p>
+							</td>
+						</tr>';
 
-				$description_label = $this->translate->{'Description'};
-				$price_label = $this->translate->{'Price'};
-				$amount_label = $this->translate->{'Quantity'};
-				$booked_space_label = $this->translate->{'Booked stand'};
-				$options_label = $this->translate->{'Options'};
-				$articles_label = $this->translate->{'Articles'};
-				$tax_label = $this->translate->{'Tax'};
-				$parttotal_label = $this->translate->{'Subtotal'};
-				$net_label = $this->translate->{'Net'};
-				$rounding_label = $this->translate->{'Rounding'};
-				$to_pay_label = $this->translate->{'to pay:'};
-				$st_label = $this->translate->{'st'};
+			$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
+							<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
+								<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+									<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									</p>
+								</td>
+								<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									</p>
+								</td>
+							</tr>';
 
-
-				$current_user = new User();
-				$current_user->load($_SESSION['user_id'], 'id');
-
-
-
-/*************************************************************/
-/*************************************************************/
-/*****************     PRICES AND AMOUNTS        *****************
-/*************************************************************/
-/*************************************************************/
-
-				$fairId = $fair->get('id');
-				$fairname = $fair->get('name');
-				$fairurl = $fair->get('url');
-				$totalPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$position_vat = 0;
-				$currency = $fair->get('currency');
-				$position_name = $pos->get('name');
-				$position_price = $pos->get('price');
-				$position_vat = $fairInvoice->get('pos_vat');
-				$exhibitor_company_name = $user->get('company');
-				$exhibitor_name = $user->get('name');
-
-
-
-/*********************************************************************************************/
-/*********************************************************************************************/
-/*****************    					SET MAIL CONTENT 	  				******************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-
-$html = '<style>
-* {
-	box-sizing:border-box;
-}
-hr {
-	width:690px;
-	text-align:left;
-}
-tr .normal {
-	width: 150px;
-}
-tr .normal2 {
-	width:250px;
-}
-tr .normal3 {
-	width:160px;
-}
-
-.short {
-	width: 31px;
-}
-.id {
-	width: 80px;
-}
-.name {
-	width: 300px;
-}
-.price{
-	width: 80px;
-	text-align: right;
-	padding-right: 12px;
-}
-.amount {
-	width: 100px;
-	text-align:center;
-}
-.moms {
-	width:50px;
-}
-.center {
-	text-align:center;
-}
-.left {
-	text-align:left;
-}
-.right {
-	text-align:right;
-}
-.vat {
-	width: 80px;
-	text-align: left;
-}
-.dark {
-	background-color: #D4D4D4;
-}
-.totalprice {
-	width: 445;
-	text-align: right;
-	font-size: 20px;
-}
-.totalprice2 {
-	width: 400;
-	text-align: right;
-	font-size: 20px;
-}
-.pennys {
-	width: 400;
-	text-align: right;
-	font-size: 16px;
-}
-</style>
-
-<table>
-	<thead>
-	    <tr class="dark">
-	    	<th class="id">ID</th>
-	        <th class="name">'.$description_label.'</th>
-	        <th class="price">'.$price_label.'</th>
-	        <th class="amount">'.$amount_label.'</th>
-	        <th class="moms right">'.$tax_label.'</th>
-	        <th class="price">'.$parttotal_label.'</th>
-	    </tr>
-    </thead>
-    <tbody>';
-
-$html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booked_space_label.'</b></td></tr>
-<tr>
-	<td class="id"></td>
-    <td class="name">' . $position_name . '</td>
-    <td class="price">' . $position_price . '</td>
-	<td class="amount">1 '.$st_label.'</td>
-	<td class="moms right">' . $position_vat . '%</td>
-	<td class="price right">' . number_format($position_price, 2, ',', ' ') . '</td>
-</tr>';
-
-	if ($position_vat == 25) {
-		$excludeVatPrice25 += $position_price;
-	} else if ($position_vat == 18) {
-		$excludeVatPrice18 += $position_price;
-	} else {
-		$excludeVatPrice0 += $position_price;
-	}
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$options_label.'</b></td></tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $options[0][$row] . '</td>
-	        <td class="name">' . $options[1][$row] . '</td>
-	        <td class="price">' . $options[2][$row] . '</td>
-	        <td class="amount">1 '.$st_label.'</td>
-	        <td class="moms right">' . $options[3][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')) . '</td>
-	        </tr>';
-    }
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$articles_label.'</b></td></tr>';
-	for ($row=0; $row<count($articles[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $articles[0][$row] . '</td>
-	        <td class="name">' . $articles[1][$row] . '</td>
-	        <td class="price">' . str_replace('.', ',', $articles[2][$row]) . '</td>
-	        <td class="amount center">' . $articles[3][$row] . ' '.$st_label.'</td>
-	        <td class="moms right">' . $articles[4][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')) . '</td>
-	        </tr>';
-	        $articles[2][$row] = str_replace(',', '.', $articles[2][$row]);
-    }
-}
-
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}		
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-$html .= '
-	<hr>
-	<br />
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice"></td>
-	</tr>	
-	<tr>
-		<td class="vat">'.$net_label.'</td>
-		<td class="vat">'.$tax_label.' %</td>
-		<td class="vat">'.$tax_label.':</td>
-		<td class="totalprice"></td>
-	</tr>';
-
-if (!empty($excludeVatPrice0) && !empty($VatPrice0)) {
-	$excludeVatPrice0 = number_format($excludeVatPrice0, 2, ',', ' ');
-	$VatPrice0 = number_format($VatPrice0, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice0) . '</td>
-		<td class="vat">0,00</td>
-		<td class="vat">0,00</td>
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice12) . '</td>
-		<td class="vat">12,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice12) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice18) . '</td>
-		<td class="vat">18,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice18) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice25) . '</td>
-		<td class="vat">25,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice25) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-$html .= '
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="pennys">'.$rounding_label.':&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
-		'</td>
-	</tr>
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice2">'.$currency.' '.$to_pay_label.'&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')) . 
-		'</td>
-	</tr>';
-
-
-
-$html .= '</tbody></table>';
-
-			$arranger_message = $_POST['arranger_message'];
-			if ($arranger_message == '') {
-				$arranger_message = $this->translate->{'No message was given.'};
+			if ($position_vat == 25) {
+				$excludeVatPrice25 += $position_price;
+			} else if ($position_vat == 18) {
+				$excludeVatPrice18 += $position_price;
+			} else {
+				$excludeVatPrice0 += $position_price;
 			}
-			$exhibitor_commodity = $_POST['commodity'];
-			if ($exhibitor_commodity == '') {
-				$exhibitor_commodity = $this->translate->{'No commodity was entered.'};
+
+			if (!empty($_POST['options']) && is_array($_POST['options'])) {
+				$html .= '<!-- SIX COLUMNS -->
+			               <tr style="mso-yfti-irow:1;height:25.1pt">
+			                	<!-- ID -->
+			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+			                  		</span>
+			                  	</p>
+			                  </td>
+			                  <!-- NAME -->
+									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											'.$options_label.'
+											</span>
+										</p>
+									</td>
+									<!-- PRICE -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- AMOUNT -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- VAT % -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- SUM -->
+									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+								</tr>';
+
+				for ($row=0; $row<count($options[1]); $row++) {
+					$html .= '<!-- SIX COLUMNS -->
+				               <tr style="mso-yfti-irow:1;height:25.1pt">
+				                	<!-- ID -->
+				                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+				                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+				                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+				                  		'.$options[0][$row].'
+				                  		</span>
+				                  	</p>
+				                  </td>
+				                  <!-- NAME -->
+										<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[1][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- PRICE -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[2][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- AMOUNT -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												1'.$st_label.'
+												</span>
+											</p>
+										</td>
+										<!-- VAT % -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[3][$row].'%
+												</span>
+											</p>
+										</td>
+										<!-- SUM -->
+										<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
+												</span>
+											</p>
+										</td>
+									</tr>';
+				}
 			}
+
+			if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
+				$html .= '<!-- SIX COLUMNS -->
+			               <tr style="mso-yfti-irow:1;height:25.1pt">
+			                	<!-- ID -->
+			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+			                  		</span>
+			                  	</p>
+			                  </td>
+			                  <!-- NAME -->
+									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											'.$articles_label.'
+											</span>
+										</p>
+									</td>
+									<!-- PRICE -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- AMOUNT -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- VAT % -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- SUM -->
+									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+								</tr>';
+
+				for ($row=0; $row<count($articles[1]); $row++) {
+					$html .= '<!-- SIX COLUMNS -->
+				               <tr style="mso-yfti-irow:1;height:25.1pt">
+				                	<!-- ID -->
+				                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+				                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+				                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+				                  		'.$articles[0][$row].'
+				                  		</span>
+				                  	</p>
+				                  </td>
+				                  <!-- NAME -->
+										<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[1][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- PRICE -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', $articles[2][$row]).'
+												</span>
+											</p>
+										</td>
+										<!-- AMOUNT -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[3][$row].' '.$st_label.'
+												</span>
+											</p>
+										</td>
+										<!-- VAT % -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[4][$row].'%
+												</span>
+											</p>
+										</td>
+										<!-- SUM -->
+										<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
+												</span>
+											</p>
+										</td>
+									</tr>';
+			    }
+			}
+
+
+			if (!empty($_POST['options']) && is_array($_POST['options'])) {
+				for ($row=0; $row<count($options[1]); $row++) {
+
+					if ($options[3][$row] == 25) {
+						$excludeVatPrice25 += $options[2][$row];
+					}
+					if ($options[3][$row] == 18) {
+						$excludeVatPrice18 += $options[2][$row];
+					}
+					if ($options[3][$row] == 12) {
+						$excludeVatPrice12 += $options[2][$row];
+					}
+					if ($options[3][$row] == 0) {
+						$excludeVatPrice0 += $options[2][$row];
+					}
+				}
+			}
+
+			if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
+				for ($row=0; $row<count($articles[1]); $row++) {
+
+					if ($articles[4][$row] == 25) {
+						$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 18) {
+						$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 12) {
+						$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 0) {
+						$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+				}
+			}
+
+			$VatPrice0 = $excludeVatPrice0;
+			$VatPrice12 = $excludeVatPrice12*0.12;
+			$VatPrice18 = $excludeVatPrice18*0.18;
+			$VatPrice25 = $excludeVatPrice25*0.25;
+			$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
+			$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
+
+			$totalPriceRounded = round($totalPrice);
+			$pennys = ($totalPriceRounded - $totalPrice);
+
+			if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
+				$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
+				$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
+
+				$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (12%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice12).'
+										</p>
+									</td>
+								</tr>';
+
+			}
+			if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
+				$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
+				$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
+				$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (18%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice18).'
+										</p>
+									</td>
+								</tr>';
+			}
+			if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
+				$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
+				$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
+				$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (25%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice25).'
+										</p>
+									</td>
+								</tr>';
+			}
+			if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											0,00
+										</p>
+									</td>
+								</tr>';
+			} 
+			if (empty($totalPrice)) {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$net_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											0,00
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
+										</p>
+									</td>
+								</tr>';
+			} else {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$net_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>';
+			}
+
+			/*********************************************************************************************/
+			/*********************************************************************************************/
+			/**********************					MAIL BOOKING TABLE END				  ***********************/
+			/*********************************************************************************************/
+			/*********************************************************************************************/
+				
+				$position_information = $pos->get('information');
+				if ($position_information == '')
+					$position_information = $this->translate->{'None specified.'};
+
+				$position_area = $pos->get('area');
+				if ($position_area == '')
+					$position_area = $this->translate->{'None specified.'};
+
+				$arranger_message = $_POST['arranger_message'];
+				if ($arranger_message == '')
+					$arranger_message = $this->translate->{'No message was given.'};
+				
+				$exhibitor_commodity = $_POST['commodity'];
+				if ($exhibitor_commodity == '')
+					$exhibitor_commodity = $this->translate->{'No commodity was entered.'};
 
 				//Check mail settings and send only if setting is set
 				if ($fair->wasLoaded()) {
 					$mailSettings = json_decode($fair->get("mail_settings"));
-					if (is_array($mailSettings->$mailSetting)) {
+					if (isset($mailSettings->$mailSetting) && is_array($mailSettings->$mailSetting)) {
 						if (isset($previous_status)) {
 							$previous_status = posStatusToText($previous_status);
 						}
+						$errors = array();
+						$mail_errors = array();
+						$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+						$from = array($email => $fair->get("windowtitle"));
 
-						$status = posStatusToText($status);
+						if($fair->get('contact_name')) {
+							$from = array($email => $fair->get('contact_name'));
+						}
 
 						if (in_array("0", $mailSettings->$mailSetting)) {
-							$mail_organizer = new Mail($organizer->get('email'), $mail_type . '_' . (isset($previous_status) ? 'approved' : 'edited') . '_confirm', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-							$mail_organizer->setMailVar('booking_table', $html);
-							$mail_organizer->setMailVar('status', $status);
-							$mail_organizer->setMailVar('event_name', $fair->get('name'));
-							$mail_organizer->setMailvar('exhibitor_name', $exhibitor->get('name'));
-							$mail_organizer->setMailVar('company_name', $exhibitor->get('company'));
-							$mail_organizer->setMailVar('position_name', $pos->get('name'));
-							$mail_organizer->setMailVar('position_information', $pos->get('information'));
-							$mail_organizer->setMailVar('position_area', $pos->get('area'));
-							$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($exhibitor->get("booking_time"))));
-							$mail_organizer->setMailVar('url', BASE_URL . $fair->get('url'));
-							$mail_organizer->setMailVar('arranger_message', $arranger_message);
-							$mail_organizer->setMailVar('exhibitor_commodity', $exhibitor_commodity);
-							$mail_organizer->setMailVar('exhibitor_category', $categories);
-							$mail_organizer->setMailVar('exhibitor_options', $options);
-							$mail_organizer->setMailVar('edit_time', $time_now);
+							try {
+								if ($organizer->get('contact_email') == '')
+									$recipients = array($organizer->get('email') => $organizer->get('company'));
+								else
+									$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
 
-							if ($mail_type == 'reservation') {
-								$mail_organizer->setMailVar('previous_status', $previous_status);
-								$mail_organizer->setMailVar('date_expires', $_POST['expires']);
+								$mail_organizer = new Mail();
+								if ($mailSetting == 'bookingToReservation') {
+									$mail_organizer->setTemplate('booking_to_reservation_confirm');
+									$mail_organizer->setPlainTemplate('booking_to_reservation_confirm');
+								} else if ($mailSetting == 'reservationToBooking') {
+									$mail_organizer->setTemplate('reservation_to_booking_confirm');
+									$mail_organizer->setPlainTemplate('reservation_to_booking_confirm');
+								} else {
+									$mail_organizer->setTemplate($mail_type . '_' . (isset($previous_status) ? 'approved' : 'edited') . '_confirm');
+									$mail_organizer->setPlainTemplate($mail_type . '_' . (isset($previous_status) ? 'approved' : 'edited') . '_confirm');
+								}
+								$mail_organizer->setFrom($from);
+								$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+								$mail_organizer->setRecipients($recipients);
+									$mail_organizer->setMailVar('booking_table', $html);
+									$mail_organizer->setMailVar('booking_sum', $html_sum);
+									$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
+									$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
+									$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+									$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+									$mail_organizer->setMailVar('position_name', $pos->get('name'));
+									$mail_organizer->setMailVar('position_information', $position_information);
+									$mail_organizer->setMailVar('position_area', $position_area);
+									$mail_organizer->setMailVar('arranger_message', $arranger_message);
+									$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
+									$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
+									if ($pos->wasLoaded() && $pos->get('status') == 1) {
+										$mail_organizer->setMailVar('expirationdate', $_POST['expires']);
+									}
+
+								if(!$mail_organizer->send()) {
+									$errors[] = $organizer->get('company');
+								}
+
+							} catch(Swift_RfcComplianceException $ex) {
+								// Felaktig epost-adress
+								$errors[] = $organizer->get('company');
+								$mail_errors[] = $ex->getMessage();
+
+							} catch(Exception $ex) {
+								// Okänt fel
+								$errors[] = $organizer->get('company');
+								$mail_errors[] = $ex->getMessage();
 							}
-
-							$mail_organizer->send();
 						}
 
 						if (in_array("1", $mailSettings->$mailSetting)) {
-							$mail_user = new Mail($exhibitor->get('email'), $mail_type . '_' . (isset($previous_status) ? 'approved' : 'edited') . '_receipt', $fair->get('url') . EMAIL_FROM_DOMAIN, $fair->get('name'));
-							$mail_user->setMailVar('status', $status);
-							$mail_user->setMailVar('event_name', $fair->get('name'));
-							$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-							$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-							$mail_user->setMailVar('event_website', $fair->get('website'));
-							$mail_user->setMailvar('exhibitor_name', $exhibitor->get('name'));
-							$mail_user->setMailVar('company_name', $exhibitor->get('company'));
-							$mail_user->setMailVar('position_name', $pos->get('name'));
-							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('position_area', $pos->get('area'));
-							$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($exhibitor->get("booking_time"))));
-							$mail_user->setMailVar('url', BASE_URL . $fair->get('url'));
-							$mail_user->setMailVar('arranger_message', $arranger_message);
-							$mail_user->setMailVar('exhibitor_commodity', $exhibitor_commodity);
-							$mail_user->setMailVar('exhibitor_category', $categories);
-							$mail_user->setMailVar('exhibitor_options', $options);
-							$mail_user->setMailVar('edit_time', $time_now);							
+							try {
+								if ($user->get('contact_email') == '')
+									$recipients = array($user->get('email') => $user->get('company'));
+								else
+									$recipients = array($user->get('contact_email') => $user->get('name'));
 
-							if ($mail_type == 'reservation') {
-								$mail_user->setMailVar('previous_status', $previous_status);
-								$mail_user->setMailVar('date_expires', $_POST['expires']);
+								$mail_user = new Mail();
+								if ($mailSetting == 'bookingToReservation') {
+									$mail_user->setTemplate('booking_to_reservation_receipt');
+									$mail_user->setPlainTemplate('booking_to_reservation_receipt');
+								} else if ($mailSetting == 'reservationToBooking') {
+									$mail_user->setTemplate('reservation_to_booking_receipt');
+									$mail_user->setPlainTemplate('reservation_to_booking_receipt');
+								} else {
+									$mail_user->setTemplate($mail_type . '_' . (isset($previous_status) ? 'approved' : 'edited') . '_receipt');
+									$mail_user->setPlainTemplate($mail_type . '_' . (isset($previous_status) ? 'approved' : 'edited') . '_receipt');
+								}
+								$mail_user->setFrom($from);
+								$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+								$mail_user->setRecipients($recipients);
+									$mail_user->setMailVar('booking_table', $html);
+									$mail_user->setMailVar('booking_sum', $html_sum);
+									$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
+									$mail_user->setMailvar('exhibitor_name', $user->get('name'));
+									$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+									$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+									$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+									$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+									$mail_user->setMailVar('event_website', $fair->get('website'));
+									$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+									$mail_user->setMailVar('position_name', $pos->get('name'));
+									$mail_user->setMailVar('position_information', $position_information);
+									$mail_user->setMailVar('position_area', $position_area);
+									$mail_user->setMailVar('arranger_message', $arranger_message);
+									$mail_user->setMailVar('commodity', $exhibitor_commodity);
+									$mail_user->setMailVar('html_categories', $htmlcategoryNames);
+									if ($pos->wasLoaded() && $pos->get('status') == 1) {
+										$mail_user->setMailVar('expirationdate', $_POST['expires']);
+									}
+
+								if(!$mail_user->send()) {
+									$errors[] = $user->get('company');
+								}
+
+							} catch(Swift_RfcComplianceException $ex) {
+								// Felaktig epost-adress
+								$errors[] = $user->get('company');
+								$mail_errors[] = $ex->getMessage();
+
+							} catch(Exception $ex) {
+								// Okänt fel
+								$errors[] = $user->get('company');
+								$mail_errors[] = $ex->getMessage();
 							}
-
-							$mail_user->send();
+						}
+						if ($errors) {
+							$_SESSION['mail_errors'] = $mail_errors;
 						}
 					}
 				}
-
-				$pos->save();
+			} else {
+				$this->set('error_title', 'Error when loading the booking. Contact the support team to resolve the issue.');
 			}
+		} else {
+			$this->set('error_title', 'A booking ID must be set.');
 		}
-
 		header('Location: ' . BASE_URL . 'administrator/newReservations');
 	}
-	public function reviewPrelBooking() {
-		setAuthLevel(2);
-		}
+}
+
+public function reviewPrelBooking() {
+	setAuthLevel(2);
+}
 
 
 public function reservePrelBooking() {
+
+	/// KONTROLLERAD MAILMALL
 		setAuthLevel(2);
 
 			$pb = new PreliminaryBooking();
@@ -5104,510 +6185,840 @@ public function reservePrelBooking() {
 				$pos->load($pb->get('position'), 'id');
 				$booking_time = $pb->get('booking_time');
 
-				$previous_status = 3;
-				$status = 1;
-				$pos->set('status', $status);
-				$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
-
-				$ex = new Exhibitor();
-				$ex->set('user', $pb->get('user'));
-				$ex->set('fair', $pb->get('fair'));
-				$ex->set('position', $pb->get('position'));
-				$ex->set('commodity', $_POST['commodity']);
-				$ex->set('arranger_message', $_POST['arranger_message']);
-				$ex->set('edit_time', time());
-				$ex->set('clone', 0);
-				$ex->set('status', 1);
-				
-				$exId = $ex->save();
-				$pos->save();
-				$pb->delete();
-
-
-
-				$categoryNames = array();
-
-				if (isset($_POST['categories']) && is_array($_POST['categories'])) {
-					$stmt = $pos->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
-					foreach ($_POST['categories'] as $cat) {
-						$stmt->execute(array($exId, $cat));
-						$category = new ExhibitorCategory();
-						$category->load($cat, "id");
-						if ($category->wasLoaded()) {
-							$categoryNames[] = $category->get("name");
-						}
-					}
-				}
-
-
-				$options = array();
-				if (isset($_POST['options']) && is_array($_POST['options'])) {
-					$stmt = $pos->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
-
-					foreach ($_POST['options'] as $opt) {								
-						$stmt->execute(array($exId, $opt));
-						$ex_option = new FairExtraOption();
-						$ex_option->load($opt, 'id');
-						if ($ex_option->wasLoaded()) {
-							$option_id[] = $ex_option->get('custom_id');
-							$option_text[] = $ex_option->get('text');
-							$option_price[] = $ex_option->get('price');
-							$option_vat[] = $ex_option->get('vat');
-						}
-					}
-
-					$options = array($option_id, $option_text, $option_price, $option_vat);
-				}
-
-
-				$articles = array();
-				if (isset($_POST['articles']) && is_array($_POST['articles'])) {
-					$stmt = $pos->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
-					$arts = $_POST['articles'];
-					$amounts = $_POST['artamount'];
-
-					foreach (array_combine($arts, $amounts) as $art => $amount) {
-						$stmt->execute(array($exId, $art, $amount));
-						$arts = new FairArticle();
-						$arts->load($art, 'id');
-						if ($arts->wasLoaded()) {
-							$art_id[] = $arts->get('custom_id');
-							$art_text[] = $arts->get('text');
-							$art_amount[] = $amount;
-							$art_price[] = $arts->get('price');
-							$art_vat[] = $arts->get('vat');
-						}								
-					}
-					$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
-				}
-
-				$categories = implode('<br/> ', $categoryNames);
-
-				$time_now = date('d-m-Y H:i');
-				
 				$fair = new Fair();
 				$fair->load($pb->get('fair'), 'id');
+
+				// Check if fair is locked before executing the command
+				if ($fair->wasLoaded() && !$fair->isLocked()) {
+
+					$previous_status = 3;
+					$status = 1;
+					$pos->set('status', $status);
+					$pos->set('expires', date('Y-m-d H:i:s', strtotime($_POST['expires'])));
+
+					$ex = new Exhibitor();
+					$ex->set('user', $pb->get('user'));
+					$ex->set('fair', $pb->get('fair'));
+					$ex->set('position', $pb->get('position'));
+					$ex->set('commodity', $_POST['commodity']);
+					$ex->set('arranger_message', $pb->get('arranger_message'));
+					$ex->set('booking_time', $pb->get('booking_time'));
+					$ex->set('edit_time', time());
+					$ex->set('clone', 0);
+					$ex->set('status', 1);
+					
+					$exId = $ex->save();
+					$pos->save();
+					$pb->accept();
+
+
+
+					$categories = array();
+
+					if (isset($_POST['categories']) && is_array($_POST['categories'])) {
+						$stmt = $this->db->prepare("INSERT INTO `exhibitor_category_rel` (`exhibitor`, `category`) VALUES (?, ?)");
+						foreach ($_POST['categories'] as $cat) {
+							$stmt->execute(array($exId, $cat));
+							$category = new ExhibitorCategory();
+							$category->load($cat, "id");
+							if ($category->wasLoaded()) {
+								$categories[] = $category->get("name");
+							}
+						}
+					}
+
+
+					$options = array();
+					if (isset($_POST['options']) && is_array($_POST['options'])) {
+						$stmt = $this->db->prepare("INSERT INTO `exhibitor_option_rel` (`exhibitor`, `option`) VALUES (?, ?)");
+
+						foreach ($_POST['options'] as $opt) {								
+							$stmt->execute(array($exId, $opt));
+							$ex_option = new FairExtraOption();
+							$ex_option->load($opt, 'id');
+							if ($ex_option->wasLoaded()) {
+								$option_id[] = $ex_option->get('custom_id');
+								$option_text[] = $ex_option->get('text');
+								$option_price[] = $ex_option->get('price');
+								$option_vat[] = $ex_option->get('vat');
+							}
+						}
+
+						$options = array($option_id, $option_text, $option_price, $option_vat);
+					}
+
+
+					$articles = array();
+					if (isset($_POST['articles']) && is_array($_POST['articles'])) {
+						$stmt = $this->db->prepare("INSERT INTO `exhibitor_article_rel` (`exhibitor`, `article`, `amount`) VALUES (?, ?, ?)");
+						$arts = $_POST['articles'];
+						$amounts = $_POST['artamount'];
+
+						foreach (array_combine($arts, $amounts) as $art => $amount) {
+							$stmt->execute(array($exId, $art, $amount));
+							$arts = new FairArticle();
+							$arts->load($art, 'id');
+							if ($arts->wasLoaded()) {
+								$art_id[] = $arts->get('custom_id');
+								$art_text[] = $arts->get('text');
+								$art_amount[] = $amount;
+								$art_price[] = $arts->get('price');
+								$art_vat[] = $arts->get('vat');
+							}								
+						}
+						$articles = array($art_id, $art_text, $art_price, $art_amount, $art_vat);
+					}
+					
+
+					
+					$organizer = new User();
+					$organizer->load($fair->get('created_by'), 'id');
+
+					$user = new User();
+					$user->load($ex->get('user'), 'id');
+
+					$htmlcategoryNames = implode('<br>', $categories);
+					$fairInvoice = new FairInvoice();
+					$fairInvoice->load($ex->get('fair'), 'fair');
+
+					/*****************************************************************************************/
+					/*****************************************************************************************/
+					/************************				PREPARE MAIL START			  *************************/
+					/*****************************************************************************************/
+					/*****************************************************************************************/
+
+					/*********************************************************************************/
+					/*********************************************************************************/
+					/********************************       LABELS       *****************************/
+					/*********************************************************************************/
+					/*********************************************************************************/
+
+					$name_label = $this->translate->{'Name'};
+					$price_label = $this->translate->{'Price'};
+					$amount_label = $this->translate->{'Amount'};
+					$vat_label = $this->translate->{'Vat'};
+					$sum_label = $this->translate->{'Sum'};
+					$booked_space_label = $this->translate->{'Stand'};
+					$options_label = $this->translate->{'Options'};
+					$articles_label = $this->translate->{'Articles'};
+					$tax_label = $this->translate->{'Tax'};
+					$parttotal_label = $this->translate->{'Subtotal'};
+					$net_label = $this->translate->{'Net'};
+					$rounding_label = $this->translate->{'Rounding'};
+					$total_label = $this->translate->{'total:'};
+					$st_label = $this->translate->{'st'};
+					$nothing_selected_label = $this->translate->{'No articles or options selected.'};
+
+					/*************************************************************/
+					/*************************************************************/
+					/*****************     PRICES AND AMOUNTS        *************/
+					/*************************************************************/
+					/*************************************************************/ 
+
+					$totalPrice = 0;
+					$totalNetPrice = 0;
+					$VatPrice0 = 0;
+					$VatPrice12 = 0;
+					$VatPrice18 = 0;
+					$VatPrice25 = 0;
+					$excludeVatPrice0 = 0;
+					$excludeVatPrice12 = 0;
+					$excludeVatPrice18 = 0;
+					$excludeVatPrice25 = 0;
+					$currency = $fair->get('currency');
+					$position_vat = 0;
+					$position_name = $pos->get('name');
+					$position_price = $pos->get('price');
+					$position_vat = $fairInvoice->get('pos_vat');
+
+					/*********************************************************************************************/
+					/*********************************************************************************************/
+					/**********************					MAIL BOOKING TABLE START			  ***********************/
+					/*********************************************************************************************/
+					/*********************************************************************************************/
+			$html = '<!-- SIX COLUMN HEADERS -->
+						<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;padding:10px 0 0 0;">
+						 <!-- ID -->
+						 <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+						     ID
+						   </p>
+						 </td>
+						 <!-- NAME -->
+						 <td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+						     '.$name_label.'
+						   </p>
+						 </td>
+						 <!-- PRICE -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+						     '.$price_label.'
+						   </p>
+						 </td>
+						 <!-- AMOUNT -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+						     '.$amount_label.'
+						   </p>
+						 </td>
+						 <!-- VAT % -->
+						 <td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=center style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+						     '.$vat_label.'
+						   </p>
+						 </td>
+						 <!-- SUM -->
+						 <td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+						   <p class=MsoNormal align=right style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+						     '.$sum_label.'
+						   </p>
+						 </td>
+						</tr>
+						<!-- SPACER ROW -->
+						<tr style="mso-yfti-irow:1;height:11.1pt">
+						</tr>
+						<!-- STAND SPACE ROW LABEL-->
+						<tr style="mso-yfti-irow:1;height:25.1pt">
+						 	<!-- ID -->
+							<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						<!-- NAME -->
+							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$booked_space_label.'
+									</span>
+								</p>
+							</td>
+							<!-- PRICE -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- AMOUNT -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- VAT % -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+							<!-- SUM -->
+							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						</tr>
+						<!-- STAND SPACE ROW INFO -->
+						<tr style="mso-yfti-irow:1;height:25.1pt">
+						 	<!-- ID -->
+							<td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									</span>
+								</p>
+							</td>
+						<!-- NAME -->
+							<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_name.'
+									</span>
+								</p>
+							</td>
+							<!-- PRICE -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_price.'
+									</span>
+								</p>
+							</td>
+							<!-- AMOUNT -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									1'.$st_label.'
+									</span>
+								</p>
+							</td>
+							<!-- VAT % -->
+							<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.$position_vat.'%
+									</span>
+								</p>
+							</td>
+							<!-- SUM -->
+							<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+								<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+									<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+									'.number_format($position_price, 2, ',', ' ').'
+									</span>
+								</p>
+							</td>
+						</tr>';
+
+			$html_sum = '<!-- TWO COLUMN VAT PRICE AND NET SUMMATION -->
+							<tr style="mso-yfti-irow:0;mso-yfti-firstrow:yes;height:13.3pt;border-top-color:rgb(234, 234, 234);border-top-width:1px;border-top-style:solid;">
+								<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+									<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									</p>
+								</td>
+								<td width="50%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+									<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+									</p>
+								</td>
+							</tr>';
+
+			if ($position_vat == 25) {
+				$excludeVatPrice25 += $position_price;
+			} else if ($position_vat == 18) {
+				$excludeVatPrice18 += $position_price;
+			} else {
+				$excludeVatPrice0 += $position_price;
+			}
+
+			if (!empty($_POST['options']) && is_array($_POST['options'])) {
+				$html .= '<!-- SIX COLUMNS -->
+			               <tr style="mso-yfti-irow:1;height:25.1pt">
+			                	<!-- ID -->
+			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+			                  		</span>
+			                  	</p>
+			                  </td>
+			                  <!-- NAME -->
+									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											'.$options_label.'
+											</span>
+										</p>
+									</td>
+									<!-- PRICE -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- AMOUNT -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- VAT % -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- SUM -->
+									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+								</tr>';
+
+				for ($row=0; $row<count($options[1]); $row++) {
+					$html .= '<!-- SIX COLUMNS -->
+				               <tr style="mso-yfti-irow:1;height:25.1pt">
+				                	<!-- ID -->
+				                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+				                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+				                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+				                  		'.$options[0][$row].'
+				                  		</span>
+				                  	</p>
+				                  </td>
+				                  <!-- NAME -->
+										<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[1][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- PRICE -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[2][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- AMOUNT -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												1'.$st_label.'
+												</span>
+											</p>
+										</td>
+										<!-- VAT % -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$options[3][$row].'%
+												</span>
+											</p>
+										</td>
+										<!-- SUM -->
+										<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')).'
+												</span>
+											</p>
+										</td>
+									</tr>';
+				}
+			}
+
+			if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
+				$html .= '<!-- SIX COLUMNS -->
+			               <tr style="mso-yfti-irow:1;height:25.1pt">
+			                	<!-- ID -->
+			                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+			                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+			                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+			                  		</span>
+			                  	</p>
+			                  </td>
+			                  <!-- NAME -->
+									<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											'.$articles_label.'
+											</span>
+										</p>
+									</td>
+									<!-- PRICE -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- AMOUNT -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- VAT % -->
+									<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+									<!-- SUM -->
+									<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+											<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+											</span>
+										</p>
+									</td>
+								</tr>';
+
+				for ($row=0; $row<count($articles[1]); $row++) {
+					$html .= '<!-- SIX COLUMNS -->
+				               <tr style="mso-yfti-irow:1;height:25.1pt">
+				                	<!-- ID -->
+				                  <td width=60 valign=top style="width:45pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+				                  	<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+				                  		<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+				                  		'.$articles[0][$row].'
+				                  		</span>
+				                  	</p>
+				                  </td>
+				                  <!-- NAME -->
+										<td width=140 valign=top style="width:105pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[1][$row].'
+												</span>
+											</p>
+										</td>
+										<!-- PRICE -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=right style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', $articles[2][$row]).'
+												</span>
+											</p>
+										</td>
+										<!-- AMOUNT -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[3][$row].' '.$st_label.'
+												</span>
+											</p>
+										</td>
+										<!-- VAT % -->
+										<td width=50 valign=top style="width:37.5pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal align=center style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:center;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.$articles[4][$row].'%
+												</span>
+											</p>
+										</td>
+										<!-- SUM -->
+										<td width=80 valign=top style="width:60pt;padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+											<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;text-align:right;line-height:normal">
+												<span style="font-family:Helvetica, Arial, sans-serif;color:#333333">
+												'.str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')).'
+												</span>
+											</p>
+										</td>
+									</tr>';
+			    }
+			}
+
+
+			if (!empty($_POST['options']) && is_array($_POST['options'])) {
+				for ($row=0; $row<count($options[1]); $row++) {
+
+					if ($options[3][$row] == 25) {
+						$excludeVatPrice25 += $options[2][$row];
+					}
+					if ($options[3][$row] == 18) {
+						$excludeVatPrice18 += $options[2][$row];
+					}
+					if ($options[3][$row] == 12) {
+						$excludeVatPrice12 += $options[2][$row];
+					}
+					if ($options[3][$row] == 0) {
+						$excludeVatPrice0 += $options[2][$row];
+					}
+				}
+			}
+
+			if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
+				for ($row=0; $row<count($articles[1]); $row++) {
+
+					if ($articles[4][$row] == 25) {
+						$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 18) {
+						$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 12) {
+						$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+					if ($articles[4][$row] == 0) {
+						$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
+					}
+				}
+			}
+
+			$VatPrice0 = $excludeVatPrice0;
+			$VatPrice12 = $excludeVatPrice12*0.12;
+			$VatPrice18 = $excludeVatPrice18*0.18;
+			$VatPrice25 = $excludeVatPrice25*0.25;
+			$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
+			$totalNetPrice += $excludeVatPrice0 + $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25;
+
+			$totalPriceRounded = round($totalPrice);
+			$pennys = ($totalPriceRounded - $totalPrice);
+
+			if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
+				$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
+				$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
+
+				$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (12%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice12).'
+										</p>
+									</td>
+								</tr>';
+
+			}
+			if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
+				$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
+				$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
+				$html_sum  .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (18%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice18).'
+										</p>
+									</td>
+								</tr>';
+			}
+			if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
+				$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
+				$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
+				$html_sum  .=   '<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.' (25%)
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', $VatPrice25).'
+										</p>
+									</td>
+								</tr>';
+			}
+			if (empty($excludeVatPrice25) && empty($VatPrice25) && empty($excludeVatPrice18) && empty($VatPrice18) && empty($excludeVatPrice12) && empty($VatPrice12)) {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$tax_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											0,00
+										</p>
+									</td>
+								</tr>';
+			} 
+			if (empty($totalPrice)) {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$net_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											0,00
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>0,00
+										</p>
+									</td>
+								</tr>';
+			} else {
+				$html_sum .='<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="50%" align=left valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;font-weight:600;">
+										<p class=MsoNormal align=left style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.$net_label.'
+										</p>
+									</td>
+									<td width="50%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											'.str_replace('.', ',', number_format($totalNetPrice, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$rounding_label.':&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($pennys, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>
+								<tr style="mso-yfti-irow:0;height:13.3pt">
+									<td width="30%" valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal align=left style="margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+										</p>
+									</td>
+									<td width="70%" align=right valign=top style="padding:0cm 5.4pt 0cm 5.4pt;height:13.3pt;">
+										<p class=MsoNormal style="font-family:Helvetica, Arial, sans-serif;margin-bottom:0cm;margin-bottom:.0001pt;line-height:normal">
+											<strong>'.$currency.' '.$total_label.'&nbsp;&nbsp;</strong>'.str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')).'
+										</p>
+									</td>
+								</tr>';
+			}
+
+			/*********************************************************************************************/
+			/*********************************************************************************************/
+			/**********************					MAIL BOOKING TABLE END				  ***********************/
+			/*********************************************************************************************/
+			/*********************************************************************************************/
 				
-				$organizer = new User();
-				$organizer->load($fair->get('created_by'), 'id');
+				$position_information = $pos->get('information');
+				if ($position_information == '')
+					$position_information = $this->translate->{'None specified.'};
 
-				$user = new User();
-				$user->load($ex->get('user'), 'id');
+				$position_area = $pos->get('area');
+				if ($position_area == '')
+					$position_area = $this->translate->{'None specified.'};
 
-				$fairInvoice = new FairInvoice();
-				$fairInvoice->load($pb->get('fair'), 'fair');
-
-/*********************************************************************************/
-/*********************************************************************************/
-/*****************     SENDER ADDRESS AND PAYMENT OPTIONS        *****************/
-/*********************************************************************************/
-/*********************************************************************************/
-
-
-				$sender_billing_reference = $fairInvoice->get('reference');
-				$sender_billing_company_name = $fairInvoice->get('company_name');
-				$sender_billing_address = $fairInvoice->get('address');
-				$sender_billing_zipcode = $fairInvoice->get('zipcode');
-				$sender_billing_city = $fairInvoice->get('city');
-				$sender_billing_country = $fairInvoice->get('country');
-				$sender_billing_orgnr = $fairInvoice->get('orgnr');
-				$sender_billing_phone = $fairInvoice->get('phone');
-				$sender_billing_email = $fairInvoice->get('email');
-				$sender_billing_website = $fairInvoice->get('website');
-
-
-				$rec_billing_company_name = $user->get('invoice_company');
-				$rec_billing_address = $user->get('invoice_address');
-				$rec_billing_zipcode = $user->get('invoice_zipcode');
-				$rec_billing_city = $user->get('invoice_city');
-				$rec_billing_country = $user->get('invoice_country');
-
-				if ($rec_billing_country == 'Sweden')
-					$rec_billing_country = 'Sverige';
-
-				if ($rec_billing_country == 'Norway')
-					$rec_billing_country = 'Norge';
-
-
-				$description_label = $this->translate->{'Description'};
-				$price_label = $this->translate->{'Price'};
-				$amount_label = $this->translate->{'Quantity'};
-				$booked_space_label = $this->translate->{'Booked stand'};
-				$options_label = $this->translate->{'Options'};
-				$articles_label = $this->translate->{'Articles'};
-				$tax_label = $this->translate->{'Tax'};
-				$parttotal_label = $this->translate->{'Subtotal'};
-				$net_label = $this->translate->{'Net'};
-				$rounding_label = $this->translate->{'Rounding'};
-				$to_pay_label = $this->translate->{'to pay:'};
-				$st_label = $this->translate->{'st'};
-
-
-				$current_user = new User();
-				$current_user->load($_SESSION['user_id'], 'id');
-
-
-
-/*************************************************************/
-/*************************************************************/
-/*****************     PRICES AND AMOUNTS        *****************
-/*************************************************************/
-/*************************************************************/
-
-				$fairId = $fair->get('id');
-				$fairname = $fair->get('name');
-				$fairurl = $fair->get('url');
-				$totalPrice = 0;
-				$VatPrice0 = 0;
-				$VatPrice12 = 0;
-				$VatPrice18 = 0;
-				$VatPrice25 = 0;
-				$excludeVatPrice0 = 0;
-				$excludeVatPrice12 = 0;
-				$excludeVatPrice18 = 0;
-				$excludeVatPrice25 = 0;
-				$position_vat = 0;
-				$currency = $fair->get('currency');
-				$position_name = $pos->get('name');
-				$position_price = $pos->get('price');
-				$position_vat = $fairInvoice->get('pos_vat');
-				$exhibitor_company_name = $user->get('company');
-				$exhibitor_name = $user->get('name');
-
-
-
-/*********************************************************************************************/
-/*********************************************************************************************/
-/*****************    					SET MAIL CONTENT 	  				******************/
-/*********************************************************************************************/
-/*********************************************************************************************/
-
-$html = '<style>
-* {
-	box-sizing:border-box;
-}
-hr {
-	width:690px;
-	text-align:left;
-}
-tr .normal {
-	width: 150px;
-}
-tr .normal2 {
-	width:250px;
-}
-tr .normal3 {
-	width:160px;
-}
-
-.short {
-	width: 31px;
-}
-.id {
-	width: 80px;
-}
-.name {
-	width: 300px;
-}
-.price{
-	width: 80px;
-	text-align: right;
-	padding-right: 12px;
-}
-.amount {
-	width: 100px;
-	text-align:center;
-}
-.moms {
-	width:50px;
-}
-.center {
-	text-align:center;
-}
-.left {
-	text-align:left;
-}
-.right {
-	text-align:right;
-}
-.vat {
-	width: 80px;
-	text-align: left;
-}
-.dark {
-	background-color: #D4D4D4;
-}
-.totalprice {
-	width: 445;
-	text-align: right;
-	font-size: 20px;
-}
-.totalprice2 {
-	width: 400;
-	text-align: right;
-	font-size: 20px;
-}
-.pennys {
-	width: 400;
-	text-align: right;
-	font-size: 16px;
-}
-</style>
-
-<table>
-	<thead>
-	    <tr class="dark">
-	    	<th class="id">ID</th>
-	        <th class="name">'.$description_label.'</th>
-	        <th class="price">'.$price_label.'</th>
-	        <th class="amount">'.$amount_label.'</th>
-	        <th class="moms right">'.$tax_label.'</th>
-	        <th class="price">'.$parttotal_label.'</th>
-	    </tr>
-    </thead>
-    <tbody>';
-
-$html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booked_space_label.'</b></td></tr>
-<tr>
-	<td class="id"></td>
-    <td class="name">' . $position_name . '</td>
-    <td class="price">' . $position_price . '</td>
-	<td class="amount">1 '.$st_label.'</td>
-	<td class="moms right">' . $position_vat . '%</td>
-	<td class="price right">' . number_format($position_price, 2, ',', ' ') . '</td>
-</tr>';
-
-	if ($position_vat == 25) {
-		$excludeVatPrice25 += $position_price;
-	} else if ($position_vat == 18) {
-		$excludeVatPrice18 += $position_price;
-	} else {
-		$excludeVatPrice0 += $position_price;
-	}
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$options_label.'</b></td></tr>';
-
-	for ($row=0; $row<count($options[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $options[0][$row] . '</td>
-	        <td class="name">' . $options[1][$row] . '</td>
-	        <td class="price">' . $options[2][$row] . '</td>
-	        <td class="amount">1 '.$st_label.'</td>
-	        <td class="moms right">' . $options[3][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format($options[2][$row], 2, ',', ' ')) . '</td>
-	        </tr>';
-    }
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	
-	$html .= '<tr><td></td></tr><tr><td class="id"></td><td><b>'.$articles_label.'</b></td></tr>';
-	for ($row=0; $row<count($articles[1]); $row++) {
-	    $html .= '<tr>
-	    	<td class="id">' . $articles[0][$row] . '</td>
-	        <td class="name">' . $articles[1][$row] . '</td>
-	        <td class="price">' . str_replace('.', ',', $articles[2][$row]) . '</td>
-	        <td class="amount center">' . $articles[3][$row] . ' '.$st_label.'</td>
-	        <td class="moms right">' . $articles[4][$row] . '%</td>
-	        <td class="price right">' . str_replace('.', ',', number_format(($articles[2][$row] * $articles[3][$row]), 2, ',', ' ')) . '</td>
-	        </tr>';
-	        $articles[2][$row] = str_replace(',', '.', $articles[2][$row]);
-    }
-}
-
-
-if (!empty($_POST['options']) && is_array($_POST['options'])) {
-	for ($row=0; $row<count($options[1]); $row++) {
-
-		if ($options[3][$row] == 25) {
-			$excludeVatPrice25 += $options[2][$row];
-		}
-		if ($options[3][$row] == 18) {
-			$excludeVatPrice18 += $options[2][$row];
-		}
-		if ($options[3][$row] == 12) {
-			$excludeVatPrice12 += $options[2][$row];
-		}
-		if ($options[3][$row] == 0) {
-			$excludeVatPrice0 += $options[2][$row];
-		}
-	}
-}
-
-if (!empty($_POST['articles']) && is_array($_POST['articles'])) {
-	for ($row=0; $row<count($articles[1]); $row++) {
-
-		if ($articles[4][$row] == 25) {
-			$excludeVatPrice25 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 18) {
-			$excludeVatPrice18 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 12) {
-			$excludeVatPrice12 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}
-		if ($articles[4][$row] == 0) {
-			$excludeVatPrice0 += (($articles[3][$row]>=0?$articles[3][$row]:0) * $articles[2][$row]);
-		}		
-	}
-}
-
-$VatPrice0 = $excludeVatPrice0;
-$VatPrice12 = $excludeVatPrice12*0.12;
-$VatPrice18 = $excludeVatPrice18*0.18;
-$VatPrice25 = $excludeVatPrice25*0.25;
-$totalPrice += $excludeVatPrice12 + $excludeVatPrice18 + $excludeVatPrice25 + $VatPrice12 + $VatPrice18 + $VatPrice25 + $VatPrice0;
-
-$totalPriceRounded = round($totalPrice);
-$pennys = ($totalPriceRounded - $totalPrice);
-
-$html .= '
-	<hr>
-	<br />
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice"></td>
-	</tr>	
-	<tr>
-		<td class="vat">'.$net_label.'</td>
-		<td class="vat">'.$tax_label.' %</td>
-		<td class="vat">'.$tax_label.':</td>
-		<td class="totalprice"></td>
-	</tr>';
-
-if (!empty($excludeVatPrice0) && !empty($VatPrice0)) {
-	$excludeVatPrice0 = number_format($excludeVatPrice0, 2, ',', ' ');
-	$VatPrice0 = number_format($VatPrice0, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice0) . '</td>
-		<td class="vat">0,00</td>
-		<td class="vat">0,00</td>
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice12) && !empty($VatPrice12)) {
-	$excludeVatPrice12 = number_format($excludeVatPrice12, 2, ',', ' ');
-	$VatPrice12 = number_format($VatPrice12, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice12) . '</td>
-		<td class="vat">12,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice12) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice18) && !empty($VatPrice18)) {
-	$excludeVatPrice18 = number_format($excludeVatPrice18, 2, ',', ' ');
-	$VatPrice18 = number_format($VatPrice18, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice18) . '</td>
-		<td class="vat">18,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice18) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-
-if (!empty($excludeVatPrice25) && !empty($VatPrice25)) {
-	$excludeVatPrice25 = number_format($excludeVatPrice25, 2, ',', ' ');
-	$VatPrice25 = number_format($VatPrice25, 2, ',', ' ');
-$html .= '<tr>
-		<td class="vat">' . str_replace('.', ',', $excludeVatPrice25) . '</td>
-		<td class="vat">25,00</td>
-		<td class="vat">' . str_replace('.', ',', $VatPrice25) . '</td>	
-		<td class="totalprice"></td>
-	</tr>';
-}
-$html .= '
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="pennys">'.$rounding_label.':&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($pennys, 2, ',', ' ')) . 
-		'</td>
-	</tr>
-	<tr>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="vat"></td>
-		<td class="totalprice2">'.$currency.' '.$to_pay_label.'&nbsp;&nbsp;'
-		. str_replace('.', ',', number_format($totalPriceRounded, 2, ',', ' ')) . 
-		'</td>
-	</tr>';
-
-
-
-$html .= '</tbody></table>';
-
-$arranger_message = $_POST['arranger_message'];
-if ($arranger_message == '') {
-	$arranger_message = $this->translate->{'No message was given.'};
-}
-$exhibitor_commodity = $_POST['commodity'];
-if ($exhibitor_commodity == '') {
-	$exhibitor_commodity = $this->translate->{'No commodity was entered.'};
-}
+				$arranger_message = $_POST['arranger_message'];
+				if ($arranger_message == '')
+					$arranger_message = $this->translate->{'No message was given.'};
+				
+				$exhibitor_commodity = $_POST['commodity'];
+				if ($exhibitor_commodity == '')
+					$exhibitor_commodity = $this->translate->{'No commodity was entered.'};
 
 
 				//Check mail settings and send only if setting is set
 				if ($fair->wasLoaded()) {
 					$mailSettings = json_decode($fair->get("mail_settings"));
-					if (is_array($mailSettings->acceptPreliminaryBooking)) {
+					if (isset($mailSettings->acceptPreliminaryBooking) && is_array($mailSettings->acceptPreliminaryBooking)) {
 						$previous_status = posStatusToText($previous_status);
 						$status = posStatusToText($status);
+						$errors = array();
+						$mail_errors = array();
+						$email = $fair->get("url") . EMAIL_FROM_DOMAIN;
+						$from = array($email => $fair->get("windowtitle"));
+
+						if($fair->get('contact_name')) {
+							$from = array($email => $fair->get('contact_name'));
+						}
 
 						if (in_array("0", $mailSettings->acceptPreliminaryBooking)) {
-							$mail_organizer = new Mail($organizer->get('email'), 'reservation_approved_confirm', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
-							$mail_organizer->setMailVar('previous_status', $previous_status);
-							$mail_organizer->setMailVar('booking_table', $html);
-							$mail_organizer->setMailVar('status', $status);
-							$mail_organizer->setMailVar('date_expires', $_POST['expires']);
-							$mail_organizer->setMailVar('company_name', $user->get('company'));
-							$mail_organizer->setMailvar("exhibitor_name", $user->get("name"));
-							$mail_organizer->setMailvar("event_name", $fair->get("name"));
-							$mail_organizer->setMailVar('position_name', $pos->get('name'));
-							$mail_organizer->setMailVar("booking_time", date('d-m-Y H:i:s', intval($booking_time)));
-							$mail_organizer->setMailVar("url", BASE_URL . $fair->get("url"));
-							$mail_organizer->setMailVar('position_information', $pos->get('information'));
-							$mail_organizer->setMailVar('position_area', $pos->get('area'));
-							$mail_organizer->setMailVar('arranger_message', $arranger_message);
-							$mail_organizer->setMailVar('exhibitor_commodity', $exhibitor_commodity);
-							$mail_organizer->setMailVar('exhibitor_category', $categories);
-							$mail_organizer->setMailVar('exhibitor_options', $options);
-							$mail_organizer->setMailVar('edit_time', $time_now);
-							$mail_organizer->send();
-						}
+							try {
+								if ($organizer->get('contact_email') == '')
+									$recipients = array($organizer->get('email') => $organizer->get('company'));
+								else
+									$recipients = array($organizer->get('contact_email') => $organizer->get('name'));
+
+								$mail_organizer = new Mail();
+								$mail_organizer->setTemplate('preliminary_approved_confirm');
+								$mail_organizer->setPlainTemplate('preliminary_approved_confirm');
+								$mail_organizer->setFrom($from);
+								$mail_organizer->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+								$mail_organizer->setRecipients($recipients);
+									$mail_organizer->setMailVar('booking_table', $html);
+									$mail_organizer->setMailVar('booking_sum', $html_sum);
+									$mail_organizer->setMailVar('exhibitor_company_name', $user->get('company'));
+									$mail_organizer->setMailvar('exhibitor_name', $user->get('name'));
+									$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
+									$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
+									$mail_organizer->setMailVar('position_name', $pos->get('name'));
+									$mail_organizer->setMailVar('position_information', $position_information);
+									$mail_organizer->setMailVar('position_area', $position_area);
+									$mail_organizer->setMailVar('arranger_message', $arranger_message);
+									$mail_organizer->setMailVar('commodity', $exhibitor_commodity);
+									$mail_organizer->setMailVar('html_categories', $htmlcategoryNames);
+									$mail_organizer->setMailVar('expirationdate', $_POST['expires']);
+							
+									if(!$mail_organizer->send()) {
+										$errors[] = $organizer->get('company');
+									}
+
+								} catch(Swift_RfcComplianceException $ex) {
+									// Felaktig epost-adress
+									$errors[] = $organizer->get('company');
+									$mail_errors[] = $ex->getMessage();
+
+								} catch(Exception $ex) {
+									// Okänt fel
+									$errors[] = $organizer->get('company');
+									$mail_errors[] = $ex->getMessage();
+								}
+							}
 						if (in_array("1", $mailSettings->acceptPreliminaryBooking)) {
-							$mail_user = new Mail($user->get('email'), 'reservation_approved_receipt', $fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get("name"));
-							$mail_user->setMailVar('previous_status', $previous_status);
-							$mail_user->setMailVar('booking_table', $html);
-							$mail_user->setMailVar('status', $status);
-							$mail_user->setMailVar('date_expires', $_POST['expires']);
-							$mail_user->setMailVar('company_name', $user->get('company'));
-							$mail_user->setMailvar("exhibitor_name", $user->get("name"));
-							$mail_user->setMailvar("event_name", $fair->get("name"));
-							$mail_user->setMailVar('event_email', $fair->get('contact_email'));
-							$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
-							$mail_user->setMailVar('event_website', $fair->get('website'));
-							$mail_user->setMailVar('position_name', $pos->get('name'));
-							$mail_user->setMailVar("booking_time", date('d-m-Y H:i:s', intval($booking_time)));
-							$mail_user->setMailVar("url", BASE_URL . $fair->get("url"));
-							$mail_user->setMailVar('position_information', $pos->get('information'));
-							$mail_user->setMailVar('position_area', $pos->get('area'));
-							$mail_user->setMailVar('arranger_message', $arranger_message);
-							$mail_user->setMailVar('exhibitor_commodity', $exhibitor_commodity);
-							$mail_user->setMailVar('exhibitor_category', $categories);
-							$mail_user->setMailVar('exhibitor_options', $options);
-							$mail_user->setMailVar('edit_time', $time_now);
-							$mail_user->send();
+							try {
+								if ($user->get('contact_email') == '')
+									$recipients = array($user->get('email') => $user->get('company'));
+								else
+									$recipients = array($user->get('contact_email') => $user->get('name'));
+
+								$mail_user = new Mail();
+								$mail_user->setTemplate('preliminary_approved_receipt');
+								$mail_user->setPlainTemplate('preliminary_approved_receipt');
+								$mail_user->setFrom($from);
+								$mail_user->addReplyTo($fair->get('windowtitle'), $fair->get('contact_email'));
+								$mail_user->setRecipients($recipients);
+									$mail_user->setMailVar('booking_table', $html);
+									$mail_user->setMailVar('booking_sum', $html_sum);
+									$mail_user->setMailVar('exhibitor_company_name', $user->get('company'));
+									$mail_user->setMailvar('exhibitor_name', $user->get('name'));
+									$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
+									$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
+									$mail_user->setMailVar('event_email', $fair->get('contact_email'));
+									$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
+									$mail_user->setMailVar('event_website', $fair->get('website'));
+									$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
+									$mail_user->setMailVar('position_name', $pos->get('name'));
+									$mail_user->setMailVar('position_information', $position_information);
+									$mail_user->setMailVar('position_area', $position_area);
+									$mail_user->setMailVar('arranger_message', $arranger_message);
+									$mail_user->setMailVar('commodity', $exhibitor_commodity);
+									$mail_user->setMailVar('html_categories', $htmlcategoryNames);
+									$mail_user->setMailVar('expirationdate', $_POST['expires']);
+
+								if(!$mail_user->send()) {
+									$errors[] = $user->get('company');
+								}
+
+							} catch(Swift_RfcComplianceException $ex) {
+								// Felaktig epost-adress
+								$errors[] = $user->get('company');
+								$mail_errors[] = $ex->getMessage();
+
+							} catch(Exception $ex) {
+								// Okänt fel
+								$errors[] = $user->get('company');
+								$mail_errors[] = $ex->getMessage();
+							}
+						}
+						if ($errors) {
+							$_SESSION['mail_errors'] = $mail_errors;
+						}
+					}
 				}
+			} else {
+				$this->setNoTranslate('event_locked', true);
 			}
 		}
-	}
 
 		header('Location: '.BASE_URL.'administrator/newReservations');
 		exit;

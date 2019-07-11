@@ -1,14 +1,14 @@
 <?php
-define('APP_VERSION', '2.3.8');
+define('APP_VERSION', '3.0.5');
 
 //Display errors in dev mode
 function setReporting() {
 	if (DEV == true) {
 		error_reporting(E_ALL);
-		ini_set('display_errors', 'off');
+		ini_set('display_errors','true');
 	} else {
 		error_reporting(0);
-		ini_set('display_errors', 'false');
+		ini_set('display_errors','false');
 	}
 }
 
@@ -66,28 +66,31 @@ function callHook() {
 	// Make sure that signed in users can't use the system without terms approval!
 
 	if (isset($_SESSION['user_id'])) {
-/*		$me = new User;
-		$me->load($_SESSION['user_id'], 'id');
-		if ($me->get('last_login') != 0) {*/
-
-/*		if (!isset($_SESSION['user_terms_approved'])) {
-			header('Location: ' . BASE_URL . 'user/logout');
-			exit;
-		}*/
-
-		if (!isset($_SESSION['user_terms_approved'])) {
+		$me = new User;
+		$me->load2($_SESSION['user_id'], 'id');
+		if (!$_SESSION['user_terms_approved']) {
 			$url = $urlArray[0] . '/' . $action;
 			// Whitelist URLs that can be accessed without approved terms
-			if (!in_array($url, array('user/terms', 'translate/language', 'user/confirm/*/*'))) {
+			if (!in_array($url, array('user/terms', 'translate/language', 'user/confirm/*/*', 'user/logout'))) {
 				header('Location: ' . BASE_URL . 'user/terms?next=' . $url);
 				exit;
 			}
 		}
+
+		if ($me->get('level') == 3 && !$_SESSION['user_pub_approved'] && $_SESSION['user_terms_approved']) {
+			$url = $urlArray[0] . '/' . $action;
+			// Whitelist URLs that can be accessed without approved terms
+			if (!in_array($url, array('user/pub', 'translate/language', 'user/confirm/*/*', 'user/logout'))) {
+				header('Location: ' . BASE_URL . 'user/pub?next=' . $url);
+				exit;
+			}
+		}
 	}
+
+
 //}
 
 	$dispatch = new $controller($model, $controllerName, $action);
-
 	if (isset($countView)) {
 		$stmt = $dispatch->db->prepare("UPDATE fair SET page_views = `page_views`+1 WHERE url = ?");
 		$stmt->execute(array(strtolower($urlArray[2])));
@@ -103,7 +106,7 @@ function callHook() {
 }
 
 //Autoload any classes that are required
-function __autoload($className) {
+function cb_autoload($className) {
 	if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
 		require_once(ROOT.'lib/classes/'.$className.'.php');
 		return true;
@@ -118,11 +121,10 @@ function __autoload($className) {
 	
 	}
   
-  // This is the else without the else, but works exactly as else
-  error_log("Class not found: ".$className);
-  //throw new Exception("500");
   return false;
 }
+
+spl_autoload_register( 'cb_autoload' );
 
 $lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
 define('LANGUAGE', $lang);
@@ -131,7 +133,7 @@ $translator = new Translator($lang);
 $globalDB = new Database;
 global $globalDB;
 
-define('TIMEZONE', 'GMT' . getGMToffset());
+define('TIMEZONE', 'GMT+1');
 if (!defined("ENT_HTML5")) {
 	define("ENT_HTML5", 48);
 }

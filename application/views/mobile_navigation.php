@@ -14,13 +14,13 @@
 						<li><a href="exhibitor/forFair"><?php echo uh($translator->{'Exhibitors'}); ?></a></li>
 						<li><a href="comment"><?php echo uh($translator->{'Notes'}); ?></a></li>
 						<li><a href="administrator/newReservations"><?php echo uh($translator->{'New reservations'}); ?></a></li>
-						<?php if(isset($faircurrency) && isset($invoiceMod) && $invoiceMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($invoiceMod) && $invoiceMod === 'active') { ?>
 						<li><a href="administrator/invoices"><?php echo uh($translator->{'Invoices'}); ?></a></li>
 						<?php } ?>
-						<?php if(isset($faircurrency) && isset($raindanceMod) && $raindanceMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($raindanceMod) && $raindanceMod === 'active') { ?>
 						<!--<li><a href="fair/exportToRainDance/<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($translator->{'Export to RainDance'}); ?></a></li>-->
 						<?php } ?>
-						<?php if(isset($faircurrency) && isset($economyMod) && $economyMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($economyMod) && $economyMod === 'active') { ?>
 						<li><a href="fair/economy/<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($translator->{'Economy'}); ?></a></li>
 						<?php } ?>
 						<li><a href="user/logout"><?php echo uh($translator->{'Log out'}); ?></a></li>
@@ -77,13 +77,13 @@
 						<li><a href="comment"><?php echo uh($translator->{'Notes'}); ?></a></li>
 						<li><a href="administrator/newReservations"><?php echo uh($translator->{'New reservations'}); ?></a></li>
 						<li><a href="sms"><?php echo uh($translator->{'SMS'}); ?></a></li>
-						<?php if(isset($faircurrency) && isset($invoiceMod) && $invoiceMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($invoiceMod) && $invoiceMod === 'active') { ?>
 						<li><a href="administrator/invoices"><?php echo uh($translator->{'Invoices'}); ?></a></li>
 						<?php } ?>
-						<?php if(isset($faircurrency) && isset($raindanceMod) && $raindanceMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($raindanceMod) && $raindanceMod === 'active') { ?>
 						<!--<li><a href="fair/exportToRainDance/<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($translator->{'Export to RainDance'}); ?></a></li>-->
 						<?php } ?>
-						<?php if(isset($faircurrency) && isset($economyMod) && $economyMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($economyMod) && $economyMod === 'active') { ?>
 						<li><a href="fair/economy/<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($translator->{'Economy'}); ?></a></li>
 						<?php } ?>
 						<li><a href="user/changePassword"><?php echo uh($translator->{'Change password'}); ?></a></li>
@@ -125,13 +125,13 @@
 						<li><a href="user/accountSettings"><?php echo uh($translator->{'My account'}); ?></a>
 						<li><a href="administrator/newReservations"><?php echo uh($translator->{'New reservations'}); ?></a></li>
 						<li><a href="sms"><?php echo uh($translator->{'SMS'}); ?></a></li>
-						<?php if(isset($faircurrency) && isset($invoiceMod) && $invoiceMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($invoiceMod) && $invoiceMod === 'active') { ?>
 						<li><a href="administrator/invoices"><?php echo uh($translator->{'Invoices'}); ?></a></li>
 						<?php } ?>
-						<?php if(isset($faircurrency) && isset($raindanceMod) && $raindanceMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($raindanceMod) && $raindanceMod === 'active') { ?>
 						<!--<li><a href="fair/exportToRainDance/<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($translator->{'Export to RainDance'}); ?></a></li>-->
 						<?php } ?>
-						<?php if(isset($faircurrency) && isset($economyMod) && $economyMod === 'active') {?>
+						<?php if(isset($fairmodulesettings) && isset($economyMod) && $economyMod === 'active') { ?>
 						<li><a href="fair/economy/<?php echo $_SESSION['user_fair']; ?>"><?php echo uh($translator->{'Economy'}); ?></a></li>
 						<?php } ?>
 						<li><a href="exhibitor/forFair"><?php echo uh($translator->{'Exhibitors'}); ?></a></li>

@@ -297,7 +297,7 @@ class CommentController extends Controller {
 				$this->createJsonResponse();
 			}
 
-			$this->set('error', $ex->getMessage());
+			$this->setNoTranslate('error', $ex->getMessage());
 			$this->setNoTranslate('code', $ex->getCode());
 		}
 	}
@@ -386,7 +386,7 @@ class CommentController extends Controller {
 			} catch (Exception $ex) {
 				if ($this->is_ajax) {
 					$this->createJsonResponse();
-					$this->set('error', $ex->getMessage());
+					$this->setNoTranslate('error', $ex->getMessage());
 					$this->setNoTranslate('code', $ex->getCode());
 				} else {
 					throw $ex;
@@ -420,7 +420,7 @@ class CommentController extends Controller {
 			} catch (Exception $ex) {
 				if ($this->is_ajax) {
 					$this->createJsonResponse();
-					$this->set('error', $ex->getMessage());
+					$this->setNoTranslate('error', $ex->getMessage());
 					$this->setNoTranslate('code', $ex->getCode());
 				} else {
 					throw $ex;

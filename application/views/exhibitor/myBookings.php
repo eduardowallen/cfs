@@ -12,7 +12,6 @@ $general_column_info = array(
 		'country' => $translator->{'Country'},
 		'phone1' => $translator->{'Phone 1'},
 		'phone2' => $translator->{'Phone 2'},
-		'fax' => $translator->{'Fax number'},
 		'email' => $translator->{'E-mail'},
 		'website' => $translator->{'Website'}
 	),
@@ -206,9 +205,14 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 		delregistrations: <?php echo json_encode($fair_registrations_deleted_columns); ?>,
 
 	};
+ $body = $("body");
+$(document).on({
+    ajaxStart: function() { $body.addClass("loading");    },
+     ajaxStop: function() { $body.removeClass("loading"); }
+});
 </script>
 
-<div id="review_prel_dialogue" style="padding:0 2.5em 0.833em 2.5em" class="dialogue">
+<div id="review_prel_dialogue" style="padding:0 2.5em 0.833em 2.5em" class="dialogue popup">
 	<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin-top: -3.7em; margin-right: -0.5em;"/>
 	<h3 class="review standSpaceName" style="padding-bottom:0.416em;"></h3>
 	<br />
@@ -312,7 +316,8 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 		<form action="administrator/exportNewReservations/1" method="post">
 			<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 			<div class="floatright right">
-				<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="booked"></button>
+				<!--<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="booked"></button>-->
+				<button type="submit" class="greenbutton mediumbutton zip-invoices" title="<?php echo uh($translator->{'Export checked invoices and download as zip'}); ?>" data-for="booked"><?php echo uh($translator->{'Download checked invoices'}); ?></button>
 			</div>
 
 			<table class="std_table use-scrolltable" id="booked">
@@ -324,6 +329,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 						<th class="left"><?php echo $tr_field; ?></th>
 						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
 						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
+						<th><?php echo $tr_invoicestatus; ?></th>
 						<th data-sorter="false"><?php echo $tr_view; ?></th>
 						<th class="last" data-sorter="false">
 							<input type="checkbox" id="check-all-bookings" class="check-all" data-group="rows-1" />
@@ -365,12 +371,36 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 						<td class="left open-view-this-preliminary"><?php echo $pos['commodity']; ?></td>
 						<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
 						<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
+<?php
+$replace_chars = array(
+	'/' => '-',
+	"'" => '\u0027',
+	'"' => '&quot;',
+	':' => '_'
+);
+$replace_chars2 = array(
+	"'" => '\u0027',
+	'"' => '&quot;',
+);
+$r_name = strtr($pos['invoicecompany'], $replace_chars);
+$posname = strtr($pos['invoiceposname'], $replace_chars);
+?>
+						<td>
+							<?php if ($pos['invoiceid']) { ?>
+							<p class="nomargin" style="font-size:0.8em;"><?php echo $pos['invoiceid']; ?></p>
+							<a href="<?php echo BASE_URL.'invoices/fairs/'.$pos['fair'].'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
+								<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" />
+							</a>
+							<?php } else { ?>
+							-
+							<?php } ?>
+						</td>
 						<td class="center">
 							<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 							</a>
 						</td>
-						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['invoiceid']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$pos['fair'].'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach; ?>
 				</tbody>
@@ -389,12 +419,13 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 
 		<div id="reserved" style="display:none" class="tab-div tab-div-hidden">
 
-			<?php if(count($rpositions) > 0){?>
+			<?php if(count($rpositions) > 0){ ?>
 
 			<form action="administrator/exportNewReservations/2" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 				<div class="floatright right">
-					<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="reserved"></button>
+					<!--<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="reserved"></button>-->
+					<button type="submit" class="greenbutton mediumbutton zip-invoices" title="<?php echo uh($translator->{'Export checked invoices and download as zip'}); ?>" data-for="reserved"><?php echo uh($translator->{'Download checked invoices'}); ?></button>
 				</div>
 
 				<table class="std_table use-scrolltable" id="reserved">
@@ -407,6 +438,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<!--<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>-->
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_reserved_until; ?></th>
+							<th><?php echo $tr_invoicestatus; ?></th>
 							<th data-sorter="false"><?php echo $tr_view; ?></th>
 							<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-reserved" class="check-all" data-group="rows-2" />
@@ -449,13 +481,37 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<td class="left open-view-this-preliminary"><?php echo $pos['commodity']; ?></td>
 							<!--<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>-->
 							<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
-							<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>					
+							<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>
+<?php
+$replace_chars = array(
+	'/' => '-',
+	"'" => '\u0027',
+	'"' => '&quot;',
+	':' => '_'
+);
+$replace_chars2 = array(
+	"'" => '\u0027',
+	'"' => '&quot;',
+);
+$r_name = strtr($pos['invoicecompany'], $replace_chars);
+$posname = strtr($pos['invoiceposname'], $replace_chars);
+?>
+							<td>
+								<?php if ($pos['invoiceid']) { ?>
+								<p class="nomargin" style="font-size:0.8em;"><?php echo $pos['invoiceid']; ?></p>
+								<a href="<?php echo BASE_URL.'invoices/fairs/'.$pos['fair'].'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
+									<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" />
+								</a>
+								<?php } else { ?>
+								-
+								<?php } ?>
+							</td>
 							<td class="center">
 								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 								</a>
 							</td>
-							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-2" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['invoiceid']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$pos['fair'].'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-2" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 						</tr>
 					<?php endforeach; ?>
 					</tbody>
@@ -474,12 +530,12 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 
 		<div id="reserved_cloned" style="display:none" class="tab-div tab-div-hidden">
 
-			<?php if(count($rcpositions) > 0){?>
+			<?php if(count($rcpositions) > 0){ ?>
 
 			<form action="administrator/exportNewReservations/8" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 				<div class="floatright right">
-					<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="reserved_cloned"></button>
+					<!--<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="reserved_cloned"></button>-->
 				</div>
 
 				<table class="std_table use-scrolltable" id="reserved_cloned">
@@ -494,10 +550,10 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<th data-sorter="false"><?php echo $tr_view; ?></th>
 							<th data-sorter="false"><?php echo $tr_confirm_reservation; ?></th>
 							<th data-sorter="false"><?php echo $tr_deny_reservation; ?></th>
-							<th class="last" data-sorter="false">
+							<!--<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-reserved_cloned" class="check-all" data-group="rows-8" />
 								<label class="squaredFour" for="check-all-reserved_cloned" />
-							</th>
+							</th>-->
 						</tr>
 					</thead>
 					<tbody>
@@ -551,7 +607,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img" />
 								</a>
 							</td>
-							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-8" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+							<!--<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-8" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>-->
 						</tr>
 					<?php endforeach; ?>
 					</tbody>
@@ -574,7 +630,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 			<form action="administrator/exportNewReservations/3" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 				<div class="floatright right">
-					<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="prem"></button>
+					<!--<button type="submit" class="open-excel-export" title="<?php echo uh($export); ?>" name="export_excel" data-for="prem"></button>-->
 				</div>
 
 				<table class="std_table use-scrolltable" id="prem">
@@ -587,10 +643,10 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
 							<th data-sorter="false"><?php echo $tr_view; ?></th>
 							<th data-sorter="false"><?php echo $tr_delete; ?></th>
-							<th class="last" data-sorter="false">
+							<!--<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-preliminary" class="check-all" data-group="rows-3" />
 								<label class="squaredFour" for="check-all-preliminary" />
-							</th>
+							</th>-->
 						</tr>
 					</thead>
 					<tbody>
@@ -637,7 +693,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 									<img src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img deleteimg" alt="<?php echo $tr_delete; ?>" />
 								</a>
 							</td>
-							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-3" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+							<!--<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-3" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>-->
 						</tr>
 					<?php endforeach;?>
 					</tbody>
@@ -660,7 +716,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 			<form action="administrator/exportNewReservations/6" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 				<div class="floatright right">
-					<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="delprem"></button>
+					<!--<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="delprem"></button>-->
 				</div>
 
 				<table class="std_table use-scrolltable" id="delprem">
@@ -671,10 +727,11 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<th><?php echo $tr_area; ?></th>
 							<th class="left"><?php echo $tr_field; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
-							<th class="last" data-sorter="false">
+							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_deletiontime; ?></th>
+							<!--<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-preliminary-deleted" class="check-all" data-group="rows-6" />
 								<label class="squaredFour" for="check-all-preliminary-deleted" />
-							</th>
+							</th>-->
 						</tr>
 					</thead>
 					<tbody>
@@ -706,8 +763,9 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<td class="left open-view-this-preliminary"><?php echo $pos['name'];?></td>
 							<td class="center open-view-this-preliminary"><?php echo $pos['area']; ?></td>
 							<td class="left open-view-this-preliminary"><?php echo $pos['commodity']; ?></td>
-							<td class="center"><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
-							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-6" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+							<td class="center"><?php echo printTime($pos['booking_time']); ?></td>
+							<td class="center"><?php echo printTime($pos['deletion_time']); ?></td>
+							<!--<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-6" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>-->
 					<?php endforeach;?>
 					</tbody>
 				</table>
@@ -729,7 +787,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 			<form action="administrator/exportNewReservations/7" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 				<div class="floatright right">
-					<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="delbookings"></button>
+					<!--<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="delbookings"></button>-->
 				</div>
 
 				<table class="std_table use-scrolltable" id="delbookings">
@@ -740,11 +798,11 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<th><?php echo $tr_area; ?></th>
 							<th class="left"><?php echo $tr_field; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
-							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
-							<th class="last" data-sorter="false">
+							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_deletiontime; ?></th>
+							<!--<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-bookings-deleted" class="check-all" data-group="rows-7" />
 								<label class="squaredFour" for="check-all-bookings-deleted" />
-							</th>
+							</th>-->
 						</tr>
 					</thead>
 					<tbody>
@@ -760,6 +818,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							data-articleprice="<?php echo uh($pos['articleprice']); ?>"
 							data-articlevat="<?php echo uh($pos['articlevat']); ?>"							
 							data-articleamount="<?php echo uh($pos['articleamount']); ?>"
+							data-posstatus="<?php if ($pos['status']) { echo uh($pos['status']); } else {echo uh('0'); } ?>"
 							data-posname="<?php echo uh($pos['name']); ?>"
 							data-posprice="<?php echo uh($pos['price']); ?>"
 							data-posinfo="<?php echo uh($pos['information']); ?>"
@@ -773,9 +832,9 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<td class="left open-view-this-preliminary"><?php echo $pos['name']; ?></td>
 							<td class="center open-view-this-preliminary"><?php echo $pos['area']; ?></td>
 							<td class="left open-view-this-preliminary"><?php echo $pos['commodity']; ?></td>
-							<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
-							<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
-							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-7" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
+							<td class="center"><?php echo printTime($pos['booking_time']); ?></td>
+							<td class="center"><?php echo printTime($pos['deletion_time']); ?></td>
+							<!--<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['id']; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-7" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>-->
 						</tr>
 					<?php endforeach; ?>
 					</tbody>
@@ -799,7 +858,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 			<form action="administrator/exportNewReservations/5" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 				<div class="floatright right">
-					<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="fair_registrations"></button>
+					<!--<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="fair_registrations"></button>-->
 				</div>
 
 				<table class="std_table use-scrolltable" id="fair_registrations">
@@ -810,10 +869,10 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<th class="left"><?php echo $tr_field; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
 							<th data-sorter="false"><?php echo $tr_delete; ?></th>
-							<th class"last" data-sorter="false">
+							<!--<th class"last" data-sorter="false">
 								<input type="checkbox" id="check-all-registrations" class="check-all" data-group="rows-5" />
 								<label class="squaredFour" for="check-all-registrations" />
-							</th>
+							</th>-->
 						</tr>
 					</thead>
 					<tbody>
@@ -845,7 +904,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 									<img src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img deleteimg" alt="<?php echo $tr_delete; ?>" />
 								</a>
 							</td>
-							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $registration['id']; ?>" data-userid="<?php echo $registration['user']; ?>" class="rows-5" /><label class="squaredFour" for="<?php echo $registration['id']; ?>" /></td>
+							<!--<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $registration['id']; ?>" data-userid="<?php echo $registration['user']; ?>" class="rows-5" /><label class="squaredFour" for="<?php echo $registration['id']; ?>" /></td>-->
 						</tr>
 		<?php	endforeach; ?>
 					</tbody>
@@ -866,7 +925,7 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 			<form action="administrator/exportNewReservations/9" method="post">
 				<h2 class="tblsite" style="display:inline;"><?php echo $search; ?>&nbsp; </h2>
 				<div class="floatright right">
-					<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="fair_registrations_deleted"></button>
+					<!--<button type="submit" class="open-excel-export" name="export_excel" title="<?php echo uh($export); ?>" data-for="fair_registrations_deleted"></button>-->
 				</div>
 
 				<table class="std_table use-scrolltable" id="fair_registrations_deleted">
@@ -876,10 +935,11 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<th><?php echo $tr_area; ?></th>
 							<th class="left"><?php echo $tr_field; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
-							<th class"last" data-sorter="false">
+							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_deletiontime; ?></th>
+							<!--<th class"last" data-sorter="false">
 								<input type="checkbox" id="check-all-registrations_deleted" class="check-all" data-group="rows-9" />
 								<label class="squaredFour" for="check-all-registrations_deleted" />
-							</th>
+							</th>-->
 						</tr>
 					</thead>
 					<tbody>
@@ -905,8 +965,9 @@ $reserved_cloned_columns = array_merge($reserved_cloned_columns, $general_column
 							<td class="center open-view-this-preliminary"><?php echo uh($registration['fairname']); ?></td>
 							<td class="center open-view-this-preliminary"><?php echo uh($registration['area']); ?></td>
 							<td class="left open-view-this-preliminary"><?php echo uh($registration['commodity']); ?></td>
-							<td class="center"><?php echo date('d-m-Y H:i', $registration['booking_time']); ?></td>
-							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $registration['id']; ?>" data-userid="<?php echo $registration['user']; ?>" class="rows-9" /><label class="squaredFour" for="<?php echo $registration['id']; ?>" /></td>
+							<td class="center"><?php echo printTime($registration['booking_time']); ?></td>
+							<td class="center"><?php echo printTime($registration['deletion_time']); ?></td>
+							<!--<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $registration['id']; ?>" data-userid="<?php echo $registration['user']; ?>" class="rows-9" /><label class="squaredFour" for="<?php echo $registration['id']; ?>" /></td>-->
 						</tr>
 		<?php	endforeach; ?>
 					</tbody>

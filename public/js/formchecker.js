@@ -12,7 +12,12 @@ function noWhiteSpaces() {
 	if(!/[0-9a-zA-Z-]/.test(String.fromCharCode(e.which)))
 	return false;
 }
-
+/*
+function forceLower(string) 
+{
+return string.value.toLowerCase();
+}​
+*/
 function removeSpaces(string) {
  return string.split(' ').join('');
 }
@@ -109,6 +114,7 @@ $("#position_price_input").poshytip({
 		input.removeClass('input_error');
 		input.addClass('input_ok');
 		input.data('valid', true);
+		input.val($(this).val().toLowerCase());
 
 		if (typeof aliasTimer !== "undefined") {
 			window.clearTimeout(aliasTimer);

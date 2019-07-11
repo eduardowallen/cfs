@@ -37,13 +37,13 @@ function reservePopup($row, link, action) {
 	var formId = "reserve_position_form";
 	var form = $('#' + formId);
 	dialogue = '#reserve_position_form ';
-	$('#' + formId + ' ul#progressbar li').removeClass('active');
+	$('#' + formId + ' ul.progressbar li').removeClass('active');
 	$('#' + formId + ' fieldset').css({
 		'transform': 'scale(1)',
 		'display': 'none',
 		'opacity': '0',
 	});
-	$('#' + formId + ' ul#progressbar li:first-child').attr('class', 'active');
+	$('#' + formId + ' ul.progressbar li:first-child').attr('class', 'active');
 	$('#' + formId + ' fieldset:first-of-type').css({
 		'transform': 'scale(1)',
 		'display': 'block',
@@ -53,18 +53,11 @@ function reservePopup($row, link, action) {
 	$('#reserve_category_scrollbox > tbody > tr > td > input').prop('checked', false);
 	$('#reserve_option_scrollbox > tbody > tr > td > input').prop('checked', false);
 	$('#reserve_article_scrollbox > tbody > tr > td > div > input').val(0);
+	getDefaultReservationDate();
 	openForm('reserve_position_form');
 	$('.confirm, .edit', form).hide();
 	$('.' + action, form).show();
 	positionDialogue('reserve_position_form');
-	$(".cancelbutton").click(function() {
-		closeForm();
-		closeDialogue();
-	});
-	$(".closeDialogue").click(function() {
-		closeDialogue();
-		closeForm();
-	});	
 	form.css('display', 'block');
 	$('#overlay').show();
 
@@ -136,7 +129,55 @@ function reservePopup($row, link, action) {
 	  }
 	});
 
-	$('#reserve_review').click(function(e) {
+	$('.reserve_review').click(function(e) {
+		review($row, 'reserve');
+	});
+	
+	$('form').submit(function(e) {
+		$("#reserve_expires_input").removeClass("input_ok");
+		$("#reserve_expires_input").removeClass("input_error");
+		if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
+			var dateParts = $("#reserve_expires_input").val().split(/-|\s|:/g);
+			dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10), parseInt(dateParts[3], 10), parseInt(dateParts[4], 10));
+			if (dt < new Date()) {
+				$("#reserve_expires_input").removeClass("input_ok");
+				$("#reserve_expires_input").addClass("input_error");
+				return false;
+			} else {
+				$("#reserve_expires_input").removeClass("input_error");
+				$("#reserve_expires_input").addClass("input_ok");
+			}
+		} else {
+			$("#reserve_expires_input").removeClass("input_ok");
+			$("#reserve_expires_input").addClass("input_error");
+			return false;
+		}
+
+		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
+			if ($(this).children().val() > 0) {
+				$(this).siblings().val($(this).children().attr('id'));
+			} else {
+				$(this).siblings().val(0);
+			}
+		});
+	});
+}
+review = function(data, type, location) {
+	if (type == 'registration') {
+		dialogue = '#fair_registration_form ';
+	} else {
+		dialogue = '#' + type + '_position_form ';
+	}
+	if (location == 'map') {
+		currency = maptool.map.currency;
+	} else {
+		currency = lang.currency;
+	}
+	//console.log(data);
+	//console.log(type);
+	//console.log(location);
+	//console.log(dialogue);
+
 		var catnames = [];
 		var optcids = [];
 		var optnames = [];
@@ -149,14 +190,14 @@ function reservePopup($row, link, action) {
 		var artamounts = [];
 		var count = 0;
 
-		$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
+		$('#' + type + '_category_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
 				count = count+1;
 			}
 		});
-
+		
 		var catnamesStr = '';
 
 		for (var j=0; j<catnames.length; j++) {
@@ -167,7 +208,7 @@ function reservePopup($row, link, action) {
 
 		count = 0;
 
-		$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
+		$('#' + type + '_option_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
 				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
@@ -177,7 +218,6 @@ function reservePopup($row, link, action) {
 				count = count+1;
 			}
 		});
-
 
 		var optcidsStr = '';
 		var optnamesStr = '';
@@ -195,14 +235,14 @@ function reservePopup($row, link, action) {
 
 		count = 0;
 
-		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function(){
+		$('#' + type + '_article_scrollbox > tbody > tr > td > div').each(function(){
 			if ($(this).children().val() > 0) {
 				artcids[count] = $(this).parent().siblings('td').eq(0).text();
 				artnames[count] = $(this).parent().siblings('td').eq(1).text();
 				artprices[count] = $(this).parent().siblings('td').eq(2).text();
 				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
 				artamounts[count] = $(this).children().val();
-
+				
 				count = count+1;
 			}
 		});
@@ -253,6 +293,7 @@ function reservePopup($row, link, action) {
 
 		$(dialogue + '#review_list').html("");
 		$(dialogue + '#review_list2').html("");
+
 		html = '<thead>';
 			html += '<tr style="background-color:#efefef;">';
 				html += '<th>ID</th>';
@@ -263,39 +304,78 @@ function reservePopup($row, link, action) {
 				html += '<th class="total">' + lang.subtotal + '</th>';
 			html += '</tr>';
 		html += '</thead>';
-
 		html += '<tbody>';
+
+	if (type != 'registration') {
 		html += '<tr style="height:12px"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
 		html += '<tr>';
 			html += '<td class="id"></td>';
-			html += '<td class="left name">' + $row.data("posname") + '</td>';
-			html += '<td class="left price">' + $row.data("posprice") + '</td>';
+
+		if (location == 'map') {
+			html += '<td class="left name">' + data.name + '</td>';
+			html += '<td class="left price">' + data.price + '</td>';
 			html += '<td class="amount">1</td>';
-			if ($row.data("posvat")) {
-				html += '<td class="moms">' + $row.data("posvat") + '%</td>';
+
+			if (data.vat) {
+				html += '<td class="moms">' + data.vat + '%</td>';
 			} else {
 				html += '<td class="moms">0%</td>';
 			}
-			html += '<td class="total">' + parseFloat($row.data("posprice")).toFixed(2) + '</td>';
+
+			html += '<td class="total">' + parseFloat(data.price).toFixed(2) + '</td>';
 		html += '</tr>';
+
 		html += '<tr>';
 			html += '<td class="id"></td>';
-			html += '<td class="left name">' + $row.data("posinfo") + '</td>';
+			html += '<td class="left name">' + data.information + '</td>';
 			html += '<td class="left price"></td>';
 			html += '<td class="amount"></td>';
 			html += '<td class="moms"></td>';
 			html += '<td class="total"></td>';
 		html += '</tr>';
 
-		if ($row.data("posprice")) {
-			if (parseFloat($row.data("posvat")) == 25) {
-				excludeVatPrice25 += parseFloat($row.data("posprice"));
-			} else if (parseFloat($row.data("posvat")) == 18) {
-				excludeVatPrice18 += parseFloat($row.data("posprice"));
+			if (data.price) {
+				if (parseFloat(data.vat) == 25) {
+					excludeVatPrice25 += parseFloat(data.price);
+				} else if (parseFloat(data.vat) == 18) {
+					excludeVatPrice18 += parseFloat(data.price);
+				} else {
+					excludeVatPrice0 += parseFloat(data.price);
+				}
+			}
+
+		} else {
+			html += '<td class="left name">' + data.data("posname") + '</td>';
+			html += '<td class="left price">' + data.data("posprice") + '</td>';
+			html += '<td class="amount">1</td>';
+			if (data.data("posvat")) {
+				html += '<td class="moms">' + data.data("posvat") + '%</td>';
 			} else {
-				excludeVatPrice0 += parseFloat($row.data("posprice"));
+				html += '<td class="moms">0%</td>';
+			}
+			html += '<td class="total">' + parseFloat(data.data("posprice")).toFixed(2) + '</td>';
+		html += '</tr>';
+
+		html += '<tr>';
+			html += '<td class="id"></td>';
+			html += '<td class="left name">' + data.data("posinfo") + '</td>';
+			html += '<td class="left price"></td>';
+			html += '<td class="amount"></td>';
+			html += '<td class="moms"></td>';
+			html += '<td class="total"></td>';
+		html += '</tr>';
+
+			if (data.data("posprice")) {
+				if (parseFloat(data.data("posvat")) == 25) {
+					excludeVatPrice25 += parseFloat(data.data("posprice"));
+				} else if (parseFloat(data.data("posvat")) == 18) {
+					excludeVatPrice18 += parseFloat(data.data("posprice"));
+				} else {
+					excludeVatPrice0 += parseFloat(data.data("posprice"));
+				}
 			}
 		}
+	}
 
 		if (optname != "") {
 			html += '<tr style="height:12px"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
@@ -334,6 +414,7 @@ function reservePopup($row, link, action) {
 				html += '</tr>';
 			}
 		}
+
 	if (artname != "") {
 		html += '<tr style="height:12px"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
 		for (i = 0; i < artname.length; i++) {
@@ -401,10 +482,8 @@ html2 = '<thead>';
 		html2 += '<th></th>';
 	html2 += '</tr>';
 html2 += '</thead>';
-
 html2 += '<tbody>';
-	html2 += '<tr style="height:12px">';					
-	html2 += '</tr>';
+	html2 += '<tr style="height:12px"></tr>';
 	html2 += '<tr>';
 		html2 += '<td>' + lang.net + ':</td>';
 		html2 += '<td>' + lang.tax + ' %</td>';
@@ -471,53 +550,49 @@ if (excludeVatPrice25 != 0) {
 		html2 += '<td></td>';
 		html2 += '<td></td>';
 		html2 += '<td></td>';
-		html2 += '<td class="totalprice">' + lang.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
+		html2 += '<td class="totalprice">' + currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
 	html2 += '</tr>';
 
 	$(dialogue + '#review_list').append(html);
 	$(dialogue + '#review_list2').append(html2);
-	$(dialogue + '#review_commodity_input').html("");
-	$(dialogue + '#review_commodity_input').append($("#reserve_commodity_input").val());
+	$(dialogue + '#review_commodity_input').html('');
+	$(dialogue + '#review_commodity_input').append($('#' + type + '_commodity_input').val());
 	if ($(dialogue + '#review_commodity_input').html().length == 0) {
 		$(dialogue + '#review_commodity_input').append(lang.no_commodity);
-	}
-	$(dialogue + '#review_message').html("");
-	$(dialogue + '#review_message').append($("#reserve_message_input").val());
+	}	
+	$(dialogue + '#review_message').html('');
+	$(dialogue + '#review_message').append($('#' + type + '_message_input').val());
 	if ($(dialogue + '#review_message').html().length == 0) {
 		$(dialogue + '#review_message').append(lang.no_message);
 	}
-	$(dialogue + '#review_user').html("");
-	$(dialogue + '#review_user').append($('#reserve_user_input').find(":selected").text());
+	if (type == 'registration') {
+		$(dialogue + '#review_registration_area').html('');
+		$(dialogue + '#review_registration_area').append($('#' + type + '_area_input').val());
+	} 
+	if ((type == 'book') || (type == 'reserve')) {
+		$(dialogue + '#review_user').html('');
+		$(dialogue + '#review_user').append($('#' + type + '_user_input').find(":selected").text());
+	}
 
-	});
-	
-	$('form').submit(function(e) {
-		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
-			if ($(this).children().val() > 0) {
-				$(this).siblings().val($(this).children().attr('id'));
-			} else {
-				$(this).siblings().val(0);
-			}
-		});
-	});
-}
+}	
 
 function bookPopup($row, link, action) {
 	var formId = "book_position_form";
 	var form = $('#' + formId);
 	dialogue = '#book_position_form ';
-	$('#' + formId + ' ul#progressbar li').removeClass('active');
+	$('#' + formId + ' ul.progressbar li').removeClass('active');
 	$('#' + formId + ' fieldset').css({
 		'transform': 'scale(1)',
 		'display': 'none',
 		'opacity': '0',
 	});				
-	$('#' + formId + ' ul#progressbar li:first-child').attr('class', 'active');
+	$('#' + formId + ' ul.progressbar li:first-child').attr('class', 'active');
 	$('#' + formId + ' fieldset:first-of-type').css({
 		'transform': 'scale(1)',
 		'display': 'block',
 		'opacity': '1',
 	});
+
 
 	$('#book_category_scrollbox > tbody > tr > td > input').prop('checked', false);
 	$('#book_option_scrollbox > tbody > tr > td > input').prop('checked', false);
@@ -526,15 +601,6 @@ function bookPopup($row, link, action) {
 	$('.confirm, .edit, .close', form).hide();
 	$('.' + action, form).show();
 	positionDialogue('book_position_form');
-
-	$(".cancelbutton").click(function() {
-		closeForm();
-		closeDialogue();
-	});
-	$(".closeDialogue").click(function() {
-		closeDialogue();
-		closeForm();
-	});	
 	form.css('display', 'block');
 	$('#overlay').show();
 
@@ -603,360 +669,11 @@ function bookPopup($row, link, action) {
 	  }
 	});
 
-	$('#book_review').click(function(e) {
-		var catnames = [];
-		var optcids = [];
-		var optnames = [];
-		var optprices = [];
-		var optvats = [];
-		var artcids = [];
-		var artnames = [];
-		var artprices = [];
-		var artvats = [];
-		var artamounts = [];
-		var count = 0;
 
-
-		$('#book_category_scrollbox > tbody > tr > td').each(function(){
-			var val = $(this).children('input:checked').val();
-			if(val != "undefined"){
-				catnames[count] = $(this).children('input:checked').parent().siblings('td').text();
-				count = count+1;
-			}
-		});
-		
-		var catnamesStr = '';
-
-		for (var j=0; j<catnames.length; j++) {
-			if(catnames[j] != ""){
-				catnamesStr += '|' + catnames[j];
-			}
-		}
-
-		count = 0;
-
-		$('#book_option_scrollbox > tbody > tr > td').each(function(){
-			var val = $(this).children('input:checked').val();
-			if(val != "undefined"){
-				optcids[count] = $(this).children('input:checked').parent().siblings('td').eq(0).text();
-				optnames[count] = $(this).children('input:checked').parent().siblings('td').eq(1).text();
-				optprices[count] = $(this).children('input:checked').parent().siblings('td').eq(2).text();
-				optvats[count] = $(this).children('input:checked').parent().siblings('td').eq(3).children().val();
-				count = count+1;
-			}
-		});
-
-		var optcidsStr = '';
-		var optnamesStr = '';
-		var optpricesStr = '';
-		var optvatsStr = '';
-
-		for (var j=0; j<optnames.length; j++) {
-			if(optnames[j] != ""){
-				optcidsStr += '|' + optcids[j];
-				optnamesStr += '|' + optnames[j];
-				optpricesStr += '|' + optprices[j];
-				optvatsStr += '|' + optvats[j];
-			}
-		}
-
-		count = 0;
-
-		$('#book_article_scrollbox > tbody > tr > td > div').each(function(){
-			if ($(this).children().val() > 0) {
-				artcids[count] = $(this).parent().siblings('td').eq(0).text();
-				artnames[count] = $(this).parent().siblings('td').eq(1).text();
-				artprices[count] = $(this).parent().siblings('td').eq(2).text();
-				artvats[count] = $(this).parent().siblings('td').eq(3).children().val();
-				artamounts[count] = $(this).children().val();
-				
-				count = count+1;
-			}
-		});
-
-		var artcidsStr = '';
-		var artnamesStr = '';
-		var artpricesStr = '';
-		var artvatsStr = '';
-		var artqntsStr = '';
-
-		for (var j=0; j<artnames.length; j++) {
-			if(artnames[j] != ""){
-				artcidsStr += '|' + artcids[j];
-				artnamesStr += '|' + artnames[j];
-				artpricesStr += '|' + artprices[j];
-				artvatsStr += '|' + artvats[j];
-				artqntsStr += '|' + artamounts[j];
-			}
-		}
-
-		catname = catnamesStr.split('|');
-		optcid = optcidsStr.split('|');
-		optname = optnamesStr.split('|');
-		optprice = optpricesStr.split('|');
-		optvat = optvatsStr.split('|');
-		artcid = artcidsStr.split('|');
-		artname = artnamesStr.split('|');
-		artprice = artpricesStr.split('|');
-		artvat = artvatsStr.split('|');
-		artqnt = artqntsStr.split('|');
-
-
-
-		var totalPrice = 0;
-		var VatPrice0 = 0;
-		var VatPrice12 = 0;
-		var VatPrice18 = 0;
-		var VatPrice25 = 0;
-		var excludeVatPrice0 = 0;
-		var excludeVatPrice12 = 0;
-		var excludeVatPrice18 = 0;
-		var excludeVatPrice25 = 0;
-
-
-		$(dialogue + '#review_category_list').html("");
-		for (i = 0; i < catname.length; i++) {
-			if (catname[i] != "") {
-				$(dialogue + '#review_category_list').append(catname[i] + '<br/>');
-			}
-		}
-
-		$(dialogue + '#review_list').html("");
-		$(dialogue + '#review_list2').html("");
-		html = '<thead>';
-			html += '<tr style="background-color:#efefef;">';
-				html += '<th>ID</th>';
-				html += '<th class="left">' + lang.description + '</th>';
-				html += '<th class="left">' + lang.price + '</th>';
-				html += '<th>' + lang.amount + '</th>';
-				html += '<th>' + lang.tax + '</th>';
-				html += '<th class="total">' + lang.subtotal + '</th>';
-			html += '</tr>';
-		html += '</thead>';
-
-		html += '<tbody>';
-		html += '<tr style="height:12px"></tr>;<tr><td></td><td class="left"><b>' + lang.space + '</b></td><td></td><td></td></tr>';
-		html += '<tr>';
-			html += '<td class="id"></td>';
-			html += '<td class="left name">' + $row.data("posname") + '</td>';
-			html += '<td class="left price">' + $row.data("posprice") + '</td>';
-			html += '<td class="amount">1</td>';
-			if ($row.data("posvat")) {
-				html += '<td class="moms">' + $row.data("posvat") + '%</td>';
-			} else {
-				html += '<td class="moms">0%</td>';
-			}
-			html += '<td class="total">' + parseFloat($row.data("posprice")).toFixed(2) + '</td>';
-		html += '</tr>';
-		html += '<tr>';
-			html += '<td class="id"></td>';
-			html += '<td class="left name">' + $row.data("posinfo") + '</td>';
-			html += '<td class="left price"></td>';
-			html += '<td class="amount"></td>';
-			html += '<td class="moms"></td>';
-			html += '<td class="total"></td>';
-		html += '</tr>';		
-		if ($row.data("posprice")) {
-			if (parseFloat($row.data("posvat")) == 25) {
-				excludeVatPrice25 += parseFloat($row.data("posprice"));
-			} else if (parseFloat($row.data("posvat")) == 18) {
-				excludeVatPrice18 += parseFloat($row.data("posprice"));
-			} else {
-				excludeVatPrice0 += parseFloat($row.data("posprice"));
-			}
-		}
-
-		if (optname != "") {
-			html += '<tr style="height:12px"></tr><tr><td></td><td class="left"><b>' + lang.options + '</b></td><td></td><td></td></tr>';
-			for (i = 0; i < optname.length; i++) {
-				html += '<tr>';
-					html += '<td class="id">' + optcid[i] + '</td>';
-					html += '<td class="left name">' + optname[i] + '</td>';
-					html += '<td class="left price">' + optprice[i] + '</td>';
-					if (optprice[i]) {
-						html += '<td class="amount">1</td>';
-					} else {
-						html += '<td class="amount"></td>';
-					}
-					if (optvat[i]) {
-						html += '<td class="moms">' + optvat[i] + '%</td>';
-					} else {
-						html += '<td class="moms"></td>';	
-					}
-
-				if ((optprice[i]) && (optvat[i])) {
-					html += '<td class="total">' + parseFloat(optprice[i]).toFixed(2) + '</td>';
-					//totalprice += parseFloat(optPrice[i]);
-					if (optvat[i] == 25) {
-						excludeVatPrice25 += parseFloat(optprice[i]);
-					}
-					if (optvat[i] == 18) {
-						excludeVatPrice18 += parseFloat(optprice[i]);
-					}
-					if (optvat[i] == 12) {
-						excludeVatPrice12 += parseFloat(optprice[i]);
-					}
-					if (optvat[i] == 0) {
-						excludeVatPrice0 += parseFloat(optprice[i]);
-					}										
-				}
-				html += '</tr>';
-			}
-		}
-	if (artname != "") {
-		html += '<tr style="height:12px"></tr><tr><td></td><td class="left"><b>' + lang.articles + '</b></td><td></td><td></td></tr>';
-		for (i = 0; i < artname.length; i++) {
-			html += '<tr>';
-				html += '<td class="id">' + artcid[i] + '</td>';
-				html += '<td class="left name">' + artname[i] + '</td>';
-				html += '<td class="left price">' + artprice[i] + '</td>';
-				html += '<td class="amount">' + artqnt[i] + '</td>';
-				if (artvat[i]) {
-					html += '<td class="moms">' + artvat[i] + '%</td>';	
-				} else {
-					html += '<td class="moms"></td>';	
-				}
-				if ((artprice[i]) && (artqnt[i])) {
-					html += '<td class="total">' + parseFloat(artprice[i] * artqnt[i]).toFixed(2) + '</td>';
-				}
-			html += '</tr>';
-
-			if ((artprice[i]) && (artvat[i])) {
-				if (artvat[i] == 25) {
-					excludeVatPrice25 += parseFloat(artprice[i] * artqnt[i]);
-				}
-				if (artvat[i] == 18) {
-					excludeVatPrice18 += parseFloat(artprice[i] * artqnt[i]);
-				}
-				if (artvat[i] == 12) {
-					excludeVatPrice12 += parseFloat(artprice[i] * artqnt[i]);
-				}
-				if (artvat[i] == 0) {
-					excludeVatPrice0 += parseFloat(artprice[i] * artqnt[i]);
-				}
-			}
-		}
-	}
-	html += '<tr style="height:12px"></tr>';
-html += '</tbody>';
-
-// return integer part - may be negative
-Math.trunc = function(n) {
-    return (n < 0) ? Math.ceil(n) : Math.floor(n);
-}
-Math.frac = function(n) {
-    return n - Math.trunc(n);
-}
-VatPrice0 = parseFloat(excludeVatPrice0);
-VatPrice12 = parseFloat(excludeVatPrice12*0.12);
-VatPrice18 = parseFloat(excludeVatPrice18*0.18);
-VatPrice25 = parseFloat(excludeVatPrice25*0.25);
-totalPrice += parseFloat(excludeVatPrice25 + excludeVatPrice18 + excludeVatPrice12 + VatPrice12 + VatPrice18 + VatPrice25 + VatPrice0);
-
-totalPriceRounded = Math.trunc(totalPrice);
-cents = (totalPriceRounded - totalPrice);
-if (cents < -0.49) {
-	cents += 1;
-	totalPriceRounded += 1;
-}
-
-html2 = '<thead>';
-	html2 += '<tr>';
-		html2 += '<th></th>';
-		html2 += '<th></th>';
-		html2 += '<th></th>';
-		html2 += '<th></th>';
-		html2 += '<th></th>';
-		html2 += '<th></th>';
-	html2 += '</tr>';
-html2 += '</thead>';
-html2 += '<tbody>';
-
-	html2 += '<tr style="height:12px"></tr>';
-	html2 += '<tr>';
-		html2 += '<td>' + lang.net + ':</td>';
-		html2 += '<td>' + lang.tax + ' %</td>';
-		html2 += '<td>' + lang.tax + ':</td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-	html2 += '</tr>';
-if (excludeVatPrice0) {
-	html2 += '<tr>';
-		html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
-		html2 += '<td class="vat">0.00</td>';
-		html2 += '<td class="vat">0.00</td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-	html2 += '</tr>';
-}
-
-if (excludeVatPrice12 != 0) {
-	html2 += '<tr>';
-		html2 += '<td class="vat">' + parseFloat(excludeVatPrice12).toFixed(2) + '</td>';
-		html2 += '<td class="vat">12.00</td>';
-		html2 += '<td class="vat">' + parseFloat(VatPrice12).toFixed(2) + '</td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-	html2 += '</tr>';
-}
-
-if (excludeVatPrice18 != 0) {
-	html2 += '<tr>';
-		html2 += '<td class="vat">' + parseFloat(excludeVatPrice18).toFixed(2) + '</td>';
-		html2 += '<td class="vat">18.00</td>';
-		html2 += '<td class="vat">' + parseFloat(VatPrice18).toFixed(2) + '</td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-	html2 += '</tr>';
-}
-
-if (excludeVatPrice25 != 0) {
-	html2 += '<tr>';
-		html2 += '<td class="vat">' + parseFloat(excludeVatPrice25).toFixed(2) + '</td>';
-		html2 += '<td class="vat">25.00</td>';
-		html2 += '<td class="vat">' + parseFloat(VatPrice25).toFixed(2) + '</td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-	html2 += '</tr>';
-}
-	html2 += '<tr>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td class="cents">' + lang.rounding + ': ' + parseFloat(cents).toFixed(2) + '</td>';
-	html2 += '</tr>';
-
-	html2 += '<tr>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td></td>';
-		html2 += '<td class="totalprice">' + lang.currency + ' ' + lang.to_pay + '&nbsp;&nbsp;' + parseFloat(totalPriceRounded).toFixed(2) + '</td>';
-	html2 += '</tr>';
-
-	$(dialogue + '#review_list').append(html);
-	$(dialogue + '#review_list2').append(html2);
-	$(dialogue + '#review_commodity_input').html("");
-	$(dialogue + '#review_commodity_input').append($("#book_commodity_input").val());
-	if ($(dialogue + '#review_commodity_input').html().length == 0) {
-		$(dialogue + '#review_commodity_input').append(lang.no_commodity);
-	}	
-	$(dialogue + '#review_message').html("");
-	$(dialogue + '#review_message').append($("#book_message_input").val());
-	if ($(dialogue + '#review_message').html().length == 0) {
-		$(dialogue + '#review_message').append(lang.no_message);
-	}
-	$(dialogue + '#review_user').html("");
-	$(dialogue + '#review_user').append($('#book_user_input').find(":selected").text());
+	$('.book_review').click(function(e) {
+		review($row, 'book');
 	});
+
 
 	$('form').submit(function(e) {
 		$('#book_article_scrollbox > tbody > tr > td > div').each(function() {
@@ -980,7 +697,6 @@ function prelPopup($row, link, action) {
 	$(review_dialogue + '#review_area_label').css('display', 'block');
 	$(review_dialogue + '#review_registration_area').css('display', 'block');	
 	$('.' + action, dialogue).show();
-	$('.closeDialogue', dialogue).click(closeDialogue);
 	dialogue.css('display', 'block');
 	positionDialogue('review_prel_dialogue');
 	$('#overlay').show();
@@ -1011,12 +727,15 @@ function prelPopup($row, link, action) {
 	if ($row.data("posstatus") == 1) {
 		dialogue.css('border-top', '5em solid #3258CD');
 		$('.standSpaceName', dialogue).text(lang.reservation + ' ' + $row.data("posname"));
-	} else if ($row.data("posstatus") == 3) {
-		dialogue.css('border-top', '5em solid #47A547');
-		$('.standSpaceName', dialogue).text(lang.preliminary + ' ' + $row.data("posname"));
 	} else if ($row.data("posstatus") == 2) {
 		dialogue.css('border-top', '5em solid #d21d1d');
 		$('.standSpaceName', dialogue).text(lang.booking + ' ' + $row.data("posname"));
+	} else if ($row.data("posstatus") == 3) {
+		dialogue.css('border-top', '5em solid #47A547');
+		$('.standSpaceName', dialogue).text(lang.preliminary + ' ' + $row.data("posname"));
+	} else if ($row.data("posstatus") == 0) {
+		dialogue.css('border-top', '5em solid #47A547');
+		$('.standSpaceName', dialogue).text(lang.bookingslashreservation + ' ' + $row.data("posname"));
 	} else {
 		dialogue.css('border-top', '5em solid #47A547');
 		$('.standSpaceName', dialogue).text(lang.registration);		
@@ -1185,18 +904,15 @@ html2 = '<thead>';
 	html2 += '</tr>';
 html2 += '</thead>';
 html2 += '<tbody>';
-
-		html2 += '<tr style="height:12px">';
-		html2 += '</tr>';
-
-		html2 += '<tr>';
-			html2 += '<td>' + lang.net + ':</td>';
-			html2 += '<td>' + lang.tax + ' %</td>';
-			html2 += '<td>' + lang.tax + ':</td>';
-			html2 += '<td></td>';
-			html2 += '<td></td>';
-			html2 += '<td></td>';
-		html2 += '</tr>';
+	html2 += '<tr style="height:12px"></tr>';
+	html2 += '<tr>';
+		html2 += '<td>' + lang.net + ':</td>';
+		html2 += '<td>' + lang.tax + ' %</td>';
+		html2 += '<td>' + lang.tax + ':</td>';
+		html2 += '<td></td>';
+		html2 += '<td></td>';
+		html2 += '<td></td>';
+	html2 += '</tr>';
 if (excludeVatPrice0) {
 html2 += '<tr>';
 	html2 += '<td class="vat">' + parseFloat(excludeVatPrice0).toFixed(2) + '</td>';
@@ -1309,46 +1025,52 @@ function showInfoDialog(info_text, title) {
         backgroundDismiss: true,
     });
 }
-
+function confirmDialog(info_text, title, status, link) {
+    $.confirm({
+        title: title,
+        content: info_text,
+        backgroundDismiss: true,
+        type: status,
+        	confirm: function () {
+        		document.location.href=link
+        	},
+        	cancel: function () {    		
+        	}
+    });
+}
 function closeDialogue(e) {
 	if (e) {
 		e.preventDefault();
 	}
 
-	if ($(".dialogue:visible").length > 0) {
+	if ($(".popup:visible").length > 0) {
 		if ((ask_before_leave) && (ask_before_leave = true)) {
 		    $.confirm({
 		        title: lang.hide_dialog_confirm,
 		        content: lang.hide_dialog_info,
+    			escapeKey: true,
 		        confirm: function(){
-		// Hide the last visible dialog
-		$(".dialogue:visible").last().hide(0, function() {
-			// Hide the overlay if no more dialogs are visible
-			if ($("#arranger_message_popup:visible").length > 0) {
-				$("#arranger_message_popup").remove();
-			}
-			if ($(".dialogue:visible").length === 0) {
-				$("#overlay").hide();
-			}
+					// Hide the last visible dialog
+					$(".popup:visible").last().hide(0, function() {
+						// Hide the overlay if no more dialogs are visible
+						if ($(".popup:visible, .form:visible").length === 0) {
+							$("#overlay").fadeOut();
+						}
 						ask_before_leave = false;
 					});
 		        },
 		        cancel: function(){}
 		    });
 		} else {
-			if ($(".jconfirm-box:visible").length < 1) {
-				$(".dialogue:visible").last().hide(0, function() {
-
-					if ($("#arranger_message_popup:visible").length > 0) {
-						$("#arranger_message_popup").remove();
+			if ($(".jconfirm-box:visible").length < 1) { 
+				$(".popup:visible").last().hide(0, function() {
+					if ($(".popup:visible, .form:visible").length === 0) {
+						$("#overlay").fadeOut();
 					}
-					if ($(".dialogue:visible").length === 0) {
-						$("#overlay").hide();
-					}
-			ask_before_leave = false;
-		});
-	}
-}
+					ask_before_leave = false;
+				});
+			}
+		}
 	}
 }
 
@@ -1361,12 +1083,13 @@ function closeForm(e) {
 		    $.confirm({
 		        title: lang.hide_dialog_confirm,
 		        content: lang.hide_dialog_info,
+    			escapeKey: true,
 		        confirm: function(){
 					// Hide the last visible form
 					$(".form:visible").last().hide(0, function() {
 						// Hide the overlay if no more dialogs are visible
-						if ($(".form:visible").length === 0) {
-							$("#overlay").hide();
+						if ($(".popup:visible, .form:visible").length === 0) {
+							$("#overlay").fadeOut();
 						}
 
 						ask_before_leave = false;
@@ -1379,8 +1102,8 @@ function closeForm(e) {
 				// Hide the last visible dialog
 				$(".form:visible").last().hide(0, function() {
 					// Hide the overlay if no more dialogs are visible
-					if ($(".form:visible").length === 0) {
-						$("#overlay").hide();
+					if ($(".popup:visible, .form:visible").length === 0) {
+						$("#overlay").fadeOut();
 					}
 
 					ask_before_leave = false;
@@ -1388,6 +1111,17 @@ function closeForm(e) {
 			}
 		}
 	}
+}
+function getDefaultReservationDate() {
+		$.ajax({
+			url : 'ajax/fair.php',
+			type: 'POST',
+			data: 'getDefaultReservationDate=1',
+			success: function(response){
+				res = JSON.parse(response);
+				$("#reserve_expires_input").val(res);
+			}
+		});
 }
 function markAsSent(link, id) {
 		$.ajax({
@@ -1454,13 +1188,8 @@ function ajaxContent(e, handle) {
 				maptool.closeDialogues();
 				
 				$('#overlay').show();
-				var html = '<div class="dialogue" style="display:block;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>' + response + '</div>';
+				var html = '<div class="dialogue popup" style="display:block;"><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue"/>' + response + '</div>';
 				$('body').prepend(html);
-				
-				$(".closeDialogue").click(function() {
-					$('.dialogue').remove();
-					$('#overlay').hide();
-				});
 				
 			}
 			
@@ -1516,7 +1245,7 @@ function positionDialogue(id) {
 		case "book_position_form":
 		case "reserve_position_form":
 		case "fair_registration_form":
-		case "apply_mark_form":
+		case "apply_position_form":
 		case "review_prel_dialogue":
 		case "popupform_register":
 //		console.log(viewportHeight);
@@ -1533,6 +1262,8 @@ function positionDialogue(id) {
 			break;
 		case "preliminaryConfirm":
 		case "fairRegistrationConfirm":
+		case "contactPopup":
+		case "rulesPopup":
 			popupMaxWidth = 480;
 			break;
 		case "more_info_dialogue":
@@ -1555,7 +1286,7 @@ function positionDialogue(id) {
 		dialogue.css({
 			'max-height': popupMaxHeight/15 + 'em'
 		});
-	} else if ((id == "book_position_form") || (id == "reserve_position_form") || (id == "apply_mark_form") || (id == "fair_registration_form") || (id == "popupform_register")) {
+	} else if ((id == "book_position_form") || (id == "reserve_position_form") || (id == "apply_position_form") || (id == "fair_registration_form") || (id == "popupform_register")) {
 		dialogue.css({
 			'top': (viewportHeight/10)/12 + 'vh',
 			'max-height': popupMaxHeight/12 + 'em',
@@ -1625,24 +1356,12 @@ function showUser(e) {
 		success: function (response) {
 			var dialogue = $('#showUserDialogue');
 			if (dialogue.length === 0) {
-				dialogue = $('<div class="dialogue" id="showUserDialogue"></div>');
+				dialogue = $('<div class="dialogue popup" id="showUserDialogue"></div>');
 				$('body').append(dialogue);
 			}
 
 			dialogue.html('<img src="images/icons/close_dialogue.png" class="closeDialogue" style="margin-top:-3.7em;" />' + response);
 			dialogue.show();
-
-			$(".closeDialogue").on("click", function () {
-				dialogue.hide();
-				if ($("#preliminary_bookings_dialogue").length && $("#more_info_dialogue").length) {
-					if ($("#preliminary_bookings_dialogue").css('display') == 'none') {
-						if ($("#more_info_dialogue").css('display') == 'none')
-						$('#overlay').hide();
-					}
-				} else {
-					$('#overlay').hide();
-				}
-			});
 
 			positionDialogue('showUserDialogue');
 			positionDialogue('innerPopup');
@@ -1727,7 +1446,7 @@ function showExportPopup(e) {
 		$('#export_popup').remove();
 	}
 
-	var html = '<div id="export_popup" class="dialogue" style="width: 500px; text-align: left;">' + '<h3>' + lang.export_headline + '</h3>' + '<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />', 
+	var html = '<div id="export_popup" class="dialogue popup" style="width: 500px; text-align: left;">' + '<h3>' + lang.export_headline + '</h3>' + '<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" />', 
 		export_popup, 
 		button = $(e.target), 
 		field_groups = export_fields[button.data('for')], 
@@ -1748,15 +1467,9 @@ function showExportPopup(e) {
 
 	export_popup = $(html);
 	export_popup.show();
-
-	$(button).before(export_popup);
 	$('.close-popup', export_popup).click(closeDialogue);
-	$(".closeDialogue").click(function() {
-		$('#export_popup').remove();
-			if ($(".dialogue:visible").length === 0) {
-				$("#overlay").hide();
-			}
-	});	
+	$(button).before(export_popup);
+
 
 	positionDialogue("export_popup");
 }
@@ -1781,12 +1494,83 @@ function sendVerifyCloned(e) {
 				method: 'POST',
 				data: '&' + selected_exhibitor_ids.join('&'),
 				success: function(response) {
-					$.alert({
-					    content: lang.email_sent,
-					    confirm: function() {
+					//$.alert({
+					//    content: lang.email_sent,
+					//    confirm: function() {
 					    	document.location.reload();
-					    }
-					});
+					//    }
+					//});
+				}
+			});
+
+        },
+        cancel: function(){}
+    });
+}
+function setRecurring(e) {
+	e.preventDefault();
+
+	var button = $(e.target);
+	var table_form = $(button.prop('form'));
+	var ids = [];
+
+	$('input[name*=rows]:checked', table_form).each(function(index, input) {
+		ids.push('exid[]=' + $(input).data('exid'));
+	});
+	//console.log('SET IDS: ' + ids.join('&'));
+    $.confirm({
+        title: lang.setRecurringQuestion1, 
+        //content: lang.setRecurringQuestion2, 
+        confirm: function(){
+			var selected_exhibitor_ids = [];
+
+			$('input[name*=rows]:checked', table_form).each(function(index, input) {
+				selected_exhibitor_ids.push('exid[]=' + $(input).data('exid'));
+			});
+
+			$.ajax({
+				url: 'administrator/setRecurring',
+				method: 'POST',
+				data: '&' + selected_exhibitor_ids.join('&'),
+				success: function(response) {
+					//console.log('SET IDS: ' + selected_exhibitor_ids.join('&'));
+					document.location.reload();
+				}
+			});
+
+        },
+        cancel: function(){}
+    });
+}
+function unsetRecurring(e) {
+	e.preventDefault();
+
+	var button = $(e.target);
+	var table_form = $(button.prop('form'));
+	var ids = [];
+
+	$('input[name*=rows]:checked', table_form).each(function(index, input) {
+		ids.push('exid[]=' + $(input).data('exid'));
+	});
+	//console.log('UNSET IDS: ' + ids.join('&'));
+
+    $.confirm({
+        title: lang.unsetRecurringQuestion1,
+        //content: lang.unsetRecurringQuestion2,
+        confirm: function(){
+			var selected_exhibitor_ids = [];
+
+			$('input[name*=rows]:checked', table_form).each(function(index, input) {
+				selected_exhibitor_ids.push('exid[]=' + $(input).data('exid'));
+			});
+
+			$.ajax({
+				url: 'administrator/unsetRecurring',
+				method: 'POST',
+				data: '&' + selected_exhibitor_ids.join('&'),
+				success: function(response) {
+					//console.log('UNSET IDS: ' + selected_exhibitor_ids.join('&'));
+					document.location.reload();
 				}
 			});
 
@@ -1812,13 +1596,14 @@ function showSmsSendPopup(e) {
 			num_recipients.push($(input).data('userid'));
 		});	
 	jQuery.unique(num_recipients);
-	var sms_send_popup = $('<form id="sms_send_popup" class="dialogue" style="width: 400px; position:fixed;"><h2><img src="images/icons/smsicon.png" alt="" class="icon_sms_popup" />' 
+	var sms_send_popup = $('<form id="sms_send_popup" class="dialogue popup" style="width: 400px; position:fixed;"><h2><img src="images/icons/smsicon.png" alt="" class="icon_sms_popup" />' 
 		+ lang.sms_popup_title + '</h2><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
-		+ '<p><strong>' + lang.sms_enter_message + '</strong><textarea style="width:350px" name="sms_text"></textarea></p>'
+		+ '<p>' + lang.sms_example_message + '<br />' + lang.sms_example + '</p>'
+		+ '<p><strong>' + lang.sms_enter_message + '</strong><textarea maxlength="459" style="width:350px" name="sms_text"></textarea></p>'
 		+ '<p><strong>' + lang.sms_max_chars + '</strong><strong id="sms_send_chars_count"></strong></p>'
 		+ '<p>' + lang.sms_num_recipients + ': <strong>' + num_recipients.length + '</strong><br />'
 		+ lang.sms_estimated_cost + ': <strong id="sms_send_cost"></strong> kr ex moms</p>'
-		+ '<p><button type="submit" class="greenbutton mediumbutton">' + lang.send + '</button></p>'
+		+ '<button type="submit" id="sms_submit" class="greenbutton mediumbutton">' + lang.send + '</button>'
 		+ '<ul class="dialog-tab-list"><li><a href="#sms_send_log" class="js-select-tab">'
 		+ lang.sms_log + '</a></li><li><a href="#sms_send_errors" class="js-select-tab">' + lang.errors + ' (<span id="sms_send_errors_count">0</span>)</a></li></ul>'
 		+ '<div class="dialog-tab" id="sms_send_log"><p></p></div>'
@@ -1827,49 +1612,54 @@ function showSmsSendPopup(e) {
 	var error_list = $('#sms_send_errors ul', sms_send_popup);
 
 	sms_send_popup.show();
+	//document.getElementById("sms_submit").disabled = false; 
 
 	sms_send_popup.on('submit', function(e) {
 		e.preventDefault();
+		    $.confirm({
+		        title: false,
+		        content: lang.sms_accept_before_send,
+    			escapeKey: true,
+		        confirm: function(){
+					error_list.empty();
+					$('#sms_send_errors_count').text(0);
 
-		if (confirm(lang.sms_accept_before_send)) {
-			error_list.empty();
-			$('#sms_send_errors_count').text(0);
+					var selected_user_ids = [];
 
-			var selected_user_ids = [];
+					$('input[name*=rows]:checked', table_form).each(function(index, input) {
+						selected_user_ids.push('user[]=' + $(input).data('userid'));
+					});
 
-			$('input[name*=rows]:checked', table_form).each(function(index, input) {
-				selected_user_ids.push('user[]=' + $(input).data('userid'));
-			});
+					$.ajax({
+						url: 'sms/send',
+						method: 'POST',
+						data: sms_send_popup.serialize() + '&fair=' + button.data('fair') + '&' + selected_user_ids.join('&'),
+						success: function(response) {
+							if (response.error) {
+								error_list.append($('<li></li>').text(response.error));
+								$('.dialog-tab-list li:nth-child(2)').css("background-color", "red");
 
-			$.ajax({
-				url: 'sms/send',
-				method: 'POST',
-				data: sms_send_popup.serialize() + '&fair=' + button.data('fair') + '&' + selected_user_ids.join('&'),
-				success: function(response) {
-					if (response.error) {
-						error_list.append($('<li></li>').text(response.error));
-						$('.dialog-tab-list li:nth-child(2)').css("background-color", "red");
+							} else if (response.errors) {
+								for (var i = 0; i < response.errors.length; i++) {
+									error_list.append($('<li></li>').text(response.errors[i]));
+									$('.dialog-tab-list li:nth-child(2)').css("background-color", "red");
+								}
+							}
 
-					} else if (response.errors) {
-						for (var i = 0; i < response.errors.length; i++) {
-							error_list.append($('<li></li>').text(response.errors[i]));
-							$('.dialog-tab-list li:nth-child(2)').css("background-color", "red");
+							if (response.num_sent > 0) {
+								$('#sms_send_log p').text(lang.sms_sent_correct);
+							}
+							document.getElementById("sms_submit").disabled = true;
 						}
-					}
+					});
 
-					if (response.num_sent > 0) {
-						$('#sms_send_log p').text(lang.sms_sent_correct);
-					}
-
-					$('#sms_send_errors_count').text(error_list.children().length);
-				}
-			});
-		}
+		        },
+		        cancel: function(){}
+		    });
 	});
 
 	$('body').append(sms_send_popup);
 	$('.dialog-tab-list', sms_send_popup).tabs();
-	$('.close-popup', sms_send_popup).click(closeDialogue);
 
 	var chars_count = $('#sms_send_chars_count');
 	var cost_count = $('#sms_send_cost');
@@ -1887,8 +1677,8 @@ function showSmsSendPopup(e) {
 	}).trigger('keyup');
 
 	function updateCount(input) {
-		var page = Math.max(1, Math.ceil(input.value.length / 160));
-		var left = (160 * page) - input.value.length;
+		var page = Math.max(1, Math.ceil(input.value.length / 159));
+		var left = (159 * page) - input.value.length;
 
 		if (input.value.length >= 640) {
 			input.value = input.value.substring(0, 640);
@@ -1980,7 +1770,7 @@ var Comments = (function() {
 		if (response.error) {
 			alert(response.error);
 		} else {
-			var note_dialogue = $('<div id="' + options.dialog_id + '" class="dialogue" style="min-width: 41.66em;">'
+			var note_dialogue = $('<div id="' + options.dialog_id + '" class="dialogue popup" style="min-width: 41.66em;">'
 				+ response + '</div>');
 			var user_select = $('.js-user-select', note_dialogue);
 
@@ -2026,7 +1816,6 @@ var Comments = (function() {
 			}
 
 			$('body').append(note_dialogue);
-			$('.close-popup', note_dialogue).click(closeDialogue);
 
 			$('#overlay').show();
 			note_dialogue.show();
@@ -2177,7 +1966,7 @@ if(width > 1224){
 	var mainmenustate = localStorage.getItem('mainmenustate');
 	if (mainmenustate) {
 		var btnheight = $('#new_header_show').outerHeight();
-		console.log(btnheight);
+		//console.log(btnheight);
 		var mainmenutopbtn = localStorage.getItem('mainmenutopbtn');
 		if (mainmenutopbtn) {
 			if (mainmenutopbtn > height - btnheight) {
@@ -2230,6 +2019,7 @@ if(width > 1224){
 	$(function() {$("#new_header_show").draggable({
 			cancel: false, 
 			axis:"y",
+			delay: 150,
 			containment: "window",
 			scroll: false,
 			start: function(event, ui) {
@@ -2255,7 +2045,7 @@ $(".next").click(function(){
 	next_fs = $(this).parent().next();
 	
 	//activate next step on progressbar using the index of next_fs
-	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 	
 	//show the next fieldset
 	next_fs.show(); 
@@ -2272,7 +2062,65 @@ $(".next").click(function(){
 			current_fs.css({'transform': 'scale('+scale+')'});
 			next_fs.css({'left': left, 'opacity': opacity});
 		}, 
-		duration: 800, 
+		duration: 0, 
+		complete: function(){
+			current_fs.hide();
+			animating = false;
+		}, 
+		//this comes from the custom easing plugin
+		easing: 'easeOutSine'
+	});
+});
+
+$(".lastStep").click(function(){
+//	console.log($(this).parent().parent().attr('id'));
+	prefix = $(this).parent().parent().attr('id');
+	if (prefix.length > 0) {
+		prefix = prefix.slice(0, -14);
+	}
+//	console.log(prefix);
+	var count = 0;
+	var cats = [];
+	$('#' + prefix + '_category_scrollbox > tbody > tr > td').each(function(){
+		var val = $(this).children('input:checked').val();
+		if(val != null){
+			cats[count] = val;
+			count = count+1;
+		}
+	});
+	if (count == 0) {
+		$('#' + prefix + '_category_scrollbox_div').css('border', '0.166em solid #f00');
+		animating = true;
+	} else {
+		$('#' + prefix + '_category_scrollbox_div').css('border', 'none');
+		animating = false;
+	}
+
+	if(animating) return false;
+	animating = true;
+
+	current_fs = $(this).parent();
+	next_fs = $(this).parent().next().next();
+	
+	//activate next step on progressbar using the index of next_fs
+	$(".progressbar li").addClass("active");
+	
+	//show the next fieldset
+	next_fs.show(); 
+	//hide the current fieldset with style
+	current_fs.animate({opacity: 0}, {
+		step: function(now, mx) {
+			//as the opacity of current_fs reduces to 0 - stored in "now"
+			//1. scale current_fs down to 80%
+			scale = 1 - (1 - now) * 0.2;
+			//2. bring next_fs from the right(50%)
+			left = (now * 50)+"%";
+			//3. increase opacity of next_fs to 1 as it moves in
+			opacity = 1 - now;
+			current_fs.css({'transform': 'scale('+scale+')'});
+			next_fs.css({'left': left, 'opacity': opacity});
+		}, 
+		duration: 0, 
 		complete: function(){
 			current_fs.hide();
 			animating = false;
@@ -2301,22 +2149,6 @@ $("#reserve_first_step").click(function(){
 		animating = false;
 	}
 
-	if ($("#reserve_expires_input").val().match(/^\d\d-\d\d-\d\d\d\d \d\d:\d\d$/)) {
-		var dateParts = $("#reserve_expires_input").val().split('-');
-		dt = new Date(parseInt(dateParts[2], 10), parseInt(dateParts[1], 10)-1, parseInt(dateParts[0], 10));
-		// Add one day, since it should be up to and including.
-		dt.setDate(dt.getDate(+1));
-		if (dt < new Date()) {
-			animating = false;
-			$("#reserve_expires_input").css('border-color', 'red');
-			return;
-		}
-	} else {
-		animating = false;
-		$("#reserve_expires_input").css('border-color', 'red');
-		return;
-	}
-
 	if(animating) return false;
 	animating = true;
 	
@@ -2324,7 +2156,7 @@ $("#reserve_first_step").click(function(){
 	next_fs = $(this).parent().next();
 	
 	//activate next step on progressbar using the index of next_fs
-	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 	
 	//show the next fieldset
 	next_fs.show(); 
@@ -2341,7 +2173,7 @@ $("#reserve_first_step").click(function(){
 			current_fs.css({'transform': 'scale('+scale+')'});
 			next_fs.css({'left': left, 'opacity': opacity});
 		}, 
-		duration: 800, 
+		duration: 0, 
 		complete: function(){
 			current_fs.hide();
 			animating = false;
@@ -2352,7 +2184,7 @@ $("#reserve_first_step").click(function(){
 });
 
 
-$("#book_first_step").click(function(){
+$(".book_first_step").click(function(){
 
 	var count = 0;
 	var cats = [];
@@ -2378,7 +2210,7 @@ $("#book_first_step").click(function(){
 	next_fs = $(this).parent().next();
 	
 	//activate next step on progressbar using the index of next_fs
-	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 	
 	//show the next fieldset
 	next_fs.show(); 
@@ -2395,7 +2227,7 @@ $("#book_first_step").click(function(){
 			current_fs.css({'transform': 'scale('+scale+')'});
 			next_fs.css({'left': left, 'opacity': opacity});
 		}, 
-		duration: 800, 
+		duration: 0, 
 		complete: function(){
 			current_fs.hide();
 			animating = false;
@@ -2431,7 +2263,7 @@ $("#prel_first_step").click(function(){
 	next_fs = $(this).parent().next();
 	
 	//activate next step on progressbar using the index of next_fs
-	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 	
 	//show the next fieldset
 	next_fs.show(); 
@@ -2448,7 +2280,7 @@ $("#prel_first_step").click(function(){
 			current_fs.css({'transform': 'scale('+scale+')'});
 			next_fs.css({'left': left, 'opacity': opacity});
 		}, 
-		duration: 800, 
+		duration: 0, 
 		complete: function(){
 			current_fs.hide();
 			animating = false;
@@ -2498,7 +2330,7 @@ $("#registration_first_step").click(function(){
 	next_fs = $(this).parent().next();
 	
 	//activate next step on progressbar using the index of next_fs
-	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 	
 	//show the next fieldset
 	next_fs.show(); 
@@ -2515,7 +2347,7 @@ $("#registration_first_step").click(function(){
 			current_fs.css({'transform': 'scale('+scale+')'});
 			next_fs.css({'left': left, 'opacity': opacity});
 		}, 
-		duration: 800, 
+		duration: 0, 
 		complete: function(){
 			current_fs.hide();
 			animating = false;
@@ -2541,7 +2373,7 @@ $("#registration_review").click(function(){
 	next_fs = $(this).parent().next();
 	
 	//activate next step on progressbar using the index of next_fs
-	$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+	$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 	
 	//show the next fieldset
 	next_fs.show(); 
@@ -2558,7 +2390,7 @@ $("#registration_review").click(function(){
 			current_fs.css({'transform': 'scale('+scale+')'});
 			next_fs.css({'left': left, 'opacity': opacity});
 		}, 
-		duration: 800, 
+		duration: 0, 
 		complete: function(){
 			current_fs.hide();
 			animating = false;
@@ -2575,7 +2407,7 @@ $(".previous").click(function(){
 	previous_fs = $(this).parent().prev();
 	
 	//de-activate current step on progressbar
-	$("#progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
+	$(".progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
 	
 	//show the previous fieldset
 	previous_fs.show(); 
@@ -2589,10 +2421,10 @@ $(".previous").click(function(){
 			left = ((1-now) * 50)+"%";
 			//3. increase opacity of previous_fs to 1 as it moves in
 			opacity = 1 - now;
-			current_fs.css({'left': left});
+			current_fs.css({'left': 0});
 			previous_fs.css({'transform': 'scale('+scale+')', 'opacity': opacity});
 		}, 
-		duration: 800, 
+		duration: 0, 
 		complete: function(){
 			current_fs.hide();
 			animating = false;
@@ -2616,32 +2448,35 @@ $(".previous").click(function(){
 		e.preventDefault();
 		e.stopPropagation();
 		$('#overlay').show();
-		$('#popupform_login').show();
 
 		var url = $(this).attr('href');
-		var html = '<form action="' + url + '" method="post" id="popupform_login" class="dialogue2" style="display:inline-block;">'
-				 +		'<div id="login_div">'
+		var html = '<form action="' + url + '" method="post" id="popupform_login" class="dialogue2 popup" style="display:inline-block;">'
 				 + 		'<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>'
-				 +		'<img src="images/button_icons/Chartbooker Fair System Logotype.png" alt="" class="nouser_cfslogo" />'
+				 +		'<img src="images/logo/chartbooking_logo_small.png" alt="" class="nouser_cfslogo" style="margin-left: 6em !important; width: 32.166em !important;" />'
 				 +		'<p class="logo_text">' + lang.logo_text + '</p>'
-				 +		'<div><p class="error"></p>'
+				 +		'<p class="error"></p>'
+				 +		'<fieldset style="margin: 0 10em; max-width: 25em;">'
 				 + 		'<label for="user" style="font-size: 1.33em;">' + lang.login_username + '</label>'
 				 + 		'<input type="text" class="login_textfield" name="user" id="user" size="20"/>'
 				 + 		'<label for="pass" style="font-size: 1.33em;">' + lang.login_password + '</label>'
 				 + 		'<input type="password" class="login_textfield" name="pass" id="pass" size="20"/>'
+				 +		'</fieldset>'
 				 +		'<p class="forgot"><a href="user/resetPassword' + (typeof fair_url === 'string' ? '/backref/' + fair_url : '') + '">' + lang.forgot_pass + '</a></p>'
-				 + 		'<p><input type="submit" value="' + lang.sign_in + '" name="login" class="greenbutton bigbutton"/></p></div>'
-				 +		'</div>'
+				 + 		'<p><input type="submit" value="' + lang.sign_in + '" name="login" class="greenbutton bigbutton"/></p>'
 				 + 	'</form>';
-		
-		$('body').prepend(html);
-		ajaxLoginForm($('#popupform_login'));
-		$(".closeDialogue").click(function() {
-			$('#popupform_login').remove();
-				if ($(".dialogue:visible").length === 0) {
-					$("#overlay").hide();
+			if ($("#popupform_login").length == 0) {
+				if ($("#nouser_dialogue").length == 1) {
+					$("#nouser_dialogue").after(html);
+					if ($("#mapHolder").length == 0) {
+						$("#popupform_login").css({'margin-top':0});
+					}
+				} else {
+					$('body').append(html);
 				}
-		});
+			} else {
+				$("#popupform_login").show();
+			}
+		ajaxLoginForm($('#popupform_login'));
 		
 		return false;
 		
@@ -2660,30 +2495,52 @@ $(".previous").click(function(){
 			url : link,
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupformTwo" style="max-height:80%; overflow-y:auto; min-width:33.33em; width:auto; padding:1.66em; top:4.16em;"></div>';
-
-			$('body').append(html);
-			var popupform = $('#popupformTwo');
-			popupform.html('<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0;"/>' + reqResp);
-			var closeButton = $('.closeDialogue');
+			var html = '<div id="contactPopup" class="popup"></div>';
+			if ($("#contactPopup").length == 0) {
+				$('body').append(html);
+			} else {
+				$("#contactPopup").show();
+			}
+			var popupform = $('#contactPopup');
+			popupform.html(reqResp);
 			popupform.css('text-align', 'left');
-			$('#popupformTwo > table > tbody > tr > td > p').css('text-align', 'left');
-			
-			$('.closeDialogue').click(function(){
-				$(this).off('click');
-				$(this).remove();
-				$('#popupformTwo').remove();
-				$('#overlay').hide();
-			});
 
 			if(popupform.width() > 760){
 				popupform.css('width', 760);
 			}
-
 			popupform.css('left', '50%');
 			popupform.css('margin-left', (popupform.width() + 48)/-2);
-			var d = popupform.width() - 15;
-			closeButton.css('left', d);
+		});	
+	});
+
+	$('.rulesLink').click(function() {
+		var splitted = $(this).attr('class').split(" ");
+		$('#overlay').show();
+		if(splitted[1] == null){
+			var link = 'page/rules';
+		} else {
+			var link = 'page/rules/'+splitted[1];
+		}
+
+		var ajxReq = $.ajax({
+			url : link,
+			method : 'GET',
+		}).done(function(reqResp){
+			var html = '<div id="rulesPopup" class="popup"></div>';
+			if ($("#rulesPopup").length == 0) {
+				$('body').append(html);
+			} else {
+				$("#rulesPopup").show();
+			}
+			var popupform = $('#rulesPopup');
+			popupform.html(reqResp);
+			popupform.css('text-align', 'left');
+
+			if(popupform.width() > 760){
+				popupform.css('width', 760);
+			}
+			popupform.css('left', '50%');
+			popupform.css('margin-left', (popupform.width() + 48)/-2);
 		});	
 	});
 
@@ -2693,21 +2550,16 @@ $(".previous").click(function(){
 			url : 'page/help',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupform_help" class="helpLink"></div>';
-			$('body').append(html);
+			var html = '<div id="popupform_help" class="popup"></div>';
+			if ($("#popupform_help").length == 0) {
+				$('body').append(html);
+			} else {
+				$("#popupform_help").show();
+			}
 			var popupform = $('#popupform_help');
 			
 			popupform.html(reqResp);
-			var closeButton = $('.closeDialogue');
-			$('#popupform > p').css('text-align', 'left');
-			$('.closeDialogue').click(function(){
-				$(this).off('click');
-				$(this).remove();
-				$('#popupform_help').remove();
-					if ($(".dialogue:visible").length === 0) {
-						$("#overlay").hide();
-					}
-			});
+
 			if(popupform.width() > 800){
 				popupform.css('width', 800);
 			}
@@ -2715,33 +2567,23 @@ $(".previous").click(function(){
 		});	
 	});
 
-	$("#fairRegistrationConfirm input[type=button].closeDialogue").click(function(){
-		$("#fairRegistrationConfirm").css('display', 'none');
-		if ($(".dialogue:visible").length === 0) {
-			$("#overlay").hide();
-		}
-	});
+
 	$('.helpOrgLink').click(function(){
 		$('#overlay').show();
 		var ajxReq = $.ajax({
 			url : 'page/help_organizer',
 			method : 'GET',
 		}).done(function(reqResp){
-			var html = '<div id="popupform_help" class="helpLink"></div>';
-			$('body').append(html);
+			var html = '<div id="popupform_help" class="popup"></div>';
+			if ($("#popupform_help").length == 0) {
+				$('body').append(html);
+			} else {
+				$("#popupform_help").show();
+			}
 			var popupform = $('#popupform_help');
 			
 			popupform.html(reqResp);
-			var closeButton = $('.closeDialogue');
-			$('#popupform > p').css('text-align', 'left');
-			$('.closeDialogue').click(function(){
-				$(this).off('click');
-				$(this).remove();
-				$('#popupform_help').remove();
-					if ($(".dialogue:visible").length === 0) {
-					$("#overlay").hide();
-					}
-			});
+
 			if(popupform.width() > 800){
 				popupform.css('width', 800);
 			}
@@ -2752,7 +2594,6 @@ $(".previous").click(function(){
 	$('.registerlink').click(function(e) {
 		e.preventDefault();
 		e.stopPropagation();
-		closeDialogue();
 		$('#overlay').show();
 		var states = new Array("Sweden", "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antarctica", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", "Bermuda", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burma", "Burundi", "Cambodia", "Cameroon", "Canada", "Cape Verde", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo, Democratic Republic", "Congo, Republic of the", "Costa Rica", "Cote d'Ivoire", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", "Dominican Republic", "East Timor", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Greenland", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hong Kong", "Hungary", "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", "Korea, North", "Korea, South", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Macedonia", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Mongolia", "Morocco", "Monaco", "Mozambique", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "Norway", "Oman", "Pakistan", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Samoa", "San Marino", " Sao Tome", "Saudi Arabia", "Senegal", "Serbia and Montenegro", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "Spain", "Sri Lanka", "Sudan", "Suriname", "Swaziland", "Switzerland", "Syria", "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan", "Vanuatu", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe");
 
@@ -2798,10 +2639,7 @@ $(".previous").click(function(){
 
 		hookUpPasswdMeter();
 		prepFormChecker();
-		$(".cancelbutton").click(function() {
-			closeForm();
-			closeDialogue();
-		});
+
 		/* >>>>>>> MULTISTEP FORM FOR REGISTER FORM <<<<<<<<< */
 		//jQuery time
 		var current_fs, next_fs, previous_fs; //fieldsets
@@ -2915,7 +2753,7 @@ $(".previous").click(function(){
 			next_fs = $(this).parent().next();
 			
 			//activate next step on progressbar using the index of next_fs
-			$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+			$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 			
 			//show the next fieldset
 			next_fs.show(); 
@@ -3021,7 +2859,7 @@ $(".previous").click(function(){
 				next_fs = $(this).parent().next();
 					
 				//activate next step on progressbar using the index of next_fs
-				$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+				$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 					
 				//show the next fieldset
 				next_fs.show();
@@ -3057,7 +2895,7 @@ $(".previous").click(function(){
 			next_fs = $(this).parent().next();
 			
 			//activate next step on progressbar using the index of next_fs
-			$("#progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
+			$(".progressbar li").eq($("fieldset").index(next_fs)).addClass("active");
 			
 			//show the next fieldset
 			next_fs.show();
@@ -3093,7 +2931,7 @@ $(".previous").click(function(){
 			previous_fs = $(this).parent().prev();
 			
 			//de-activate current step on progressbar
-			$("#progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
+			$(".progressbar li").eq($("fieldset").index(current_fs)).removeClass("active");
 			
 			//show the previous fieldset
 			previous_fs.show();
@@ -3129,7 +2967,7 @@ $(".previous").click(function(){
 				$('#invoice_zipcode').val($('#zipcode').val());
 				$('#invoice_city').val($('#city').val());
 				$('#invoice_country').val($('#country').val());
-				$('#invoice_email').val($('#email').val());
+				$('#invoice_email').val($('#contact_email').val());
 			} else {
 				$('#invoice_company').val("");
 				$('#invoice_address').val("");
@@ -3139,38 +2977,24 @@ $(".previous").click(function(){
 				$('#invoice_email').val("");
 			}
 		});
-		
-		$(".closeDialogue").click(function() {
-			if ($(".dialogue:visible").length === 0) {
-				$("#overlay").hide();
-			}
-			$("#popupform_login").remove();
-			$("#popupform").remove();
-			$("#popupform_register").remove();
-			$("#fairRegistrationConfirm").remove();
-			$('#popupformTwo').remove();
-			$("#newMarkerIcon").remove();
-		});
+
 		return false;
+	});
+
+	/********  CLOSE POPUPS LISTENER FUNCTION *******/
+
+	$(document).on("click",".closeDialogue", function(){
+		closeDialogue();
+	});
+
+	$(document).on("click",".cancelbutton", function(){
+		closeForm();
 	});
 
 	$(window).on('keyup', function(e) {
 		if (e.keyCode == 27) {
 			closeDialogue();
 			closeForm();
-			$("#confirmBox").remove();
-			$("#showUserDialogue").remove();
-			$("#arranger_message_popup").remove();
-			$("#popupform_login").remove();
-			$("#fairRegistrationConfirm").remove();
-			$("#popupform_help").remove();
-			$("#popupform_register").remove();
-			$('#popupformTwo').remove();
-			$("#newMarkerIcon").remove();
-			$("#export_popup").remove();
-			if ($(".dialogue:visible").length === 0) {
-				$("#overlay").hide();
-			}
 		}
 	});
     /*
@@ -3230,6 +3054,12 @@ $(".previous").click(function(){
 		$('#overlay').show();
 		prelPopup(link.parent().parent(), link.attr('href'), 'review');
 
+	}).on('click', '.open-view-booking', function(e) {
+		var link = $(this);
+		e.preventDefault();
+		$('#overlay').show();
+		prelPopup(link.parent().parent().parent(), link.attr('href'), 'review');
+
 	}).on('click', '.open-view-this-preliminary', function(e) {
 		var link = $(this);
 		e.preventDefault();
@@ -3240,19 +3070,20 @@ $(".previous").click(function(){
 	.on('click', '.open-excel-export', showExportPopup)
 	.on('click', '.open-send-cloned', sendVerifyCloned)
 	.on('click', '.open-sms-send', showSmsSendPopup)
+	.on('click', '.set-recurring', setRecurring)
+	.on('click', '.unset-recurring', unsetRecurring)
 	.on('click', '.check-all', checkAll)
 	.on("click", "#exportToExcel", function (e) {
 		e.preventDefault();
 		prepareTable.call(this);
-	})
-	.on('click', '.open-arranger-message', function(e) {
+	}).on('click', '.open-arranger-message', function(e) {
 		e.preventDefault();
 		$('#overlay').show();
 		var link = $(this), 
 			arranger_message_popup = $('#arranger_message_popup');
 
 		if (arranger_message_popup.length === 0) {
-			arranger_message_popup = $('<div id="arranger_message_popup" class="dialogue">'
+			arranger_message_popup = $('<div id="arranger_message_popup" class="dialogue popup">'
 				+ '<h3>' + lang.messageFromExhibitor + '</h3>'
 				+ '<p class="center" id="arranger_message_text"></p><p class="center">'
 				+ '<a href="#" class="greenbutton mediumbutton close-ok">' + lang.ok + '</a></p></div>');
@@ -3269,7 +3100,31 @@ $(".previous").click(function(){
 				arranger_message_popup.show();
 			}
 		});
-	});
+	}).on('click', '.open-deletion-message', function(e) {
+		e.preventDefault();
+		$('#overlay').show();
+		var link = $(this), 
+			deletion_message_popup = $('#deletion_message_popup');
+
+		if (deletion_message_popup.length === 0) {
+			deletion_message_popup = $('<div id="deletion_message_popup" class="dialogue popup">'
+				+ '<h3>' + lang.deletionMessage + '</h3>'
+				+ '<p class="center" id="deletion_message_text"></p><p class="center">'
+				+ '<a href="#" class="greenbutton mediumbutton close-ok">' + lang.ok + '</a></p></div>');
+
+			$('body').append(deletion_message_popup);
+			$('.close-ok', deletion_message_popup).click(closeDialogue);
+		}
+
+		$.ajax({
+			url: link.attr('href'),
+			method: 'get',
+			success: function(response) {
+				$('#deletion_message_text').text(response.message);
+				deletion_message_popup.show();
+			}
+		});
+	}).on('click', '.zip-invoices', zipInvoices);
 
 	$("#copy").change(function() {
 		if ($(this).is(":checked")) {
@@ -3278,7 +3133,7 @@ $(".previous").click(function(){
 			$('#invoice_zipcode').val($('#zipcode').val());
 			$('#invoice_city').val($('#city').val());
       		$('#invoice_country').val($('#country').val());
-			$('#invoice_email').val($('#email').val());
+			$('#invoice_email').val($('#contact_email').val());
 		} else {
 			$('#invoice_company').val("");
 			$('#invoice_address').val("");
@@ -3301,6 +3156,48 @@ $(".previous").click(function(){
 	$('.std_table:not(.scrolltable)').tablesorter();
 
 });
+
+/*********  ZIP-download script  **********/
+
+function zipInvoices(e) {
+  e.preventDefault();
+
+  var button = $(e.target);
+  var links = '';
+  var table_form = $(button.prop('form'));
+
+/*  count = 0;
+
+  $('input[name*=rows]:checked', table_form).each(function(index, input) {
+    count += $(input).data('ziplink').length;
+  });
+
+*/
+
+  $('input[name*=rows]:checked', table_form).each(function(index, input) {
+    links += encodeURIComponent($(input).data('ziplink')) + '|';
+  });
+  links = links.substr(0, links.length-1); 
+//console.log(links);
+
+    $.ajax({
+      url: 'administrator/exportFiles',
+      method: 'POST',
+      data: 'fileLink=' + links,
+      success: function(response) {
+        window.location = 'administrator/downloadInvoices/' + response;
+        console.log(response);
+        //console.log(links);
+      }
+    });
+    //console.log($(input).val());
+}
+
+// Force lowercase in text field (alias field)
+function forceLower(strInput) 
+{
+strInput.value=strInput.value.toLowerCase();
+}
 
 var Tabs = (function($) {
 	var Tabs = function(element) {

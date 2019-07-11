@@ -27,7 +27,7 @@
 </style>
 <button class="go_back" onclick="location.href='<?php echo BASE_URL; ?>fair/overview'"><?php echo uh($translator->{'Go back'}); ?></button>
 <br />
-<h1><?php echo $headline; ?> <?php echo $fair->get('name'); ?></h1>
+<h1><?php echo $fair->get('name'); ?> - <?php echo $headline; ?></h1>
 
 <form action="fair/economy/<?php echo $fairId; ?>" method="post">
 
@@ -88,19 +88,17 @@
 				<?php endforeach; ?>
 			<?php endforeach; ?>
 		<?php } ?>
-		<!--<?php echo var_dump($invoiceposprice); ?>-->
-		<?php if (isset($articles) && $articles[0][0]['COUNT(amount)'] > 0) { ?>
-			<?php foreach ($articles as $article): ?>
-				<?php foreach ($article as $art): ?>
-					<?php if ($art['COUNT(amount)'] > 0) { ?>
-					<tr>
-						<td class="center"><?php echo $tr_article; ?></td>
-						<td class="left"><?php echo $art['text']; ?></td>
-						<td class="center"><?php echo $articleamount; ?></td>
-						<td class="center"><?php echo $articleamount*$art['price']; ?></td>
-					</tr>
-					<?php } ?>
-				<?php endforeach; ?>
+		
+		<?php if (isset($articles) && count($articles) > 0) { ?>
+			<?php foreach ($articles as $art): ?>
+				<?php if ($art['amount'] > 0) { ?>
+				<tr>
+					<td class="center"><?php echo $tr_article; ?></td>
+					<td class="left"><?php echo $art['text']; ?></td>
+					<td class="center"><?php echo $art['amount']; ?></td>
+					<td class="center"><?php echo $art['amount']*$art['price']; ?></td>
+				</tr>
+				<?php } ?>
 			<?php endforeach; ?>
 		<?php } ?>
 	</tbody>
@@ -119,13 +117,28 @@
 	<tbody>
 		<!--<?php echo var_dump($invoices); ?>-->
 		<?php foreach ($invoices as $invoice): ?>
-
+<?php
+$replace_chars2 = array(
+	'/' => '-',
+	'"' => '&quot;',
+	':' => '_'
+);
+$replace_chars = array(
+	'/' => '-',
+	"'" => '\u0027',
+	'"' => '&quot;',
+	':' => '_'
+);
+$exhibitor_id = strtr($invoice['exhibitor'], $replace_chars);
+$r_name2 = strtr($invoice['r_name'], $replace_chars2);
+$posname = strtr($invoice['invoiceposname'], $replace_chars);
+?>
 		<tr>
 			<td class="center"><?php echo $invoice['id']; ?></td>
 			<td class="center"><?php echo $invoice['invoiceposname']; ?></td>
 			<td class="center"><?php echo $invoice['r_name']; ?></td>
 			<td class="center">
-				<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$invoice['exhibitor'].'/'.str_replace('/', '-', $invoice['r_name']) . '-' . $invoice['invoiceposname'] . '-' . $invoice['id'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
+				<a href="<?php echo BASE_URL.'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$exhibitor_id.'/'. $r_name2 . '-' . $posname . '-' . $invoice['id'] . '.pdf'?>" target="_blank" title="<?php echo $tr_viewinvoice; ?>">
 					<img style="width:1.833em;" src="<?php echo BASE_URL; ?>images/icons/invoice.png" class="icon_img" />
 				</a>
 			</td>

@@ -71,9 +71,11 @@
 }
 #right_sidebar #category_filter {
 	width:100%;
+	font-size: 1.2em;
 }
 #right_sidebar #map_select {
 	width:100%;
+	font-size: 1.2em;
 }
 #search_filter {
 	width:100%;
@@ -289,6 +291,7 @@ box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.26);
 	filter: alpha(opacity=95);
 	opacity: 0.95;
 	font-weight: 500;
+	border-radius: 0.25em 0.25em 0 0;
 	background-color: #47832F;
 	padding: 0.833em 1.66em;
 	margin: -0.416em -0.416em 0.833em -1.34em;
@@ -376,9 +379,6 @@ box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.26);
 	z-index:10000;
 	width: 66em;
 	margin-bottom: 2em;
-	-moz-border-radius:8px;
-	-webkit-border-radius:8px;
-	border-radius:1px;
 	overflow: visible;
 }
 #more_info_dialogue #column h3, h4 {
@@ -449,6 +449,42 @@ h1.inline-block {
 #leftfloatingbar {
 	padding-left:2.5%;
 	height:40px;
+}
+
+/* Map info contact div */
+
+#map_div_info {
+	position: absolute;
+	z-index: 999;
+	background: #2a2a2a;
+	color: #fff;
+	box-sizing: content-box;
+	min-width: 12em;
+	right:27em;
+	top: 2em;
+}
+#map_div_info_header {
+	position: relative;
+	margin: 0;
+	width: auto;
+	padding: 1.5em 1em 1em 1em;
+	background: #2a2a2a;
+	color: #fff;
+	line-height: 1;
+	cursor: move;
+	font-size: 1.2em;
+	font-weight:600;
+}
+#map_div_info label {
+	padding-top: 0;
+	width: 9.5em;
+
+}
+.mapdivbtn {
+    font-size: 1.16em;
+    width: 100%;
+    margin: 0.5em 1em;
+    padding: 0.5em;
 }
 
 /* Map grid toolbox maximized */

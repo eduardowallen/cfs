@@ -89,6 +89,10 @@
 		<input type="text" class="dialogueInput datetime datepicker" name="accepted_clone_date" id="accepted_clone_date" />
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date that cloned reservations are set to when accepted by the Exhibitor.'}); ?>" />
 
+		<label for="default_reservation_date"><?php echo $default_reservation_date; ?> <br>(DD-MM-YYYY HH:MM) *</label>
+		<input type="text" class="dialogueInput datetime datepicker" name="default_reservation_date" id="default_reservation_date" />
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter a date that will be used when creating new reservations.'}); ?>" />
+
 		<label for="website"><?php echo $website_label; ?> *</label>
 		<input type="text" name="website" id="website" value="<?php echo $fair->get('website'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter the website of your event. This will be used for automatically generated email (through CFS).'}); ?>" />
@@ -96,6 +100,10 @@
 		<label for="contact_email"><?php echo $contact_email_label; ?> *</label>
 		<input type="text" name="contact_email" id="contact_email" value="<?php echo $fair->get('contact_email'); ?>"/>
 	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter an email address that will be used for automatically generated email (through CFS).'}); ?>" />
+
+		<label for="contact_name"><?php echo $contact_name_label; ?> *</label>
+		<input type="text" name="contact_name" id="contact_name" value="<?php echo $fair->get('contact_name'); ?>"/>
+	  <img src="/images/icons/icon_help.png" class="helpicon" title="<?php echo uh($translator->{'Enter the name of the contact person that will be used for automatically generated email (through CFS).'}); ?>" />
 
 		<label for="contact_phone"><?php echo $contact_phone_label; ?> *</label>
 		<input type="text" name="contact_phone" id="contact_phone" value="<?php echo $fair->get('contact_phone'); ?>"/>

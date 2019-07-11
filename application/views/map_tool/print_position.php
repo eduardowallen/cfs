@@ -11,20 +11,34 @@
 	</head>
 
 	<body>
+<style>
+body {
+	font-size: 14px;
+}
+.standSpaceName {
+    font-weight: 600;
+    color:#000;
+}
+.dialogue {
+	width: -webkit-fill-available;
+	top: auto;
+	left: auto;
+	margin-top: 0;
+	margin-left: 0;
+	max-width: auto;
+}
 
+</style>
 <?php if (isset($error)): ?>
 		<p><?php echo $error; ?></p>
 
 <?php else: ?>
-		<div id="more_info_dialogue" class="dialogue" style="display: block; top: 0; margin-top: 0;">
-			<h3><?php echo htmlspecialchars($position->get('name')) . ': ' . htmlspecialchars($exhibitor->get('company'));?></h3>
-			<div class="info">
+		<div id="presentation_dialogue" class="dialogue" style="display: block;">
+			<h3 class="standSpaceName" style="margin-top:-3.5em;"><?php echo htmlspecialchars($position->get('name')) . ': ' . htmlspecialchars($exhibitor->get('company'));?></h3>
+			<div class="info" style="margin-top:0.5em; line-height: 3em;">
 				<p>
-					<strong><?php echo $label_status; ?>:</strong> <?php echo $position->get('statusText'); ?><br />
-					<strong><?php echo $label_area; ?> (m<sup>2</sup>):</strong> <?php echo $position->get('area'); ?>
-				</p>
-				<p>
-					<strong><?php echo ucfirst($position->get('statusText')); ?> <?php echo $label_by; ?>:</strong> <?php echo htmlspecialchars($exhibitor->get('company')); ?>
+					<strong><?php echo $label_status; ?>:</strong> <?php echo uh($translator->{$position->get('statusText')}); ?><br />
+					<strong><?php echo $label_area; ?>:</strong> <?php echo $position->get('area'); ?>
 				</p>
 <?php	if ($position->get('status') == 1): ?>
 				<p>
@@ -44,7 +58,7 @@
 			<?php endif; ?>
 			</div>
 
-			<h4><?php echo $label_presentation; ?></h4>
+			<h4 style="margin-top: 1em;"><?php echo $label_presentation; ?></h4>
 
 			<div class="presentation" style="max-height: auto; overflow: visible;">
 <?php	if (strlen($exhibitor->get('presentation')) < 1): ?>

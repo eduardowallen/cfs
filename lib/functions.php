@@ -18,6 +18,26 @@ function userIsConnectedTo($fairId) {
 		return false;
 	}
 }
+function loadRealInvoiceId($fairId) {
+	global $globalDB;
+	$stmt_invoiceid1 = $globalDB->prepare("SELECT id FROM exhibitor_invoice as id WHERE fair = ? order by id desc limit 1");
+	$stmt_invoiceid1->execute(array($fairId));
+	$res = $stmt_invoiceid1->fetch(PDO::FETCH_ASSOC);
+	$invoice_id1 = $res['id'];
+	$stmt_invoiceid2 = $globalDB->prepare("SELECT id FROM exhibitor_invoice_history as id WHERE fair = ? order by id desc limit 1");
+	$stmt_invoiceid2->execute(array($fairId));
+	$res2 = $stmt_invoiceid2->fetch(PDO::FETCH_ASSOC);
+	$invoice_id_history = $res2['id'];
+
+	if ($invoice_id1 > $invoice_id_history) {
+		$invoice_id = $invoice_id1;
+	} else if ($invoice_id1 < $invoice_id_history) {
+		$invoice_id = $invoice_id_history;
+	} else {
+		$invoice_id = 0;
+	}
+	return $invoice_id;
+}
 
 function userCanAdminFair($fair_id, $map_id) {
 
@@ -109,10 +129,7 @@ function setAuthLevel($lvl) {
 
 }
 
-function sendMail($to, $subject, $msg, $from='') {
-
-	/*mail($to, $subject, $msg, 'From:Chartbooker<no-reply@chartbooker.com>');
-	return;*/
+/*function sendMail($to, $subject, $msg, $from='') {
 
 	// If the code runs on testserver, send ALL emails to example@chartbooking.com!
 	if (defined('TESTSERV') && TESTSERV) {
@@ -172,7 +189,7 @@ function sendMailHTML($to, $subject, $msg, $from='') {
 	$result = $mailer->send($message);
 	return $result;
 }
-
+*/
 function makeUrl($str, $ignoreCaps=true) {
 	if ($ignoreCaps)
 		$str = mb_strtolower($str, 'UTF-8');
@@ -304,6 +321,17 @@ function accessLevelToText($level)
   endswitch;
 }
 
+function printTime($time)
+{
+  if ($time > 0) {
+  	date_default_timezone_set('Europe/Stockholm');
+  	return date('d-m-Y H:i', $time);
+  } else {
+  	return '-';
+  }
+}
+
+
 function posStatusToText($status) {
 	global $translator;
 
@@ -330,7 +358,7 @@ function getGMToffset() {
 // Encodes any HTML special chars to entities INCLUDING single quote
 // Stands for "User input to JavaScript"
 function ujs($str) {
-	return htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+ return substr(json_encode(htmlspecialchars($str, ENT_QUOTES, 'UTF-8')), 1, -1);
 }
 
 // Encodes any HTML special chars to entities EXCLUDING single quote

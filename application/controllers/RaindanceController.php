@@ -66,8 +66,8 @@ class RaindanceController extends Controller {
 		$this->Raindance->load($id, 'fair');
 
 		
-			$this->set('rd', $this->Raindance);
-			$this->set('fairId', $id);
+			$this->setNoTranslate('rd', $this->Raindance);
+			$this->setNoTranslate('fairId', $id);
 			$this->set('headline', 'Raindance settings');
 			$this->set('part_one_label', 'Code part 1');
 			$this->set('part_two_label', 'Code part 2');

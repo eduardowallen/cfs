@@ -14,10 +14,19 @@ function showLabel($label) {
 	echo $mylabels[$label] . ': ';
 }
 ?>
+<?php if (!empty($mail_errors)): ?>
+  <script>
+  showInfoDialog('<?php echo implode('<br>', $mail_errors); ?>', '<?php echo $error_title; ?>');
+  </script>
+<?php endif; ?>
+<?php if (!empty($mail_success)): ?>
+  <script>
+  showInfoDialog('<?php echo $emails_sent; ?>', '<?php echo $success_title; ?>');
+  </script>
+<?php endif; ?>
 <h1><?php showLabel('header'); ?> <?php echo $user->get('name'); ?></h1>
 <div id="arranger-info">
 	<div class="float-left">
-		<p><?php echo '<strong>'.$label_customer_nr.'</strong>: '.$user->get('customer_nr'); ?></p>
 		<p><?php echo '<strong>'.$label_num_events.'</strong>: '.$num_events; ?></p>
 	</div>
 	<div class="float-left">
@@ -42,7 +51,6 @@ function showLabel($label) {
 <?php echo '<strong>'.$label_phone1.':</strong> '.$user->get('phone1'); ?><br />
 <?php echo '<strong>'.$label_phone2.':</strong> '.$user->get('phone2'); ?><br />
 <?php echo '<strong>'.$label_phone3.':</strong> '.$user->get('contact_phone'); ?><br />
-<?php echo '<strong>'.$label_fax.':</strong> '.$user->get('fax'); ?><br />
 <?php echo '<strong>'.$label_website.':</strong> <a target="_blank" href="' . $user->get('website') . '">' . $user->get('website') . '</a>'; ?><br />
 <?php echo '<strong>'.$label_email.':</strong> <a href="mailto:' . $user->get('email') . '">' . $user->get('email') . '</a>'; ?><br />
 

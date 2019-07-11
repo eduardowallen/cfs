@@ -56,24 +56,64 @@ class PageController extends Controller {
 		}
 
 		$this->set('headline', 'Contact us');
+		$this->set('dates', 'Dates');
+		$this->set('openinghours', 'Opening hours');
 		
 		if ($fairUrl != '' && (int)$fairUrl == 0) {
-			$stmt = $this->Page->db->prepare("SELECT email, contact_info AS content FROM fair WHERE url = ?");
+			$stmt = $this->Page->db->prepare("SELECT event_start, event_stop, windowtitle, contact_info AS content FROM fair WHERE url = ?");
 			$stmt->execute(array($fairUrl));
 		} else if($fairUrl != '') {
-			$stmt = $this->Page->db->prepare("SELECT email, contact_info AS content FROM fair WHERE id = ?");
+			$stmt = $this->Page->db->prepare("SELECT event_start, event_stop, windowtitle, contact_info AS content FROM fair WHERE id = ?");
 			$stmt->execute(array($fairUrl));
 		} else {
+			$this->setNoTranslate('no_event', true);
 			$stmt = $this->Page->db->prepare("SELECT * FROM page_content WHERE page = ? AND language = ?");
 			$stmt->execute(array('contact', LANGUAGE));
 		}
 		$pageContent = $stmt->fetch(PDO::FETCH_ASSOC);
-		
 		$content = $pageContent['content'];
-		if (is_array($pageContent) && array_key_exists('email', $pageContent))
-			$content = '<h3><a href="mailto:'.$pageContent['email'].'">'.$pageContent['email'].'</a></h3>'.$content;
-		
+		if ($fairUrl != '') {
+			$name = $pageContent['windowtitle'];
+			$eventstart = $pageContent['event_start'];
+			$eventstop = $pageContent['event_stop'];
+			$this->setNoTranslate('no_event', false);
+			$this->setNoTranslate('eventName', $name);
+			$this->setNoTranslate('eventstart', $eventstart);
+			$this->setNoTranslate('eventstop', $eventstop);
+		}
 		$this->setNoTranslate('content', $content);
+		setlocale(LC_ALL,"sv_SE.UTF-8");
+		
+	}
+
+	function rules($fairUrl='') {
+
+		if ($this->is_ajax) {
+			$this->setNoTranslate('onlyContent', true);
+		}
+
+		$this->set('headline', 'Event rules');
+		$this->set('dates', 'Dates');
+		$this->set('openinghours', 'Opening hours');
+		
+		if ($fairUrl != '' && (int)$fairUrl == 0) {
+			$stmt = $this->Page->db->prepare("SELECT event_start, event_stop, windowtitle, rules AS content FROM fair WHERE url = ?");
+			$stmt->execute(array($fairUrl));
+		} else if($fairUrl != '') {
+			$stmt = $this->Page->db->prepare("SELECT event_start, event_stop, windowtitle, rules AS content FROM fair WHERE id = ?");
+			$stmt->execute(array($fairUrl));
+		}
+		
+		$pageContent = $stmt->fetch(PDO::FETCH_ASSOC);
+		$content = $pageContent['content'];
+		$name = $pageContent['windowtitle'];
+		$eventstart = $pageContent['event_start'];
+		$eventstop = $pageContent['event_stop'];
+		setlocale(LC_ALL,"sv_SE.UTF-8");
+		$this->setNoTranslate('content', $content);
+		$this->setNoTranslate('eventName', $name);
+		$this->setNoTranslate('eventstart', $eventstart);
+		$this->setNoTranslate('eventstop', $eventstop);
 		
 	}
 	
