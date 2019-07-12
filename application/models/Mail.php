@@ -35,7 +35,7 @@ class Mail {
 			WHERE `template_name` = ?
 			AND (
 				`language` = ?
-				OR `default` = 'eng'
+				OR `default` = 'sv'
 				)
 			ORDER BY `default` ASC");
 
@@ -50,7 +50,7 @@ class Mail {
 			WHERE `template_name` = ?
 			AND (
 				`language` = ?
-				OR `default` = 'eng'
+				OR `default` = 'sv'
 				)
 			ORDER BY `default` ASC");
 
@@ -68,10 +68,6 @@ class Mail {
 	 * @throws Exception
 	 */
 	public function sendMessage() {
-		if (DEV) {
-			$this->recipient[0] = 'eduardo.wallen@chartbooker.com';
-			$this->recipient[1] = 'Eduardo Testmaster';
-		}
 		$this->body = [
 			'Messages'	=>	[
 				[
