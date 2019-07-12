@@ -548,6 +548,11 @@ class UserController extends Controller {
 				$this->User->load($_POST['user'], 'email');
 				/* Preparing to send the mail */
 				if ($this->User->wasLoaded()) {
+					/* Preparing to send the mail */
+					if ($this->User->get('contact_email') == '')
+					$recipient = array($this->User->get('email'), $this->User->get('name'));
+					else
+					$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
 					$pass = md5(date('YmdHis'));
 					$pass = substr($pass, -30, 6);
 					$this->User->setPassword($pass);
@@ -1018,9 +1023,6 @@ public function deletelogo() {
 			$this->User->save();
 
 			/* Preparing to send the mail */
-			if ($this->User->get('contact_email') == '')
-			$recipient = array($this->User->get('email'), $this->User->get('name'));
-			else
 			$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
 			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
 			/* UPDATED TO FIT MAILJET */

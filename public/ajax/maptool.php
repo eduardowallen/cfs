@@ -464,7 +464,10 @@ if (isset($_POST['fairRegistration'])) {
 			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 			else
 			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-			
+			if (isset($_POST['arranger_message']) && $_POST['arranger_message'] !== '')
+				$comment = htmlspecialchars_decode($_POST['arranger_message']);
+			else
+				$comment = $translator->{'No message was given.'};
 			if ($user->get('contact_email') == '')
 			$recipient = array($user->get('email'), $user->get('company'));
 			else
@@ -482,7 +485,7 @@ if (isset($_POST['fairRegistration'])) {
 			$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
 			$mail_user->setMailVar('event_website', $fair->get('website'));
 			$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-			$mail_user->setMailVar('comment', $_POST['arranger_message']);
+			$mail_user->setMailVar('comment', $comment);
 			$mail_user->setMailVar('position_area', $_POST['area']);
 			$mail_user->sendMessage();
 
@@ -506,7 +509,7 @@ if (isset($_POST['fairRegistration'])) {
 					$mail_organizer->setMailVar('event_contact', $fair->get('contact_name'));
 					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
 					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
-					$mail_organizer->setMailVar('comment', $_POST['arranger_message']);
+					$mail_organizer->setMailVar('comment', $comment);
 					$mail_organizer->setMailVar('position_area', $_POST['area']);
 					$mail_organizer->sendMessage();
 				}
@@ -605,14 +608,14 @@ if (isset($_POST['reservePosition'])) {
 	if ($fair->wasLoaded()) {
 		/* Check mail settings and send only if setting is set */
 		$mailSettings = json_decode($fair->get("mail_settings"));
-		if (isset($mailSettings->ReservationCreated) && is_array($mailSettings->ReservationCreated)) {
+		if (isset($mailSettings->BookingCreated) && is_array($mailSettings->BookingCreated)) {
 			$user = new User();
 			$user->load2($exhibitor->get('user'), 'id');
 			if ($fair->get('contact_name') == '')
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
 			else
 				$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
-			if (in_array("1", $mailSettings->ReservationCreated)) {
+			if (in_array("1", $mailSettings->BookingCreated)) {
 				/* Prepare to send the mail */
 				if ($user->get('contact_email') == '')
 				$recipient = array($user->get('email'), $user->get('company'));
@@ -752,8 +755,18 @@ if (isset($_POST['preliminary'])) {
 			$pb->set('arranger_message', $_POST['arranger_message']);
 			$pb->set('booking_time', time());
 			$pb->save();
-
+			/* Prepare to send the mail */
+			if ($fair->get('contact_name') == '')
+			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
+			else
+			$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('contact_name'));
 			$mailSettings = json_decode($fair->get("mail_settings"));
+
+			if (isset($_POST['arranger_message']) && $_POST['arranger_message'] !== '')
+				$comment = htmlspecialchars_decode($_POST['arranger_message']);
+			else
+				$comment = $translator->{'No message was given.'};
+
 			/* Check mail settings and send only if setting is set */
 			if (isset($mailSettings->PreliminaryCreated) && is_array($mailSettings->PreliminaryCreated)) {
 				if (in_array("0", $mailSettings->PreliminaryCreated)) {
@@ -771,11 +784,12 @@ if (isset($_POST['preliminary'])) {
 					$mail_organizer->setRecipient($recipient);
 					/* Setting mail variables */
 					$mail_organizer->setMailVar('exhibitor_company', $user->get('company'));
+					$mail_organizer->setMailVar('event_contact', $fair->get('contact_name'));
 					$mail_organizer->setMailVar('event_name', $fair->get('windowtitle'));
 					$mail_organizer->setMailVar('event_url', BASE_URL . $fair->get('url'));
 					$mail_organizer->setMailVar('position_name', $pos->get('name'));
 					$mail_organizer->setMailVar('position_area', $pos->get('area'));
-					$mail_organizer->setMailVar('comment', $_POST['arranger_message']);
+					$mail_organizer->setMailVar('comment', $comment);
 					$mail_organizer->sendMessage();
 				}
 			}
@@ -799,7 +813,7 @@ if (isset($_POST['preliminary'])) {
 			$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
 			$mail_user->setMailVar('position_name', $pos->get('name'));
 			$mail_user->setMailVar('position_area', $pos->get('area'));
-			$mail_user->setMailVar('comment', $_POST['arranger_message']);
+			$mail_user->setMailVar('comment', $comment);
 			$mail_user->sendMessage();
 		}
 	}
@@ -835,8 +849,10 @@ if (isset($_POST['cancelBooking'])) {
 		$position->set('status', 0);
 		$position->set('expires', '0000-00-00 00:00:00');
 		$position->save();
-		if (isset($_POST['comment']))
-		$comment = htmlspecialchars_decode($_POST['comment']);
+		if (isset($_POST['comment']) && $_POST['comment'] !== '')
+			$comment = htmlspecialchars_decode($_POST['comment']);
+		else
+			$comment = $translator->{'No message was given.'};
 		if ($fair->wasLoaded()) {
 			$mailSettings = json_decode($fair->get("mail_settings"));
 			/* Check mail settings and send only if setting is set */
@@ -867,7 +883,6 @@ if (isset($_POST['cancelBooking'])) {
 					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
 					$mail_user->setMailVar('event_website', $fair->get('website'));
 					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-					if ($comment)
 					$mail_user->setMailVar('comment', $comment);
 					$mail_user->sendMessage();
 					
