@@ -81,9 +81,18 @@ class AdministratorController extends Controller {
 			else
 				$comment = $this->translate->{'No message was given.'};
 
-			$stmt = $this->Administrator->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.r_reference AS r_reference, ex_invoice.exhibitor AS exhibitor, ex_invoice.row_id AS row_id, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
+			$stmt = $this->Administrator->db->prepare("SELECT 
+				ex_invoice.r_name AS r_name, 
+				ex_invoice.r_reference AS r_reference, 
+				ex_invoice.exhibitor AS exhibitor, 
+				ex_invoice.row_id AS row_id, 
+				ex_invoice.fair AS fair, 
+				ex_invoice.id AS id, 
+				user.invoice_email AS invoice_email, 
+				pos.text AS posname
 				FROM user, exhibitor_invoice AS ex_invoice, exhibitor_invoice_rel AS pos
 				WHERE ex_invoice.ex_user = user.id
+				AND ex_invoice.fair = pos.fair
 				AND ex_invoice.id = pos.invoice
 				AND pos.type = 'space'
 				AND ex_invoice.row_id = ?");
@@ -109,6 +118,7 @@ class AdministratorController extends Controller {
 				$mail_user->setServerTemplate('send_invoice');
 				$mail_user->setRecipient($recipient);
 				$mail_user->setAttachment($invoice_file);
+				$mail_user->setFilename($this->translate->{'Invoice no '}.$res['id'].'.pdf');
 				/* Setting mail variables */
 				$mail_user->setMailVar('exhibitor_company', $res['r_name']);
 				$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
