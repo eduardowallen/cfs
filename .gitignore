@@ -11,6 +11,8 @@ public/invoices/*
 !public/invoices/fairs/empty
 !public/invoices/tmp/empty
 
+#Ignore the files in the lang folder
+application/lang/*
 
 # Ignore everything in tmp except empty placeholder.
 public/images/tmp/*
