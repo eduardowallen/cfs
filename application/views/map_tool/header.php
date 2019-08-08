@@ -207,6 +207,7 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	lang.reserveStandSpace = '<?php echo ujs($translator->{"Reserve stand space (if not yet payed"}); ?>';
 	lang.reservePrelStandSpace = '<?php echo ujs($translator->{"Reserve requested stand space"}); ?>';
 	lang.preliminaryBookStandSpace = '<?php echo ujs($translator->{"Preliminary book stand space"}); ?>';
+	lang.prelminaryBookConfirm = '<?php echo ujs($translator->{"Preliminary book stand"}); ?>';
 	lang.applyForFair = '<?php echo ujs($translator->{"Queue for stand space"}); ?>';
 	lang.cancelPreliminaryBooking = '<?php echo ujs($translator->{"Cancel preliminary booking"}); ?>';
 	lang.editBooking = '<?php echo ujs($translator->{"Edit booking"}); ?>';

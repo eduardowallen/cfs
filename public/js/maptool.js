@@ -1381,7 +1381,7 @@ maptool.markForApplication = function(positionObject) {
 	$('#apply_category_input, #apply_commodity_input').css('border-color', '#B09D9D');
 	$('#apply_position_form textarea, #apply_position_form select').val("");
 	$('.standSpaceName').html("");
-	$('.standSpaceName').text(lang.preliminaryBookStandSpace + ': ' + positionObject.name);
+	$('.standSpaceName').text(lang.prelminaryBookConfirm + ': ' + positionObject.name);
 	$('.ssinfo').html("");
 	$('.ssinfo').html('<label>' + lang.area +  ': </label><p>' + positionObject.area + '</p><br/><label>' + lang.price +  ': </label><p>' + positionObject.price + ' ' + maptool.map.currency + '</p><br/><label>' + lang.info + ': </label><p>' + positionObject.information) + '</p>';
 	maptool.openForm('apply_position_form');
