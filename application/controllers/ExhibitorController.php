@@ -1175,7 +1175,7 @@ class ExhibitorController extends Controller {
 		foreach ($positions_unfinished as $pos) {
 
 			/* Get invoice ids */
-			$stmt = $u->db->prepare("SELECT id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ?");
+			$stmt = $u->db->prepare("SELECT id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ? AND status IN (1, 2)");
 			$stmt->execute(array($pos['id']));
 			$posinvoiceid = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$invoicecompany = array();
