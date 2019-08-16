@@ -91,7 +91,7 @@ $column_info = array(
 					<th class="left"><?php echo $th_contact; ?></th>
 					<th class="left"><?php echo $th_email; ?></th>
 <!--				<th><?php echo $th_website; ?></th>-->
-					<th data-sorter="false"><?php echo $th_view; ?></th>
+<!--					<th data-sorter="false"><?php echo $th_view; ?></th>-->
 					<?php if (userLevel() > 0): ?>
 <!--				<th data-sorter="false"><?php echo $th_profile; ?></th>-->
 						<th class="last" data-sorter="false">
@@ -119,7 +119,7 @@ $column_info = array(
 					<td class="left"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><?php echo $pos['name']; ?></a></td>
 					<td class="left"><?php echo $pos['email']; ?></td>
 <!--				<td class="center"><a target="_blank" href="<?php echo (stristr($pos['website'], 'http://') ? $pos['website'] : 'http://' . $pos['website']); ?>"><?php echo $pos['website']; ?></a></td>-->
-					<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" class="icon_img" alt="" title="<?php echo $th_view; ?>" /></a></td>
+<!--				<td class="center"><a href="mapTool/map/<?php echo $pos['fair'].'/'.$pos['position'].'/'.$pos['posmap']; ?>"><img src="images/icons/map_go.png" class="icon_img" alt="" title="<?php echo $th_view; ?>" /></a></td>-->
 					<?php if (userLevel() > 0): ?>
 <!--				<td class="center"><a href="exhibitor/profile/<?php echo $pos['id']; ?>" class="showProfileLink"><img src="images/icons/user.png" alt="" title="<?php echo $th_profile; ?>" /></a></td>-->
 				
