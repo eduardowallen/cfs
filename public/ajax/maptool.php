@@ -277,7 +277,7 @@ if (isset($_POST['init'])) {
 
 }
 
-if (isset($_POST['terms'])) {
+if (isset($_GET['terms'])) {
 	if (isset($_SESSION['user_fair'])) {
 		$fair = new Fair();
 		$fair->loadterms($_SESSION['user_fair'], 'id');
