@@ -1523,16 +1523,16 @@ maptool.markForApplication = function(positionObject) {
 					method: 'GET',
 					data: 'terms'
 				}).done(function (response) {
-					self.setContentAppend('<div>'+response+'</div>');
+					self.setContent('<div>'+response+'</div>');
 				}).fail(function(){
-					self.setContentAppend('<div>Fail!</div>');
+					self.setContent('<div>Fail!</div>');
 				});
 			},
 			contentLoaded: function(data, status, xhr){
-				self.setContentAppend('<div>Content loaded!</div>');
+				self.setContent('<div>Content loaded!</div>');
 			},
 			onContentReady: function(){
-				this.setContentAppend('<div>Content ready!</div>');
+				this.setContent('<div>Content ready!</div>');
 			},
 			buttons: {
 				confirm: function () {
