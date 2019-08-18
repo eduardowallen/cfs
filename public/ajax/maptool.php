@@ -277,6 +277,17 @@ if (isset($_POST['init'])) {
 
 }
 
+if (isset($_POST['terms'])) {
+	if (isset($_SESSION['user_fair'])) {
+		$fair = new Fair();
+		$fair->loadterms($_SESSION['user_fair'], 'id');
+		$result = $fair->get('terms');
+	} else {
+		$result = $translator->{'Your session has expired. Please log in again to proceed.'};
+	}
+	header('Content-type: application/json; charset=utf-8');
+	echo json_encode($result);
+}
 if (isset($_POST['deleteMarker'])) {
 
 	if (userLevel() < 2)

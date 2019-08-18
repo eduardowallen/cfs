@@ -239,6 +239,7 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	lang.showPreliminaryBookings = '<?php echo ujs($translator->{"View preliminary bookings"}); ?>';
 	lang.white_grid = '<?php echo ujs($translator->{"White grid"}); ?>';
 	lang.black_grid = '<?php echo ujs($translator->{"Black grid"}); ?>';
+	lang.event_rules_and_conditions = <?php echo ujs($translator->{'Accept rules and conditions'}); ?>
 
 	// Other labels
 	lang.confirmationLinkQuestion1 = '<?php echo ujs($translator->{"Send confirmation link to exhibitor email?"}); ?>';

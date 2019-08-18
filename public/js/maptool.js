@@ -1426,6 +1426,7 @@ maptool.markForApplication = function(positionObject) {
 	});
 	$('#apply_confirm').click(function(e) {
 		e.preventDefault();
+
 		if ($("#apply_commodity_input").val() == "") {
 			$('#apply_commodity_input').css('border-color', 'red');
 			return;
@@ -1435,6 +1436,7 @@ maptool.markForApplication = function(positionObject) {
 		var articles = [];
 		var artamount = [];
 		var count = 0;
+
 		$('#apply_category_scrollbox > tbody > tr > td').each(function(){
 			var val = $(this).children('input:checked').val();
 			if(val != "undefined"){
@@ -1460,6 +1462,7 @@ maptool.markForApplication = function(positionObject) {
 				count = count+1;
 			}
 		});
+
 		/*
 		if (count == 0) {
 			$('#apply_option_scrollbox').css('border', '0.166em solid #f00');
@@ -1508,64 +1511,54 @@ maptool.markForApplication = function(positionObject) {
 				   + optStr
 				   + artStr
 				   + amountStr;
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: dataString,
-			success: function(response) {
-				markedAsBooked.push(positionObject);
-				maptool.update();
-				maptool.closeDialogues();
-				maptool.closeForms();
-				$('#apply_position_form input[type="text"], #apply_position_form textarea').val("");
-				maptool.openDialogue("preliminaryConfirm");
-				positionDialogue("preliminaryConfirm", 0);
+				   
+		$.confirm({
+			title: lang.event_rules_and_conditions,
+			content: function(){
+				var self = this;
+				self.setContent('Checking callback flow');
+				return $.ajax({
+					url: 'ajax/maptool.php',
+					dataType: 'json',
+					method: 'GET',
+					data: 'terms'
+				}).done(function (response) {
+					self.setContentAppend('<div>'+response+'</div>');
+				}).fail(function(){
+					self.setContentAppend('<div>Fail!</div>');
+				});
+			},
+			contentLoaded: function(data, status, xhr){
+				self.setContentAppend('<div>Content loaded!</div>');
+			},
+			onContentReady: function(){
+				this.setContentAppend('<div>Content ready!</div>');
+			},
+			buttons: {
+				confirm: function () {
+					$.ajax({
+						url: 'ajax/maptool.php',
+						type: 'POST',
+						data: dataString,
+						success: function(response) {
+							markedAsBooked.push(positionObject);
+							maptool.update();
+							maptool.closeDialogues();
+							maptool.closeForms();
+							$('#apply_position_form input[type="text"], #apply_position_form textarea').val("");
+							maptool.openDialogue("preliminaryConfirm");
+							positionDialogue("preliminaryConfirm", 0);
+						}
+					});
+				},
+				cancel: function () {
+
+				},
 			}
 		});
 	});
 }
-maptool.applyForPosition = function(positionObject) {
-	$('#apply_category_input').css('border', '1px solid #666');
-	$('.ssinfo').html("");
-	$('.ssinfo').html('<strong>' + lang.space + ' ' + positionObject.name + '<br/>' + lang.area + ': </strong>' + positionObject.area + '<br/><strong>' + lang.price + ': </strong>' + positionObject.price + '<br/><strong>' + lang.info + ': </strong>' + positionObject.information);
-	maptool.openDialogue('apply_position_dialogue');
-	$("#apply_post").click(function() {
-		var cats = new Array();
-		var count = 0;
-		$('#apply_category_scrollbox > p').each(function(){
-			var val = $(this).children('input:checked').val();
-			if(val != "undefined"){
-				cats[count] = val;
-				count = count+1;
-			}
-		});
-		var catStr = '';
-		for (var j=0; j<cats.length; j++) {
-			if(cats[j] != undefined){
-				catStr += '&categories[]=' + cats[j];
-			}
-		}
-		var dataString = 'preliminary=' + positionObject.id
-				   + '&commodity=' + $("#apply_commodity_input").val()
-				   + '&arranger_message=' + $("#apply_message_input").val()
-				   + '&fair=' + maptool.map.fair
-				   + catStr;
-		if(catStr.length != 0){
-			$.ajax({
-				url: 'ajax/maptool.php',
-				type: 'POST',
-				data: dataString,
-				success: function(response) {
-					maptool.update();
-					maptool.closeDialogues();
-					$('#apply_position_dialogue input[type="text"], #apply_position_dialogue textarea').val("");
-				}
-			});
-		}  else {
-			$('#apply_category_scrollbox').css('border', '0.166em solid #f00');
-		}
-	});
-}
+
 maptool.cancelApplication = function(positionObject) {
 	$.ajax({
 			url: 'ajax/maptool.php',
@@ -3791,49 +3784,10 @@ maptool.init = function(mapId) {
 		maptool.closeForms();
 		maptool.closeDialogues();
 	});
-	/*
-	if (!isNaN(prePosId)) {
-		setTimeout(function() {
-			maptool.focusOn(prePosId);
-			if (!isNaN(reserveId)) {
-				var object = null;
-				for (var i=0; i<maptool.map.positions.length; i++) {
-					if (maptool.map.positions[i].id == reserveId) {
-						object = maptool.map.positions[i];
-						break;
-					}
-				}
-				maptool.markPositionAsBeingEdited(object);
-				maptool.reservePosition(object);
-				$.ajax({
-					url: 'ajax/maptool.php',
-					type: 'POST',
-					data: 'getPreliminary=' + reserveId,
-					success: function(res) {
-						result = JSON.parse(res);
-						$('#reserve_commodity_input').val(result.commodity);
-						$('#reserve_message_input').val(result.arranger_message);
-						$('#reserve_user_input option[value="' + result.id + '"]').prop("selected", true);
-					}
-				});
-			}
-		}, 1000);
-	}
-	*/
 }
 //Event handlers
 $(document).ready(function() {
-/*	$('.order').click(function() {
-		var sel = $(this).val();
-		$('#book_user_input option, #reserve_user_input option').each(function() {
-			if (!$(this).hasClass(sel)) {
-				$(this).hide();
-			} else {
-				$(this).show();
-			}
-		});
-	});
-*/
+
 		$("#right_sidebar_show").click(function() {
 			var mapHeight = $('#mapHolder').height();
 			var sidebars = $('#right_sidebar div.pre_list').height() + ($('#right_sidebar hr').css('marginTop').replace('px', '')*1) + $('#right_sidebar div h2#exh2').height() + $('#right_sidebar div').height();
