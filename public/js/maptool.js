@@ -1513,6 +1513,7 @@ maptool.markForApplication = function(positionObject) {
 				   + amountStr;
 				   
 		$.confirm({
+			columnClass: 'col-md-12',
 			title: lang.event_rules_and_conditions,
 			content: function(){
 				var self = this;
@@ -1528,33 +1529,27 @@ maptool.markForApplication = function(positionObject) {
 					self.setContent('<div>Fail!</div>');
 				});
 			},
-			contentLoaded: function(data, status, xhr){
-				self.setContent('<div>Content loaded!</div>');
+			confirm: function () {
+				$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: dataString,
+					success: function(response) {
+						markedAsBooked.push(positionObject);
+						maptool.update();
+						maptool.closeDialogues();
+						maptool.closeForms();
+						$('#apply_position_form input[type="text"], #apply_position_form textarea').val("");
+						maptool.openDialogue("preliminaryConfirm");
+						positionDialogue("preliminaryConfirm", 0);
+						console.log('Successfully accepted and booked');
+					}
+				});
+				console.log('Confirm function is done');
 			},
-			onContentReady: function(){
-				this.setContent('<div>Content ready!</div>');
+			cancel: function () {
+				console.log('Rules and conditions not accepted. Aborting');
 			},
-			buttons: {
-				confirm: function () {
-					$.ajax({
-						url: 'ajax/maptool.php',
-						type: 'POST',
-						data: dataString,
-						success: function(response) {
-							markedAsBooked.push(positionObject);
-							maptool.update();
-							maptool.closeDialogues();
-							maptool.closeForms();
-							$('#apply_position_form input[type="text"], #apply_position_form textarea').val("");
-							maptool.openDialogue("preliminaryConfirm");
-							positionDialogue("preliminaryConfirm", 0);
-						}
-					});
-				},
-				cancel: function () {
-
-				},
-			}
 		});
 	});
 }

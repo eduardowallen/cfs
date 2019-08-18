@@ -16,7 +16,7 @@ class Fair extends Model {
 		parent::load($key, $by);	
 	}
 	public function loadterms($key, $by) {
-		$stmt = $this->db->prepare("SELECT `terms` FROM `fair` WHERE `".$by."` = ?");
+		$stmt = $this->db->prepare("SELECT `id`, `terms` FROM `fair` WHERE `".$by."` = ?");
 		$stmt->execute(array($key));
 
 		$res = $stmt->fetch(PDO::FETCH_ASSOC);
