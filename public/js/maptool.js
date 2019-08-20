@@ -1360,18 +1360,46 @@ maptool.applyForFair = function() {
 				   + optStr
 				   + artStr
 				   + amountStr;
-		$.ajax({
-			url: 'ajax/maptool.php',
-			type: 'POST',
-			data: dataString,
-			success: function(response) {
-				maptool.update();
-				maptool.closeDialogues();
-				maptool.closeForms();
-				$('#fair_registration_form input[type="text"], #fair_registration_form textarea').val("");
-				maptool.openDialogue("fairRegistrationConfirm");
-				positionDialogue("fairRegistrationConfirm", 0);
-			}
+		$.confirm({
+			confirmButton: lang.I_agree_event_terms_and_conditions,
+			confirmButtonClass: 'btn-success',
+			cancelButtonClass: 'btn-danger',
+			columnClass: 'col-md-8 col-md-offset-2',
+			keyboardEnabled: true,
+			content: function(){
+				var self = this;
+				self.setContent('Loading...');
+				return $.ajax({
+					url: 'ajax/maptool.php',
+					dataType: 'json',
+					method: 'GET',
+					data: 'terms'
+				}).done(function (response) {
+					self.setContent('<div class="accept-terms-popup"><span class="title">'+lang.event_terms_and_conditions+': '+maptool.map.fairname+'</span>'+response+'</div>');
+				}).fail(function(){
+					self.setContent('<div>Fail!</div>');
+				});
+			},
+			confirm: function () {
+				$.ajax({
+					url: 'ajax/maptool.php',
+					type: 'POST',
+					data: dataString,
+					success: function(response) {
+						maptool.update();
+						maptool.closeDialogues();
+						maptool.closeForms();
+						$('#fair_registration_form input[type="text"], #fair_registration_form textarea').val("");
+						maptool.openDialogue("fairRegistrationConfirm");
+						positionDialogue("fairRegistrationConfirm", 0);
+						console.log('Successfully accepted and applied');
+					}
+				});
+				console.log('Confirm function is done');
+			},
+			cancel: function () {
+				console.log('Rules and conditions not accepted. Aborting');
+			},
 		});
 	});
 }
@@ -1513,18 +1541,21 @@ maptool.markForApplication = function(positionObject) {
 				   + amountStr;
 				   
 		$.confirm({
-			columnClass: 'col-md-12',
-			title: lang.event_rules_and_conditions,
+			confirmButton: lang.I_agree_event_terms_and_conditions,
+			confirmButtonClass: 'btn-success',
+			cancelButtonClass: 'btn-danger',
+			columnClass: 'col-md-8 col-md-offset-2',
+			keyboardEnabled: true,
 			content: function(){
 				var self = this;
-				self.setContent('Checking callback flow');
+				self.setContent('Loading...');
 				return $.ajax({
 					url: 'ajax/maptool.php',
 					dataType: 'json',
 					method: 'GET',
 					data: 'terms'
 				}).done(function (response) {
-					self.setContent('<div>'+response+'</div>');
+					self.setContent('<div class="accept-terms-popup"><span class="title">'+lang.event_terms_and_conditions+': '+maptool.map.fairname+'</span>'+response+'</div>');
 				}).fail(function(){
 					self.setContent('<div>Fail!</div>');
 				});
