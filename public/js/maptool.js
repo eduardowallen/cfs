@@ -1770,7 +1770,6 @@ maptool.editBooking = function(positionObject) {
 		}
 		var dataString = 'editBooking=' + positionObject.id
 				   + '&commodity=' + $("#" + prefix + "_commodity_input").val()
-				   + '&arranger_message=' + $("#" + prefix + "_message_input").val()
 				   + '&arranger_message=' + positionObject.exhibitor.arranger_message
 				   + '&exhibitor_id=' + positionObject.exhibitor.exhibitor_id
 				   + '&fair=' + maptool.map.fair

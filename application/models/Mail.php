@@ -122,7 +122,7 @@ class Mail {
 				'Base64Content' => base64_encode(file_get_contents($this->attachment))
 			]];
 		}
-		error_log(print_r($this->body['Messages'], TRUE));
+		//error_log(print_r($this->body['Messages'], TRUE));
 		//error_log(print_r($this->attachment, TRUE));
 		$response = $this->mail->send($this->body);
 	}
