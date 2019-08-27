@@ -15,7 +15,26 @@ class Fair extends Model {
 	public function loadsimple($key, $by) {
 		parent::load($key, $by);	
 	}
+	public function loadterms($key, $by) {
+		$stmt = $this->db->prepare("SELECT `id`, `terms` FROM `fair` WHERE `".$by."` = ?");
+		$stmt->execute(array($key));
 
+		$res = $stmt->fetch(PDO::FETCH_ASSOC);
+		
+		if ($res > 0) {
+
+			foreach ($res as $property=>$value) {
+				$this->$property = $value;
+				$this->db_keys[] = $property;
+			}
+
+			$this->loaded = true;
+			return true;
+		} else {
+			$this->loaded = false;
+			return false;
+		}
+	}
 	public function loadself($key, $by) {
 		$stmt = $this->db->prepare("SELECT `id`, `name`, `hidden`, `approved` FROM `fair` WHERE `".$by."` = ?");
 		$stmt->execute(array($key));

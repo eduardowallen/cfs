@@ -96,6 +96,7 @@ function lockEvent(id, name) {
 							<a class="td_button greenbutton mediumbutton" href="fair/edit/<?php echo $fair->id; ?>"><?php echo $th_settings ?></a>
 							<a class="td_button greenbutton mediumbutton" href="fair/event_mail/<?php echo $fair->id; ?>"><?php echo $th_mailSettings; ?></a>
 							<a class="td_button greenbutton mediumbutton" href="fair/rules/<?php echo $fair->id; ?>"><?php echo $th_rules ?></a>
+							<a class="td_button greenbutton mediumbutton" href="fair/terms/<?php echo $fair->id; ?>"><?php echo $th_terms ?></a>
 							<?php
 							$modules = json_decode($fair->modules);
 							if (isset($modules->invoiceFunction)):
