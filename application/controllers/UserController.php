@@ -6,6 +6,7 @@ class UserController extends Controller {
 		//echo $this->User->bCrypt('54yun2gch1', 'arrangör');
 	}
 
+	/*** ORGANIZER/MASTER OVERVIEW FUNCTION TO LIST USERS ***/
 	function overview($type=0) {
 
 		setAuthLevel(3);
@@ -58,6 +59,7 @@ class UserController extends Controller {
 		}
 	}
 
+	/*** ADMIN/MASTER FUNCTION TO EDIT THE PASSWORD FOR A USER ***/
 	public function edit($id='', $level=0) {
 
 		setAuthLevel(2);
@@ -96,7 +98,7 @@ class UserController extends Controller {
 		}
     
     if ($id != 'new') {
-
+    	/***  IF THE USER EXISTS, LOAD THE USER  ***/
       $this->User->load($id, 'id');
     } 
 
@@ -242,6 +244,7 @@ class UserController extends Controller {
     $this->setNoTranslate('user', $this->User);
 	}
 
+	/*** PUBLIC FUNCTION TO LOG OUT A USER ***/
 	function logout() {
 
 		if (isset($_SESSION['user_fair'])) {
@@ -269,6 +272,7 @@ class UserController extends Controller {
 		exit;
 	}
 
+	/*** PUBLIC FUNCTION TO LOGIN A USER ***/
 	function login($fUrl='', $status = null) {
 		$this->set('page_title', 'Login');
 		global $translator;
@@ -369,6 +373,8 @@ class UserController extends Controller {
 					}
 				}
 
+
+				/*** OLD FUNCTION TO CHECK IF THE PASSWORD HAS BEEN CHANGED THE PAST 72 DAYS ***/
 				/*$timediff = time() - $this->User->get('password_changed');
 				$days = $timediff/60/60/24;*/
 
@@ -393,8 +399,8 @@ class UserController extends Controller {
 				$redirect_url = BASE_URL."start/home";
 				$user_terms = 'version:'.USER_TERMS;
 				$user_pub = 'version:'.USER_PUB;
-				// Check if user has approved the current User Terms
-				// (Master level users don't have to approve anything)
+				/*** CHECK IF THE USER HAS APROVED THE CURRENT USER TERMS (Master level users don't have to approve anything) ***/
+
 				if (strpos($this->User->get('terms'), $user_terms) || $this->User->get('level') == 4) {
 					$_SESSION['user_terms_approved'] = true;
 				} else {
@@ -459,6 +465,7 @@ class UserController extends Controller {
 
 	}
 
+	/*** FUNCTION TO CHANGE THE PASSWORD FOR THE CURRENT USER ***/
 	function changePassword($info='') {
 
 		setAuthLevel(1);
@@ -510,6 +517,8 @@ class UserController extends Controller {
 		}
 	}
 
+
+	/*** PUBLIC FUNCTION TO RESET THE PASSWORD FOR A USER ***/
 	function resetPassword($action='', $param1='', $param2='', $param3='') {
 
 		$this->setNoTranslate('error', '');
@@ -521,10 +530,10 @@ class UserController extends Controller {
 			$this->User->load($_POST['user'], 'alias');
 			if ($this->User->wasLoaded()) {
 				/* Preparing to send the mail */
-				if ($this->User->get('contact_email') == '')
+/*				if ($this->User->get('contact_email') == '')
 				$recipient = array($this->User->get('email'), $this->User->get('name'));
-				else
-				$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
+				else*/
+				$recipient = array($this->User->get('email'), $this->User->get('name'));
 				$pass = md5(date('YmdHis'));
 				$pass = substr($pass, -30, 6);
 				$this->User->setPassword($pass);
@@ -548,6 +557,11 @@ class UserController extends Controller {
 				$this->User->load($_POST['user'], 'email');
 				/* Preparing to send the mail */
 				if ($this->User->wasLoaded()) {
+					/* Preparing to send the mail */
+					/*if ($this->User->get('contact_email') == '')
+					$recipient = array($this->User->get('email'), $this->User->get('name'));
+					else*/
+					$recipient = array($this->User->get('email'), $this->User->get('name'));
 					$pass = md5(date('YmdHis'));
 					$pass = substr($pass, -30, 6);
 					$this->User->setPassword($pass);
@@ -588,6 +602,7 @@ class UserController extends Controller {
 		$this->set('line2', 'An e-mail will then be sent to you containing your account\'s username and a new password.');
 	}
 
+	/*** FUNCTION TO CHANGE THE ACCOUNT SETTINGS FOR THE CURRENT USER ***/
 	function accountSettings() {
   
 		setAuthLevel(1);
@@ -650,6 +665,7 @@ class UserController extends Controller {
 		$this->setNoTranslate('user', $this->User);
 	}
 
+	/*** FUNCTION TO CHANGE THE LOGOTYPE FOR THE CURRENT USER ***/
 	public function uploadlogo() {
 
 		setAuthLevel(1);
@@ -744,24 +760,26 @@ class UserController extends Controller {
 
 	}
 
-public function deletelogo() {
-	setAuthLevel(1);
-	$this->User->load($_SESSION['user_id'], 'id');
-	if ($this->User->wasLoaded()) {
-		if (file_exists(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'])) {
-			foreach(glob(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/*.*') as $file) {
-			    if(is_file($file)) {
-			        @unlink($file);
-			    }
+	/*** FUNCTION TO DELETE THE LOGOTYPE FOR THE CURRENT USER ***/
+	public function deletelogo() {
+		setAuthLevel(1);
+		$this->User->load($_SESSION['user_id'], 'id');
+		if ($this->User->wasLoaded()) {
+			if (file_exists(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'])) {
+				foreach(glob(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/*.*') as $file) {
+				    if(is_file($file)) {
+				        @unlink($file);
+				    }
+				}
+				//unlink(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/.jpg');
 			}
-			//unlink(ROOT.'public/images/exhibitors/'.$_SESSION['user_id'].'/.jpg');
 		}
+
+		header("Location: ".BASE_URL."user/uploadlogo");
+		exit;
 	}
 
-	header("Location: ".BASE_URL."user/uploadlogo");
-	exit;
-}
-
+	/*** PUBLIC FUNCTION TO REGISTER A NEW USER ***/
 	function register($fairUrl='') {
 
 		$error = '';
@@ -884,6 +902,7 @@ public function deletelogo() {
 		$this->setNoTranslate('user', $this->User);
 	}
 
+	/*** PUBLIC FUNCTION TO CONFIRM A USERS ACCOUNT VIA THE CONFIRMATION LINK SENT OUT THROUGH (some function) ***/
 	function confirm($user, $hash) {
 
 		$this->User->load($user, 'id');
@@ -1018,9 +1037,6 @@ public function deletelogo() {
 			$this->User->save();
 
 			/* Preparing to send the mail */
-			if ($this->User->get('contact_email') == '')
-			$recipient = array($this->User->get('email'), $this->User->get('name'));
-			else
 			$recipient = array($this->User->get('contact_email'), $this->User->get('name'));
 			$from = array(EMAIL_FROM_ADDRESS, EMAIL_FROM_NAME);
 			/* UPDATED TO FIT MAILJET */

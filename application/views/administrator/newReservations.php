@@ -1066,11 +1066,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 								</li>
 								</a>
 
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
-								</a>
+								</a>-->
 							<?php if ($invoiceMod === 'active') { ?>
 								<?php if ($pos['invoicestatus'] == 0): ?>
 								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/createInvoice/'.$pos['id']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_createinvoice; ?>">
@@ -1124,10 +1124,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
 								</li>
 								</a>
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
+								</a>-->
 								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
 								<li>
 									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
@@ -1291,11 +1292,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 								</li>
 								</a>
 
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
-								</a>
+								</a>-->
 							<?php if ($invoiceMod === 'active') { ?>
 								<?php if ($pos['invoicestatus'] == 0): ?>
 								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/createInvoice/'.$pos['id']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_createinvoice; ?>">
@@ -1349,10 +1350,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
 								</li>
 								</a>
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
+								</a>-->
 								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
 								<li>
 									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
@@ -1480,18 +1482,16 @@ $position_name = strtr($pos['name'], $replace_chars2);
 									<img src="<?php echo BASE_URL; ?>images/icons/pencil.png" class="icon_img" alt="<?php echo $tr_edit; ?>" /> <?php echo $tr_edit; ?>
 								</li>
 								</a>
-
 								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
 								<li>
 									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
 								</li>
 								</a>
-
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
-								</a>
+								</a>-->
 							<?php if ($invoiceMod === 'active') { ?>
 								<?php if ($pos['invoicestatus'] == 0): ?>
 								<a onclick="confirmCreateInvoice('<?php echo BASE_URL.'exhibitor/createInvoice/'.$pos['id']?>', '<?php echo $position_name?>', '<?php echo $company_name?>')" title="<?php echo $tr_createinvoice; ?>">
@@ -1546,10 +1546,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 									<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" /> <?php echo $tr_review; ?>
 								</li>
 								</a>
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
+								</a>-->
 								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
 								<li>
 									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
@@ -1661,11 +1662,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 								</li>
 								</a>
 
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
-								</a>
+								</a>-->
 
 								<a style="cursor:pointer;" title="<?php echo $tr_approve; ?>" onclick="showPopup('book', this)">
 								<li>
@@ -1691,10 +1692,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 								<img src="<?php echo BASE_URL; ?>images/icons/settings_32x32.png" class="icon_img" alt="<?php echo $tr_alternatives; ?>" />
 							</a>
 							<ul class="select-list-menu" style="display:none;">
-								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
+								<!--<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<li>
 									<img style="width:2.66em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" /> <?php echo $tr_view; ?>
 								</li>
+								</a>-->
 								<a href="#" class="js-show-comment-dialog" data-user="<?php echo $pos['userid']; ?>" data-fair="<?php echo $pos['fair']; ?>" data-position="<?php echo $pos['position']; ?>" title="<?php echo $tr_comments; ?>">
 								<li>
 									<img src="<?php echo BASE_URL; ?>images/icons/notes.png" class="icon_img" alt="<?php echo $tr_comments; ?>" /> <?php echo $tr_comments; ?>
@@ -1741,7 +1743,7 @@ $position_name = strtr($pos['name'], $replace_chars2);
 						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_created; ?></th>
 						<th><?php echo $tr_message; ?></th>
 						<th data-sorter="false"><?php echo $tr_review; ?></th>
-						<th data-sorter="false"><?php echo $tr_view; ?></th>
+						<!--<th data-sorter="false"><?php echo $tr_view; ?></th>-->
 						<?php if (!isset($event_locked)) { ?>
 						<th data-sorter="false"><?php echo $tr_deny; ?></th>
 						<?php } ?>
@@ -1799,11 +1801,11 @@ $position_name = strtr($pos['name'], $replace_chars2);
 								<img src="<?php echo BASE_URL; ?>images/icons/review.png" class="icon_img" alt="<?php echo $tr_review; ?>" />
 							</a>
 						</td>
-						<td class="center">
+						<!--<td class="center">
 							<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<img src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 							</a>
-						</td>
+						</td>-->
 						<?php if (!isset($event_locked)) { ?>	
 						<td class="center">
 							<a style="cursor:pointer;" title="<?php echo $tr_deny; ?>" onclick="denyPrepPosition('<?php echo BASE_URL.'administrator/deleteBooking/'.$pos['id'].'/'.$pos['position']; ?>', '<?php echo $pos['name']?>', 'preliminary')">

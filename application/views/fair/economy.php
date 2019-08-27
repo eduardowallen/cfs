@@ -88,19 +88,17 @@
 				<?php endforeach; ?>
 			<?php endforeach; ?>
 		<?php } ?>
-		<!--<?php echo var_dump($invoiceposprice); ?>-->
-		<?php if (isset($articles) && $articles[0][0]['COUNT(amount)'] > 0) { ?>
-			<?php foreach ($articles as $article): ?>
-				<?php foreach ($article as $art): ?>
-					<?php if ($art['COUNT(amount)'] > 0) { ?>
-					<tr>
-						<td class="center"><?php echo $tr_article; ?></td>
-						<td class="left"><?php echo $art['text']; ?></td>
-						<td class="center"><?php echo $articleamount; ?></td>
-						<td class="center"><?php echo $articleamount*$art['price']; ?></td>
-					</tr>
-					<?php } ?>
-				<?php endforeach; ?>
+		
+		<?php if (isset($articles) && count($articles) > 0) { ?>
+			<?php foreach ($articles as $art): ?>
+				<?php if ($art['amount'] > 0) { ?>
+				<tr>
+					<td class="center"><?php echo $tr_article; ?></td>
+					<td class="left"><?php echo $art['text']; ?></td>
+					<td class="center"><?php echo $art['amount']; ?></td>
+					<td class="center"><?php echo $art['amount']*$art['price']; ?></td>
+				</tr>
+				<?php } ?>
 			<?php endforeach; ?>
 		<?php } ?>
 	</tbody>

@@ -2,6 +2,18 @@
 public/images/fairs/*
 !public/images/fairs/empty
 
+# Ignore everything in exhibitors except empty placeholder.
+public/images/exhibitors/*
+!public/images/exhibitors/empty
+
+# Ignore everything in invoices except empty placeholder.
+public/invoices/*
+!public/invoices/fairs/empty
+!public/invoices/tmp/empty
+
+#Ignore the files in the lang folder
+application/lang/*
+
 # Ignore everything in tmp except empty placeholder.
 public/images/tmp/*
 !public/images/tmp/empty

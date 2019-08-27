@@ -770,3 +770,12 @@ input.dialogueInput{width:25em;}
     background: #000;
     display: none;
 }
+.accept-terms-popup {
+	padding: 0em 2em;
+}
+.accept-terms-popup span.title {
+    display: block;
+    font-size: 22px;
+    line-height: 20px;
+    padding-bottom: 1em;
+}

@@ -53,6 +53,7 @@ class FairController extends Controller {
 		$this->set('th_approved', 'Approved');
 		$this->set('th_maps', 'Maps');
 		$this->set('th_rules', 'Rules');
+		$this->set('th_terms', 'Terms');
 		$this->set('th_page_views', 'Page views');
 		$this->set('th_categories', 'Categories');
 		$this->set('th_extraOptions', 'Options');
@@ -513,29 +514,15 @@ class FairController extends Controller {
 			if ($fairInvoice->get('pos_vat') == 0)
 			$this->setNoTranslate('pos_vat', 0);
 			
-			} else {
-				toLogin();
-			}
+		} else {
+			toLogin();
 		}
-
-
+	}
 	public function rules($id) {
 
 		setAuthLevel(3);
 		
 		if (!empty($id)) {
-			function makeUserOptions($db, $sel=0) {
-				global $id;
-				$stmt = $db->prepare("SELECT id, company, name FROM user WHERE level = '3'");
-				$stmt->execute(array());
-				$result = $stmt->fetchAll();
-				$opts = '';
-				foreach ($result as $res) {
-					$s = ($sel == $res['id']) ? ' selected="selected"' : '';
-					$opts.= '<option'.$s.' value="'.$res['id'].'">'.$res['company'].', '.$res['name'].'</option>';
-				}
-				return $opts;
-			}
 
 			$this->setNoTranslate('fair_id', $id);
 			$this->set('rules_headline', 'Edit rules for event');
@@ -561,7 +548,36 @@ class FairController extends Controller {
 			$this->set('cancel_label', 'Cancel');
 		}
 	}
+	public function terms($id) {
 
+		setAuthLevel(3);
+		
+		if (!empty($id)) {
+
+			$this->setNoTranslate('fair_id', $id);
+			$this->set('terms_headline', 'Edit terms and conditions for event');
+			$this->Fair->load($id, 'id');
+			
+			if (userLevel() == 3 && $this->Fair->get('created_by') != $_SESSION['user_id'])
+				toLogin();
+
+			if (isset($_POST['save'])) {
+
+				$this->Fair->set('terms', $_POST['terms']);
+				$fId = $this->Fair->save();
+
+				header("Location: ".BASE_URL."fair/terms/".$id);
+				exit;
+			}
+
+			$this->setNoTranslate('edit_id', $id);
+			$this->setNoTranslate('fair', $this->Fair);
+
+			$this->set('terms_label', 'terms for this event');
+			$this->set('save_label', 'Save');
+			$this->set('cancel_label', 'Cancel');
+		}
+	}
 	public function lock($id) {
 		setAuthLevel(3);
 		if (!empty($id)) {
@@ -786,10 +802,13 @@ class FairController extends Controller {
 				$fair_clone->set('event_stop', strtotime($_POST['event_stop']));
 				$fair_clone->set('accepted_clone_date', strtotime($_POST['accepted_clone_date']));
 				$fair_clone->set('default_reservation_date', strtotime($_POST['default_reservation_date']));
+				/* Copy info (from the previous event) that is not usually changed or changed on other views */
 				$fair_clone->set('hidden', $this->Fair->get('hidden'));
 				$fair_clone->set('reminder_day1', $this->Fair->get('reminder_day1'));
 				$fair_clone->set('reminder_note1', $this->Fair->get('reminder_note1'));
 				$fair_clone->set('mail_settings', $this->Fair->get('mail_settings'));
+				$fair_clone->set('rules', $this->Fair->get('rules'));
+				$fair_clone->set('terms', $this->Fair->get('terms'));
 				$fair_clone_id = $fair_clone->save();
 
 				/* Kopiera även Logotypen */

@@ -14,6 +14,7 @@ class Mail {
 	private $replyTo = array();
 	private $body;
 	private $attachment;
+	private $filename;
 	/**
 	 * Mailjet constructor.
 	 *
@@ -117,11 +118,12 @@ class Mail {
 		if (isset($this->attachment)) {
 			$this->body['Messages'][0]['Attachments'] = [[
 				'ContentType' => mime_content_type($this->attachment),
-				'Filename' => basename($this->attachment),
+				'Filename' => $this->filename,
 				'Base64Content' => base64_encode(file_get_contents($this->attachment))
 			]];
 		}
-		//error_log(print_r($this->body['Messages'][0]['Variables'], TRUE));
+		error_log(print_r($this->body['Messages'], TRUE));
+		//error_log(print_r($this->attachment, TRUE));
 		$response = $this->mail->send($this->body);
 	}
 
@@ -132,6 +134,9 @@ class Mail {
 	}
 	public function setRecipient($recipient) {
 		$this->recipient = $recipient;
+	}
+	public function setFilename($filename) {
+		$this->filename = $filename;
 	}
 	public function setFrom($from) {
 		$this->from = $from;

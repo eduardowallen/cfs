@@ -32,9 +32,9 @@ class Mailjet extends \Mailjet\Client {
 	}
 	public function send($body) {
 		$response = parent::post(\Mailjet\Resources::$Email, ['body' => $body]);
-		print_r("success här");
+		//print_r("success här");
 		if ($response->success()) {
-			print_r('Success här');
+			//print_r('Success här');
 			//error_log(var_dump($response->getData()));
 			return $this->parseResponse($response);
 		} else {

@@ -330,7 +330,7 @@ $(document).on({
 						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
 						<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
 						<th><?php echo $tr_invoicestatus; ?></th>
-						<th data-sorter="false"><?php echo $tr_view; ?></th>
+						<!--<th data-sorter="false"><?php echo $tr_view; ?></th>-->
 						<th class="last" data-sorter="false">
 							<input type="checkbox" id="check-all-bookings" class="check-all" data-group="rows-1" />
 							<label class="squaredFour" for="check-all-bookings" />
@@ -395,11 +395,11 @@ $posname = strtr($pos['invoiceposname'], $replace_chars);
 							-
 							<?php } ?>
 						</td>
-						<td class="center">
+						<!--<td class="center">
 							<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 								<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 							</a>
-						</td>
+						</td>-->
 						<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['invoiceid']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$pos['fair'].'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 					</tr>
 				<?php endforeach; ?>
@@ -439,7 +439,7 @@ $posname = strtr($pos['invoiceposname'], $replace_chars);
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_reserved_until; ?></th>
 							<th><?php echo $tr_invoicestatus; ?></th>
-							<th data-sorter="false"><?php echo $tr_view; ?></th>
+							<!--<th data-sorter="false"><?php echo $tr_view; ?></th>-->
 							<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-reserved" class="check-all" data-group="rows-2" />
 								<label class="squaredFour" for="check-all-reserved" />
@@ -506,11 +506,11 @@ $posname = strtr($pos['invoiceposname'], $replace_chars);
 								-
 								<?php } ?>
 							</td>
-							<td class="center">
+							<!--<td class="center">
 								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 								</a>
-							</td>
+							</td>-->
 							<td class="last"><input type="checkbox" name="rows[]" value="<?php echo $pos['invoiceid']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$pos['fair'].'/exhibitors/'.$pos['id'].'/'.str_replace('/', '-', $pos['invoicecompany']) . '-' . $pos['invoiceposname'] . '-' . $pos['invoiceid'] . '.pdf'; ?>" data-userid="<?php echo $pos['userid']; ?>" class="rows-2" /><label class="squaredFour" for="<?php echo $pos['id']; ?>" /></td>
 						</tr>
 					<?php endforeach; ?>
@@ -547,7 +547,7 @@ $posname = strtr($pos['invoiceposname'], $replace_chars);
 							<th class="left"><?php echo $tr_field; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_last_edited; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_reserved_until; ?></th>
-							<th data-sorter="false"><?php echo $tr_view; ?></th>
+							<!--<th data-sorter="false"><?php echo $tr_view; ?></th>-->
 							<th data-sorter="false"><?php echo $tr_confirm_reservation; ?></th>
 							<th data-sorter="false"><?php echo $tr_deny_reservation; ?></th>
 							<!--<th class="last" data-sorter="false">
@@ -592,11 +592,11 @@ $posname = strtr($pos['invoiceposname'], $replace_chars);
 							<!--<td><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>-->
 							<td><?php echo ($pos['edit_time'] > 0 ? date('d-m-Y H:i', $pos['edit_time']) : $never_edited_label); ?></td>
 							<td><?php echo date('d-m-Y H:i', strtotime($pos['expires'])); ?></td>					
-							<td class="center">
+							<!--<td class="center">
 								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 								</a>
-							</td>
+							</td>-->
 							<td class="center">
 								<a href="<?php echo BASE_URL.'exhibitor/verifyReservation/'.$pos['id'].'/'.$pos['link'].'/accept'?>" target="_blank" title="<?php echo $tr_accept; ?>">
 									<img style="width:2.66em; padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/add_green.png" class="icon_img" />
@@ -641,7 +641,7 @@ $posname = strtr($pos['invoiceposname'], $replace_chars);
 							<th><?php echo $tr_area; ?></th>
 							<th class="left"><?php echo $tr_field; ?></th>
 							<th class="sorter-shortDate dateFormat-ddmmyyyy"><?php echo $tr_time; ?></th>
-							<th data-sorter="false"><?php echo $tr_view; ?></th>
+							<!--<th data-sorter="false"><?php echo $tr_view; ?></th>-->
 							<th data-sorter="false"><?php echo $tr_delete; ?></th>
 							<!--<th class="last" data-sorter="false">
 								<input type="checkbox" id="check-all-preliminary" class="check-all" data-group="rows-3" />
@@ -683,11 +683,11 @@ $posname = strtr($pos['invoiceposname'], $replace_chars);
 							<td class="center open-view-this-preliminary"><?php echo $pos['area']; ?></td>
 							<td class="left open-view-this-preliminary"><?php echo $pos['commodity']; ?></td>
 							<td class="center"><?php echo date('d-m-Y H:i', $pos['booking_time']); ?></td>
-							<td class="center">
+							<!--<td class="center">
 								<a href="<?php echo BASE_URL.'mapTool/map/'.$pos['fair'].'/'.$pos['position'].'/'.$pos['map']?>" target="_blank" title="<?php echo $tr_view; ?>">
 									<img style="padding-right:0.416em;" src="<?php echo BASE_URL; ?>images/icons/map_go.png" class="icon_img" alt="<?php echo $tr_view; ?>" />
 								</a>
-							</td>
+							</td>-->
 							<td class="center">
 								<a style="cursor:pointer;" title="<?php echo $tr_delete; ?>" onclick="cancelBooking('<?php echo BASE_URL . 'exhibitor/pre_delete/' . $pos['id'] . '/' . $pos['userid'] . '/' . $pos['position']; ?>', '<?php echo $pos['name']; ?>')">
 									<img src="<?php echo BASE_URL; ?>images/icons/delete.png" class="icon_img deleteimg" alt="<?php echo $tr_delete; ?>" />
