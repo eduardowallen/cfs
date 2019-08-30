@@ -1,5 +1,5 @@
 <?php
-define('APP_VERSION', '2.9.2');
+define('APP_VERSION', '3.1.3');
 
 //Display errors in dev mode
 function setReporting() {

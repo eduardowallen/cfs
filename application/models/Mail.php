@@ -36,7 +36,7 @@ class Mail {
 			WHERE `template_name` = ?
 			AND (
 				`language` = ?
-				OR `default` = 'eng'
+				OR `default` = 'sv'
 				)
 			ORDER BY `default` ASC");
 
@@ -51,7 +51,7 @@ class Mail {
 			WHERE `template_name` = ?
 			AND (
 				`language` = ?
-				OR `default` = 'eng'
+				OR `default` = 'sv'
 				)
 			ORDER BY `default` ASC");
 
@@ -69,10 +69,6 @@ class Mail {
 	 * @throws Exception
 	 */
 	public function sendMessage() {
-		if (DEV) {
-			$this->recipient[0] = 'eduardo.wallen@chartbooker.com';
-			$this->recipient[1] = 'Eduardo Testmaster';
-		}
 		$this->body = [
 			'Messages'	=>	[
 				[
@@ -122,8 +118,7 @@ class Mail {
 				'Base64Content' => base64_encode(file_get_contents($this->attachment))
 			]];
 		}
-		error_log(print_r($this->body['Messages'], TRUE));
-		//error_log(print_r($this->attachment, TRUE));
+		//error_log(print_r($this->body['Messages'][0]['Variables'], TRUE));
 		$response = $this->mail->send($this->body);
 	}
 
