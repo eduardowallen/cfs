@@ -143,9 +143,22 @@ class ExhibitorController extends Controller {
 			header('Location: '.BASE_URL.'mapTool/map/'.$_SESSION['user_fair']);
 			exit;
 		}
+		// Check if fair is grouped with other fairs
 
-		$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
-		$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
+		$fairGroupRel = new FairGroupRel();
+		$fairGroupRel->load($_SESSION['user_fair'], 'fair');
+		$fairGroup = new FairGroupRel();
+		$fairGroup->load($fairGroupRel->get('group'), 'group');
+
+		// If fair group exists and was loaded, select all fairs from the group and gather them in a statement variable ($stmt)
+		if ($fairGroup->wasLoaded()) {
+			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair IN (?) GROUP BY user.id ORDER BY ?");
+			$stmt->execute(array(1, $fairGroup->get('fairs'), 'fair, user.company'));
+		} else {
+			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
+			$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
+		}
+
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$exhibitors = array();
 		$connected = array();
