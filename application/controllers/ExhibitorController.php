@@ -159,6 +159,7 @@ class ExhibitorController extends Controller {
 			$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
 		}
 
+		// No matter the stmt, get the result in a result variable ($result)
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$exhibitors = array();
 		$connected = array();
@@ -181,9 +182,14 @@ class ExhibitorController extends Controller {
 				}
 			}
 		}
-		
-		$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
-		$stmt->execute(array($_SESSION['user_fair'], 1));
+		if ($fairGroup->wasLoaded()) {
+			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair IN (?) AND user.level = ? ORDER BY user.company");
+			$stmt->execute(array($fairGroup->get('fairs'), 1));
+		} else {
+			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
+			$stmt->execute(array($_SESSION['user_fair'], 1));		
+		}
+
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($result as $res) {
 			if (!in_array($res['user'], $exIds)) {
