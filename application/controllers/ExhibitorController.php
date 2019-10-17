@@ -147,16 +147,16 @@ class ExhibitorController extends Controller {
 
 		$fairGroupRel = new FairGroupRel();
 		$fairGroupRel->load($_SESSION['user_fair'], 'fair');
-		$fairGroup = new FairGroupRel();
-		$fairGroup->load($fairGroupRel->get('group'), 'group');
+		$fairGroup = new FairGroup();
+		$fairGroup->load($fairGroupRel->get('group'), 'id');
 
 		// If fair group exists and was loaded, select all fairs from the group and gather them in a statement variable ($stmt)
 		if ($fairGroup->wasLoaded()) {
-			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair IN (?) GROUP BY user.id ORDER BY ?");
-			$stmt->execute(array(1, $fairGroup->get('fairs'), 'fair, user.company'));
+			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user, exhibitor WHERE user.id = exhibitor.user AND user.level = 1 AND exhibitor.fair IN (".implode(",", $fairGroup->get('fairs_rel_ids')).") GROUP BY user.id DESC");
+			$stmt->execute();
 		} else {
-			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
-			$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
+			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user, exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id DESC");
+			$stmt->execute(array(1, $_SESSION['user_fair']));
 		}
 
 		// No matter the stmt, get the result in a result variable ($result)
@@ -183,11 +183,11 @@ class ExhibitorController extends Controller {
 			}
 		}
 		if ($fairGroup->wasLoaded()) {
-			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair IN (?) AND user.level = ? ORDER BY user.company");
-			$stmt->execute(array($fairGroup->get('fairs'), 1));
+			$stmt = $this->Exhibitor->db->prepare("SELECT fur.user, fur.connected_time FROM fair_user_relation AS fur LEFT JOIN user ON fur.user = user.id WHERE fur.fair IN (".implode(",", $fairGroup->get('fairs_rel_ids')).") AND user.level = 1 GROUP BY fur.user ORDER BY fur.connected_time DESC");
+			$stmt->execute();
 		} else {
-			$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
-			$stmt->execute(array($_SESSION['user_fair'], 1));		
+			$stmt = $this->Exhibitor->db->prepare("SELECT fur.user, fur.connected_time FROM fair_user_relation AS fur LEFT JOIN user ON fur.user = user.id WHERE fur.fair = ? AND user.level = ? GROUP BY fur.user ORDER BY fur.connected_time DESC");
+			$stmt->execute(array($_SESSION['user_fair'], 1));
 		}
 
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
