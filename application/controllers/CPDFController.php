@@ -61,21 +61,22 @@ class MYPDFController extends Controller {
 						$ex_article->load($art, 'id');
 						$articles[] = $ex_article->get('text');			
 					}
-				}
-			}		
+				}	
 
+			$this->setNoTranslate('headline', $ex->get('company'));
 
-		$this->setNoTranslate('headline', $ex->get('company'));
-
-		$this->set('space', 'Space');
-		$this->set('status', 'Status');
-		$this->set('area', 'Area');
-		$this->set('company', 'Company');
-		$this->set('commodity', 'Commodity');
-		$this->set('website', 'Website');
-		$this->set('presentation', 'Presentation');
-		$this->setNoTranslate('exhibitor', $ex);
-		$this->setNoTranslate('position', $pos);
+			$this->set('space', 'Space');
+			$this->set('status', 'Status');
+			$this->set('area', 'Area');
+			$this->set('company', 'Company');
+			$this->set('commodity', 'Commodity');
+			$this->set('website', 'Website');
+			$this->set('presentation', 'Presentation');
+			$this->setNoTranslate('exhibitor', $ex);
+			$this->setNoTranslate('position', $pos);
+		} else {
+			exit;
+		}
 	}
 
 	public function preliminary($id) {
