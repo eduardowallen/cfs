@@ -19,7 +19,8 @@ class FairArticle extends Model {
 	}
 
 	public static function getArticlesForFair($fairId) {
-		$stmt = $this->db->prepare("SELECT * FROM `fair_article` WHERE `fair` = ?");
+		global $globalDB;
+		$stmt = $globalDB->db->prepare("SELECT * FROM `fair_article` WHERE `fair` = ?");
 		$stmt->execute(array($fairId));
 
 		$articles = array();

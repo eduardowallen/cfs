@@ -19,7 +19,8 @@ class FairExtraOption extends Model {
 	}
 
 	public static function getOptionsForFair($fairId) {
-		$stmt = $this->db->prepare("SELECT * FROM `fair_extra_option` WHERE `fair` = ?");
+		global $globalDB;
+		$stmt = $globalDB->db->prepare("SELECT * FROM `fair_extra_option` WHERE `fair` = ?");
 		$stmt->execute(array($fairId));
 
 		$options = array();

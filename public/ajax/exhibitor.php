@@ -282,5 +282,5 @@ if (isset($_GET["getProfile"])) {
 	$this->set('tr_message', 'Message to organizer');
 	$this->set('ok_label', 'OK');
 	$this->set('no_bookings_label', 'This exhibitor has not made any bookings yet.');
-	*/
-}
+	
+}*/
