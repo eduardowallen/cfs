@@ -239,10 +239,12 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	lang.showPreliminaryBookings = '<?php echo ujs($translator->{"View preliminary bookings"}); ?>';
 	lang.white_grid = '<?php echo ujs($translator->{"White grid"}); ?>';
 	lang.black_grid = '<?php echo ujs($translator->{"Black grid"}); ?>';
+	lang.event_terms_and_conditions = '<?php echo ujs($translator->{'Terms and conditions'}); ?>';
 
 	// Other labels
 	lang.confirmationLinkQuestion1 = '<?php echo ujs($translator->{"Send confirmation link to exhibitor email?"}); ?>';
 	lang.confirmationLinkQuestion2 = '<?php echo ujs($translator->{"This will send an email to the selected exhibitors with cloned reservations."}); ?>';
+	lang.I_agree_event_terms_and_conditions = '<?php echo ujs($translator->{'I accept these terms and conditions'}); ?>';
 	lang.commodity_label = '<?php echo ujs($translator->{"Commodity"}); ?>';
 	lang.messageToOrganizer = '<?php echo ujs($translator->{"Message to organizer (ex: time of arrival, questions, other requests)"}); ?>';
 	lang.messageFromExhibitor = '<?php echo ujs($translator->{"Message from exhibitor"}); ?>';

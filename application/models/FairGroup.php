@@ -2,6 +2,7 @@
 
 class FairGroup extends Model {
 	protected $fairs_rel = array();
+	protected $fairs_rel_ids = array();
 	public function load($key, $by) {
 		
 		parent::load($key, $by);
@@ -13,6 +14,7 @@ class FairGroup extends Model {
 			if (count($res) > 0) {
 				foreach ($res as $r) {
 					$this->fairs_rel[] = $r;
+					$this->fairs_rel_ids[] = $r['fair'];
 				}
 			}
 			//$this->fetchExternalFair('FairGroupRel', 'fairs_rel', 'group', $this->id);

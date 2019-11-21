@@ -76,12 +76,23 @@ class AdministratorController extends Controller {
 		$fair->loadsimple($_SESSION['user_fair'], 'id');
 
 		if (isset($_POST['invoice_id'])) {
-			if (isset($_POST['msg']))
+			if (isset($_POST['msg']) && $_POST['msg'] !== '')
 				$comment = htmlspecialchars_decode($_POST['msg']);
+			else
+				$comment = $this->translate->{'No message was given.'};
 
-			$stmt = $this->Administrator->db->prepare("SELECT ex_invoice.r_name AS r_name, ex_invoice.r_reference AS r_reference, ex_invoice.exhibitor AS exhibitor, ex_invoice.row_id AS row_id, ex_invoice.fair AS fair, ex_invoice.id AS id, user.invoice_email AS invoice_email, pos.text AS posname
+			$stmt = $this->Administrator->db->prepare("SELECT 
+				ex_invoice.r_name AS r_name, 
+				ex_invoice.r_reference AS r_reference, 
+				ex_invoice.exhibitor AS exhibitor, 
+				ex_invoice.row_id AS row_id, 
+				ex_invoice.fair AS fair, 
+				ex_invoice.id AS id, 
+				user.invoice_email AS invoice_email, 
+				pos.text AS posname
 				FROM user, exhibitor_invoice AS ex_invoice, exhibitor_invoice_rel AS pos
 				WHERE ex_invoice.ex_user = user.id
+				AND ex_invoice.fair = pos.fair
 				AND ex_invoice.id = pos.invoice
 				AND pos.type = 'space'
 				AND ex_invoice.row_id = ?");
@@ -107,6 +118,7 @@ class AdministratorController extends Controller {
 				$mail_user->setServerTemplate('send_invoice');
 				$mail_user->setRecipient($recipient);
 				$mail_user->setAttachment($invoice_file);
+				$mail_user->setFilename($this->translate->{'Invoice no '}.$res['id'].'.pdf');
 				/* Setting mail variables */
 				$mail_user->setMailVar('exhibitor_company', $res['r_name']);
 				$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
@@ -117,7 +129,6 @@ class AdministratorController extends Controller {
 				$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
 				$mail_user->setMailVar('invoice_name', basename($invoice_file));
 				$mail_user->setMailVar('position_name', $res['posname']);
-				if ($comment)
 				$mail_user->setMailVar('comment', $comment);
 				$mail_user->sendMessage();
 
@@ -227,8 +238,8 @@ class AdministratorController extends Controller {
 				user.company AS company,
 				pos.name AS posname, 
 				pos.area AS posarea, 
-				pos.id,
-				ex.id AS id, 
+				pos.id AS posid,
+				ex.id AS id 
 					FROM user, 
 					exhibitor AS ex, 
 					fair_map_position AS pos 
@@ -2466,8 +2477,10 @@ class AdministratorController extends Controller {
 			
 			/* Delete the Fair Registration */
 			$registration->delete($_POST['comment']);
-			if (isset($_POST['comment']))
+			if (isset($_POST['comment']) && $_POST['comment'] !== '')
 				$comment = htmlspecialchars_decode($_POST['comment']);
+			else
+				$comment = $this->translate->{'No message was given.'};
 				
 			if (isset($mailSettings->RegistrationCancelled) && is_array($mailSettings->RegistrationCancelled)) {
 				/* Prepare to send the mail */
@@ -2497,7 +2510,6 @@ class AdministratorController extends Controller {
 					$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
 					$mail_user->setMailVar('event_website', $fair->get('website'));
 					$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-					if ($comment)
 					$mail_user->setMailVar('comment', $comment);
 					$mail_user->sendMessage();
 				}
@@ -3948,9 +3960,10 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 				if (isset($mailSettings->$mailSetting) && is_array($mailSettings->$mailSetting)) {
 					/* Check mail settings and send only if setting is set */
 					if (in_array("1", $mailSettings->$mailSetting)) {
-						if (isset($_POST['comment']))
-						$comment = htmlspecialchars_decode($_POST['comment']);
-
+						if (isset($_POST['comment']) && $_POST['comment'] !== '')
+							$comment = htmlspecialchars_decode($_POST['comment']);
+						else
+							$comment = $this->translate->{'No message was given.'};
 						/* Prepare to send the mail */
 						if ($fair->get('contact_name') == '')
 						$from = array($fair->get("url") . EMAIL_FROM_DOMAIN, $fair->get('windowtitle'));
@@ -3967,6 +3980,7 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 						$mail_user->setFrom($from);
 						$mail_user->setRecipient($recipient);
 						$mail_user->setMailVar('position_name', $position->get('name'));
+						$mail_user->setMailVar('position_area', $position->get('area'));
 						$mail_user->setMailVar('exhibitor_company', $user->get('company'));
 						$mail_user->setMailVar('event_name', $fair->get('windowtitle'));
 						$mail_user->setMailVar('event_contact', $fair->get('contact_name'));
@@ -3974,7 +3988,6 @@ $html .= '<tr><td></td></tr><tr><td class="id"></td><td class="name"><b>'.$booke
 						$mail_user->setMailVar('event_phone', $fair->get('contact_phone'));
 						$mail_user->setMailVar('event_website', $fair->get('website'));
 						$mail_user->setMailVar('event_url', BASE_URL . $fair->get('url'));
-						if ($comment)
 						$mail_user->setMailVar('comment', $comment);
 						$mail_user->sendMessage();
 					}

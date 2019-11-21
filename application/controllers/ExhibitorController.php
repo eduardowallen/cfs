@@ -139,52 +139,42 @@ class ExhibitorController extends Controller {
     	$this->setNoTranslate('hasRights', true);
 		
 		if ($param == 'copy') {
-
 			$_SESSION['copied_exhibitor'] = 'uid_'.$value;
 			header('Location: '.BASE_URL.'mapTool/map/'.$_SESSION['user_fair']);
 			exit;
-
 		}
+		// Check if fair is grouped with other fairs
 
-		if (isset($_SESSION['mail_errors']) && !empty($_SESSION['mail_errors'])) {
-			$this->setNoTranslate('mail_errors', $_SESSION['mail_errors']);
-			$_SESSION['mail_errors'] = '';
+		$fairGroupRel = new FairGroupRel();
+		$fairGroupRel->load($_SESSION['user_fair'], 'fair');
+		$fairGroup = new FairGroup();
+		$fairGroup->load($fairGroupRel->get('group'), 'id');
+
+		// If fair group exists and was loaded, select all fairs from the group and gather them in a statement variable ($stmt)
+		if ($fairGroup->wasLoaded()) {
+			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user, exhibitor WHERE user.id = exhibitor.user AND user.level = 1 AND exhibitor.fair IN (".implode(",", $fairGroup->get('fairs_rel_ids')).") GROUP BY user.id DESC");
+			$stmt->execute();
 		} else {
-			$this->setNoTranslate('mail_errors', '');
+			$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id FROM user, exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id DESC");
+			$stmt->execute(array(1, $_SESSION['user_fair']));
 		}
 
-		if (isset($_SESSION['success']) && !empty($_SESSION['success'])) {
-			$this->setNoTranslate('success', 1);
-			$this->set('created_success', 'The user was created.');
-			$this->set('success_title', 'Success');
-			$_SESSION['success'] = '';
-		} else {
-			$this->setNoTranslate('mail_success', '');
-		}
-			$this->setNoTranslate('error_title', 'An error occured');		
-
-
-		$stmt = $this->Exhibitor->db->prepare("SELECT exhibitor.fair, user.id, COUNT(user.id) AS ex_count FROM user,exhibitor WHERE user.id = exhibitor.user AND user.level = ? AND exhibitor.fair = ? GROUP BY user.id ORDER BY ?");
-		$stmt->execute(array(1, $_SESSION['user_fair'], 'fair, user.company'));
+		// No matter the stmt, get the result in a result variable ($result)
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		$exhibitors = array();
 		$connected = array();
-		$canceled = array();
 		$exIds = array();
 		$fairs = 0;
 		$currentFair = 0;
 		foreach ($result as $res) {
 			if (intval($res['id']) > 0) {
-				array_push($exIds, $res['id']);
-				$ex = new User;
-				$ex->load($res['id'], 'id');
-				$ex->set('ex_count', $res['ex_count']);
-				
+				array_push($exIds, $res['id']);				
 				$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 				$stmt2->execute(array($res['id']));
 				$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
+				$ex = new User();
+				$ex->load($res['id'], 'id');
 				$ex->set('fair_count', $result2['fair_count']);
-				
 				$exhibitors[] = $ex;
 				if ($res['fair'] != $currentFair) {
 					$fairs++;
@@ -192,54 +182,33 @@ class ExhibitorController extends Controller {
 				}
 			}
 		}
-		
-		$stmt = $this->Exhibitor->db->prepare("SELECT fair_user_relation.user, fair_user_relation.connected_time FROM fair_user_relation LEFT JOIN user ON fair_user_relation.user = user.id WHERE fair_user_relation.fair = ? AND user.level = ? ORDER BY user.company");
-		$stmt->execute(array($_SESSION['user_fair'], 1));
+		if ($fairGroup->wasLoaded()) {
+			$stmt = $this->Exhibitor->db->prepare("SELECT fur.user, fur.connected_time FROM fair_user_relation AS fur LEFT JOIN user ON fur.user = user.id WHERE fur.fair IN (".implode(",", $fairGroup->get('fairs_rel_ids')).") AND user.level = 1 GROUP BY fur.user ORDER BY fur.connected_time DESC");
+			$stmt->execute();
+		} else {
+			$stmt = $this->Exhibitor->db->prepare("SELECT fur.user, fur.connected_time FROM fair_user_relation AS fur LEFT JOIN user ON fur.user = user.id WHERE fur.fair = ? AND user.level = ? GROUP BY fur.user ORDER BY fur.connected_time DESC");
+			$stmt->execute(array($_SESSION['user_fair'], 1));
+		}
+
 		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
 		foreach ($result as $res) {
 			if (!in_array($res['user'], $exIds)) {
-				$ex = new User;
+				$ex = new User();
 				$ex->load($res['user'], 'id');
-
 				$stmt2 = $this->Exhibitor->db->prepare("SELECT COUNT(*) AS fair_count FROM fair_user_relation WHERE user = ?");
 				$stmt2->execute(array($res['user']));
 				$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-
 				$ex->set('fair_count', $result2['fair_count']);
 				$ex->set('connected_time', $res['connected_time']);
 				$exhibitorId = $ex->get('id');
-
-
-				$stmt3 = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor_canceled WHERE fairId = ? AND exhibitorId = ?");
-				$stmt3->execute(array($_SESSION['user_fair'], $exhibitorId));
-				$result3 = $stmt3->fetchAll(PDO::FETCH_ASSOC);
-
-				if(count($result3)  == 0):
-					$connected[] = $ex;
-				endif;
-				
+				$connected[] = $ex;
 			}
 		}
 
-		$stmt = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor_canceled INNER JOIN user ON exhibitor_canceled.exhibitorId = user.id WHERE fairId = ?");
-		$stmt->execute(array($_SESSION['user_fair']));
-		$result = $stmt->fetchAll(PDO::FETCH_ASSOC);
-		foreach($result as $unbooked):
-			$stmt2 = $this->Exhibitor->db->prepare("SELECT * FROM exhibitor WHERE user = ? and fair = ?");
-			$stmt2->execute(array($unbooked['exhibitorId'], $unbooked['fairId']));
-			$result2 = $stmt2->fetch(PDO::FETCH_ASSOC);
-
-			if(count($result2) == 0):
-				$canceled[] = $unbooked;
-			endif;
-		endforeach;
-
 		$this->set('table_exhibitors', 'Booked exhibitors');
 		$this->set('table_connected', 'Connected exhibitors');
-		$this->set('table_canceled', 'Canceled exhibitors');
 		$this->set('headline', 'Exhibitors');
-		$this->set('create_link', 'New exhibitor');
-		$this->set('th_company', 'Company');
+		$this->set('th_company', 'Exhibitor');
 		$this->set('th_contactperson', 'Contact person');
 		$this->set('th_name', 'Name');
 		$this->set('th_commodity', 'Commodity');
@@ -250,10 +219,8 @@ class ExhibitorController extends Controller {
 		$this->set('th_edit', 'Edit');
 		$this->set('th_delete', 'Delete');
 		$this->setNoTranslate('fairs', $fairs);
-		//$this->set('', $fairs);
 		$this->setNoTranslate('users', $exhibitors);
 		$this->setNoTranslate('connected', $connected);
-		$this->setNoTranslate('canceled', $canceled);
 		$this->set('th_copy', 'Copy to map');
 		$this->set('send_sms_label', 'Send SMS to selected Exhibitors');
 		$this->set('export', 'Export to Excel');
@@ -1175,7 +1142,7 @@ class ExhibitorController extends Controller {
 		foreach ($positions_unfinished as $pos) {
 
 			/* Get invoice ids */
-			$stmt = $u->db->prepare("SELECT id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ?");
+			$stmt = $u->db->prepare("SELECT id, fair, status, sent, r_name FROM exhibitor_invoice WHERE exhibitor = ? AND status IN (1, 2)");
 			$stmt->execute(array($pos['id']));
 			$posinvoiceid = $stmt->fetchAll(PDO::FETCH_ASSOC);
 			$invoicecompany = array();

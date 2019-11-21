@@ -2,9 +2,9 @@
 
 class ImageMagick {
     
-    private $convert = '/usr/bin/convert';
-    private $mogrify = '/usr/bin/mogrify';
-    private $composite = '/usr/bin/composite';
+    private $convert = '/usr/local/bin/convert';
+    private $mogrify = '/usr/local/bin/mogrify';
+    private $composite = '/usr/local/bin/composite';
 	
     public function constrain($origPath, $thumbPath, $maxWidth, $maxHeight) {
         if (file_exists($origPath)) {
