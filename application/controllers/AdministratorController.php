@@ -391,6 +391,7 @@ class AdministratorController extends Controller {
 
 			if ($tbl < 3 || $tbl == 7 || $tbl == 8) {
 				$stmt_options = $this->db->prepare("SELECT GROUP_CONCAT(feo.text SEPARATOR ', ') AS texts FROM fair_extra_option AS feo INNER JOIN exhibitor_option_rel AS eor ON eor.option = feo.id WHERE exhibitor = ?");
+				$stmt_articles = $this->db->prepare("SELECT * FROM exhibitor_article_rel AS ear LEFT JOIN fair_article AS fa ON ear.article = fa.id WHERE exhibitor = ? AND ear.amount != 0");
 			}
 
 			header("Pragma: public");
@@ -521,9 +522,17 @@ class AdministratorController extends Controller {
 
 						} else {
 							$stmt_articles->execute(array($row['id']));
-							$articles = $stmt_articles->fetchObject();
+							$row_articles = $stmt_articles->fetchAll(PDO::FETCH_ASSOC);
+							$articles = '';
+							if (count($row_articles) > 0) {
+								foreach ($row_articles as $res) {
+									$articles .= 'ID: '.$res['custom_id'].': '.$this->translate->{'Name'}.': '.$res['text'].': '.$this->translate->{'Price'}.': '.$res['price'].' '.$this->translate->{'Amount'}.': '. $res['amount']."\n";
+								}
+								error_log($articles);
+							}
+
 							if ($articles) {
-								$value = $articles->texts;
+								$value = $articles;
 							}
 						}
 
@@ -532,6 +541,8 @@ class AdministratorController extends Controller {
 					}
 
 					$xls->getActiveSheet()->SetCellValue($alpha[$i] . $row_idx, $value);
+					$xls->getActiveSheet()->getStyle($alpha[$i].'1:'.$alpha[$i].$row_idx)->getAlignment()->setWrapText(true);
+					$xls->getActiveSheet()->getColumnDimension($alpha[$i])->setAutoSize(true);
 					++$i;
 				}
 
