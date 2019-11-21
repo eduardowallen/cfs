@@ -62,7 +62,6 @@ class MYPDFController extends Controller {
 						$articles[] = $ex_article->get('text');			
 					}
 				}
-			}		
 
 
 			$this->setNoTranslate('headline', $ex->get('company'));
@@ -108,35 +107,7 @@ class MYPDFController extends Controller {
 			exit;
 		}
 		
-	}
-
-	public function exhibitor($id) {
-		
-		$ex = new Exhibitor;
-		
-		$ex->load($id, 'id');
-		if ($ex->wasLoaded()) {
-			
-			$pos = new FairMapPosition;
-			$pos->load($ex->get('position'), 'id');
-			
-			$this->setNoTranslate('headline', $ex->get('company'));
-			
-			$this->set('space', 'Space');
-			$this->set('status', 'Status');
-			$this->set('area', 'Area');
-			$this->set('company', 'Company');
-			$this->set('commodity', 'Commodity');
-			$this->set('website', 'Website');
-			$this->setNoTranslate('exhibitor', $ex);
-			$this->setNoTranslate('position', $pos);
-			
-		} else {
-			exit;
-		}
-		
 	}	
-	
 }
 
 ?>
