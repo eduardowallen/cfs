@@ -30,7 +30,9 @@ $(document.body).on('click', '.open-credit-invoices', creditInvoices);
 $(document.body).on('click', '.open-send-invoices', sendInvoices);
 $(document.body).on('click', '.open-delete-invoices', deleteInvoices);
 function deleteInvoices(e) {
-	e.preventDefault();
+  e.preventDefault();
+  var button = $(e.target);
+  var table_form = $(button.prop('form'));
   invoices_to_delete = 0;
 	invoices_left = 1;
   what_to_delete = '<p>';
