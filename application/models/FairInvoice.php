@@ -21,14 +21,18 @@ class FairInvoice extends Model {
 
 	public function perm_delete() {
 		if ($this->wasLoaded()) {
+			error_log('Invoice was loaded in FairInvoice.php on line 24.');
 			$exhibitor = new Exhibitor();
 			$exhibitor->load($this->exhibitor, 'id');
 			if ($exhibitor->wasLoaded()) {
+				error_log('Exhibitor was loaded in FairInvoice.php on line 28.');
 				$position = new FairMapPosition();
 				$position->load($exhibitor->get('position'), 'id');
 				if ($position->wasLoaded()) {
+					error_log('Position was loaded in FairInvoiceC.php on line 32.');
 					$invoice_file = ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$this->exhibitor.'/'.$rec_billing_company_name . '-' . $position->get('name'). '-' . $this->id . '.pdf';
 					rm($invoice_file);
+					error_log('Invoice was removed in FairInvoiceController.php on line 35.');
 					$stmt = $this->db->prepare("DELETE FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ?");
 					$stmt->execute($this->id, $this->fair);
 					$stmt = $this->db->prepare("DELETE FROM fair_invoice WHERE row_id = ?");
