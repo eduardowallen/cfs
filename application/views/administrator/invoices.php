@@ -39,43 +39,45 @@ function deleteInvoices(e) {
   $('input[name*=rows]:checked', table_form).each(function(index, input) {
       if ($(input).data('id'))
           what_to_delete += $(input).data('id')+'-'+$(input).data('invoicecompany')+'.pdf<br>';
+          invoices_to_delete += $(input).length;
   });
   what_to_delete += '</p>';
+  if (invoices_to_delete != 0) {
+    $.confirm({
+        title: '<?php echo $confirm_delete_invoices; ?>',
+        content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'+what_to_delete,
+        confirm: function(){
+            $body.addClass("progress");
+            $body.removeClass("loading");
+            $('input[name*=rows]:checked', table_form).each(function(index, input) {
+                $body.removeClass("loading");
+                $.ajax({
+                    url: 'fairinvoice/delete_invoice/' + $(input).data('row_id'),
+                    method: 'POST',
+                    success: function(){
+                        $('progress').val(invoices_left / invoices_to_delete * 100);
+                        invoices_left++;
+                        $('#invoice_deletion_progress').text(invoices_left + '/' + invoices_to_delete);
+                    }
+                });
+            console.log($(input).val());
+            });
 
-  $.confirm({
-      title: '<?php echo $confirm_delete_invoices; ?>',
-      content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'+what_to_delete,
-      confirm: function(){
-          $body.addClass("progress");
-          $body.removeClass("loading");
-          $('input[name*=rows]:checked', table_form).each(function(index, input) {
-              $body.removeClass("loading");
-              $.ajax({
-                  url: 'fairinvoice/delete_invoice/' + $(input).data('row_id'),
-                  method: 'POST',
-                  success: function(){
-                      $('progress').val(invoices_left / invoices_to_delete * 100);
-                      invoices_left++;
-                      $('#invoice_deletion_progress').text(invoices_left + '/' + invoices_to_delete);
-                  }
-              });
-          console.log($(input).val());
-          });
-
-          $(document).on({
-              ajaxStop: function() { 
-                  $body.removeClass("progress");
-                  $.alert({
-                      content: '<?php echo uh($translator->{"The invoices were successfully deleted."}); ?>',
-                      confirm: function() {
-                          document.location.reload();
-                      }
-                  });
-              }
-          });
-      },
-      cancel: function(){}
-  });
+            $(document).on({
+                ajaxStop: function() { 
+                    $body.removeClass("progress");
+                    $.alert({
+                        content: '<?php echo uh($translator->{"The invoices were successfully deleted."}); ?>',
+                        confirm: function() {
+                            document.location.reload();
+                        }
+                    });
+                }
+            });
+        },
+        cancel: function(){}
+    });
+  }
 }
 function sendInvoices(e) {
   e.preventDefault();
