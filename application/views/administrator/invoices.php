@@ -52,15 +52,16 @@ function deleteInvoices(e) {
             $('input[name*=rows]:checked', table_form).each(function(index, input) {
                 $body.removeClass("loading");
                 $.ajax({
-                    url: 'fairinvoice/delete_invoice/' + $(input).data('row_id'),
+                    url: 'fairInvoice/delete_invoice/' + $(input).data('row_id'),
                     method: 'POST',
                     success: function(){
                         $('progress').val(invoices_left / invoices_to_delete * 100);
                         invoices_left++;
                         $('#invoice_deletion_progress').text(invoices_left + '/' + invoices_to_delete);
+                        console.log($(input).val());
                     }
                 });
-            console.log($(input).val());
+            
             });
 
             $(document).on({
