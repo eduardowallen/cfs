@@ -29,7 +29,9 @@ class FairInvoice extends Model {
 				if ($position->wasLoaded()) {
 					$invoice_file = ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$this->exhibitor.'/'.$rec_billing_company_name . '-' . $position->get('name'). '-' . $this->id . '.pdf';
 					rm($invoice_file);
-					$this->db->prepare("DELETE FROM fair_invoice WHERE row_id = ?");
+					$stmt = $this->db->prepare("DELETE FROM exhibitor_invoice_rel WHERE invoice = ? AND fair = ?");
+					$stmt->execute($this->id, $this->fair);
+					$stmt = $this->db->prepare("DELETE FROM fair_invoice WHERE row_id = ?");
 					$stmt->execute($this->row_id);
 				} else error_log("The position could not be loaded");
 			} else error_log("The exhibitor could not be loaded");
