@@ -33,16 +33,16 @@ function deleteInvoices(e) {
 	e.preventDefault();
   invoices_to_delete = 0;
 	invoices_left = 1;
-  what_to_delete = '<p>';
+  $what_to_delete = '<p>';
   $('input[name*=rows]:checked', table_form).each(function(index, input) {
       if ($(input).data('id'))
-          what_to_delete .= $(input).data('id').'-'.$(input).data('invoicecompany').'.pdf<br>';
+          $what_to_delete .= $(input).data('id').'-'.$(input).data('invoicecompany').'.pdf<br>';
   });
-  what_to_delete .= '</p>';
+  $what_to_delete .= '</p>';
 
   $.confirm({
       title: '<?php echo $confirm_delete_invoices; ?>',
-      content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'.what_to_delete,
+      content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'.$what_to_delete,
       confirm: function(){
           $body.addClass("progress");
           $body.removeClass("loading");
