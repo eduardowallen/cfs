@@ -44,7 +44,7 @@ function deleteInvoices(e) {
 
   $.confirm({
       title: '<?php echo $confirm_delete_invoices; ?>',
-      content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'.what_to_delete,
+      content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'+what_to_delete,
       confirm: function(){
           $body.addClass("progress");
           $body.removeClass("loading");
@@ -56,7 +56,7 @@ function deleteInvoices(e) {
                   success: function(){
                       $('progress').val(invoices_left / invoices_to_delete * 100);
                       invoices_left++;
-                      $('#invoice_progress').text(invoices_left + '/' + invoices_to_delete);
+                      $('#invoice_deletion_progress').text(invoices_left + '/' + invoices_to_delete);
                   }
               });
           console.log($(input).val());
@@ -696,6 +696,14 @@ $posname = strtr($invoice['posname'], $replace_chars);
   <p><?php echo uh($translator->{'Crediting invoices...'}); ?></p>
   <progress max="100" value="0"></progress>
   <p id="invoice_credit_progress"></p>
+  <!-- Place at bottom of page -->
+  </div>
+</div>
+<div class="modal-4">
+  <div style="margin-top: 50vh;">
+  <p><?php echo uh($translator->{'Deleting invoices...'}); ?></p>
+  <progress max="100" value="0"></progress>
+  <p id="invoice_deletion_progress"></p>
   <!-- Place at bottom of page -->
   </div>
 </div>
