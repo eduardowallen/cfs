@@ -701,6 +701,7 @@ class AdministratorController extends Controller {
 			$this->setNoTranslate('old_cancelled_invoices', $old_cancelled_invoices);
 			$this->set('confirm_mark_as_sent', 'Mark invoice as sent for');
 			$this->set('confirm_send_invoices', 'Are you sure that you want to send these invoices?');
+			$this->set('confirm_delete_invoices', 'Delete invoices permanently?');
 			$this->set('confirm_credit_invoices', 'Are you sure that you want to credit these invoices?');
 			$this->set('send_invoice_comment', 'Enter a message for this mail batch');
 			$this->set('confirm_credit_invoice', 'Credit invoice for');
@@ -718,7 +719,15 @@ class AdministratorController extends Controller {
 			$this->set('confirmcancel', 'Are you sure that you want to cancel this invoice?');
 		}
 	}
-
+	function deleteInvoice() {
+		setAuthLevel(4);
+		$ex_invoice = new ExhibitorInvoice();
+		$ex_invoice->load2($_POST['row_id'], 'row_id');
+        if ($ex_invoice->wasLoaded()) {
+            error_log('Invoice was loaded in FairInvoiceController.php on line 8.');
+            $ex_invoice->perm_delete();
+        } else error_log(print_r($ex_invoice->get('id'), TRUE));
+    }
 	public function exportedFile() {
 		$time = time();
 		$fixedLinks = $_POST['fileLink'];
