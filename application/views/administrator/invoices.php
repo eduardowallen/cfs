@@ -29,6 +29,10 @@ $(document).on({
 $(document.body).on('click', '.open-credit-invoices', creditInvoices);
 $(document.body).on('click', '.open-send-invoices', sendInvoices);
 $(document.body).on('click', '.open-delete-invoices', deleteInvoices);
+</script>
+
+<?php if (userLevel() == 4): ?>
+  <script type="text/javascript">
 function deleteInvoices(e) {
   e.preventDefault();
   var button = $(e.target);
@@ -52,8 +56,9 @@ function deleteInvoices(e) {
             $('input[name*=rows]:checked', table_form).each(function(index, input) {
                 $body.removeClass("loading");
                 $.ajax({
-                    url: 'administrator/delete_invoice/' + $(input).data('row_id'),
+                    url: 'administrator/deleteInvoice',
                     method: 'POST',
+                    data: 'row_id=' + $(input).data('row_id'),
                     success: function(){
                         $('progress').val(invoices_left / invoices_to_delete * 100);
                         invoices_left++;
@@ -61,7 +66,6 @@ function deleteInvoices(e) {
                         console.log($(input).val());
                     }
                 });
-            
             });
 
             $(document).on({
@@ -80,6 +84,10 @@ function deleteInvoices(e) {
     });
   }
 }
+</script>
+<?php endif; ?>
+
+<script type="text/javascript">
 function sendInvoices(e) {
   e.preventDefault();
 
@@ -296,7 +304,9 @@ function creditInvoices(e) {
         <button type="submit" class="open-send-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Send invoices for the selected rows'}); ?>" name="send_invoices" data-for="iactive"><?php echo uh($translator->{'Send invoices'}); ?></button>
         <!--<button type="submit" class="open-credit-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Credit invoices for the selected rows'}); ?>" name="credit_invoices" data-for="iactive"><?php echo uh($translator->{'Credit invoices'}); ?></button>-->
         <button type="submit" class="greenbutton mediumbutton zip-invoices" title="<?php echo uh($translator->{'Export checked invoices and download as zip'}); ?>" data-for="iactive"><?php echo uh($translator->{'Download invoices'}); ?></button>
-        <button type="submit" class="open-delete-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Delete invoices for the selected rows'}); ?>" name="delete_invoices" data-for="iactive"><?php echo uh($translator->{'Delete invoices'}); ?></button>
+        <?php if (userLevel() == 4): ?>
+          <button type="submit" class="open-delete-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Delete invoices for the selected rows'}); ?>" name="delete_invoices" data-for="iactive"><?php echo uh($translator->{'Delete invoices'}); ?></button>
+        <?php endif; ?>
       </div>
       <table class="std_table use-scrolltable" id="iactive">
         <thead>
