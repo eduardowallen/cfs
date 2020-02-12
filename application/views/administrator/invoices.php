@@ -22,12 +22,70 @@ global $translator;
       confirmBoxNoTab('<?php echo $confirm_mark_as_sent; ?> ' + posname +' (' + company + ')?', link, id);
     }
     $body = $("body");
-$(document).on({
-    ajaxStart: function() { $body.addClass("loading");    },
-     ajaxStop: function() { $body.removeClass("loading"); }
-});
-$(document.body).on('click', '.open-credit-invoices', creditInvoices);
-$(document.body).on('click', '.open-send-invoices', sendInvoices);
+  $(document).on({
+      ajaxStart: function() { $body.addClass("loading");    },
+      ajaxStop: function() { $body.removeClass("loading"); }
+  });
+  $(document.body).on('click', '.open-credit-invoices', creditInvoices);
+  $(document.body).on('click', '.open-send-invoices', sendInvoices);
+
+
+<?php if (userLevel() == 4): ?>
+  
+  $(document.body).on('click', '.open-delete-invoices', deleteInvoices);
+  function deleteInvoices(e) {
+    e.preventDefault();
+    var button = $(e.target);
+    var table_form = $(button.prop('form'));
+    invoices_to_delete = 0;
+    invoices_left = 1;
+    what_to_delete = '<p>';
+    $('input[name*=rows]:checked', table_form).each(function(index, input) {
+        if ($(input).data('id'))
+            what_to_delete += $(input).data('id')+'-'+$(input).data('invoicecompany')+'.pdf<br>';
+            invoices_to_delete += $(input).length;
+    });
+    what_to_delete += '</p>';
+    if (invoices_to_delete != 0) {
+      $.confirm({
+          title: '<?php echo $confirm_delete_invoices; ?>',
+          content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'+what_to_delete,
+          confirm: function(){
+              $body.addClass("progress");
+              $body.removeClass("loading");
+              $('input[name*=rows]:checked', table_form).each(function(index, input) {
+                  $body.removeClass("loading");
+                  $.ajax({
+                      url: 'administrator/deleteInvoice',
+                      method: 'POST',
+                      data: 'row_id=' + $(input).data('row_id'),
+                      success: function(){
+                          $('progress').val(invoices_left / invoices_to_delete * 100);
+                          invoices_left++;
+                          $('#invoice_deletion_progress').text(invoices_left + '/' + invoices_to_delete);
+                          console.log($(input).val());
+                      }
+                  });
+              });
+
+              $(document).on({
+                  ajaxStop: function() { 
+                      $body.removeClass("progress");
+                      $.alert({
+                          content: '<?php echo uh($translator->{"The invoices were successfully deleted."}); ?>',
+                          confirm: function() {
+                              document.location.reload();
+                          }
+                      });
+                  }
+              });
+          },
+          cancel: function(){}
+      });
+    }
+  }
+<?php endif; ?>
+
 function sendInvoices(e) {
   e.preventDefault();
 
@@ -244,6 +302,9 @@ function creditInvoices(e) {
         <button type="submit" class="open-send-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Send invoices for the selected rows'}); ?>" name="send_invoices" data-for="iactive"><?php echo uh($translator->{'Send invoices'}); ?></button>
         <!--<button type="submit" class="open-credit-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Credit invoices for the selected rows'}); ?>" name="credit_invoices" data-for="iactive"><?php echo uh($translator->{'Credit invoices'}); ?></button>-->
         <button type="submit" class="greenbutton mediumbutton zip-invoices" title="<?php echo uh($translator->{'Export checked invoices and download as zip'}); ?>" data-for="iactive"><?php echo uh($translator->{'Download invoices'}); ?></button>
+        <?php if (userLevel() == 4): ?>
+          <button type="submit" class="open-delete-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Delete invoices for the selected rows'}); ?>" name="delete_invoices" data-for="iactive"><?php echo uh($translator->{'Delete invoices'}); ?></button>
+        <?php endif; ?>
       </div>
       <table class="std_table use-scrolltable" id="iactive">
         <thead>
@@ -315,7 +376,7 @@ $posname = strtr($invoice['posname'], $replace_chars);
               </a>
             </td>
             <?php } ?>
-            <td class="last"><input type="checkbox" name="rows[]" value="<?php echo $invoice['id']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$exhibitor_id.'/'.str_replace('/', '-', $r_name) . '-' . $posname . '-' . $invoice['id'] . '.pdf'; ?>" data-id="<?php echo $invoice['id']; ?>" data-row_id="<?php echo $invoice['row_id']; ?>" data-exhibitor="<?php echo $invoice['exhibitor']; ?>" data-posname="<?php echo $invoice['posname']; ?>" data-userid="<?php echo $invoice['ex_user']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $invoice['id']; ?>" /></td>
+            <td class="last"><input type="checkbox" name="rows[]" value="<?php echo $invoice['id']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$exhibitor_id.'/'.str_replace('/', '-', $r_name) . '-' . $posname . '-' . $invoice['id'] . '.pdf'; ?>" data-id="<?php echo $invoice['id']; ?>" data-row_id="<?php echo $invoice['row_id']; ?>" data-invoicecompany="<?php echo $r_name2; ?>" data-exhibitor="<?php echo $invoice['exhibitor']; ?>" data-posname="<?php echo $invoice['posname']; ?>" data-userid="<?php echo $invoice['ex_user']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $invoice['id']; ?>" /></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
@@ -646,6 +707,14 @@ $posname = strtr($invoice['posname'], $replace_chars);
   <p><?php echo uh($translator->{'Crediting invoices...'}); ?></p>
   <progress max="100" value="0"></progress>
   <p id="invoice_credit_progress"></p>
+  <!-- Place at bottom of page -->
+  </div>
+</div>
+<div class="modal-4">
+  <div style="margin-top: 50vh;">
+  <p><?php echo uh($translator->{'Deleting invoices...'}); ?></p>
+  <progress max="100" value="0"></progress>
+  <p id="invoice_deletion_progress"></p>
   <!-- Place at bottom of page -->
   </div>
 </div>
