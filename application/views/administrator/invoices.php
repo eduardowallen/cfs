@@ -36,7 +36,7 @@ function deleteInvoices(e) {
   what_to_delete = '<p>';
   $('input[name*=rows]:checked', table_form).each(function(index, input) {
       if ($(input).data('id'))
-          what_to_delete += $(input).data('id').'-'.$(input).data('invoicecompany').'.pdf<br>';
+          what_to_delete += $(input).data('id')+'-'+$(input).data('invoicecompany')+'.pdf<br>';
   });
   what_to_delete += '</p>';
 
