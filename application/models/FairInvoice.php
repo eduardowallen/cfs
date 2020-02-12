@@ -19,6 +19,24 @@ class FairInvoice extends Model {
 		return ($this->wasLoaded()) ? $this->exhibitor_id : $this->db->lastInsertId();
 	}
 
+	public function perm_delete() {
+		if ($this->wasLoaded()) {
+			$exhibitor = new Exhibitor();
+			$exhibitor->load($this->exhibitor, 'id');
+			if ($exhibitor->wasLoaded()) {
+				$position = new FairMapPosition();
+				$position->load($exhibitor->get('position'), 'id');
+				if ($position->wasLoaded()) {
+					$invoice_file = ROOT.'public/invoices/fairs/'.$fairId.'/exhibitors/'.$this->exhibitor.'/'.$rec_billing_company_name . '-' . $position->get('name'). '-' . $this->id . '.pdf';
+					rm($invoice_file);
+					$this->db->prepare("DELETE FROM fair_invoice WHERE row_id = ?");
+					$stmt->execute($this->row_id);
+				} else error_log("The position could not be loaded");
+			} else error_log("The exhibitor could not be loaded");
+		} else error_log("The file with row id ".$this->row_id." could not be deleted.");
+	}
+
+
 }
 
 ?>

@@ -28,6 +28,53 @@ $(document).on({
 });
 $(document.body).on('click', '.open-credit-invoices', creditInvoices);
 $(document.body).on('click', '.open-send-invoices', sendInvoices);
+$(document.body).on('click', '.open-delete-invoices', deleteInvoices);
+function deleteInvoices(e) {
+	e.preventDefault();
+  invoices_to_delete = 0;
+	invoices_left = 1;
+    what_to_delete = '<p>';
+    $('input[name*=rows]:checked', table_form).each(function(index, input) {
+        if ($(input).data('id'))
+            what_to_delete .= $(input).data('id').'-'.$(input).data('invoicecompany').'.pdf<br>';
+    });
+    what_to_delete .= '</p>';
+
+    $.confirm({
+        title: '<?php echo $confirm_delete_invoices; ?>',
+        content: '<?php echo uh($translator->{"This will remove the selected invoices PERMANENTLY"}); ?>'.what_to_delete,
+        confirm: function(){
+            $body.addClass("progress");
+            $body.removeClass("loading");
+            $('input[name*=rows]:checked', table_form).each(function(index, input) {
+                $body.removeClass("loading");
+                $.ajax({
+                    url: 'fairinvoice/delete_invoice/' + $(input).data('row_id'),
+                    method: 'POST',
+                    success: function(){
+                        $('progress').val(invoices_left / invoices_to_delete * 100);
+                        invoices_left++;
+                        $('#invoice_progress').text(invoices_left + '/' + invoices_to_delete);
+                    }
+                });
+            console.log($(input).val());
+            });
+
+            $(document).on({
+                ajaxStop: function() { 
+                    $body.removeClass("progress");
+                    $.alert({
+                        content: '<?php echo uh($translator->{"The invoices were successfully deleted."}); ?>',
+                        confirm: function() {
+                            document.location.reload();
+                        }
+                    });
+                }
+            });
+        },
+        cancel: function(){}
+    });
+  }
 function sendInvoices(e) {
   e.preventDefault();
 
@@ -244,6 +291,7 @@ function creditInvoices(e) {
         <button type="submit" class="open-send-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Send invoices for the selected rows'}); ?>" name="send_invoices" data-for="iactive"><?php echo uh($translator->{'Send invoices'}); ?></button>
         <!--<button type="submit" class="open-credit-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Credit invoices for the selected rows'}); ?>" name="credit_invoices" data-for="iactive"><?php echo uh($translator->{'Credit invoices'}); ?></button>-->
         <button type="submit" class="greenbutton mediumbutton zip-invoices" title="<?php echo uh($translator->{'Export checked invoices and download as zip'}); ?>" data-for="iactive"><?php echo uh($translator->{'Download invoices'}); ?></button>
+        <button type="submit" class="open-delete-invoices greenbutton mediumbutton" title="<?php echo uh($translator->{'Delete invoices for the selected rows'}); ?>" name="delete_invoices" data-for="iactive"><?php echo uh($translator->{'Delete invoices'}); ?></button>
       </div>
       <table class="std_table use-scrolltable" id="iactive">
         <thead>
