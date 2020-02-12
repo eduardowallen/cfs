@@ -719,7 +719,15 @@ class AdministratorController extends Controller {
 			$this->set('confirmcancel', 'Are you sure that you want to cancel this invoice?');
 		}
 	}
-
+	function delete_invoice($row_id) {
+		setAuthLevel(4);
+        $invoice_to_delete = new ExhibitorInvoice();
+        $invoice_to_delete->load($row_id, 'row_id');
+        if ($invoice_to_delete->wasLoaded()) {
+            error_log('Invoice was loaded in FairInvoiceController.php on line 8.');
+            $invoice_to_delete->perm_delete();
+        }
+    }
 	public function exportedFile() {
 		$time = time();
 		$fixedLinks = $_POST['fileLink'];

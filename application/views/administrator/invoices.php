@@ -52,7 +52,7 @@ function deleteInvoices(e) {
             $('input[name*=rows]:checked', table_form).each(function(index, input) {
                 $body.removeClass("loading");
                 $.ajax({
-                    url: 'fairInvoice/delete_invoice/' + $(input).data('row_id'),
+                    url: 'administrator/delete_invoice/' + $(input).data('row_id'),
                     method: 'POST',
                     success: function(){
                         $('progress').val(invoices_left / invoices_to_delete * 100);
