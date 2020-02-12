@@ -367,7 +367,7 @@ $posname = strtr($invoice['posname'], $replace_chars);
               </a>
             </td>
             <?php } ?>
-            <td class="last"><input type="checkbox" name="rows[]" value="<?php echo $invoice['id']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$exhibitor_id.'/'.str_replace('/', '-', $r_name) . '-' . $posname . '-' . $invoice['id'] . '.pdf'; ?>" data-id="<?php echo $invoice['id']; ?>" data-row_id="<?php echo $invoice['row_id']; ?>" data-exhibitor="<?php echo $invoice['exhibitor']; ?>" data-posname="<?php echo $invoice['posname']; ?>" data-userid="<?php echo $invoice['ex_user']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $invoice['id']; ?>" /></td>
+            <td class="last"><input type="checkbox" name="rows[]" value="<?php echo $invoice['id']; ?>" data-ziplink="<?php echo 'invoices/fairs/'.$fair->get('id').'/exhibitors/'.$exhibitor_id.'/'.str_replace('/', '-', $r_name) . '-' . $posname . '-' . $invoice['id'] . '.pdf'; ?>" data-id="<?php echo $invoice['id']; ?>" data-row_id="<?php echo $invoice['row_id']; ?>" data-invoicecompany="<?php echo $r_name2; ?>" data-exhibitor="<?php echo $invoice['exhibitor']; ?>" data-posname="<?php echo $invoice['posname']; ?>" data-userid="<?php echo $invoice['ex_user']; ?>" class="rows-1" /><label class="squaredFour" for="<?php echo $invoice['id']; ?>" /></td>
           </tr>
         <?php endforeach; ?>
         </tbody>
