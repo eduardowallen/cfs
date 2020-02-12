@@ -22,7 +22,7 @@ class ExhibitorInvoice extends Model {
 		}
 	}
 	public function perm_delete() {
-		error_log($this);
+		error_log(var_dump($this));
 		if ($this->wasLoaded()) {
 			error_log('Invoice was loaded in FairInvoice.php on line 24.');
 			$exhibitor = new Exhibitor();
