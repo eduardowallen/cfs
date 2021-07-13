@@ -1036,3 +1036,6 @@ label[for=presentation]{
 	width: 33%;
 	display:inline-block;
 }
+.clearlooks2, .clearlooks2 div, .clearlooks2 span, .clearlooks2 a {
+	overflow:visible !important;
+}

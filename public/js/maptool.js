@@ -2231,6 +2231,16 @@ maptool.positionInfo = function(positionObject) {
 		mid_ex_logo.css('display', 'block');
 		var folder = '../images/exhibitors/' + positionObject.exhibitor.user + '/';
 		$.ajax({
+			url: 'ajax/maptool.php',
+			type: 'GET',
+			data: 'getUserLogo=' + folder,
+			success: function(response) {
+				if (response != '')
+					mid_ex_logo.attr('src', folder+response);			
+			}
+		});
+		/*
+		$.ajax({
 		    url : folder,
 		    success: function (data) {
 		        $(data).find("a").attr("href", function (i, val) {
@@ -2239,7 +2249,7 @@ maptool.positionInfo = function(positionObject) {
 		            }
 		        });
 		    }
-		});
+		});*/
 		if (hasRights)
 			mid_standSpaceName.append(' - ' + '<a href="exhibitor/profile/' + positionObject.exhibitor.user + '" class="showProfileLink" style="font-weight: 600;">' + positionObject.exhibitor.company + '</a>');
 		if (!hasRights)
@@ -2290,25 +2300,24 @@ maptool.positionInfo = function(positionObject) {
 			$("#more_info_dialogue div.website_link").html('');
 		}
 	} else if (preliminary) {
-			mid_price.css('display', 'none');
-			mid_area.css({
-				'padding': '2em 0 1em 0',
-				'display': 'inline-block',
-			});
-			mid_status.css('display', 'inline-block');
-			mid_status.css('padding', '2em 0 1em 0');
-			mid_ex_logo.css('display', 'block');
-			mid_standSpaceName.append(' - ' + preliminary.company);
-			var folder = '../images/exhibitors/' + preliminary.user + '/';
+		mid_price.css('display', 'none');
+		mid_area.css({
+			'padding': '2em 0 1em 0',
+			'display': 'inline-block',
+		});
+		mid_status.css('display', 'inline-block');
+		mid_status.css('padding', '2em 0 1em 0');
+		mid_ex_logo.css('display', 'block');
+		mid_standSpaceName.append(' - ' + preliminary.company);
+		var folder = '../images/exhibitors/' + preliminary.user + '/';
 		$.ajax({
-		    url : folder,
-		    success: function (data) {
-		        $(data).find("a").attr("href", function (i, val) {
-		            if( val.match(/\.jpg|\.png|\.gif/) ) { 
-		               mid_ex_logo.attr('src', folder + val);
-		            }
-		        });
-		    }
+			url: 'ajax/maptool.php',
+			type: 'GET',
+			data: 'getUserLogo=' + folder,
+			success: function(response) {
+				if (response != '')
+					mid_ex_logo.attr('src', folder+response);			
+			}
 		});
 		var categories = [],
 			options = [],

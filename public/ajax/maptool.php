@@ -301,6 +301,13 @@ if (isset($_POST['deleteMarker'])) {
 
 }
 
+if (isset($_GET['getUserLogo'])) {
+	$logotype = scandir($_GET['getUserLogo']);
+	if ($logotype[2] == '')
+		return false;
+	else 
+		echo $logotype[2];
+}
 
 if (isset($_POST['bookPosition'])) {
 
