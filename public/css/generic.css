@@ -582,12 +582,8 @@ input[type=button].search_button, input[type=button]#search_button {
 	width: 75.2em; 
 	text-align: left; 
 	display: block; 
-	top: 32.6333em; 
 	max-height: 65.2667em; 
-	margin-left: -37.6em; 
-	margin-top: -30.6333em;
 	padding: 0 2.33em 2.33em 2.33em;
-	overflow: visible;
 	border-top: 4em solid #47a547;
 }
 #export_popup h3 {
