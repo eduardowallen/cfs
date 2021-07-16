@@ -1289,59 +1289,41 @@ function positionDialogue(id) {
 		});
 	} else if ((id == "book_position_form") || (id == "reserve_position_form") || (id == "apply_position_form") || (id == "fair_registration_form") || (id == "popupform_register")) {
 		dialogue.css({
-			'top': (viewportHeight/10)/12 + 'vh',
-			'max-height': popupMaxHeight/12 + 'em',
-			'left': (viewportWidth/6)/12 + 'vw',
+			'max-height': popupMaxHeight/12 + 'em'
 		});
 	} else if (id == "preliminary_bookings_dialogue") {
 		dialogue.css({
 			'max-height': popupMaxHeight/12 + 'em',
-			'margin-left': '-' + (popupMaxWidth / 2)/12 + 'em',
-			'margin-top': '-' + ((popupMaxHeight) / 3)/12 + 'em',
 			'width': 'auto',
-			'max-width': popupMaxWidth/12 + 'em',
+			'max-width': popupMaxWidth/12 + 'em'
 		});		
 	} else if (id == "review_prel_dialogue") {
 		dialogue.css({
 			'height': 'auto',
-			'top': (window.pageYOffset + (popupMaxHeight / 2.5))/12 + 'em',
-			'left': (viewportWidth/4)/12 + 'vw',
-			'width': popupMaxWidth/12 + 'em',
+			'width': popupMaxWidth/12 + 'em'
 		});
 	} else if (id == "export_popup") {
 		dialogue.css ({
-			'top': (window.pageYOffset + (popupMaxHeight / 2))/12 + 'em',
 			'width': popupMaxWidth/12 + 'em',
-			'max-width': 870/12 + 'em',
-			'margin-left': '-' + (popupMaxWidth / 3)/12 + 'em',
-			'margin-top': '-' + ((popupMaxHeight) / 3)/12 + 'em'
+			'max-width': 870/12 + 'em'
 		});
 	} else if (id == "showUserDialogue") {
 		if(jQuery.browser.mobile){
 			dialogue.css ({
-				'top': (window.pageYOffset + (popupMaxHeight / 2))/12 + 'em',
 				'width': popupMaxWidth/12 + 'em',
-				'max-height': 34 + 'em',
-				'margin-left': '-' + (popupMaxWidth / 2)/12 + 'em',
-				'margin-top': '-' + ((popupMaxHeight) / 3)/12 + 'em'
+				'max-height': 34 + 'em'
 			});
 		} else {
 			dialogue.css ({
-				'top': (window.pageYOffset + (popupMaxHeight / 2))/12 + 'em',
 				'width': 80 + '%',
 				'max-width': 1200/12 + 'em',
-				'max-height': popupMaxHeight/12 + 'em',
-				'margin-left': '-' + (popupMaxWidth / 2.5)/12 + 'em',
-				'margin-top': '-' + ((popupMaxHeight) / 3)/12 + 'em'
+				'max-height': popupMaxHeight/12 + 'em'
 			});
 		}
 	} else {
 		dialogue.css({
-			'top': (window.pageYOffset + (popupMaxHeight / 2))/12 + 'em',
 			'width': popupMaxWidth/12 + 'em',
-			'max-height': popupMaxHeight/12 + 'em',
-			'margin-left': '-' + (popupMaxWidth / 2)/12 + 'em',
-			'margin-top': '-' + ((popupMaxHeight) / 3)/12 + 'em'
+			'max-height': popupMaxHeight/12 + 'em'
 		});
 	}
 
