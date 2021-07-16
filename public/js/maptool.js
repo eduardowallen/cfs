@@ -926,7 +926,7 @@ maptool.addGap = function(clickEvent) {
 	if (maptool.map.userlevel < 2)
 		return;
 	maptool.pauseUpdate();
-	$("#post_position").off("click");
+	$("#post_gap").off("click");
 	$("body").prepend('<img src="images/icons/marker_open.png" alt="" id="newMarkerIcon" class="marker"/>');
 	marker = $("#newMarkerIcon").css({
 		top: clickEvent.clientY - config.iconOffset,
@@ -945,7 +945,7 @@ maptool.addGap = function(clickEvent) {
 			$('#edit_gap_dialogue .standSpaceName').text(lang.newStandSpace);
 			maptool.openDialogue("edit_gap_dialogue");
 			$('#position_name_input').focus();
-			$("#post_position").click(function() {
+			$("#post_gap").click(function() {
 				if ($("#position_name_input").val() != '') {
 					maptool.savePosition();
 					maptool.resumeUpdate();

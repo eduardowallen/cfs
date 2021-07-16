@@ -317,7 +317,7 @@ function makeUserOptions3($sel=0, $fair) {
 
 			<input type="hidden" name="position_id_input" id="position_id_input" value=""/>
 
-			<p><input type="button" class="greenbutton mediumbutton" id="post_position" value="<?php echo uh($translator->{'Save and close'}); ?>"/></p>
+			<p><input type="button" class="greenbutton mediumbutton" id="post_gap" value="<?php echo uh($translator->{'Save and close'}); ?>"/></p>
 		</div>
 
 		<div id="preliminary_bookings_dialogue" class="dialogue popup">
