@@ -6,11 +6,11 @@
 		setTimeout(function(){
 			anpassaTabeller();
 			for(var i = 0; i<3; i++){
-				var tblarr = new Array('booked', 'connected', 'canceled');
+				var tblarr = ['booked', 'connected', 'canceled'];
 				var header = $('#h'+tblarr[i]+' > ul');
 				var headertmp = $('#'+tblarr[i]+' > thead > tr');
 			
-				var headerarr = new Array();
+				var headerarr = [];
 				
 				headertmp.children().each(function(i){
 					headerarr[i] = $(this).width();
@@ -35,8 +35,8 @@
 
 	/* A function to collect data from a specified HTML table (the inparameter takes the ID of the table) */
 	function prepareTable(tbl){
-		var rowArray = new Array();
-		var colArray = new Array();
+		var rowArray = [];
+		var colArray = [];
 
 		var table = $('#'+tbl);
 		var rows = 0;

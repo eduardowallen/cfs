@@ -910,7 +910,7 @@ maptool.addPosition = function(clickEvent) {
 			$('#position_name_input').focus();
 			$("#post_position").click(function() {
 				if ($("#position_name_input").val() != '') {
-					maptool.savePosition('addPosition');
+					maptool.savePosition();
 					maptool.resumeUpdate();
 					$('label[for="position_name_input"]').css("color", "#000000");
 				} else {
@@ -922,36 +922,36 @@ maptool.addPosition = function(clickEvent) {
 };
 //Create new gap
 maptool.addGap = function(clickEvent) {
-	$("#position_name_input, #position_area_input, #position_info_input").val("");
+	$("#gap_name_input, #gap_area_input, #gap_info_input").val("");
 	if (maptool.map.userlevel < 2)
 		return;
 	maptool.pauseUpdate();
 	$("#post_gap").off("click");
-	$("body").prepend('<img src="images/icons/marker_open.png" alt="" id="newMarkerIcon" class="marker"/>');
-	marker = $("#newMarkerIcon").css({
+	$("body").prepend('<img src="images/icons/marker_gap.png" alt="" id="gapMarker" class="marker"/>');
+	marker = $("#gapMarker").css({
 		top: clickEvent.clientY - config.iconOffset,
 		left: clickEvent.clientX - config.iconOffset
 	});
 	if (fullscreen) {
-		$("#newMarkerIcon").css('z-index', '10000');
+		$("#gapMarker").css('z-index', '10000');
 	}
 	$(document).on('mousemove', 'body', maptool.traceMouse);
-	$("#newMarkerIcon").click(function(e) {
+	$("#gapMarker").click(function(e) {
 		var x = e.clientX - maptool.map.canvasOffset.left;
 		var y = e.clientY - maptool.map.canvasOffset.top;
 		if (maptool.isOnMap(e.clientX, e.clientY)) {
 			$(document).off('mousemove', 'body', maptool.traceMouse);
-			$("#position_id_input").val("new");
+			$("#gap_id_input").val("new");
 			$('#edit_gap_dialogue .standSpaceName').text(lang.newStandSpace);
 			maptool.openDialogue("edit_gap_dialogue");
-			$('#position_name_input').focus();
+			$('#gap_name_input').focus();
 			$("#post_gap").click(function() {
-				if ($("#position_name_input").val() != '') {
-					maptool.savePosition();
+				if ($("#gap_name_input").val() != '') {
+					maptool.saveGap();
 					maptool.resumeUpdate();
-					$('label[for="position_name_input"]').css("color", "#000000");
+					$('label[for="gap_name_input"]').css("color", "#000000");
 				} else {
-					$('label[for="position_name_input"]').css("color", "red");
+					$('label[for="gap_name_input"]').css("color", "red");
 				}
 			});
 		}
@@ -1034,6 +1034,30 @@ maptool.editPosition = function(positionObject) {
 			$('label[for="position_name_input"]').css("color", "#000000");
 		} else {
 			$('label[for="position_name_input"]').css("color", "red");
+		}
+	});
+};
+//Edit position
+maptool.editgap = function(gapObject) {
+	//$("#edit_gap_dialogue .closeDialogue").show();
+	$("#post_gap").off("click");
+	$("#gap_id_input").val(gapObject.id);
+	$("#gap_name_input").val(gapObject.name);
+	$("#gap_area_input").val(gapObject.area);
+	$("#gap_price_input").val(gapObject.price);
+	$("#gap_info_input").val(gapObject.information);
+	$('.standSpaceName').html("");
+	$('#edit_gap_dialogue .standSpaceName').text(lang.editStandSpace + ': ' + gapObject.name);
+	maptool.openDialogue("edit_gap_dialogue");
+	$('#gap_name_input').focus();
+	//$("#post_gap").click(function() {
+	$("#post_gap").on("click", function() {
+		if ($("#gap_name_input").val() != '') {
+			maptool.savegap();
+			maptool.update();
+			$('label[for="gap_name_input"]').css("color", "#000000");
+		} else {
+			$('label[for="gap_name_input"]').css("color", "red");
 		}
 	});
 };
@@ -2150,18 +2174,12 @@ maptool.reservePosition = function(positionObject) {
 	});
 };
 //Save new position to database
-maptool.savePosition = function(positionType) {
+maptool.savePosition = function() {
 	var xPercent = '';
 	var yPercent = '';
-	var markerIcon;
-	if (positionType == 'addPosition') {
-		markerIcon = "#newMarkerIcon";
-	} else {
-		markerIcon = "#newGapIcon";
-	}
 	if ($("#position_id_input").val() == 'new') {
-		var xOffset = parseFloat($(markerIcon).offset().left + config.iconOffset);
-		var yOffset = parseFloat($(markerIcon).offset().top + config.iconOffset);
+		var xOffset = parseFloat($("#newMarkerIcon").offset().left + config.iconOffset);
+		var yOffset = parseFloat($("#newMarkerIcon").offset().top + config.iconOffset);
 		var mapWidth = $("#map #map_img").width();
 		var mapHeight = $("#map #map_img").height();
 		xOffset = xOffset - maptool.map.canvasOffset.left + $("#mapHolder").scrollLeft();
@@ -2173,21 +2191,52 @@ maptool.savePosition = function(positionType) {
 	'&name=' + encodeURIComponent($("#position_name_input").val()) +
 	'&area=' + encodeURIComponent($("#position_area_input").val()) +
 	'&information=' + encodeURIComponent($("#position_info_input").val()) +
+	'&price=' + encodeURIComponent($("#position_price_input").val()) +
 	'&x=' + xPercent +
 	'&y=' + yPercent +
 	'&map=' + maptool.map.id;
-	if (positionType == 'addPosition') {
-		dataString += '&price=' + encodeURIComponent($("#position_price_input").val());
-	}
-	if (positionType == 'addGap') {
-		dataString += '&addGap=1';
-	}
+
 	$.ajax({
 		url: 'ajax/maptool.php',
 		type: 'POST',
 		data: dataString,
 		success: function() {
 			$('#edit_position_dialogue input[type="text"], #edit_position_dialogue textarea').val("");
+			maptool.markPositionAsNotBeingEdited();
+			maptool.closeDialogues();
+			maptool.update();
+		}
+	});
+};
+//Save new gap to database
+maptool.saveGap = function() {
+	var xPercent = '';
+	var yPercent = '';
+	if ($("#gap_id_input").val() == 'new') {
+		var xOffset = parseFloat($("#gapMarker").offset().left + config.iconOffset);
+		var yOffset = parseFloat($("#gapMarker").offset().top + config.iconOffset);
+		var mapWidth = $("#map #map_img").width();
+		var mapHeight = $("#map #map_img").height();
+		xOffset = xOffset - maptool.map.canvasOffset.left + $("#mapHolder").scrollLeft();
+		xPercent = (xOffset / mapWidth) * 100;
+		yOffset = yOffset - maptool.map.canvasOffset.top + $("#mapHolder").scrollTop();
+		yPercent = (yOffset / mapHeight) * 100;
+	}
+	var dataString = 'saveGap=' + encodeURIComponent($("#gap_id_input").val()) +
+	'&name=' + encodeURIComponent($("#gap_name_input").val()) +
+	'&area=' + encodeURIComponent($("#gap_area_input").val()) +
+	'&information=' + encodeURIComponent($("#gap_info_input").val()) +
+	'&price=0' +
+	'&x=' + xPercent +
+	'&y=' + yPercent +
+	'&map=' + maptool.map.id;
+	
+	$.ajax({
+		url: 'ajax/maptool.php',
+		type: 'POST',
+		data: dataString,
+		success: function() {
+			$('#edit_gap_dialogue input[type="text"], #edit_gap_dialogue textarea').val("");
 			maptool.markPositionAsNotBeingEdited();
 			maptool.closeDialogues();
 			maptool.update();

@@ -65,10 +65,10 @@ function filterTableTable(table, str, results) {
 		headerd.css('display', 'none');
 	
 		for(var i = 0; i<3; i++){
-				var tblarr = new Array('booked', 'reserved', 'prem');
+				var tblarr = ['booked', 'reserved', 'prem'];
 				var header = $('#h'+tblarr[i]+' > ul');
 				var headertmp = $('#'+tblarr[i]+' > thead > tr');
-				var headerarr = new Array();
+				var headerarr = [];
 
 				headertmp.children().each(function(i){
 					headerarr[i] = $(this).width();
@@ -90,10 +90,10 @@ function filterTableTable(table, str, results) {
 		headerd.css('display', 'none');
 	
 		for(var i = 0; i<3; i++){
-			var tblarr = new Array('booked', 'connected');
+			var tblarr = ['booked', 'connected'];
 			var header = $('#h'+tblarr[i]+' > ul');
 			var headertmp = $('#'+tblarr[i]+' > thead > tr');
-			var headerarr = new Array();
+			var headerarr = [];
 	
 			headertmp.children().each(function(i){
 				headerarr[i] = $(this).width();

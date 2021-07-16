@@ -306,16 +306,16 @@ function makeUserOptions3($sel=0, $fair) {
 			<img src="images/icons/close_dialogue.png" alt="" style="margin-top:-3.7em" class="closeDialogue"/>
 			<h3 class="standSpaceName"><?php echo uh($translator->{'New/Edit gap'}); ?></h3>
 
-			<label for="position_name_input"><?php echo uh($translator->{'Name'}); ?> *</label>
-			<input type="text" class="dialogueInput"  name="position_name_input" id="position_name_input"/>
+			<label for="gap_name_input"><?php echo uh($translator->{'Name'}); ?> *</label>
+			<input type="text" class="dialogueInput"  name="gap_name_input" id="gap_name_input"/>
 
-			<label for="position_area_input"><?php echo uh($translator->{'Area'}); ?> </label>
-			<input type="text" class="dialogueInput"  name="position_area_input" id="position_area_input"/>
+			<label for="gap_area_input"><?php echo uh($translator->{'Area'}); ?> </label>
+			<input type="text" class="dialogueInput"  name="gap_area_input" id="gap_area_input"/>
 
-			<label for="position_info_input"><?php echo uh($translator->{'Information'}); ?></label>
-			<textarea name="position_info_input" id="position_info_input" placeholder="<?php echo uh($translator->{'Enter information about the stand space that would be interesting for the exhibitor to know, for example: This stand space is in the center of the IT-area and very well positioned for demonstration of your products.'}); ?>"></textarea>
+			<label for="gap_info_input"><?php echo uh($translator->{'Information'}); ?></label>
+			<textarea name="gap_info_input" id="gap_info_input" placeholder="<?php echo uh($translator->{'Enter information about the stand space that would be interesting for the exhibitor to know, for example: This stand space is in the center of the IT-area and very well positioned for demonstration of your products.'}); ?>"></textarea>
 
-			<input type="hidden" name="position_id_input" id="position_id_input" value=""/>
+			<input type="hidden" name="gap_id_input" id="gap_id_input" value=""/>
 
 			<p><input type="button" class="greenbutton mediumbutton" id="post_gap" value="<?php echo uh($translator->{'Save and close'}); ?>"/></p>
 		</div>
@@ -1113,7 +1113,7 @@ function makeUserOptions3($sel=0, $fair) {
 	<?php } ?>
 
 	var fair_url = '<?php echo $fair->get('url')?>';
-	var accessibleMaps = new Array;
+	var accessibleMaps = [];
 	<?php foreach($accessible_maps as $map) { ?>
 		accessibleMaps.push(<?php echo $map ?>);
 	<?php } ?>

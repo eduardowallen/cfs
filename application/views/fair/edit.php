@@ -25,7 +25,7 @@
 	$("form").submit(function() {
 		var thisForm = $(this);
 		thisForm.data('valid', true);
-		var errors = new Array();		
+		var errors = [];		
 		$("label", thisForm).each(function() {
 			//Reset all fields to ok
 			$(this).css("color", "#000000");

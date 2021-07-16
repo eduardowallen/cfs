@@ -943,7 +943,30 @@ if (isset($_POST['savePosition'])) {
 	exit;
 
 }
+if (isset($_POST['saveGap'])) {
 
+	if (userLevel() < 2)
+		exit;
+
+	$pos = new FairMapPosition();
+	if ((int)$_POST['saveGap'] > 0) {
+		$pos->load((int)$_POST['saveGap'], 'id');
+	} else {
+		$pos->set('map', $_POST['map']);
+		$pos->set('x', $_POST['x']);
+		$pos->set('y', $_POST['y']);
+	}
+
+	$pos->set('name', $_POST['name']);
+	$pos->set('area', $_POST['area']);
+	$pos->set('status', 9);
+	$pos->set('price', 0);
+	$pos->set('information', $_POST['information']);
+	$pos->save();
+
+	exit;
+
+}
 if (isset($_POST['movePosition'])) {
 
 	$pos = new FairMapPosition();
