@@ -616,7 +616,7 @@ maptool.showContextMenu = function(position, marker) {
 				if (maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
 					contextMenu.append('<li id="cm_edit">' + lang.editStandSpace + '</li><li id="cm_move">' + lang.moveStandSpace + '</li><li id="cm_delete">' + lang.deleteStandSpace + '</li>');
 				}
-				if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0){
+				if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0 && maptool.map.positions[objIndex].status != 4){
 					contextMenu.append('<li id="cm_note">' + lang.notes + '</li>');
 				}
 				if ((maptool.map.positions[objIndex].applied) && maptool.map.userlevel == 1){
