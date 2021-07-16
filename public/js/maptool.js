@@ -910,6 +910,43 @@ maptool.addPosition = function(clickEvent) {
 			$('#position_name_input').focus();
 			$("#post_position").click(function() {
 				if ($("#position_name_input").val() != '') {
+					maptool.savePosition('addPosition');
+					maptool.resumeUpdate();
+					$('label[for="position_name_input"]').css("color", "#000000");
+				} else {
+					$('label[for="position_name_input"]').css("color", "red");
+				}
+			});
+		}
+	});
+};
+//Create new gap
+maptool.addGap = function(clickEvent) {
+	$("#position_name_input, #position_area_input, #position_info_input").val("");
+	if (maptool.map.userlevel < 2)
+		return;
+	maptool.pauseUpdate();
+	$("#post_position").off("click");
+	$("body").prepend('<img src="images/icons/marker_open.png" alt="" id="newMarkerIcon" class="marker"/>');
+	marker = $("#newMarkerIcon").css({
+		top: clickEvent.clientY - config.iconOffset,
+		left: clickEvent.clientX - config.iconOffset
+	});
+	if (fullscreen) {
+		$("#newMarkerIcon").css('z-index', '10000');
+	}
+	$(document).on('mousemove', 'body', maptool.traceMouse);
+	$("#newMarkerIcon").click(function(e) {
+		var x = e.clientX - maptool.map.canvasOffset.left;
+		var y = e.clientY - maptool.map.canvasOffset.top;
+		if (maptool.isOnMap(e.clientX, e.clientY)) {
+			$(document).off('mousemove', 'body', maptool.traceMouse);
+			$("#position_id_input").val("new");
+			$('#edit_gap_dialogue .standSpaceName').text(lang.newStandSpace);
+			maptool.openDialogue("edit_gap_dialogue");
+			$('#position_name_input').focus();
+			$("#post_position").click(function() {
+				if ($("#position_name_input").val() != '') {
 					maptool.savePosition();
 					maptool.resumeUpdate();
 					$('label[for="position_name_input"]').css("color", "#000000");
@@ -2113,12 +2150,18 @@ maptool.reservePosition = function(positionObject) {
 	});
 };
 //Save new position to database
-maptool.savePosition = function() {
+maptool.savePosition = function(positionType) {
 	var xPercent = '';
 	var yPercent = '';
+	var markerIcon;
+	if (positionType == 'addPosition') {
+		markerIcon = "#newMarkerIcon";
+	} else {
+		markerIcon = "#newGapIcon";
+	}
 	if ($("#position_id_input").val() == 'new') {
-		var xOffset = parseFloat($("#newMarkerIcon").offset().left + config.iconOffset);
-		var yOffset = parseFloat($("#newMarkerIcon").offset().top + config.iconOffset);
+		var xOffset = parseFloat($(markerIcon).offset().left + config.iconOffset);
+		var yOffset = parseFloat($(markerIcon).offset().top + config.iconOffset);
 		var mapWidth = $("#map #map_img").width();
 		var mapHeight = $("#map #map_img").height();
 		xOffset = xOffset - maptool.map.canvasOffset.left + $("#mapHolder").scrollLeft();
@@ -2127,13 +2170,18 @@ maptool.savePosition = function() {
 		yPercent = (yOffset / mapHeight) * 100;
 	}
 	var dataString = 'savePosition=' + encodeURIComponent($("#position_id_input").val()) +
-				   '&name=' + encodeURIComponent($("#position_name_input").val()) +
-				   '&area=' + encodeURIComponent($("#position_area_input").val()) +
-				   '&price=' + encodeURIComponent($("#position_price_input").val()) +
-				   '&information=' + encodeURIComponent($("#position_info_input").val()) +
-				   '&x=' + xPercent +
-				   '&y=' + yPercent +
-				   '&map=' + maptool.map.id;
+	'&name=' + encodeURIComponent($("#position_name_input").val()) +
+	'&area=' + encodeURIComponent($("#position_area_input").val()) +
+	'&information=' + encodeURIComponent($("#position_info_input").val()) +
+	'&x=' + xPercent +
+	'&y=' + yPercent +
+	'&map=' + maptool.map.id;
+	if (positionType == 'addPosition') {
+		dataString += '&price=' + encodeURIComponent($("#position_price_input").val());
+	}
+	if (positionType == 'addGap') {
+		dataString += '&addGap=1';
+	}
 	$.ajax({
 		url: 'ajax/maptool.php',
 		type: 'POST',
@@ -3906,6 +3954,13 @@ $(document).ready(function() {
 	$("#create_position").click(function(e) {
 		if (hasRights && maptool.ownsMap()) {
 			maptool.addPosition(e);
+		} else {
+			alert(lang.noPlaceRights);
+		}
+	});
+	$("#create_gap").click(function(e) {
+		if (hasRights && maptool.ownsMap()) {
+			maptool.addGap(e);
 		} else {
 			alert(lang.noPlaceRights);
 		}

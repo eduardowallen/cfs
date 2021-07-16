@@ -931,7 +931,12 @@ if (isset($_POST['savePosition'])) {
 
 	$pos->set('name', $_POST['name']);
 	$pos->set('area', $_POST['area']);
-	$pos->set('price', $_POST['price']);
+	if ($_POST['addGap']) {
+		$pos->set('status', 9);
+		$pos->set('price', 0);
+	} else {
+		$pos->set('price', $_POST['price']);
+	}
 	$pos->set('information', $_POST['information']);
 	$pos->save();
 
