@@ -52,7 +52,7 @@ class FairMapPosition extends Model {
 	}
 
 	public function getStatusText() {
-		$statuses = array('open', 'reserved', 'booked');
+		$statuses = array('open', 'reserved', 'booked', 'gap');
 		return $statuses[$this->status];
 	}
 	
