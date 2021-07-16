@@ -246,7 +246,6 @@ img#logo {
 	margin-top: 2em;
 }
 #logo-text {
-	display:inline-block;
 	float:right;
 	clear:right;
 	color:#FFFFFF;
@@ -258,13 +257,14 @@ img#logo {
 /*#languages a:first-child {
 	border-top-right-radius:7px;
 	border-top-left-radius:7px;
-}*/
+}
 #fair_select {
-	/*position:absolute;
+	position:absolute;
 	left:50%;
 	margin-left:360px;
-	margin-top:55px;*/
+	margin-top:55px;
 }
+*/
 #fair_select_p {
 	position:absolute;
 	left:50%;
@@ -473,9 +473,6 @@ img#logo {
 	margin: 2em auto;
 	margin-top: 0;
 	padding-top: 4vh;
-}
-.fair-clone-confirm {
-
 }
 #permission_box {
 	width:25em;

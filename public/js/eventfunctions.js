@@ -7,7 +7,9 @@
 **/
 
 $().ready(function(){
-	$('a.addfees').click(function(){showDialogue('add_custom_fee_dialogue')});
+	$('a.addfees').click(function(){
+		showDialogue('add_custom_fee_dialogue');
+	});
 	$('.currency').change(function(){
 		changeCurrency();
 	});
@@ -37,15 +39,15 @@ function showDialogue(dialogue){
 			var divName = name.replace(/ /g,'');
 			var arrname = name.replace(/ /g,'%');
 			var rand = Math.floor(Math.random() * 10000000);
-			var divStr = '' 
-			+	'<div style="float:left;" class="'+rand+divName+'">'
-			+	'<p style="font-weight:bold; margin:3px 0 0 0;" class="name">'+name+':</p>'
-			+ 	'<input style="float:left;" class="inp'+rand+divName+'" name="custom_fee[\''+arrname+'\']" type="text" />'
-			+	'<input type="hidden" class="id'+rand+divName+'" name="custom_fee_id[\''+arrname+'\']" value="new" type="text" />'
-			+	'<p style="float:left; margin:5px 0px 0px 5px;" class="value">'+defaultvalue+'</p>'
-			+	'<p style="float:left; margin:0px 5px; width:20px; font-size:9px;">edit<img class="edit" onclick="editPrice(\''+dialogue+'\', \''+rand+divName+'\', \''+name+'\')"  src="images/icons/pencil.png" alt="" /></p>'
-			+	'<p style="float:left; margin:0px 5px; width:20px; font-size:9px;">delete<img class="delete" onclick="removePrice(\''+rand+divName+'\')" src="images/icons/delete.png" alt="" /></p>'
-			+	'</div>';
+			var divStr = '' +
+				'<div style="float:left;" class="'+rand+divName+'">' +
+				'<p style="font-weight:bold; margin:3px 0 0 0;" class="name">'+name+':</p>' +
+			 	'<input style="float:left;" class="inp'+rand+divName+'" name="custom_fee[\''+arrname+'\']" type="text" />' +
+				'<input type="hidden" class="id'+rand+divName+'" name="custom_fee_id[\''+arrname+'\']" value="new" type="text" />' +
+				'<p style="float:left; margin:5px 0px 0px 5px;" class="value">'+defaultvalue+'</p>' +
+				'<p style="float:left; margin:0px 5px; width:20px; font-size:9px;">edit<img class="edit" onclick="editPrice(\''+dialogue+'\', \''+rand+divName+'\', \''+name+'\')"  src="images/icons/pencil.png" alt="" /></p>' +
+				'<p style="float:left; margin:0px 5px; width:20px; font-size:9px;">delete<img class="delete" onclick="removePrice(\''+rand+divName+'\')" src="images/icons/delete.png" alt="" /></p>' +
+				'</div>';
 			$('#custom_fees').append(divStr);
 			hideDialogue(dialogue);
 		} else {
@@ -125,12 +127,12 @@ function hideDialogue(dialogue){
 	Denna funktion visar en GIF-bild med ett meddelande för att visa att något laddar.
 **/
 function showLoader(message){
-	var divstr = ''
-	+'<div class="loader" style="position:fixed; width:100%; height:100%; top:0px; left:0px;">'
-	+'	<div class="box" style="border-radius:10px; margin:200px auto 0 auto; text-align:center; height:200px; background-color: #efefef; border-radius: 10px,;width:200px; background-image:url(\'images/ajax-loader.gif\'); background-repeat: no-repeat;background-position: center;">'
-	+'		<p style="float:left; font-weight:bold; margin-top:160px; margin-left:20px;">'+message+'</p>'
-	+'	</div>'
-	+'</div>';
+	var divstr = '' +
+	'<div class="loader" style="position:fixed; width:100%; height:100%; top:0px; left:0px;">' +
+	'	<div class="box" style="border-radius:10px; margin:200px auto 0 auto; text-align:center; height:200px; background-color: #efefef; border-radius: 10px,;width:200px; background-image:url(\'images/ajax-loader.gif\'); background-repeat: no-repeat;background-position: center;">' +
+	'		<p style="float:left; font-weight:bold; margin-top:160px; margin-left:20px;">'+message+'</p>' +
+	'	</div>' +
+	'</div>';
 	$('body').append(divstr);
 }
 

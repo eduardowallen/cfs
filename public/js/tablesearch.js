@@ -8,7 +8,7 @@ function filterTable(table, str, results) {
 		table.floatThead('reflow');
 	}
 	
-	var hits = new Array;
+	var hits = [];
 	var hit_count = 0;
 
 	table.find("tbody td").each(function() {
@@ -33,7 +33,7 @@ function filterTable(table, str, results) {
 }
 
 function filterTableTable(table, str, results) {
-	var hits = new Array;
+	var hits = [];
 	var hit_count = 0;
 	
 	table.find("tbody tr.container").each(function() {
@@ -111,8 +111,8 @@ function filterTableTable(table, str, results) {
 
 	
 $(document).ready(function() {
-	var html = '<div style="width:50em; padding-bottom:0.833em; display:inline;"><input type="text" style="height:2.0833em; margin:0 -2em 0.833em 0;" id="search_input"/>'
-			 + '<input type="button" class="search_button" id="search_button" /><span id="search_results" style="padding-left:0.833em;"></span>';	
+	var html = '<div style="width:50em; padding-bottom:0.833em; display:inline;"><input type="text" style="height:2.0833em; margin:0 -2em 0.833em 0;" id="search_input"/>' +
+			 '<input type="button" class="search_button" id="search_button" /><span id="search_results" style="padding-left:0.833em;"></span>';	
 		$('.std_table').each(function() {
 			if (!$(this).parent().hasClass('no-search')) {
 

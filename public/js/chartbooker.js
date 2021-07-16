@@ -4,19 +4,19 @@ var ask_before_leave = false;
 function showPopup(type, activator){
 
 	var row = $(activator).parent().parent().parent();
-
+	var link;
 	if(type == "reserve"){
-		var link = row.data("reserveurl");
+		link = row.data("reserveurl");
 		reservePopup(row, link, 'confirm');
 	}
 
 	if(type == "book"){
-		var link = row.data("approveurl");
+		link = row.data("approveurl");
 		bookPopup(row, link, 'confirm');
 	}
 
 	if(type == "prel"){
-		var link = row.data("reviewurl");
+		link = row.data("reviewurl");
 		prelPopup(row, link, 'confirm');
 	}
 
@@ -31,7 +31,7 @@ openForm = function(id) {
 		$("#" + id).show();
 	});
 
-}
+};
 
 function reservePopup($row, link, action) {
 	var formId = "reserve_position_form";
@@ -68,7 +68,7 @@ function reservePopup($row, link, action) {
 	var i;
 
 // Categories
-	for(var i = 0; i < categories.length; i++){
+	for(let i = 0; i < categories.length; i++){
 		$('#reserve_category_scrollbox > tbody > tr > td').each(function(){
 			var value = $(this).children().val();
 			
@@ -85,7 +85,7 @@ function reservePopup($row, link, action) {
 	}
 
 // Extra Options
-	for(var i = 0; i < options.length; i++){
+	for(let i = 0; i < options.length; i++){
 		$('#reserve_option_scrollbox > tbody > tr > td').each(function(){
 			var value = $(this).children().val();
 			
@@ -102,7 +102,7 @@ function reservePopup($row, link, action) {
 	}
 
 // Articles
-	for (var i = 0; i < articles.length; i++){
+	for (let i = 0; i < articles.length; i++){
 		$('#reserve_article_scrollbox > tbody > tr > td > div').each(function() {
 			if($(this).children().attr('id') == articles[i]) {
 				$(this).children().val(amount[i]);
@@ -224,7 +224,7 @@ review = function(data, type, location) {
 		var optpricesStr = '';
 		var optvatsStr = '';
 
-		for (var j=0; j<optnames.length; j++) {
+		for (let j=0; j<optnames.length; j++) {
 			if(optnames[j] != ""){
 				optcidsStr += '|' + optcids[j];
 				optnamesStr += '|' + optnames[j];
@@ -253,7 +253,7 @@ review = function(data, type, location) {
 		var artvatsStr = '';
 		var artqntsStr = '';
 
-		for (var j=0; j<artnames.length; j++) {
+		for (let j=0; j<artnames.length; j++) {
 			if(artnames[j] != ""){
 				artcidsStr += '|' + artcids[j];
 				artnamesStr += '|' + artnames[j];
@@ -455,10 +455,10 @@ html += '</tbody>';
 // return integer part - may be negative
 Math.trunc = function(n) {
     return (n < 0) ? Math.ceil(n) : Math.floor(n);
-}
+};
 Math.frac = function(n) {
     return n - Math.trunc(n);
-}
+};
 VatPrice0 = parseFloat(excludeVatPrice0);
 VatPrice12 = parseFloat(excludeVatPrice12*0.12);
 VatPrice18 = parseFloat(excludeVatPrice18*0.18);
@@ -574,7 +574,7 @@ if (excludeVatPrice25 != 0) {
 		$(dialogue + '#review_user').append($('#' + type + '_user_input').find(":selected").text());
 	}
 
-}	
+};	
 
 function bookPopup($row, link, action) {
 	var formId = "book_position_form";
@@ -611,7 +611,7 @@ function bookPopup($row, link, action) {
 	var i;
 
 // Categories
-	for(var i = 0; i < categories.length; i++){
+	for(let i = 0; i < categories.length; i++){
 		$('#book_category_scrollbox > tbody > tr > td').each(function(){
 			var value = $(this).children().val();
 			
@@ -628,7 +628,7 @@ function bookPopup($row, link, action) {
 	}
 
 // Extra Options
-	for(var i = 0; i < options.length; i++){
+	for(let i = 0; i < options.length; i++){
 		$('#book_option_scrollbox > tbody > tr > td').each(function(){
 			var value = $(this).children().val();
 			
@@ -645,7 +645,7 @@ function bookPopup($row, link, action) {
 	}
 
 // Articles
-	for (var i = 0; i < articles.length; i++){
+	for (let i = 0; i < articles.length; i++){
 		$('#book_article_scrollbox > tbody > tr > td > div').each(function() {
 			if($(this).children().attr('id') == articles[i]) {
 				$(this).children().val(amount[i]);
@@ -875,10 +875,10 @@ function prelPopup($row, link, action) {
 // return integer part - may be negative
 Math.trunc = function(n) {
     return (n < 0) ? Math.ceil(n) : Math.floor(n);
-}
+};
 Math.frac = function(n) {
     return n - Math.trunc(n);
-}
+};
 
 VatPrice0 = parseFloat(excludeVatPrice0);
 VatPrice12 = parseFloat(excludeVatPrice12*0.12);
@@ -1032,7 +1032,7 @@ function confirmDialog(info_text, title, status, link) {
         backgroundDismiss: true,
         type: status,
         	confirm: function () {
-        		document.location.href=link
+        		document.location.href=link;
         	},
         	cancel: function () {    		
         	}
@@ -1226,21 +1226,21 @@ function positionDialogue(id) {
 	var dialogue = $('#' + id);
 	var viewportWidth = Math.max(window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 0);
 	var viewportHeight = Math.max(window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0);
-	var popupMaxWidth = Math.max(448, viewportWidth * .47);
-	var popupMaxHeight = Math.max(328, viewportHeight * .80);
+	var popupMaxWidth = Math.max(448, viewportWidth * 0.47);
+	var popupMaxHeight = Math.max(328, viewportHeight * 0.80);
 	//console.log(id);
 	//Exceptions to width and height
 	switch (id) {
 		case "showUserDialogue":
-			popupMaxWidth = Math.max(950, viewportWidth * .80);
-			popupMaxHeight = Math.max(328, viewportHeight * .80);
+			popupMaxWidth = Math.max(950, viewportWidth * 0.80);
+			popupMaxHeight = Math.max(328, viewportHeight * 0.80);
 			break;		
 		case "export_popup":
-			popupMaxWidth = Math.max(950, viewportWidth * .70);
-			popupMaxHeight = Math.max(328, viewportHeight * .80);
+			popupMaxWidth = Math.max(950, viewportWidth * 0.70);
+			popupMaxHeight = Math.max(328, viewportHeight * 0.80);
 			break;
 		case "innerPopup":
-			popupMaxWidth = Math.max(550, viewportWidth * .50);
+			popupMaxWidth = Math.max(550, viewportWidth * 0.50);
 			break;	
 		case "book_position_form":
 		case "reserve_position_form":
@@ -1251,9 +1251,10 @@ function positionDialogue(id) {
 //		console.log(viewportHeight);
 //		console.log(viewportWidth);
 			popupMaxWidth = 900;
-			popupMaxHeight = Math.max(328, viewportHeight * .90);
+			popupMaxHeight = Math.max(328, viewportHeight * 0.90);
 			break;
 		case "edit_position_dialogue":
+		case "edit_gap_dialogue":
 		case 'fair_registration_paste_type_dialogue':
 			popupMaxWidth = 400;
 			break;
@@ -1270,13 +1271,13 @@ function positionDialogue(id) {
 			popupMaxWidth = 600;
 			break;
 		case "preliminary_bookings_dialogue":
-			//popupMaxWidth = Math.max(900, viewportWidth * .70);
-			popupMaxHeight = Math.max(328, viewportHeight * .90);
+			//popupMaxWidth = Math.max(900, viewportWidth * 0.70);
+			popupMaxHeight = Math.max(328, viewportHeight * 0.90);
 			popupMaxWidth = 900;
 			break;
 //		case "popupform_register":
-			//popupMaxWidth = Math.max(910, viewportWidth * .70);
-			//popupMaxHeight = Math.max(720, viewportHeight * .90);
+			//popupMaxWidth = Math.max(910, viewportWidth * 0.70);
+			//popupMaxHeight = Math.max(720, viewportHeight * 0.90);
 /*			popupMaxWidth = 910;
 			popupMaxHeight = 720;
 			break;	*/
@@ -1344,7 +1345,7 @@ function positionDialogue(id) {
 		});
 	}
 
-};
+}
 
 function showUser(e) {
 	e.preventDefault();
@@ -1389,8 +1390,8 @@ function multiCheck(checkbox, box) {
 
 /* A function to collect data from a specified HTML table (the inparameter takes the ID of the table) */
 function prepareTable() {
-	var rowArray = new Array();
-	var colArray = new Array();
+	var rowArray = [];
+	var colArray = [];
 
 	var tableId = $(this).data("table");
 
@@ -1596,18 +1597,18 @@ function showSmsSendPopup(e) {
 			num_recipients.push($(input).data('userid'));
 		});	
 	jQuery.unique(num_recipients);
-	var sms_send_popup = $('<form id="sms_send_popup" class="dialogue popup" style="width: 400px; position:fixed;"><h2><img src="images/icons/smsicon.png" alt="" class="icon_sms_popup" />' 
-		+ lang.sms_popup_title + '</h2><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />'
-		+ '<p>' + lang.sms_example_message + '<br />' + lang.sms_example + '</p>'
-		+ '<p><strong>' + lang.sms_enter_message + '</strong><textarea maxlength="459" style="width:350px" name="sms_text"></textarea></p>'
-		+ '<p><strong>' + lang.sms_max_chars + '</strong><strong id="sms_send_chars_count"></strong></p>'
-		+ '<p>' + lang.sms_num_recipients + ': <strong>' + num_recipients.length + '</strong><br />'
-		+ lang.sms_estimated_cost + ': <strong id="sms_send_cost"></strong> kr ex moms</p>'
-		+ '<button type="submit" id="sms_submit" class="greenbutton mediumbutton">' + lang.send + '</button>'
-		+ '<ul class="dialog-tab-list"><li><a href="#sms_send_log" class="js-select-tab">'
-		+ lang.sms_log + '</a></li><li><a href="#sms_send_errors" class="js-select-tab">' + lang.errors + ' (<span id="sms_send_errors_count">0</span>)</a></li></ul>'
-		+ '<div class="dialog-tab" id="sms_send_log"><p></p></div>'
-		+ '<div class="dialog-tab" id="sms_send_errors"><ul></ul></div></form>');
+	var sms_send_popup = $('<form id="sms_send_popup" class="dialogue popup" style="width: 400px; position:fixed;"><h2><img src="images/icons/smsicon.png" alt="" class="icon_sms_popup" />' +
+		lang.sms_popup_title + '</h2><img src="images/icons/close_dialogue.png" alt="" class="closeDialogue close-popup" />' +
+		'<p>' + lang.sms_example_message + '<br />' + lang.sms_example + '</p>' +
+		'<p><strong>' + lang.sms_enter_message + '</strong><textarea maxlength="459" style="width:350px" name="sms_text"></textarea></p>' +
+		'<p><strong>' + lang.sms_max_chars + '</strong><strong id="sms_send_chars_count"></strong></p>' +
+		'<p>' + lang.sms_num_recipients + ': <strong>' + num_recipients.length + '</strong><br />' +
+		lang.sms_estimated_cost + ': <strong id="sms_send_cost"></strong> kr ex moms</p>' +
+		'<button type="submit" id="sms_submit" class="greenbutton mediumbutton">' + lang.send + '</button>' +
+		'<ul class="dialog-tab-list"><li><a href="#sms_send_log" class="js-select-tab">' +
+		lang.sms_log + '</a></li><li><a href="#sms_send_errors" class="js-select-tab">' + lang.errors + ' (<span id="sms_send_errors_count">0</span>)</a></li></ul>' +
+		'<div class="dialog-tab" id="sms_send_log"><p></p></div>' +
+		'<div class="dialog-tab" id="sms_send_errors"><ul></ul></div></form>');
 
 	var error_list = $('#sms_send_errors ul', sms_send_popup);
 
@@ -1770,8 +1771,8 @@ var Comments = (function() {
 		if (response.error) {
 			alert(response.error);
 		} else {
-			var note_dialogue = $('<div id="' + options.dialog_id + '" class="dialogue popup" style="min-width: 41.66em;">'
-				+ response + '</div>');
+			var note_dialogue = $('<div id="' + options.dialog_id + '" class="dialogue popup" style="min-width: 41.66em;">' +
+				response + '</div>');
 			var user_select = $('.js-user-select', note_dialogue);
 
 			$('form', note_dialogue).on('submit', function(e) {
@@ -2450,20 +2451,20 @@ $(".previous").click(function(){
 		$('#overlay').show();
 
 		var url = $(this).attr('href');
-		var html = '<form action="' + url + '" method="post" id="popupform_login" class="dialogue2 popup" style="display:inline-block;">'
-				 + 		'<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>'
-				 +		'<img src="images/logo/chartbooking_logo_small.png" alt="" class="nouser_cfslogo" style="margin-left: 6em !important; width: 32.166em !important;" />'
-				 +		'<p class="logo_text">' + lang.logo_text + '</p>'
-				 +		'<p class="error"></p>'
-				 +		'<fieldset style="margin: 0 10em; max-width: 25em;">'
-				 + 		'<label for="user" style="font-size: 1.33em;">' + lang.login_username + '</label>'
-				 + 		'<input type="text" class="login_textfield" name="user" id="user" size="20"/>'
-				 + 		'<label for="pass" style="font-size: 1.33em;">' + lang.login_password + '</label>'
-				 + 		'<input type="password" class="login_textfield" name="pass" id="pass" size="20"/>'
-				 +		'</fieldset>'
-				 +		'<p class="forgot"><a href="user/resetPassword' + (typeof fair_url === 'string' ? '/backref/' + fair_url : '') + '">' + lang.forgot_pass + '</a></p>'
-				 + 		'<p><input type="submit" value="' + lang.sign_in + '" name="login" class="greenbutton bigbutton"/></p>'
-				 + 	'</form>';
+		var html = '<form action="' + url + '" method="post" id="popupform_login" class="dialogue2 popup" style="display:inline-block;">' +
+				 		'<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin:0 0 0 268px;"/>' +
+						'<img src="images/logo/chartbooking_logo_small.png" alt="" class="nouser_cfslogo" style="margin-left: 6em !important; width: 32.166em !important;" />' +
+						'<p class="logo_text">' + lang.logo_text + '</p>' +
+						'<p class="error"></p>' +
+						'<fieldset style="margin: 0 10em; max-width: 25em;">' +
+				 		'<label for="user" style="font-size: 1.33em;">' + lang.login_username + '</label>' +
+				 		'<input type="text" class="login_textfield" name="user" id="user" size="20"/>' +
+				 		'<label for="pass" style="font-size: 1.33em;">' + lang.login_password + '</label>' +
+				 		'<input type="password" class="login_textfield" name="pass" id="pass" size="20"/>' +
+						'</fieldset>' +
+						'<p class="forgot"><a href="user/resetPassword' + (typeof fair_url === 'string' ? '/backref/' + fair_url : '') + '">' + lang.forgot_pass + '</a></p>' +
+				 		'<p><input type="submit" value="' + lang.sign_in + '" name="login" class="greenbutton bigbutton"/></p>' +
+				 	'</form>';
 			if ($("#popupform_login").length == 0) {
 				if ($("#nouser_dialogue").length == 1) {
 					$("#nouser_dialogue").after(html);
@@ -2485,10 +2486,11 @@ $(".previous").click(function(){
 	$('.contactLink').click(function() {
 		var splitted = $(this).attr('class').split(" ");
 		$('#overlay').show();
+		let link;
 		if(splitted[1] == null){
-			var link = 'page/contact';
+			link = 'page/contact';
 		} else {
-			var link = 'page/contact/'+splitted[1];
+			link = 'page/contact/'+splitted[1];
 		}
 
 		var ajxReq = $.ajax({
@@ -2516,10 +2518,11 @@ $(".previous").click(function(){
 	$('.rulesLink').click(function() {
 		var splitted = $(this).attr('class').split(" ");
 		$('#overlay').show();
+		let link;
 		if(splitted[1] == null){
-			var link = 'page/rules';
+			link = 'page/rules';
 		} else {
-			var link = 'page/rules/'+splitted[1];
+			link = 'page/rules/'+splitted[1];
 		}
 
 		var ajxReq = $.ajax({
@@ -2650,7 +2653,7 @@ $(".previous").click(function(){
 
 			var thisFieldset = $(this).parent();
 			thisFieldset.data('valid', true);
-			var errors = new Array();
+			var errors = [];
 			var error_items = '';
 			
 			$("label", thisFieldset).each(function() {
@@ -2784,7 +2787,7 @@ $(".previous").click(function(){
 
 			var thisFieldset = $(this).parent();
 			thisFieldset.data('valid', true);
-			var errors = new Array();
+			var errors = [];
 			var error_items = '';
 			$("label", thisFieldset).each(function() {
 				
@@ -3016,8 +3019,8 @@ $(".previous").click(function(){
 
 	$(document).mouseup(function (e) {
 	    var container = $(".select-list-menu");
-    if (!container.is(e.target) // if the target of the click isn't the container...
-        && container.has(e.target).length === 0) // ... nor a descendant of the container
+    if (!container.is(e.target) && // if the target of the click isn't the container...
+        container.has(e.target).length === 0) // ... nor a descendant of the container
     {
         container.hide();
     }
@@ -3083,10 +3086,10 @@ $(".previous").click(function(){
 			arranger_message_popup = $('#arranger_message_popup');
 
 		if (arranger_message_popup.length === 0) {
-			arranger_message_popup = $('<div id="arranger_message_popup" class="dialogue popup">'
-				+ '<h3>' + lang.messageFromExhibitor + '</h3>'
-				+ '<p class="center" id="arranger_message_text"></p><p class="center">'
-				+ '<a href="#" class="greenbutton mediumbutton close-ok">' + lang.ok + '</a></p></div>');
+			arranger_message_popup = $('<div id="arranger_message_popup" class="dialogue popup">' +
+				'<h3>' + lang.messageFromExhibitor + '</h3>' +
+				'<p class="center" id="arranger_message_text"></p><p class="center">' +
+				'<a href="#" class="greenbutton mediumbutton close-ok">' + lang.ok + '</a></p></div>');
 
 			$('body').append(arranger_message_popup);
 			$('.close-ok', arranger_message_popup).click(closeDialogue);
@@ -3107,10 +3110,10 @@ $(".previous").click(function(){
 			deletion_message_popup = $('#deletion_message_popup');
 
 		if (deletion_message_popup.length === 0) {
-			deletion_message_popup = $('<div id="deletion_message_popup" class="dialogue popup">'
-				+ '<h3>' + lang.deletionMessage + '</h3>'
-				+ '<p class="center" id="deletion_message_text"></p><p class="center">'
-				+ '<a href="#" class="greenbutton mediumbutton close-ok">' + lang.ok + '</a></p></div>');
+			deletion_message_popup = $('<div id="deletion_message_popup" class="dialogue popup">' +
+				'<h3>' + lang.deletionMessage + '</h3>' +
+				'<p class="center" id="deletion_message_text"></p><p class="center">' +
+				'<a href="#" class="greenbutton mediumbutton close-ok">' + lang.ok + '</a></p></div>');
 
 			$('body').append(deletion_message_popup);
 			$('.close-ok', deletion_message_popup).click(closeDialogue);

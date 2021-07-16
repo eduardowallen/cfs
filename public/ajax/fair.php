@@ -10,15 +10,14 @@ require_once ROOT.'lib/functions.php';
 $globalDB = new Database;
 global $globalDB;
 
-function __autoload($className) {
+spl_autoload_register(function ($className) {
 	if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
 		require_once(ROOT.'lib/classes/'.$className.'.php');
 		
 	} else if (file_exists(ROOT.'application/models/'.$className.'.php')) {
 		require_once(ROOT.'application/models/'.$className.'.php');
 	}
-}
-
+});
 if (isset($_POST['checkName'])) {
 	
 	$user = new User;

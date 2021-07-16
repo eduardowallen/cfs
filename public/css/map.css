@@ -404,9 +404,9 @@ box-shadow: 0px 5px 5px -3px rgba(0,0,0,0.26);
 #more_info_dialogue .presentation iframe {
 	display: none !important;
 }
-#more_info_dialogue div.website_link {
+/*#more_info_dialogue div.website_link {
 
-}
+}*/
 #more_info_dialogue div.website_link a {
 	color: #337ab7;
 }
@@ -717,9 +717,10 @@ h1.inline-block {
 	right:2.5%;
 	width:600px;
 }
+/*
 #zoomcontrols #in, #zoomcontrols #out {
 
-}
+}*/
 #zoomcontrols #full {
 	color:#128913;
 	cursor:pointer;

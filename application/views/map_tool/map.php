@@ -300,8 +300,26 @@ function makeUserOptions3($sel=0, $fair) {
 			<input type="hidden" name="position_id_input" id="position_id_input" value=""/>
 
 			<p><input type="button" class="greenbutton mediumbutton" id="post_position" value="<?php echo uh($translator->{'Save and close'}); ?>"/></p>
-
 		</div>
+
+		<div id="edit_gap_dialogue" class="dialogue popup">
+			<img src="images/icons/close_dialogue.png" alt="" style="margin-top:-3.7em" class="closeDialogue"/>
+			<h3 class="standSpaceName"><?php echo uh($translator->{'New/Edit gap'}); ?></h3>
+
+			<label for="position_name_input"><?php echo uh($translator->{'Name'}); ?> *</label>
+			<input type="text" class="dialogueInput"  name="position_name_input" id="position_name_input"/>
+
+			<label for="position_area_input"><?php echo uh($translator->{'Area'}); ?> </label>
+			<input type="text" class="dialogueInput"  name="position_area_input" id="position_area_input"/>
+
+			<label for="position_info_input"><?php echo uh($translator->{'Information'}); ?></label>
+			<textarea name="position_info_input" id="position_info_input" placeholder="<?php echo uh($translator->{'Enter information about the stand space that would be interesting for the exhibitor to know, for example: This stand space is in the center of the IT-area and very well positioned for demonstration of your products.'}); ?>"></textarea>
+
+			<input type="hidden" name="position_id_input" id="position_id_input" value=""/>
+
+			<p><input type="button" class="greenbutton mediumbutton" id="post_position" value="<?php echo uh($translator->{'Save and close'}); ?>"/></p>
+		</div>
+
 		<div id="preliminary_bookings_dialogue" class="dialogue popup">
 			<img src="images/icons/close_dialogue.png" alt="" class="closeDialogue" style="margin-top: -3.7em; margin-right: -0.5em;" />
 			<h3 class="standSpaceName"><?php echo uh($translator->{"Preliminary bookings"}); ?></h3>
@@ -1063,7 +1081,7 @@ function makeUserOptions3($sel=0, $fair) {
 			<img id="ex_logo" style="text-align:center;" src="../images/images/no_logo_English.png" />
 			<?php } ?>
 				<div style="display:inline-block; padding:2em 1em 1em 0; max-width:45%" id="status"></div>
-				<div style="display:inline-block; float:right; width:55%; padding:2em 0em 1em 0em;" id="area"></div>
+				<div style="float:right; width:55%; padding:2em 0em 1em 0em;" id="area"></div>
 				<div style="display:none; padding-top: 1.5em" id="price"></div>
 			
 		</div>

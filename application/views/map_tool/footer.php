@@ -10,6 +10,9 @@
 								<label style="display:inline;">
 									<input type="button" class="greenbutton" value="<?php echo uh($translator->{"Create position"}); ?>" id="create_position" href="javascript:void(0);"/>
 								 </label>
+								 <label style="display:inline;">
+									<input type="button" class="greenbutton" value="<?php echo uh($translator->{"Create gap"}); ?>" id="create_gap" href="javascript:void(0);"/>
+								 </label>
 								 <hr>
 							<?php } else { ?>
 								<br/>

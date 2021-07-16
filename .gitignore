@@ -21,6 +21,7 @@ public/images/tmp/*
 # Ignore all host-specific configuration files, but not the distributied versions of them
 config/*
 !config/*.dist
+!config/*.dev
 
 # Ignore all local log files
 *.log
