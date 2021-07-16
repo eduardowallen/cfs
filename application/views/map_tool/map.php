@@ -313,7 +313,7 @@ function makeUserOptions3($sel=0, $fair) {
 			<input type="text" class="dialogueInput"  name="gap_area_input" id="gap_area_input"/>
 
 			<label for="gap_info_input"><?php echo uh($translator->{'Information'}); ?></label>
-			<textarea name="gap_info_input" id="gap_info_input" placeholder="<?php echo uh($translator->{'Enter information about the stand space that would be interesting for the exhibitor to know, for example: This stand space is in the center of the IT-area and very well positioned for demonstration of your products.'}); ?>"></textarea>
+			<textarea name="gap_info_input" id="gap_info_input" placeholder="<?php echo uh($translator->{'Enter information about the gap that would be interesting for the exhibitor to know.'}); ?>"></textarea>
 
 			<input type="hidden" name="gap_id_input" id="gap_id_input" value=""/>
 

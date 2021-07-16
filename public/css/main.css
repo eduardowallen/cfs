@@ -351,8 +351,9 @@ img#logo {
 	position:fixed;
 	padding: 3em 3em 0em 3em;
 	z-index:10000;
-	top:20vh;
-	left:33vw;
+	top:50%;
+	left:50%;
+	transform: translate(-50%, -50%);
 	overflow:auto;
 	max-width:30vw;
 	min-width:25vw;
@@ -534,10 +535,9 @@ img#logo {
 	z-index: 10001;
 	width: 48.33em;
 	height: 49.576em;
-	margin-left: -18%;
  	min-height: 12.5em;
 	border: 1px solid #333333;
- 	top: 39.9%;
+	position: fixed;
  	padding-bottom: 45em;
 }
 #popupform_login .login_textfield {
@@ -685,12 +685,13 @@ font-weight:bold;
 	display: block;
 }
 #popupform_register {
-	position:absolute;
+	position:fixed;
 	z-index:99999;
 	background:#ffffff;
 	text-align:left;
+	top:20%;
 	left:50%;
-	margin:5% 0 0 -27%;
+	transform: translate(-50%, -50%);
 	border:1px solid #333333;
 	border-top: 4em solid #47a547;
 }

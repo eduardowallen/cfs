@@ -571,10 +571,9 @@ input[type=button].search_button, input[type=button]#search_button {
 	margin:0;
 }
 #nouser_dialogue {
-	margin-left: -18%;
 	width: 48.33em;
  	min-height: 12.5em;
-	top: 40%;
+ 	position: fixed;
 	border-top: none;
 	padding:1.66em;
  }

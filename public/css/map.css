@@ -142,6 +142,20 @@
 	background-color: black;
 	background-image: none;
 }
+#create_gap {
+	width: 90%;
+	text-transform: uppercase;
+	font-size: 1.4em;
+	padding: 1em 0;
+	margin-left: 0.8em;
+	margin-top: 1.1em;
+	border: 0.5px solid #3c3c3c;
+}
+
+#create_gap:hover {
+	background-color: black;
+	background-image: none;
+}
 #fair_register_map {
 	width: 90%;
 	text-transform: uppercase;

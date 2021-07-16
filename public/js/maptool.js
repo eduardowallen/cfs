@@ -162,6 +162,7 @@ maptool.closeDialogues = function() {
 		$("#popupform_register").remove();
 		$('#popupformTwo').remove();
 		$("#newMarkerIcon").remove();
+		$("#gapMarker").remove();
 		$("#apply_category_scrollbox").css("border-color", "");
 		$("#nouser_dialogue").remove();
 	});
@@ -256,7 +257,9 @@ maptool.placeMarkers = function() {
 	for (let i=0; i<maptool.map.positions.length; i++) {
 		//console.log(maptool.map.positions[i].id + ' - ' + maptool.map.positions[i].exhibitor);
 		if (maptool.map.positions[i].applied) {
-			if(maptool.map.positions[i].statusText == "booked" || maptool.map.positions[i].statusText == "reserved"){
+			if (maptool.map.positions[i].statusText == "booked" || 
+				maptool.map.positions[i].statusText == "reserved" || 
+				maptool.map.positions[i].statusText == "gap") {
 			} else {
 				maptool.map.positions[i].statusText = 'applied';
 			}
@@ -274,6 +277,8 @@ maptool.placeMarkers = function() {
 				marker = $('<img src="images/icons/marker_booked.png" alt="" class="marker" id="' + markerId + '"/>');
 			} else if (maptool.map.positions[i].status == 1) {
 				marker = $('<img src="images/icons/marker_reserved.png" alt="" class="marker" id="' + markerId + '"/>');
+			} else if (maptool.map.positions[i].status == 4) {
+				marker = $('<img src="images/icons/marker_gap.png" alt="" class="marker" id="' + markerId + '"/>');
 			} else {
 				marker = $('<img src="images/icons/marker_open.png" alt="" class="marker" id="' + markerId + '"/>');
 			}
@@ -304,10 +309,10 @@ maptool.placeMarkers = function() {
 		} else {
 			tooltip += lang.info_missing + '<br>';
 		}
-		if (hasRights) {
+		if (hasRights && maptool.map.positions[i].status != 4) {
 				tooltip += '<strong>' + lang.price + ': </strong>' + maptool.map.positions[i].price + ' ' + maptool.map.currency + '</p>';
 		} else {
-			if (maptool.map.positions[i].status == 0 && maptool.map.userlevel > 0) {
+			if (maptool.map.positions[i].status == 0 && maptool.map.userlevel > 0 && maptool.map.positions[i].status != 4) {
 				if (maptool.map.positions[i].price != 0) {
 					tooltip += '<strong>' + lang.price + ': </strong>' + maptool.map.positions[i].price + ' ' + maptool.map.currency + '</p>';
 				} else {
@@ -339,10 +344,12 @@ maptool.placeMarkers = function() {
 			tooltip+= '<p id="tooltip_assortment">';
 			tooltip+=info;
 			tooltip+='</p>';
-			if (maptool.map.userlevel > 0) {
+			if (maptool.map.userlevel > 0 && maptool.map.positions[i].status != 4) {
 				tooltip += '<p style="margin-top: 0.25em;"><strong>' + lang.clickToReserveStandSpace + '</strong></p>';
-			} 
-			freeSpots++;
+			}
+			if (maptool.map.positions[i].status != 4) {
+				freeSpots++;
+			}
 		}
 		if(maptool.map.userlevel == 0){
 			tooltip += '<p><strong>' + lang.loginToViewMoreInfo + '</strong></p>';
@@ -357,7 +364,11 @@ maptool.placeMarkers = function() {
 			top: yMargin + 'px'
 		});
 		if (maptool.map.positions[i].being_edited > 0 && maptool.map.positions[i].being_edited != maptool.map.user_id) {
-			marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
+			if (maptool.map.positions[i].status == 4) {
+				marker.attr('src', 'images/icons/marker_gap_busy.png').addClass('busy');
+			} else {
+				marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
+			}
 		}
 		if (maptool.map.positions[i].exhibitor && hasRights) {
 			if (maptool.map.positions[i].exhibitor.recurring > 0) {
@@ -543,7 +554,11 @@ maptool.updateBusyStatus = function(position_id, callback) {
 			var busy;
 			if (maptool.map.userlevel > 0) {
 				if (response.being_edited > 0 && response.being_edited != maptool.map.user_id) {
-					marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
+					if (marker.attr('src') == 'images/icons/marker_gap.png' || marker.attr('src') == 'images/icons/marker_gap_busy.png') {
+						marker.attr('src', 'images/icons/marker_gap_busy.png').addClass('busy');
+					} else {
+						marker.attr('src', 'images/icons/marker_busy.png').addClass('busy');
+					}
 					busy = true;
 				} else if (response.exhibitor) {
 					if (response.exhibitor.clone > 0) {
@@ -609,7 +624,7 @@ maptool.showContextMenu = function(position, marker) {
 				} else {
 					contextMenu.append('<li id="cm_more">' + lang.moreInfo + '</li>');
 				}
-				if (maptool.map.positions[objIndex].status > 0 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
+				if (maptool.map.positions[objIndex].status > 0 && maptool.map.positions[objIndex].status != 4 && maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
 					contextMenu.append('<li id="cm_edit_booking">' + lang.editBooking + '</li>');
 					contextMenu.append('<li id="cm_cancel_booking">' + lang.cancelBooking + '</li>');
 					if (maptool.map.positions[objIndex].status == 1) {
@@ -640,7 +655,7 @@ maptool.showContextMenu = function(position, marker) {
 								maptool.reservePosition(maptool.map.positions[objIndex]);
 							} else if (e.target.id == 'cm_edit') {
 								maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
-								maptool.editPosition(maptool.map.positions[objIndex]);
+								maptool.editGap(maptool.map.positions[objIndex]);
 							} else if (e.target.id == 'cm_move') {
 								maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
 								maptool.movePosition(e, maptool.map.positions[objIndex]);
@@ -1038,7 +1053,7 @@ maptool.editPosition = function(positionObject) {
 	});
 };
 //Edit position
-maptool.editgap = function(gapObject) {
+maptool.editGap = function(gapObject) {
 	//$("#edit_gap_dialogue .closeDialogue").show();
 	$("#post_gap").off("click");
 	$("#gap_id_input").val(gapObject.id);
@@ -1053,7 +1068,7 @@ maptool.editgap = function(gapObject) {
 	//$("#post_gap").click(function() {
 	$("#post_gap").on("click", function() {
 		if ($("#gap_name_input").val() != '') {
-			maptool.savegap();
+			maptool.saveGap();
 			maptool.update();
 			$('label[for="gap_name_input"]').css("color", "#000000");
 		} else {

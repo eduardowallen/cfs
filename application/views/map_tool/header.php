@@ -106,6 +106,8 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 			return '<?php echo ujs($translator->{"booked"}); ?>';
 		else if (str == 'applied')
 			return '<?php echo ujs($translator->{"preliminary booked"}); ?>';
+		else if (str == 'gap')
+			return '<?php echo ujs($translator->{"gap"}); ?>';
 	}
 	
 	// Cookie addon translation

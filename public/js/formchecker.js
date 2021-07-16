@@ -360,8 +360,6 @@ $("#position_price_input").poshytip({
 		
 		if (errors.length > 0) {
 			thisForm.data('valid', false);
-			console.log(error_list);
-			console.log(errors.length);
 			$.alert({
 			    title: lang.form_err.replace('#', errors.length),
 			    content: error_list,
