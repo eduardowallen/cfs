@@ -450,9 +450,6 @@ table tbody tr td a.showProfileLink {
 	padding: 20px 12px 8px;
 }
 
-#preliminaryConfirm, #fairRegistrationConfirm {
-	margin-top: -10% !important;
-}
 #prelBookingsList {
 	max-width: 68em;
 }
