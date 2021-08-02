@@ -203,6 +203,7 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	lang.editBookedStandSpace = '<?php echo ujs($translator->{"Edit booking for stand space"}); ?>';
 	lang.editReservedStandSpace = '<?php echo ujs($translator->{"Edit reservation for stand space"}); ?>';
 	lang.editStandSpace = '<?php echo ujs($translator->{"Edit stand space"}); ?>';
+	lang.editGap = '<?php echo ujs($translator->{"Edit gap"}); ?>';
 	lang.newStandSpace = '<?php echo ujs($translator->{"New stand space"}); ?>';
 	lang.moveStandSpace = '<?php echo ujs($translator->{"Move stand space"}); ?>';
 	lang.deleteStandSpace = '<?php echo ujs($translator->{"Delete stand space"}); ?>';

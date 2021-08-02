@@ -614,7 +614,14 @@ maptool.showContextMenu = function(position, marker) {
 					contextMenu.append('<li id="cm_cancel">' + lang.cancelPreliminaryBooking + '</li>');
 				}
 				if (maptool.map.userlevel > 1 && hasRights && maptool.ownsMap()) {
-					contextMenu.append('<li id="cm_edit">' + lang.editStandSpace + '</li><li id="cm_move">' + lang.moveStandSpace + '</li><li id="cm_delete">' + lang.deleteStandSpace + '</li>');
+					if (maptool.map.positions[objIndex].status == 4)
+						contextMenu.append('<li id="cm_editGap">' + lang.editGap + '</li>');
+					else
+						contextMenu.append('<li id="cm_edit">' + lang.editStandSpace + '</li>');
+					contextMenu.append('<li id="cm_move">' + lang.moveStandSpace + '</li><li id="cm_delete">' + lang.deleteStandSpace + '</li>');
+				}
+				if (maptool.map.userlevel > 1 && hasRights && maptool.ownsMap() && maptool.map.positions[objIndex].status == 4) {
+					
 				}
 				if(((maptool.map.userlevel == 2 && hasRights) || maptool.map.userlevel > 2) && maptool.map.positions[objIndex].status > 0 && maptool.map.positions[objIndex].status != 4){
 					contextMenu.append('<li id="cm_note">' + lang.notes + '</li>');
@@ -654,6 +661,9 @@ maptool.showContextMenu = function(position, marker) {
 								maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
 								maptool.reservePosition(maptool.map.positions[objIndex]);
 							} else if (e.target.id == 'cm_edit') {
+								maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
+								maptool.editPosition(maptool.map.positions[objIndex]);
+							} else if (e.target.id == 'cm_editGap') {
 								maptool.markPositionAsBeingEdited(maptool.map.positions[objIndex]);
 								maptool.editGap(maptool.map.positions[objIndex]);
 							} else if (e.target.id == 'cm_move') {
