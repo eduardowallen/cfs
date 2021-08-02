@@ -1072,7 +1072,7 @@ maptool.editGap = function(gapObject) {
 	$("#gap_price_input").val(gapObject.price);
 	$("#gap_info_input").val(gapObject.information);
 	$('.standSpaceName').html("");
-	$('#edit_gap_dialogue .standSpaceName').text(lang.editStandSpace + ': ' + gapObject.name);
+	$('#edit_gap_dialogue .standSpaceName').text(lang.editGap + ': ' + gapObject.name);
 	maptool.openDialogue("edit_gap_dialogue");
 	$('#gap_name_input').focus();
 	//$("#post_gap").click(function() {
