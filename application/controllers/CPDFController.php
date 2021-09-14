@@ -6,7 +6,7 @@ class MYPDFController extends Controller {
 		
 		$ex = new Exhibitor;
 		
-		$ex->load($id, 'id');
+		$exId = $ex->load($id, 'id');
 		if ($ex->wasLoaded()) {
 
 				$pos = new FairMapPosition();
@@ -61,7 +61,7 @@ class MYPDFController extends Controller {
 						$ex_article->load($art, 'id');
 						$articles[] = $ex_article->get('text');			
 					}
-				}	
+				}
 
 			$this->setNoTranslate('headline', $ex->get('company'));
 

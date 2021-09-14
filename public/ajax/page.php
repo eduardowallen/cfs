@@ -13,14 +13,14 @@ global $globalDB;
 $lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
 define('LANGUAGE', $lang);
 
-function __autoload($className) {
+spl_autoload_register(function ($className) {
 	if (file_exists(ROOT.'lib/classes/'.$className.'.php')) {
 		require_once(ROOT.'lib/classes/'.$className.'.php');
 		
 	} else if (file_exists(ROOT.'application/models/'.$className.'.php')) {
 		require_once(ROOT.'application/models/'.$className.'.php');
 	}
-}
+});
 
 if (isset($_POST['ajaxContent'])) {
 	

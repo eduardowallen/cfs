@@ -283,6 +283,8 @@ function posStatusToText($status) {
 			return $translator->{'booked'};
 		case 3:
 			return $translator->{'preliminary booked'};
+		case 4:
+			return $translator->{'gap'};
 	}
 }
 

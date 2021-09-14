@@ -506,8 +506,7 @@ input[type=button].search_button, input[type=button]#search_button {
 	width:33.33em;
 	top:50%;
 	left:50%;
-	margin-left:-18.5em;
-	margin-top:-16.66em;
+	transform: translate(-50%, -50%);
 	padding:1.66em;
 	background:#ffffff;
 	border:0.0833em solid #333333;
@@ -522,8 +521,7 @@ input[type=button].search_button, input[type=button]#search_button {
 	width:33.33em;
 	top:50%;
 	left:50%;
-	margin-left:-18.5em;
-	margin-top:-16.66em;
+	transform: translate(-50%, -50%);
 	padding: 0 1.66em 1.66em 1.66em;
 	background:#ffffff;
 	border:0.0833em solid #333333;
@@ -573,10 +571,9 @@ input[type=button].search_button, input[type=button]#search_button {
 	margin:0;
 }
 #nouser_dialogue {
-	margin-left: -18%;
 	width: 48.33em;
  	min-height: 12.5em;
-	top: 40%;
+ 	position: fixed;
 	border-top: none;
 	padding:1.66em;
  }

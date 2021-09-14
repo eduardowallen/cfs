@@ -5,17 +5,17 @@ ini_set('max_execution_time', 60);
 putenv('PATH=/bin:/usr/bin:/usr/local/bin');
 
 //Dev mode
-define('DEV', true);
-define('TESTSERV', true);
+define('DEV', false);
 
 //path settings
-define('BASE_URL', 'http://chartbookerdemo.com/');
+define('BASE_URL', 'https://www.chartbooking.com/');
+//define('BASE_URL', 'http://213.115.201.99/');
 
 //Database settings
 define('DB_HOST', 'localhost');
-define('DB_USER', 'chartbooker');
-define('DB_PASS', 'Trinax123');
-define('DB_NAME', 'chartbooker');
+define('DB_USER', 'chartbooking_com');
+define('DB_PASS', 'Me8MirQstNCanNfq');
+define('DB_NAME', 'chartbooking_com');
 
 //E-mail settings
 define('MAIL_ENABLED', false);
@@ -25,12 +25,8 @@ define('SMTP_USER', '');
 define('SMTP_PASS', '');
 define('EMAIL_FROM_NAME', 'Chartbooker Fair System');
 define('EMAIL_TO_ADMIN', 'eduardo.wallen@chartbooker.com');
-define('EMAIL_FROM_DOMAIN', '@chartbookerdemo.com');
-if (DEV) {
-	define('EMAIL_FROM_ADDRESS', 'noreply@chartbookerdemo.com');
-} else {
-	define('EMAIL_FROM_ADDRESS', 'noreply@chartbooking.com');
-}
+define('EMAIL_FROM_ADDRESS', 'support@chartbooking.com');
+define('EMAIL_FROM_DOMAIN', '@chartbooking.com');
 
 // MoSMS settings
 define('MOSMS_USERNAME', 'chartbooker');
@@ -44,4 +40,15 @@ define('USER_PUB', 1);
 define('MAILJET_APIKEY', '3f3b8980301c44dba983c3b5254c6cb5');
 define('MAILJET_SECRETKEY', '312d16952416be2022c02d1120cdf019');
 define('MAILJET_SMS_FROM', ''); // Du har säkert ett nummer som detta skickas ifrån
+
+if (!DEV) {
+    define('IMAGEMAGICK_CONVERTPATH', '/usr/local/bin/convert');
+    define('IMAGEMAGICK_MOGRIFYPATH', '/usr/local/bin/mogrify');
+    define('IMAGEMAGICK_COMPOSITEPATH', '/usr/local/bin/composite');
+} else {
+    define('IMAGEMAGICK_CONVERTPATH', '/usr/local/convert');
+    define('IMAGEMAGICK_MOGRIFYPATH', '/usr/local/mogrify');
+    define('IMAGEMAGICK_COMPOSITEPATH', '/usr/local/composite');
+}
+
 ?>

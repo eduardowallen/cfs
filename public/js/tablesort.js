@@ -13,11 +13,10 @@ $(document).ready(function() {
 
 	        return (keyA > keyB) ? 1 : 0;
 			
-	        rows.each(function(index, row) {
-
+	        /* Why is this implemented after the return?
+            rows.each(function(index, row) {
 	        	table.append(row);
-	        	
-	        });
+	        });*/
 			
 		});
 	});

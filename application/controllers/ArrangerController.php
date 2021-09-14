@@ -199,14 +199,14 @@ class ArrangerController extends Controller {
       		return;
 
 	    if ($id != 'new') {
-	      $this->Arranger->load($id, 'id');
+	      $this->Arranger->load2($id, 'id');
 	    }
 
 	    $this->setNoTranslate('locked0sel', '');
 
 	    $this->setNoTranslate('edit_id', $id);
 	    $this->setNoTranslate('user', $this->Arranger);
-	    
+	    /*
 	    $sql = "SELECT fair.id, fair.name, fair.max_positions, fair.approved, fair.url, fair.page_views, fair.creation_time, fair.event_start, fair.event_stop,
 				SUM(IF(fmp.status=0, 1, 0)) AS free_spaces, SUM(IF(fmp.status>0, 1, 0)) AS occupied_spaces
 				FROM fair
@@ -236,7 +236,7 @@ class ArrangerController extends Controller {
 	    $this->setNoTranslate('total_booked', $sum_booked);
 	    $this->setNoTranslate('total_free', $sum_free);
 	    $this->setNoTranslate('num_events', $num_events);
-
+		*/
 	    if (isset($_POST['save'])) {
 	      
 	      // Company Section

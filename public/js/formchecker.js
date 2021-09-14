@@ -3,7 +3,7 @@ var aliasTimer;
 function isValidEmailAddress(emailAddress) {
 	var pattern = new RegExp(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i);
 	return pattern.test(emailAddress);
-};
+}
 $(document).ready(function()  {
 	prepFormChecker();
 });
@@ -202,7 +202,7 @@ $("#position_price_input").poshytip({
 		
 		var thisForm = $(this);
 		thisForm.data('valid', true);
-		var errors = new Array();
+		var errors = [];
 		var error_list = '';
 		
 		$("label", thisForm).each(function() {
@@ -218,7 +218,7 @@ $("#position_price_input").poshytip({
 
 				if (label.substring(label.length-1) == '*') {
 					
-					var input = $("#" + $(this).attr("for"));
+					input = $("#" + $(this).attr("for"));
 					if (input.attr('name') == 'password_repeat') {
 						if ($('#password_repeat').val() != $('#password').val()) {
 							//Mark empty
@@ -360,8 +360,6 @@ $("#position_price_input").poshytip({
 		
 		if (errors.length > 0) {
 			thisForm.data('valid', false);
-			console.log(error_list);
-			console.log(errors.length);
 			$.alert({
 			    title: lang.form_err.replace('#', errors.length),
 			    content: error_list,

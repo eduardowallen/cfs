@@ -69,7 +69,7 @@
 <form action="<?php echo $action; ?>" <?php echo isset($popup)?' class="form popup"':'class="form"'; ?> method="post"<?php echo isset($popup)?' id="popupform_register"':'id="form_register"'; ?>>
 <?php if(isset($popup)) : ?>
 
-  <ul id="progressbar">
+  <ul id="progressbar" style="display:none">
     <li class="active"></li>
     <li></li>
     <li></li>

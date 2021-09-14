@@ -34,6 +34,7 @@ class ExhibitorController extends Controller {
 		}
 
 	}
+	/*
 	public function exfind() {
 		
 		setAuthLevel(2);
@@ -77,7 +78,7 @@ class ExhibitorController extends Controller {
 		$this->set('th_phone', 'Phone 1');
 		$this->setNoTranslate('users', $unique);		
 	}
-	
+	*/
 	public function all() {
 		error_reporting( E_ALL );
 		ini_set('display_errors', 'on');

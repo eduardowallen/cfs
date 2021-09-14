@@ -526,7 +526,7 @@ class AdministratorController extends Controller {
 							$articles = '';
 							if (count($row_articles) > 0) {
 								foreach ($row_articles as $res) {
-									$articles .= 'ID: '.$res['custom_id'].': '.$this->translate->{'Name'}.': '.$res['text'].': '.$this->translate->{'Price'}.': '.$res['price'].' '.$this->translate->{'Amount'}.': '. $res['amount']."\n";
+									$articles .= 'ID: '.$res['custom_id'].' '.$this->translate->{'Name'}.': '.$res['text'].': '.$this->translate->{'Price'}.': '.$res['price'].' '.$this->translate->{'Amount'}.': '. $res['amount']."\n";
 								}
 								error_log($articles);
 							}

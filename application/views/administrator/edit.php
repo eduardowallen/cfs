@@ -18,7 +18,7 @@
 	function filterFairs() {
 		
 		var str = $("#search_input").val();
-		var hits = new Array;
+		var hits = [];
 		var hit_count = 0;
 		
 		$("#permission_box .fair strong").each(function() {

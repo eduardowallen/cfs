@@ -18,9 +18,16 @@ application/lang/*
 public/images/tmp/*
 !public/images/tmp/empty
 
+# Ignore vs files
+.vs
+
 # Ignore all host-specific configuration files, but not the distributied versions of them
 config/*
 !config/*.dist
+!config/*.dev
 
+# Ignore all relevant htaccess files
+.htaccess
+public/.htaccess
 # Ignore all local log files
 *.log
