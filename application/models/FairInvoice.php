@@ -18,7 +18,6 @@ class FairInvoice extends Model {
 		
 		return ($this->wasLoaded()) ? $this->exhibitor_id : $this->db->lastInsertId();
 	}
-
 }
 
 ?>
