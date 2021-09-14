@@ -23,5 +23,8 @@ config/*
 !config/*.dist
 !config/*.dev
 
+# Ignore all relevant htaccess files
+.htaccess
+public/.htaccess
 # Ignore all local log files
 *.log
