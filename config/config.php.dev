@@ -45,4 +45,15 @@ define('USER_PUB', 1);
 define('MAILJET_APIKEY', '3f3b8980301c44dba983c3b5254c6cb5');
 define('MAILJET_SECRETKEY', '312d16952416be2022c02d1120cdf019');
 define('MAILJET_SMS_FROM', ''); // Du har säkert ett nummer som detta skickas ifrån
+
+if (!DEV) {
+    define('IMAGEMAGICK_CONVERTPATH', '/usr/local/bin/convert');
+    define('IMAGEMAGICK_MOGRIFYPATH', '/usr/local/bin/mogrify');
+    define('IMAGEMAGICK_COMPOSITEPATH', '/usr/local/bin/composite');
+} else {
+    define('IMAGEMAGICK_CONVERTPATH', '/usr/local/convert');
+    define('IMAGEMAGICK_MOGRIFYPATH', '/usr/local/mogrify');
+    define('IMAGEMAGICK_COMPOSITEPATH', '/usr/local/composite');
+}
+
 ?>

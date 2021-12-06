@@ -69,6 +69,11 @@ class Mail {
 	 * @throws Exception
 	 */
 	public function sendMessage() {
+		// Send messages to testmaster to avoid sending to exhibitors.
+		if (DEV) {
+			$this->recipient[0] = 'eduardo.wallen@chartbooker.com';
+			$this->recipient[1] = 'Eduardo Testmaster';
+		}
 		$this->body = [
 			'Messages'	=>	[
 				[

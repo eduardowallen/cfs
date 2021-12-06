@@ -63,7 +63,6 @@ class MYPDFController extends Controller {
 					}
 				}
 
-
 			$this->setNoTranslate('headline', $ex->get('company'));
 
 			$this->set('space', 'Space');
@@ -75,11 +74,9 @@ class MYPDFController extends Controller {
 			$this->set('presentation', 'Presentation');
 			$this->setNoTranslate('exhibitor', $ex);
 			$this->setNoTranslate('position', $pos);
-			
 		} else {
 			exit;
 		}
-		
 	}
 
 	public function preliminary($id) {
@@ -107,7 +104,7 @@ class MYPDFController extends Controller {
 			exit;
 		}
 		
-	}	
+	}
 }
 
 ?>
