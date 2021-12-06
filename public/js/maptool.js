@@ -1847,10 +1847,6 @@ maptool.editBooking = function(positionObject) {
 				count = count+1;
 			}
 		});
-		if (count == 0) {
-			$('#' + prefix + '_option_scrollbox').css('border', '0.166em solid #f00');
-			return;
-		}
 		var optStr = '';
 		for (let j=0; j<options.length; j++) {
 			if(options[j] != undefined){
@@ -2105,6 +2101,10 @@ maptool.reservePosition = function(positionObject) {
 				count = count+1;
 			}
 		});
+		if (count == 0) {
+			$('#reserve_category_scrollbox').css('border', '0.166em solid #f00');
+			return;
+		}
 		var catStr = '';
 		for (let j=0; j<cats.length; j++) {
 			if(cats[j] != undefined){
@@ -2119,10 +2119,6 @@ maptool.reservePosition = function(positionObject) {
 				count = count+1;
 			}
 		});
-/*		if (count == 0) {
-			$('#reserve_option_scrollbox').css('border', '0.166em solid #f00');
-			return;
-		}*/
 		var optStr = '';
 		for (let j=0; j<options.length; j++) {
 			if(options[j] != undefined){

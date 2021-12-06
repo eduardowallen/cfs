@@ -80,7 +80,7 @@
 
 			foreach ($options[$i] as $option) {
 				if ($option['COUNT(amount)'] > 0) {
-					echo ('<p style="margin:0;">'); echo $i; echo (' st * '); echo $option['price']; echo ('kr</p>');
+					//echo ('<p style="margin:0;">'); echo $i; echo (' st * '); echo $option['price']; echo ('kr</p>');
 		?>
 					<div class="RDdiv">
 					<label for="opt_part_one<?php echo $i; ?>"><?php echo $part_one_label; ?></label>
@@ -142,7 +142,7 @@
 
 			foreach ($articles[$i] as $article) {
 				if ($article['COUNT(amount)'] > 0) {
-					echo ('<p style="margin:0;">'); echo $article['COUNT(amount)']; echo (' st * '); echo $article['price']; echo ('kr</p>');
+					//echo ('<p style="margin:0;">'); echo $article['COUNT(amount)']; echo (' st * '); echo $article['price']; echo ('kr</p>');
 	?>
 					<div class="RDdiv">
 					<label for="art_part_one<?php echo $i; ?>"><?php echo $part_one_label; ?></label>

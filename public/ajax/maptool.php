@@ -5,6 +5,7 @@ $parts = array_slice($parts, 0, -1);
 define('ROOT', implode('/', $parts).'/');
 
 session_start();
+require_once ROOT.'lib/classes/Database.php';
 require_once ROOT.'config/config.php';
 require_once ROOT.'lib/functions.php';
 

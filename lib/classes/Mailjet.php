@@ -38,8 +38,8 @@ class Mailjet extends \Mailjet\Client {
 			//error_log(var_dump($response->getData()));
 			return $this->parseResponse($response);
 		} else {
-			print_r('Error här');
-			var_dump($response->getData());
+			//print_r('Error här');
+			//var_dump($response->getData());
 			throw new Exception('Error: ' . print_r($response->getStatus()));
 		}
 	}

@@ -1359,7 +1359,7 @@ class FairController extends Controller {
 			$this->set('part_six_label', 'Code part 6');
 			$this->set('part_seven_label', 'Code part 7');
 			$this->set('part_eight_label', 'Code part 8');
-			$this->set('amount_label', 'Amount');
+			$this->set('amount_label', 'Total amount');
 			$this->set('accountingtext_label', 'Accounting text');
 			$this->set('accountingdate_label', 'Accounting date');
 			$this->set('accrualkey_label', 'Accrual Key');
