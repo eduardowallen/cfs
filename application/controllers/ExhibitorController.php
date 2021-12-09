@@ -305,8 +305,6 @@ class ExhibitorController extends Controller {
 					CREATE VIEW export_forfair AS
 					SELECT fur.user, fur.connected_time, COUNT( fur.user ) fair_count
 					FROM fair_user_relation fur
-					WHERE fur.fair
-					IN (" . $fairs . ")
 					GROUP BY fur.user"
 				);
 			$stmt->execute();
