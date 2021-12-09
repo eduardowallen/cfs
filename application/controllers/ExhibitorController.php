@@ -287,21 +287,95 @@ class ExhibitorController extends Controller {
 
 		if (isset($_POST['rows'], $_POST['field']) && is_array($_POST['rows']) && is_array($_POST['field'])) {
 
-			/* Samla relevant information till en array
-			beroende på vilken tabell som är vald */
-			$u = new User;
-			$u->load($_SESSION['user_id'], 'id');
+			// Check if fair is grouped with other fairs
 
+			$fairGroupRel = new FairGroupRel();
+			$fairGroupRel->load($_SESSION['user_fair'], 'fair');
+			$fairGroup = new FairGroup();
+			$fairGroup->load($fairGroupRel->get('group'), 'id');
+
+			if ($fairGroup->wasLoaded()) {
+				$fairs = $fairGroup->get('fairs_rel_ids');
+				$fairs = implode(', ', $fairs);
+			}
+			else {
+				$fairs = $_SESSION['user_fair'];
+			}
+			$stmt = $this->db->prepare("
+					CREATE VIEW export_forfair AS
+					SELECT fur.user, fur.connected_time, COUNT( fur.user ) fair_count
+					FROM fair_user_relation fur
+					WHERE fur.fair
+					IN (" . $fairs . ")
+					GROUP BY fur.user"
+				);
+			$stmt->execute();
+			// Samla relevant information till en array	beroende på vilken tabell som är vald
 			if ($tbl == 1) {
-				$stmt = $this->db->prepare("SELECT exhibitor.*, user.*, (SELECT COUNT(*) FROM fair_user_relation WHERE user = exhibitor.user) AS fair_count FROM user, exhibitor WHERE user.id = exhibitor.user AND user.level = 1 AND exhibitor.fair = ? AND exhibitor.user IN (" . implode(',', $_POST['rows']) . ") GROUP BY user.id ORDER BY fair, user.company");
-				$stmt->execute(array($_SESSION['user_fair']));
-				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$stmt = $this->db->prepare("SELECT 
+					exhibitor.status, 
+					user.orgnr,
+					user.company,
+					user.commodity,
+					user.address,
+					user.zipcode,
+					user.city,
+					user.country,
+					user.phone1,
+					user.phone2,
+					user.email,
+					user.website,
+					user.invoice_company,
+					user.invoice_address,
+					user.invoice_zipcode,
+					user.invoice_city,
+					user.invoice_country,
+					user.invoice_email,
+					user.name,
+					user.contact_phone,
+					user.contact_phone2,
+					user.contact_email,
+					user.last_login,
+					ef.fair_count
+					FROM user
+					LEFT JOIN export_forfair AS ef ON ef.user = user.id
+					LEFT JOIN exhibitor ON exhibitor.user = user.id
+					WHERE user.id = exhibitor.user AND user.level = 1 AND exhibitor.fair IN (" . $fairs . ") AND exhibitor.user IN (" . implode(',', $_POST['rows']) . ") GROUP BY user.id ORDER BY fair, user.company");
 
 			} else if ($tbl == 2) {
-				$stmt = $this->db->prepare("SELECT outr_fur.user, outr_fur.connected_time, user.*, (SELECT COUNT(*) FROM fair_user_relation WHERE user = outr_fur.user) AS fair_count FROM fair_user_relation AS outr_fur LEFT JOIN user ON outr_fur.user = user.id WHERE outr_fur.fair = ? AND user.level = 1 AND user.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY user.company");
-				$stmt->execute(array($_SESSION['user_fair']));
-				$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+				$stmt = $this->db->prepare("SELECT 
+					user.orgnr,
+					user.company,
+					user.commodity,
+					user.address,
+					user.zipcode,
+					user.city,
+					user.country,
+					user.phone1,
+					user.phone2,
+					user.email,
+					user.website,
+					user.invoice_company,
+					user.invoice_address,
+					user.invoice_zipcode,
+					user.invoice_city,
+					user.invoice_country,
+					user.invoice_email,
+					user.name,
+					user.contact_phone,
+					user.contact_phone2,
+					user.contact_email,
+					user.last_login,
+					ef.fair_count as fair_count,
+					ef.connected_time
+					FROM user
+					LEFT JOIN export_forfair AS ef ON ef.user = user.id
+					WHERE user.id IN (" . implode(',', $_POST['rows']) . ") ORDER BY user.company");
 			}
+			$stmt->execute();
+			$data_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+			$stmt = $this->db->prepare("DROP VIEW export_forfair");
+			$stmt->execute();
 
 			/* Har nu tabellinformationen i en array, 
 			sätt in informationen i ett exceldokument 
