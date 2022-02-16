@@ -45,7 +45,7 @@ class Administrator extends User {
 			$mail = new Mail();
 			$mail->setTemplate('new_account');
 			$mail->setFrom($from);
-			$mail->setRecipien($recipient);
+			$mail->setRecipient($recipient);
 			/* Setting mail variables */
 			$mail->setMailVar('exhibitor_company', $this->name);
 			$mail->setMailVar('username', $this->alias);
