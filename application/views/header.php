@@ -206,7 +206,8 @@ die('We are currently updating Chartbooker Fair System to its newest release. Th
 	lang.sms_num_recipients = '<?php echo ujs($translator->{"Number of recipients for this dispatch"}); ?>';
 	lang.sms_estimated_cost = '<?php echo ujs($translator->{"Estimated cost"}); ?>';
 	lang.sms_accept_before_send = '<?php echo ujs($translator->{"Are you sure that you want to send these text messages?"}); ?>';
-
+	
+	form_register = '<?php echo Form::LoadForJS("userdata", array('popup'=>true, "action"=>"user/register".(isset($fair_url)?'/'.$fair_url:''))); ?>';
 
   (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
   (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),

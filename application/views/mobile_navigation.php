@@ -59,7 +59,6 @@
 					<ul class="dl-submenu">
 						<li><a href="translate/language/eng"><img height="20" width="30" src="images/flag_english.png" alt="English"/> &nbsp; English</a></li>
 						<li><a href="translate/language/sv"><img height="20" width="30" src="images/flag_swedish.png" alt="Svenska"/> &nbsp; Svenska</a></li>
-						<li><a href="translate/language/de"><img height="20" width="30" src="images/flag_german.png" alt="Deutsch"/> &nbsp; Deutsch</a></li>
 						<li><a href="translate/language/es"><img height="20" width="30" src="images/flag_spanish.png" alt="Espanol"/> &nbsp; Español</a></li>
 					</ul>
 				</li>
@@ -112,7 +111,6 @@
 					<ul class="dl-submenu">
 						<li><a href="translate/language/eng"><img height="20" width="30" src="images/flag_english.png" alt="English"/> &nbsp; English</a></li>
 						<li><a href="translate/language/sv"><img height="20" width="30" src="images/flag_swedish.png" alt="Svenska"/> &nbsp; Svenska</a></li>
-						<li><a href="translate/language/de"><img height="20" width="30" src="images/flag_german.png" alt="Deutsch"/> &nbsp; Deutsch</a></li>
 						<li><a href="translate/language/es"><img height="20" width="30" src="images/flag_spanish.png" alt="Espanol"/> &nbsp; Español</a></li>
 					</ul>
 				</li>	
@@ -162,7 +160,6 @@
 					<ul class="dl-submenu">
 						<li><a href="translate/language/eng"><img height="20" width="30" src="images/flag_english.png" alt="English"/> &nbsp; English</a></li>
 						<li><a href="translate/language/sv"><img height="20" width="30" src="images/flag_swedish.png" alt="Svenska"/> &nbsp; Svenska</a></li>
-						<li><a href="translate/language/de"><img height="20" width="30" src="images/flag_german.png" alt="Deutsch"/> &nbsp; Deutsch</a></li>
 						<li><a href="translate/language/es"><img height="20" width="30" src="images/flag_spanish.png" alt="Espanol"/> &nbsp; Español</a></li>
 					</ul>
 				</li>				
@@ -203,7 +200,6 @@
 					<ul class="dl-submenu">
 						<li><a href="translate/language/eng"><img height="20" width="30" src="images/flag_english.png" alt="English"/> &nbsp; English</a></li>
 						<li><a href="translate/language/sv"><img height="20" width="30" src="images/flag_swedish.png" alt="Svenska"/> &nbsp; Svenska</a></li>
-						<li><a href="translate/language/de"><img height="20" width="30" src="images/flag_german.png" alt="Deutsch"/> &nbsp; Deutsch</a></li>
 						<li><a href="translate/language/es"><img height="20" width="30" src="images/flag_spanish.png" alt="Espanol"/> &nbsp; Español</a></li>
 					</ul>
 				</li>
@@ -219,21 +215,20 @@
 					<li><a class="registerlink" href="user/register/<?php echo $_SESSION['outside_fair_url'] ?>"><?php echo uh($translator->{'Register'}); ?></a></li>					
 					<li><a class="helpLink"> <?php echo uh($translator->{"Here's how"}); ?></a></li>
 					<li><a class="contactLink <?php echo $_SESSION['outside_fair_url']?>"><?php echo uh($translator->{'Contact us'}); ?></a></li>
-					<li><a href="#"><?php echo uh($translator->{'Change language'}); ?></a>
-						<ul class="dl-submenu">
-							<li><a href="translate/language/eng"><img height="20" width="30" src="images/flag_english.png" alt="English"/> &nbsp; English</a></li>
-							<li><a href="translate/language/sv"><img height="20" width="30" src="images/flag_swedish.png" alt="Svenska"/> &nbsp; Svenska</a></li>
-							<li><a href="translate/language/de"><img height="20" width="30" src="images/flag_german.png" alt="Deutsch"/> &nbsp; Deutsch</a></li>
-							<li><a href="translate/language/es"><img height="20" width="30" src="images/flag_spanish.png" alt="Espanol"/> &nbsp; Español</a></li>
-						</ul>
-					</li>
 					
 					<?php endif; ?>
 	
 					<?php else: ?>
-	
+					<li><a class="registerlink" href="user/register"><?php echo uh($translator->{'Register'}); ?></a></li>
+					<li><a href="fair/search"><?php echo uh($translator->{'Eventsearch'}); ?></a></li>
 					<?php endif; ?>
-	
+					<li><a href="#"><?php echo uh($translator->{'Change language'}); ?></a>
+						<ul class="dl-submenu">
+							<li><a href="translate/language/eng"><img height="20" width="30" src="images/flag_english.png" alt="English"/> &nbsp; English</a></li>
+							<li><a href="translate/language/sv"><img height="20" width="30" src="images/flag_swedish.png" alt="Svenska"/> &nbsp; Svenska</a></li>
+							<li><a href="translate/language/es"><img height="20" width="30" src="images/flag_spanish.png" alt="Espanol"/> &nbsp; Español</a></li>
+						</ul>
+					</li>
 				<?php endif; ?>
 			</ul>
 	</ul>

@@ -3,7 +3,7 @@
 	<h1><?php echo $headline; ?> <?php echo $fair->get('name'); ?></h1>
 
 	<p><a class="button add" href="fairMap/create/<?php echo $fair->get('id'); ?>"><?php echo $create_link; ?></a></p>
-
+	<div class="alert alert-warning" role="alert"><?php echo uh($translator->{'Beware when editing maps. When deleted, all spots connected to that map will be removed. If you want to change the layout of a map, use the edit (pencil) button.'});?></div>
 	<table class="std_table">
 		<thead>
 			<tr>
@@ -33,7 +33,7 @@
 	<?php	endif; ?>
 				</td>
 				<td class="center"><a href="fairMap/edit/<?php echo $map->get('id'); ?>/<?php echo $map->get('fair'); ?>"><img src="images/icons/pencil.png" class="icon_img" alt="" title="<?php echo $th_edit; ?>" /></a></td>
-				<td class="center"><a onclick="return confirm('Really delete?');" href="fairMap/delete/<?php echo $fair->get('id'); ?>/<?php echo $map->get('id'); ?>"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $th_delete; ?>" /></a></td>
+				<td class="center"><a onclick="return confirm('Vill du verkligen radera den här kartan? Detta kommer även radera alla platser på kartan.');" href="fairMap/delete/<?php echo $fair->get('id'); ?>/<?php echo $map->get('id'); ?>"><img src="images/icons/delete.png" class="icon_img" alt="" title="<?php echo $deleteMapConfirmQuestion; ?>" /></a></td>
 			</tr>
 	<?php endforeach; ?>
 		</tbody>

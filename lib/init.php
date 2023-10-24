@@ -126,7 +126,7 @@ function cb_autoload($className) {
 
 spl_autoload_register( 'cb_autoload' );
 
-$lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'eng';
+$lang = (isset($_COOKIE['language'])) ? $_COOKIE['language'] : 'sv';
 define('LANGUAGE', $lang);
 $translator = new Translator($lang);
 
